@@ -1,10 +1,10 @@
-# OwnTV TMDB caching proxy (Cloudflare Worker)
+# YAiPlayer TMDB caching proxy (Cloudflare Worker)
 
 A tiny Cloudflare Worker that proxies TMDB `/3/...` API calls, injects a server-side TMDB API
 key, and edge-caches the JSON responses so a large user base costs only a handful of real TMDB
-calls. This is the same proxy logic OwnTV's built-in default metadata server runs.
+calls. This is the same proxy logic YAiPlayer's built-in default metadata server runs.
 
-You can run your **own free copy in about 10 minutes** and point OwnTV at it — no programming
+You can run your **own free copy in about 10 minutes** and point YAiPlayer at it — no programming
 needed. A personal copy serves only your own devices, so it needs none of the abuse-protection
 the public deployment carries (see [`../README.md`](../README.md)).
 
@@ -21,7 +21,7 @@ the public deployment carries (see [`../README.md`](../README.md)).
 
 1. Log in to the [Cloudflare dashboard](https://dash.cloudflare.com).
 2. In the left menu choose **Workers & Pages**, then click **Create** → **Create Worker**.
-3. Give it any name you like (e.g. `my-owntv-meta`) and click **Deploy** — this creates a
+3. Give it any name you like (e.g. `my-yai-meta`) and click **Deploy** — this creates a
    "Hello World" worker; you'll replace its code next.
 4. Click **Edit code**. Delete everything in the editor, then open
    [`index.js`](index.js) from this folder, copy **all** of it, paste it into the editor,
@@ -30,20 +30,20 @@ the public deployment carries (see [`../README.md`](../README.md)).
    **Variables and Secrets** → **Add** → type = **Secret**, name = `TMDB_KEY` (exactly like
    that), value = your TMDB API key → **Deploy** / **Save**.
 6. Find your worker's address on its overview page — it looks like
-   `https://my-owntv-meta.<your-subdomain>.workers.dev`.
+   `https://my-yai-meta.<your-subdomain>.workers.dev`.
 7. **Test it** in any browser — open:
 
-   `https://my-owntv-meta.<your-subdomain>.workers.dev/3/search/movie?query=Oppenheimer`
+   `https://my-yai-meta.<your-subdomain>.workers.dev/3/search/movie?query=Oppenheimer`
 
    Then confirm the two Trending endpoints used by Home:
 
-   `https://my-owntv-meta.<your-subdomain>.workers.dev/3/trending/movie/day`
+   `https://my-yai-meta.<your-subdomain>.workers.dev/3/trending/movie/day`
 
-   `https://my-owntv-meta.<your-subdomain>.workers.dev/3/trending/tv/day`
+   `https://my-yai-meta.<your-subdomain>.workers.dev/3/trending/tv/day`
 
    If you see a wall of movie data (JSON), it works. If you see an error, re-check step 5
    (the secret must be named `TMDB_KEY`).
-8. In OwnTV on your TV: **Settings → Content & metadata → Metadata (TMDB) → Get advanced TMDB info** →
+8. In YAiPlayer on your TV: **Settings → Content & metadata → Metadata (TMDB) → Get advanced TMDB info** →
    enter your worker address as **Server** (without any `/3/...` part) → **Test lookup** should succeed.
 
 That's it. Your TMDB key never leaves your Cloudflare account, and repeated lookups are served
@@ -79,7 +79,7 @@ The deployed URL is printed by `wrangler deploy`; test and configure it as in st
 - Only GET requests to `/3/...` are proxied; everything else is rejected.
 - Upstream errors are never cached. JSON errors and response headers include a request id plus cache state
   (`HIT`, `MISS`, or `STALE`) to make self-hosted troubleshooting easier without exposing the TMDB key.
-- Images are **not** proxied — OwnTV loads poster/backdrop art directly from `image.tmdb.org`,
+- Images are **not** proxied — YAiPlayer loads poster/backdrop art directly from `image.tmdb.org`,
   which needs no key. The Worker only ever sees small JSON lookups.
 
 ## Attribution

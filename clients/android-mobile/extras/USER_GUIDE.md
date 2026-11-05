@@ -1,4 +1,4 @@
-# OwnTV Mobile — User Guide
+# YAiPlayer Mobile — User Guide
 
 Everything the phone and tablet app can do, **where to find it**, and the gestures that make it fast.
 
@@ -17,15 +17,15 @@ stop where something looks useful.
 A fresh install walks you through the same steps as the television:
 
 ```
-Welcome  →  Display  →  Disclaimer  →  Set up OwnTV  →  Profile  →  Add a playlist  →  Import  →  All set
+Welcome  →  Display  →  Disclaimer  →  Set up YAiPlayer  →  Profile  →  Add a playlist  →  Import  →  All set
 ```
 
 1. **Welcome** — the language picker is on this screen: one of 26, or **System default**. Tap
    **Get started**.
 2. **Display** — interface zoom and font size, with a sample that resizes as you adjust, the
    **App icon**, and whether Live TV shows a preview.
-3. **Disclaimer** — OwnTV is a player; you bring the sources.
-4. **Set up OwnTV** — **New profile**, **Restore a backup**, or **From another device** (copy
+3. **Disclaimer** — YAiPlayer is a player; you bring the sources.
+4. **Set up YAiPlayer** — **New profile**, **Restore a backup**, or **From another device** (copy
    everything off a television you already have — see below).
 5. **Profile** — name, avatar, and optionally a **Kids** profile or a PIN.
 6. **Add a playlist** — **Remote** (type it on a computer or another device's browser), **Type it
@@ -131,8 +131,8 @@ moves per centimetre of finger, without changing how far you must travel to star
 - **Settings → App → Sports** — auto rebuild, **Calendar refresh** (how often saved months of this
   season and later are fetched again: every 1–30 days, 7 at first; past months never are), live
   refresh, **Refresh sports data now** (also marks the saved months out of date), filters, My teams, **Goal alerts** (also
-  when OwnTV is closed: goals, kick-off and full time, half time, red cards; for My teams or every
-  followed league) and match reminders. A reminder with a channel found shows OwnTV's own prompt while
+  when YAiPlayer is closed: goals, kick-off and full time, half time, red cards; for My teams or every
+  followed league) and match reminders. A reminder with a channel found shows YAiPlayer's own prompt while
   the app is open.
 
 ---
@@ -292,7 +292,7 @@ air. **Go live** returns.
 
 ### ⏸️ Pause and rewind channels without catch-up
 **Where:** **Settings → Live TV → Pause and rewind live TV**
-Off by default. While you watch a channel full screen, OwnTV saves it on this phone and plays it
+Off by default. While you watch a channel full screen, YAiPlayer saves it on this phone and plays it
 from that copy, so it still looks live — and you can **pause**, rewind and go forward on channels
 whose provider keeps no archive. Pause, the rewind button, forward (once you are behind), the bar and **Go live** work as on a catch-up channel. A dark stretch on the bar is a moment the connection
 dropped; playback jumps over it. If your internet drops, saving waits and carries on when it is back; the channel picks up by itself.
@@ -301,11 +301,11 @@ dropped; playback jumps over it. If your internet drops, saving waits and carrie
   stays free; the oldest part goes first.
 - **Picture-in-picture and sound-only playback are not leaving: they keep saving.**
 - **The delete rules:**
-  - Leave the channel and its copy is kept for **5 minutes**. Come back within them and OwnTV asks
+  - Leave the channel and its copy is kept for **5 minutes**. Come back within them and YAiPlayer asks
     **Continue where you left off?** — **Resume** plays on from where you left, **Go live** jumps to now.
     **Resume a saved channel**, just below, turns the question into **Always resume** or **Never resume**.
   - Watch another channel for **2 minutes** and the copy you left is deleted at once — you have moved on.
-  - After 5 minutes it is deleted anyway, and every copy is deleted when OwnTV starts. The 5 minutes
+  - After 5 minutes it is deleted anyway, and every copy is deleted when YAiPlayer starts. The 5 minutes
     are real time, the screen off included: come back later and the channel opens live.
 - Catch-up channels still rewind into the provider's archive. Protected (DRM) and encrypted channels
   play as before, without a copy.
@@ -321,7 +321,7 @@ status pill shows one running even over the player.
 > A recording costs one of your provider's connections and says so before it starts.
 
 > **Copy-protected channels cannot be recorded.** Where a provider protects a channel with DRM,
-> it can be watched but not saved — the protection is theirs, not OwnTV's. Asking to record one
+> it can be watched but not saved — the protection is theirs, not YAiPlayer's. Asking to record one
 > stops straight away and tells you why, rather than leaving a file that will not play.
 
 ---
@@ -416,7 +416,7 @@ download and watch** or **Keep downloading**, with **Don't ask again**; change t
 **Where:** Settings → App → **Download folder**
 Pick any folder with your phone's own folder picker, an SD card included. **Export** copies a
 finished download or recording anywhere you like. If that folder goes missing — a card removed, or
-permission withdrawn — downloads go to OwnTV's own folder until it is back, and the Downloads screen
+permission withdrawn — downloads go to YAiPlayer's own folder until it is back, and the Downloads screen
 says so.
 
 ### 📶 Wi-Fi only
@@ -481,7 +481,7 @@ Appears only when there is a receiver on your network. The television plays the 
 the phone's lock screen and notification then drive *it*.
 
 > The receiver decodes the stream, and a Chromecast cannot play raw MPEG-TS — a large share of an
-> IPTV catalogue. OwnTV says so plainly rather than failing silently.
+> IPTV catalogue. YAiPlayer says so plainly rather than failing silently.
 
 ---
 
@@ -527,9 +527,9 @@ Light, dark or system, with an accent colour. Three colour settings — accent, 
 subtitle text — each open a **real colour picker**: hue bar, saturation square, live preview and a
 hex box.
 
-**App icon** (Settings → App): eight colours for the OwnTV icon and logo — Petrol,
+**App icon** (Settings → App): eight colours for the YAiPlayer icon and logo — Petrol,
 Sunflower, Cobalt, Tomato, Station Board, **Eggshell** (default), Olive and Olive on Cream. **Restart
-now** switches at once: OwnTV closes and opens again by itself, on Home, with the new colour.
+now** switches at once: YAiPlayer closes and opens again by itself, on Home, with the new colour.
 **Later** switches when you next leave the app. Some launchers take a moment
 to show the new icon, and a few move it from the home screen to the app list.
 
@@ -612,17 +612,17 @@ encrypted with your own password**. Choose which profiles travel. Restores a tel
 |---|---|
 | A channel stutters or won't open | The **⇄** button in the player — compatibility mode |
 | Channel won't play at all | It already tried every engine and format. See More → **Error log** |
-| "Too many connections" | Wait — OwnTV counts down and retries by itself |
+| "Too many connections" | Wait — YAiPlayer counts down and retries by itself |
 | The screen keeps sleeping | Only if nothing is playing; check the channel actually started |
 | Stalker portal refuses the login | Re-check the MAC and your phone's **date & time** |
 | Guide is blank | Settings → Sources & guide → **EPG sources** — add a feed, sync it, then **Auto-match** |
 | A series says "Could not load the episodes" | The provider refused the episode list; the code in brackets (e.g. HTTP 407) says why. Stop any other stream on the account and open the series again |
 | Downloads won't start | Settings → App — **Download over Wi-Fi only** may be on |
 | Nothing casts | The receiver has to decode it; raw MPEG-TS channels cannot be cast |
-| Update won't install | Android asks you to allow installs from OwnTV the first time |
+| Update won't install | Android asks you to allow installs from YAiPlayer the first time |
 
-**Still stuck?** More → **Error log** exports a report. Bring it to
-[t.me/owntvplayer](https://t.me/owntvplayer).
+**Still stuck?** More → **Error log** exports a report.
+
 
 ---
 

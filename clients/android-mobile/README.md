@@ -1,7 +1,7 @@
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: light)" srcset="extras/brand/app-logos/logo_eggshell_light.png">
-    <img src="extras/brand/app-logos/logo_eggshell.png" alt="OwnTV Mobile" width="360">
+    <img src="extras/brand/app-logos/logo_eggshell.png" alt="YAiPlayer Mobile" width="360">
   </picture>
 </p>
 
@@ -14,26 +14,17 @@
   <img alt="Platform" src="https://img.shields.io/badge/platform-Android%20phone%20%26%20tablet-3DDC84?logo=android&logoColor=white">
   <img alt="Kotlin" src="https://img.shields.io/badge/Kotlin-2.4.20-7F52FF?logo=kotlin&logoColor=white">
   <img alt="Compose" src="https://img.shields.io/badge/Jetpack%20Compose-Material%203-4285F4?logo=jetpackcompose&logoColor=white">
-  <img alt="Player" src="https://img.shields.io/badge/engines-libmpv%20%2B%20ExoPlayer-FB8C00">
+  <img alt="Player" src="https://img.shields.io/badge/engines-libmpv%20%20ExoPlayer-FB8C00">
   <img alt="License" src="https://img.shields.io/badge/license-GPLv3-blue">
   <img alt="Built with the help of AI" src="https://img.shields.io/badge/built%20with-the%20help%20of%20AI-8A2BE2">
-  <a href="https://hosted.weblate.org/engage/owntv/">
-    <img alt="Translation status" src="https://hosted.weblate.org/widget/owntv/svg-badge.svg">
-  </a>
-</p>
-
-<p align="center">
-  <a href="https://github.com/ahXN00/OwnTV_Mobile/actions/workflows/android.yml">
-    <img alt="Android CI" src="https://github.com/ahXN00/OwnTV_Mobile/actions/workflows/android.yml/badge.svg">
-  </a>
 </p>
 
 ---
 
-OwnTV Mobile is the phone and tablet member of the OwnTV family: a native Android IPTV **player**
+YAiPlayer Mobile is the phone and tablet member of the YAiPlayer family: a native Android IPTV **player**
 built with Kotlin and Jetpack Compose, sharing its **entire engine** with
-[OwnTV for Android TV](https://github.com/ahXN00/OwnTV) through the
-[OwnTV core library](https://github.com/ahXN00/OwnTV_Core). Two interfaces, one database, one sync,
+YAiPlayer for Android TV through the
+YAiPlayer core library (`owntv-core`). Two interfaces, one database, one sync,
 one playback stack — a **dual playback engine** of **libmpv (FFmpeg)** for films and series and
 **ExoPlayer (Media3)** for near-instant Live TV.
 
@@ -41,7 +32,7 @@ It is a *player only* — you bring your own Xtream login, M3U playlist (by **UR
 `.m3u`/`.m3u8` file** on the device), or **Stalker/Ministra portal (Portal URL + MAC, with optional
 Serial Number, Device IDs and Signature)**.
 
-> ⚠️ OwnTV does **not** provide any channels, playlists, subscriptions, streams, or media content.
+> ⚠️ YAiPlayer does **not** provide any channels, playlists, subscriptions, streams, or media content.
 > You are responsible for adding your own legally accessible sources.
 
 This is an **open-source** project — the code is original (not derived from any other app) and was
@@ -50,23 +41,11 @@ This is an **open-source** project — the code is original (not derived from an
 > ### 📖 New here? **[User Guide →](extras/USER_GUIDE.md)**
 > Every feature, where to find it, and the gestures — on one page.
 
-> ### 📱 Already using OwnTV on your television?
+> ### 📱 Already using YAiPlayer on your television?
 > **Local sync** carries your playlists, profiles, favourites and watch history across your own
 > Wi-Fi, with no account and no cloud — offered on the very first setup screen, so a new phone is
 > furnished from the television without going near the menus. A **backup** made on the television
 > restores here too, encrypted ones included.
-
----
-
-## 💬 Community
-
-Questions, ideas, bug reports — or just want to follow along? **Join the OwnTV Telegram group:**
-
-### 👉 [t.me/owntvplayer](https://t.me/owntvplayer)
-
-Scan to join from your phone:
-
-<a href="https://t.me/owntvplayer"><img src="extras/qr-codes/telegram_qr_code.jpg" alt="Scan to join the OwnTV Telegram group" width="170"></a>
 
 ---
 
@@ -89,7 +68,7 @@ Scan to join from your phone:
 
 ### 🧭 Browse
 
-- **The Stage design** — the same look as the OwnTV television app: frosted glass, a full-picture
+- **The Stage design** — the same look as the YAiPlayer television app: frosted glass, a full-picture
   hero, Dark and Light, and a background of your own picture if you like.
 - **Home** with your own rows in your own order, a hero card for what you were watching, and
   continue-watching rows for films and shows.
@@ -111,7 +90,7 @@ Scan to join from your phone:
   background.
 - **EPG** from the playlist or your own XMLTV feeds, with **auto-matching**, a review list, per-feed
   counts, catch-up timezone handling and guide statistics.
-- OwnTV **measures how many streams your provider actually allows** and tells you before it has to
+- YAiPlayer **measures how many streams your provider actually allows** and tells you before it has to
   refuse one.
 
 ### ⏺️ Recording & downloads
@@ -160,14 +139,14 @@ Scan to join from your phone:
 | Language | Kotlin 2.4.20 |
 | UI | Jetpack Compose, Material 3 |
 | Build | AGP 9.4.0, `minSdk` 26, `targetSdk` 36 |
-| Engine | [`tv.own.owntv:core`](https://github.com/ahXN00/OwnTV_Core) + `:player-core` — Room, sync, EPG, backup, libmpv and Media3 |
+| Engine | `owntv-core` (`:core` + `:player-core`) — Room, sync, EPG, backup, libmpv and Media3 |
 | DI | Koin |
 | Networking / images | OkHttp · Coil |
 
 **This repository contains the phone and tablet interface and nothing else.** Every entity,
 migration, parser, sync, EPG, backup and playback decision lives in the core library and is shared,
 byte for byte, with the television app. If you are looking for how a playlist is parsed or how the
-database is versioned, it is [over there](https://github.com/ahXN00/OwnTV_Core).
+database is versioned, it is in `clients/owntv-core`.
 
 ### Project layout
 
@@ -195,22 +174,21 @@ extras/                  logos, credits artwork, and the TV parity checklist
 
 ## 📥 Installing
 
-Distribution is **sideloaded** while the app is pre-release: download the APK from the
-[Releases page](https://github.com/ahXN00/OwnTV_Mobile/releases) and install it. Each release
-carries an arm APK and an `x86_64` one for emulators.
+Distribution is **sideloaded** while the app is pre-release: download `YAiPlayer-Mobile.apk` from the
+[Releases page](https://github.com/eai-apps/YAiPlayer/releases/latest) and install it.
 
 The app checks for a new release itself — on startup if you let it, or from **Settings → App →
 Check for updates** — and can download and install it for you. That needs
 `REQUEST_INSTALL_PACKAGES`, which the app declares for exactly this and nothing else; Android will
-still ask you to allow installs from OwnTV the first time.
+still ask you to allow installs from YAiPlayer the first time.
 
 ---
 
 ## 🛠️ Building & running
 
 ```bash
-git clone https://github.com/ahXN00/OwnTV_Mobile.git
-cd OwnTV_Mobile
+git clone https://github.com/eai-apps/YAiPlayer.git
+cd YAiPlayer/clients/android-mobile
 ./gradlew :app:assembleStandardDebug
 ```
 
@@ -218,16 +196,6 @@ cd OwnTV_Mobile
 
 ```properties
 sdk.dir=C:/Users/<you>/AppData/Local/Android/Sdk
-```
-
-**Resolving the core library.** By default the build takes the pinned `owntvCore` version from
-OwnTV's public Maven repository (https://ahxn00.github.io/OwnTV_Core/maven) — no account or token
-needed. That is what CI does, fork pull requests included. To build against a local checkout of core
-instead — a composite build, so an edit there reaches the app with no publish step — add this to the
-same file, **never to a file in this repository**:
-
-```properties
-owntv.corePath=/path/to/OwnTV_Core
 ```
 
 Signing and keystore values belong in `~/.gradle/gradle.properties` or CI secrets, never in a
@@ -251,22 +219,10 @@ project's player-only, bring-your-own-source positioning, and match the existing
 
 **Where does a change go?** If it is about the database, playlist sync, EPG, backup, profiles,
 downloads, settings storage, the playback engine **or any user-visible text**, it belongs in
-[OwnTV_Core](https://github.com/ahXN00/OwnTV_Core), not here. This repository holds the phone and
+the core library (`clients/owntv-core`), not here. This repository holds the phone and
 tablet interface only.
 
-<!-- i18n-contribution:start -->
-## Help translate OwnTV
-
-If your language is already available, contribute interface translations across OwnTV's six Android resource components on [Hosted Weblate](https://hosted.weblate.org/projects/owntv/). If it is not listed, [open a language request ticket](https://github.com/ahXN00/OwnTV/issues/new?template=feature_request.yml&title=%5BLanguage%5D%20Add%20) first. A maintainer will review the request, register the locale, and prepare its base translation files on Hosted Weblate. Once the language appears on Hosted Weblate, you can start translating it there. The strings themselves live in [OwnTV's core library repository](https://github.com/ahXN00/OwnTV_Core), together with the language contributor guide covering identifiers, validation, and promotion policy.
-<!-- i18n-contribution:end -->
-
 ## 🙏 Credits
-
-<img src="extras/partner-logos/Weblate_logo.svg" alt="Weblate" width="200">
-
-OwnTV speaks 26 languages because people translate it on
-[**Weblate**](https://weblate.org/), which hosts the project free of charge for libre software.
-Thank you to Weblate and to every translator who has given the app their language.
 
 <img src="extras/partner-logos/tmdb_logo.svg" alt="TMDB" width="200">
 
@@ -303,23 +259,24 @@ Thank you to all their maintainers. See each project for its own license.
 
 ### 🎨 Brand
 
-The lowercase **owntv** wordmark was designed for OwnTV by [@m3th0d93](https://github.com/m3th0d93)
-in [issue #227](https://github.com/ahXN00/OwnTV/issues/227).
+The lowercase **owntv** wordmark was designed for the original project by @m3th0d93.
 
 ## ⚖️ Legal
 
-OwnTV is a media **player** only. It ships with no channels, playlists, subscriptions or content, and
+YAiPlayer is a media **player** only. It ships with no channels, playlists, subscriptions or content, and
 does not endorse or facilitate access to unauthorized streams. Users are solely responsible for the
 sources they add and for complying with the laws and rights that apply to them.
 
 ## 📄 License
 
-Released under the **GNU General Public License v3.0 (GPLv3)**, the same as the rest of OwnTV.
+Released under the **GNU General Public License v3.0 (GPLv3)**.
 
-In short: you're free to use, study, modify and redistribute OwnTV, including commercially — but any
+YAiPlayer основан на открытом проекте OwnTV (https://github.com/ahXN00/OwnTV), лицензия GPL-3.0.
+
+In short: you're free to use, study, modify and redistribute YAiPlayer, including commercially — but any
 redistributed version (including forks and commercial products built on it) must also be licensed
 under GPLv3 and its source made available.
 
 ---
 
-<sub>OwnTV is an open-source, player-only project, built with the help of AI.</sub>
+<sub>YAiPlayer is an open-source, player-only project, built with the help of AI.</sub>

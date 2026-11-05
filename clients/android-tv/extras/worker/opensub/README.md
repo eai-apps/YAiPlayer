@@ -1,12 +1,12 @@
-# OwnTV OpenSubtitles proxy (Cloudflare Worker)
+# YAiPlayer OpenSubtitles proxy (Cloudflare Worker)
 
 A tiny Cloudflare Worker that proxies OpenSubtitles `/api/v1/...` REST calls, injects a
 server-side application consumer key (`Api-Key`), and edge-caches subtitle **search** responses
-for a few hours. Users still sign in with their **own** OpenSubtitles account inside OwnTV; only
+for a few hours. Users still sign in with their **own** OpenSubtitles account inside YAiPlayer; only
 the app's consumer key lives here, so it never ships in the APK. This is the same proxy logic
-OwnTV's built-in default OpenSubtitles server runs.
+YAiPlayer's built-in default OpenSubtitles server runs.
 
-You can run your **own free copy** and point OwnTV at it — no programming needed. A personal
+You can run your **own free copy** and point YAiPlayer at it — no programming needed. A personal
 copy serves only your own devices, so it needs none of the abuse-protection the public
 deployment carries (see [`../README.md`](../README.md)).
 
@@ -22,7 +22,7 @@ deployment carries (see [`../README.md`](../README.md)).
 
 1. Log in to the [Cloudflare dashboard](https://dash.cloudflare.com).
 2. In the left menu choose **Workers & Pages**, then click **Create** → **Create Worker**.
-3. Give it any name you like (e.g. `my-owntv-opensub`) and click **Deploy**.
+3. Give it any name you like (e.g. `my-yai-opensub`) and click **Deploy**.
 4. Click **Edit code**. Delete everything in the editor, then open
    [`index.js`](index.js) from this folder, copy **all** of it, paste it into the editor,
    and click **Deploy** (top right).
@@ -30,10 +30,10 @@ deployment carries (see [`../README.md`](../README.md)).
    **Variables and Secrets** → **Add** → type = **Secret**, name = `OPENSUB_API_KEY`
    (exactly like that), value = your OpenSubtitles API key → **Deploy** / **Save**.
 6. Find your worker's address on its overview page — it looks like
-   `https://my-owntv-opensub.<your-subdomain>.workers.dev`.
+   `https://my-yai-opensub.<your-subdomain>.workers.dev`.
 7. **Test it** in any browser — open:
 
-   `https://my-owntv-opensub.<your-subdomain>.workers.dev/api/v1/subtitles?query=oppenheimer`
+   `https://my-yai-opensub.<your-subdomain>.workers.dev/api/v1/subtitles?query=oppenheimer`
 
    If you see a wall of subtitle data (JSON), it works. If you see an error, re-check step 5
    (the secret must be named `OPENSUB_API_KEY`).

@@ -1,12 +1,12 @@
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: light)" srcset="extras/brand/app-logos/logo_eggshell_light.png">
-    <img src="extras/brand/app-logos/logo_eggshell.png" alt="OwnTV" width="360">
+    <img src="extras/brand/app-logos/logo_eggshell.png" alt="YAiPlayer" width="360">
   </picture>
 </p>
 
 <p align="center">
-  <b>The shared engine behind the OwnTV apps</b><br>
+  <b>The shared engine behind the YAiPlayer apps</b><br>
   <sub>Data · sync · parsers · EPG · playback — everything that isn't a screen</sub>
 </p>
 
@@ -17,27 +17,12 @@
   <img alt="Player" src="https://img.shields.io/badge/engines-libmpv%20%2B%20ExoPlayer-FB8C00">
   <img alt="License" src="https://img.shields.io/badge/license-GPLv3-blue">
   <img alt="Built with the help of AI" src="https://img.shields.io/badge/built%20with-the%20help%20of%20AI-8A2BE2">
-  <a href="https://hosted.weblate.org/engage/owntv/">
-    <img alt="Translation status" src="https://hosted.weblate.org/widget/owntv/svg-badge.svg">
-  </a>
-</p>
-
-<p align="center">
-  <a href="https://github.com/ahXN00/OwnTV_Core/actions/workflows/build.yml">
-    <img alt="Core CI" src="https://github.com/ahXN00/OwnTV_Core/actions/workflows/build.yml/badge.svg">
-  </a>
-  <a href="https://github.com/ahXN00/OwnTV_Core/actions/workflows/i18n.yml">
-    <img alt="i18n" src="https://github.com/ahXN00/OwnTV_Core/actions/workflows/i18n.yml/badge.svg">
-  </a>
-  <a href="https://github.com/ahXN00/OwnTV_Core/actions/workflows/publish.yml">
-    <img alt="Publish core" src="https://github.com/ahXN00/OwnTV_Core/actions/workflows/publish.yml/badge.svg">
-  </a>
 </p>
 
 ---
 
-OwnTV Core is the **headless half** of [OwnTV](https://github.com/ahXN00/OwnTV), the open-source
-IPTV **player** for Android TV. Everything that is not a screen lives here: the Room database and
+YAiPlayer Core is the **headless half** of YAiPlayer, the open-source
+IPTV **player** for Android TV and mobile devices. Everything that is not a screen lives here: the Room database and
 every migration, playlist sync and parsing for **M3U / Xtream / Stalker**, EPG, backup and restore,
 profiles, downloads, settings storage, **every user-visible string**, and the **dual playback
 engine** — libmpv (FFmpeg) plus Media3/ExoPlayer.
@@ -46,20 +31,8 @@ Neither module renders anything. They use the Compose **runtime** for state, but
 no `compose-foundation`, no `androidx.tv.*` and no navigation — that is exactly what lets one engine
 back both the Android TV app and the phone/tablet app.
 
-> ⚠️ OwnTV provides **no** channels, playlists, subscriptions, streams or media content. This is
+> ⚠️ YAiPlayer provides **no** channels, playlists, subscriptions, streams or media content. This is
 > library code for building a player; the sources are the user's own.
-
----
-
-## 💬 Community
-
-Questions, ideas, bug reports — or just want to follow along? **Join the OwnTV Telegram group:**
-
-### 👉 [t.me/owntvplayer](https://t.me/owntvplayer)
-
-Scan to join from your phone:
-
-<a href="https://t.me/owntvplayer"><img src="extras/qr-codes/telegram_qr_code.jpg" alt="Scan to join the OwnTV Telegram group" width="170"></a>
 
 ---
 
@@ -97,7 +70,7 @@ have numbers that can disagree.
   incremental upserts, category fallbacks, and relinking of favourites, history and progress
 - **EPG** (XMLTV) ingest, catch-up, and the guide's data model
 - Backup and restore, including encrypted password backup, and cross-device companion transfer
-- **Local sync** — two OwnTV devices on the same Wi-Fi exchanging their data directly, with no
+- **Local sync** — two YAiPlayer devices on the same Wi-Fi exchanging their data directly, with no
   account and no cloud: discovery, pairing, the merge rule (the newer of two facts wins), the
   tombstones that make a deletion survive it, and a payload the two devices seal between
   themselves without ever asking the user for a passphrase
@@ -115,16 +88,11 @@ minSdk 26
 
 ## 🔗 Who depends on this
 
-- **[OwnTV for Android TV](https://github.com/ahXN00/OwnTV)** — televisions and set-top boxes, shipping.
-- **[OwnTV for mobile](https://github.com/ahXN00/OwnTV_Mobile)** — phones and tablets, shipping.
+- **YAiPlayer for Android TV** (`clients/android-tv`) — televisions and set-top boxes.
+- **YAiPlayer for mobile** (`clients/android-mobile`) — phones and tablets.
 
 **A change here affects both.** Nothing is released from here until the TV app has been rebuilt
 against it. There is no such thing as a change that only affects one app.
-
-Both apps are updated automatically. Publishing a release here opens a pull request on each of them
-that moves its `owntvCore` pin and refreshes its copy of `tools/i18n/locales.json`, and each app
-merges that pull request itself once it has confirmed the two files agree with this repository. No
-app pins a core version by hand.
 
 ## 🛠️ Building
 
@@ -149,37 +117,9 @@ real data — installing a test APK wipes the catalog, playlists, profiles and h
 ./gradlew :core:assembleDebugAndroidTest        # compiles the test APK, installs nothing
 ```
 
-## 📥 Consuming core from an app
-
-Core publishes `tv.own.owntv:core` and `tv.own.owntv:player-core` to OwnTV's own Maven repository —
-public, **no account or token needed**. It also serves `tv.own.owntv:libmpv`, the mpv engine built by
-[OwnTV_libmpv](https://github.com/ahXN00/OwnTV_libmpv), which `player-core` depends on.
-
-```kotlin
-// settings.gradle.kts
-maven {
-    url = uri("https://ahxn00.github.io/OwnTV_Core/maven")
-    content { includeGroup("tv.own.owntv") }
-}
-
-// build.gradle.kts
-implementation("tv.own.owntv:core:1.0.58")
-implementation("tv.own.owntv:player-core:1.0.58")
-```
-
-The repository is this repo's `gh-pages` branch, written only by the publish workflows (the newest 30
-core versions are kept). Versions up to 1.0.57 were also published to GitHub Packages, which needs a
-token.
-
 ### Local development against core's source
 
-```properties
-owntv.corePath=E:/Path/To/OwnTV_Core
-```
-
-The app's `settings.gradle.kts` picks that up and includes this repo as a **composite build**, so a
-core edit shows up in the next app build with no publish step. Leave the property unset and the app
-resolves the published artifact instead, which is what CI does.
+In the application's `settings.gradle.kts` (or `local.properties` via `owntv.corePath`), core can be included as a composite build so edits here reach the apps immediately.
 
 ### Hooks an app must supply
 
@@ -219,12 +159,6 @@ core's strings as a bare `R.string.*`.
 
 ## 🌍 Translations
 
-<!-- i18n-contribution:start -->
-## Help translate OwnTV
-
-If your language is already available, contribute interface translations across OwnTV's six Android resource components on [Hosted Weblate](https://hosted.weblate.org/projects/owntv/). If it is not listed, [open a language request ticket](https://github.com/ahXN00/OwnTV/issues/new?template=feature_request.yml&title=%5BLanguage%5D%20Add%20) first. A maintainer will review the request, register the locale, and prepare its base translation files on Hosted Weblate. Once the language appears on Hosted Weblate, you can start translating it there. See the [language contributor guide](tools/i18n/README.md) for identifiers, validation, and promotion policy.
-<!-- i18n-contribution:end -->
-
 New user-visible text is never English-only: a string is not finished until it exists in every
 packaged locale. All four validators must pass before any string change lands:
 
@@ -234,19 +168,6 @@ python tools/i18n/check_hardcoded_strings.py verify --bootstrap
 python tools/i18n/gen_supported_locales.py check
 python tools/i18n/check_text_overflow.py
 ```
-
-## 🔢 Versioning
-
-Core versions are **independent of the TV app's `v4.x` releases** and must never be confused with
-them. Tags are prefixed — `core-1.0.0` — and pushing one publishes both modules from CI. The
-**Release core** workflow (Actions tab → Run workflow) pushes that tag for you: it reads `coreVersion`
-from `main` and refuses if the tag already exists or `CHANGELOG.md` has no section for it.
-
-Every published version also gets a [**GitHub Release**](https://github.com/ahXN00/OwnTV_Core/releases),
-and the order is deliberate: CI runs the full gate, publishes both artifacts to the Maven repository, waits
-until they are served, and only then publishes the release. So a release exists only for a version that actually built and
-shipped — and it is the release, not the tag, that opens the pull request moving each app onto the
-new version. A tag whose tests fail stops there, with nothing downstream moved.
 
 ## 🤝 Contributing
 
@@ -259,12 +180,6 @@ Contributions, bug reports and ideas are welcome. Two things to know before open
 
 ## 🙏 Credits
 
-<img src="extras/partner-logos/Weblate_logo.svg" alt="Weblate" width="200">
-
-Core holds every string in the suite, and it speaks 26 languages because people translate it on
-[**Weblate**](https://weblate.org/), which hosts the project free of charge for libre software.
-Thank you to Weblate and to every translator who has given OwnTV their language.
-
 <img src="extras/partner-logos/tmdb_logo.svg" alt="TMDB" width="200">
 
 Movie & series metadata and trailers are provided by [TMDB](https://www.themoviedb.org/).
@@ -276,8 +191,7 @@ Subtitle search and downloads are powered by [OpenSubtitles](https://www.opensub
 
 ### ▶️ Playback engines
 
-[libmpv / mpv](https://mpv.io/) (FFmpeg), built for OwnTV by [OwnTV_libmpv](https://github.com/ahXN00/OwnTV_libmpv) from
-[jarnedemeulemeester/libmpv-android](https://github.com/jarnedemeulemeester/libmpv-android) · [Media3 / ExoPlayer](https://developer.android.com/media/media3)
+[libmpv / mpv](https://mpv.io/) (FFmpeg) · [Media3 / ExoPlayer](https://developer.android.com/media/media3)
 
 ### 🧩 Built with
 
@@ -291,12 +205,11 @@ project for its own license.
 
 ### 🎨 Brand
 
-The lowercase **owntv** wordmark was designed for OwnTV by [@m3th0d93](https://github.com/m3th0d93)
-in [issue #227](https://github.com/ahXN00/OwnTV/issues/227).
+The lowercase **owntv** wordmark was designed for the original project by @m3th0d93.
 
 ## ⚖️ Legal
 
-OwnTV Core is media **player** infrastructure only. It ships with no channels, playlists,
+YAiPlayer Core is media **player** infrastructure only. It ships with no channels, playlists,
 subscriptions or content, and does not endorse or facilitate access to unauthorized streams. Users
 of the apps built on it are solely responsible for the sources they add.
 
@@ -304,9 +217,11 @@ of the apps built on it are solely responsible for the sources they add.
 
 Released under the **GNU General Public License v3.0 (GPLv3)** — see [LICENSE](LICENSE).
 
+YAiPlayer основан на открытом проекте OwnTV (https://github.com/ahXN00/OwnTV), лицензия GPL-3.0.
+
 In short: you're free to use, study, modify and redistribute this library, including commercially —
 but any redistributed version must also be licensed under GPLv3 and its source made available.
 
 ---
 
-<sub>OwnTV is an open-source, player-only project, built with the help of AI.</sub>
+<sub>YAiPlayer is an open-source, player-only project, built with the help of AI.</sub>

@@ -1,11 +1,11 @@
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: light)" srcset="brand/app-logos/logo_eggshell_light.png">
-    <img src="brand/app-logos/logo_eggshell.png" alt="OwnTV" width="300">
+    <img src="brand/app-logos/logo_eggshell.png" alt="YAiPlayer" width="300">
   </picture>
 </p>
 
-<h1 align="center">OwnTV — Master Product Brief</h1>
+<h1 align="center">YAiPlayer — Master Product Brief</h1>
 
 <p align="center">
   <b>Native Android TV IPTV player · dual playback engine · Jetpack Compose for TV</b><br>
@@ -16,7 +16,7 @@
 
 ## 1. Overview
 
-OwnTV is a native **Android TV** IPTV player written in Kotlin with Jetpack Compose for TV, running
+YAiPlayer is a native **Android TV** IPTV player written in Kotlin with Jetpack Compose for TV, running
 **two playback engines**: **libmpv (FFmpeg)** for films, series and maximum compatibility, and
 **ExoPlayer (Media3)** for near-instant Live TV.
 
@@ -35,7 +35,7 @@ Signature for stricter portals).
 | **Built for scale** | Tested at ~50k channels / ~168k films |
 | **Open source** | GPLv3, original code, built with the help of AI |
 
-A companion **[OwnTV Mobile](https://github.com/ahXN00/OwnTV_Mobile)** app for phones and tablets
+A companion **YAiPlayer Mobile** (`clients/android-mobile`) app for phones and tablets
 shares the same engine through a common core library.
 
 ---
@@ -160,7 +160,7 @@ series jumps to the last-watched episode.
 The **mini-player** docks a film, episode or channel to a corner and keeps playing across the whole
 app; selecting another channel updates it in place. Size and position are one popup in Settings.
 With **Picture-in-picture when leaving the app** on (off by default, only on TVs that offer it), Home
-keeps a playing video going in the system's small window; a screen OwnTV opens itself never does.
+keeps a playing video going in the system's small window; a screen YAiPlayer opens itself never does.
 
 ### 2.8 Robustness
 
@@ -315,7 +315,7 @@ Back in the list clears it.
 Search covers Live, Movies and Series together (3.2), with voice search where the device has a speech
 recogniser. Live TV reopens on the category you last used, with focus on the last channel. **App
 startup** is per profile: Home, last channel, the last channel in the TV Guide or Live TV, Live
-Favorites, or one chosen channel. **Auto start** (device-wide, off by default) opens OwnTV when the TV
+Favorites, or one chosen channel. **Auto start** (device-wide, off by default) opens YAiPlayer when the TV
 boots or wakes from sleep; it needs "Display over other apps", and a profile with a PIN is locked
 again on every wake.
 
@@ -338,7 +338,7 @@ again on every wake.
 - Order by Provider, A–Z, Catch-up first or Favourites first; the category filter is Live TV's own
   list, and Provider/A–Z follow Live TV's order with moved channels in their place; *Show → Channels without guide* and *Show → Video preview* (off shows the channel's logo
   instead of playing it; kept in backups).
-- **Programme reminders** — at the chosen lead time (5 min by default) OwnTV asks to switch, over any
+- **Programme reminders** — at the chosen lead time (5 min by default) YAiPlayer asks to switch, over any
   screen including the player, or switches, or only notifies.
 - The grid reloads only once a guide sync finishes, instead of rebuilding every ~25 s during one.
 - **Catch-up TV** — replay programmes that already aired, up to 7 days, seekable. **Live rewind**
@@ -389,7 +389,7 @@ and several have exactly one, so a second SurfaceView would get audio and no pic
 
 ### 5.3 Connection limits
 
-Most providers never publish how many streams an account may run, so OwnTV **measures it once**, at a
+Most providers never publish how many streams an account may run, so YAiPlayer **measures it once**, at a
 playlist's first sync, before any channel rows exist and while nothing is playing. The result is
 stored with the playlist, carried in backups (it describes the account, not the device) and used to
 warn before a stream is refused. A broken channel cannot fool it — it stores nothing rather than a
@@ -454,7 +454,7 @@ their group.
 - **App icon** — the flip-card icon in eight colours (Eggshell by default) or **Pixel**, the
   dot-matrix TV set, changing the app row banner, the launch screen (a 600 ms dot sweep on Android 12+,
   a still mark with Animations off) and every in-app logo. **Accent-colored logo** tints the play
-  triangle. The lowercase **owntv** wordmark is #227's, by @m3th0d93.
+  triangle. The lowercase **owntv** wordmark was designed for the original project by @m3th0d93.
 - **Glass & background** — the background is **Stage** (soft accent light), **Picture** (a local or
   phone-sent image in a Sharp, Soft or Dark look, with Darken and Blur) or **Plain**, with an optional
   **Accent light**; **Glass** frosts the rail, sheets, menus and popups at the chosen opacity, with a
@@ -470,7 +470,7 @@ their group.
 - **Developer** (dev-tools builds only) lives under More, not Settings.
 - **Error log** (More) — the last crash plus a readable history of playback failures, fallbacks and
   reports, with optional detailed tracing. A crash is written to disk as it happens, so it survives
-  the process dying. Export writes `Download/owntv-playback-report.txt`.
+  the process dying. Export writes `Download/playback-report.txt`.
 
 ---
 
@@ -480,10 +480,10 @@ A fresh installation opens with a **language selector before Get Started**. Engl
 translations; further requested languages stay catalogue-only until they reach the reviewed
 readiness threshold. Every wizard step shares one frame (lockup, step dots, glass panel, Back / Next,
 key hints). The first run is welcome (which carries the language selector) → display (UI zoom and
-font steppers, app icon picker, a sample row) → disclaimer → **Set up OwnTV** → profile → **add a
+font steppers, app icon picker, a sample row) → disclaimer → **Set up YAiPlayer** → profile → **add a
 playlist** → the import → **All set**, whose **Add a TV guide** opens Settings → EPG sources → Add once
-the shell is up. **Set up OwnTV** offers three routes, not two: create a profile, restore a backup
-file, or **copy everything from another OwnTV device** over the local network — so replacing a box
+the shell is up. **Set up YAiPlayer** offers three routes, not two: create a profile, restore a backup
+file, or **copy everything from another YAiPlayer device** over the local network — so replacing a box
 does not mean finishing setup first and then finding Local sync in the menus. **Add a playlist** is
 four cards — **Remote**, **Type it here**, **Import**, **Existing** — and Remote is what keeps an
 Xtream password off the D-pad: it hands the form to a phone over Wi-Fi. The same Remote / Type it here
@@ -494,7 +494,7 @@ App language is independent of profiles and of the separate TMDB metadata langua
 restart and backup/restore. Locale-aware plurals, dates, times, numbers, RTL navigation, font
 fallback and English fallback apply across the interface, notifications, launcher text, companion
 pages, player messages and diagnostics — without changing playback or sync behaviour. A generated
-locale catalogue, six resource domains, Hosted Weblate contribution paths, tooling tests and CI
+locale catalogue, six resource domains, tooling tests and CI
 checks protect placeholders, plural forms, formatting, overflow and release packaging.
 
 ---
@@ -512,7 +512,7 @@ every id** the file carries. Sources are matched on type + URL + username; a Sta
 > Android's automatic backup is deliberately **disabled**: the raw stores hold plaintext credentials,
 > so this screen is the single explicit, encryptable path off the device.
 
-**Local sync** swaps favourites, history and resume positions with the OwnTV mobile app over the
+**Local sync** swaps favourites, history and resume positions with the YAiPlayer mobile app over the
 local network — no account, no cloud. Both devices enter Sync mode deliberately, an arriving
 container is previewed before it is applied, and a deletion propagates as a deletion rather than
 being undone by the merge. The same engine is offered during first run, where a device that has
@@ -530,13 +530,13 @@ manual check, and installation on the TV itself.
 | Language | Kotlin 2.4.20 (no `kotlin-android` plugin; the Compose compiler plugin pulls the Kotlin Gradle plugin to this version) |
 | Build | AGP 9.4.0 / Gradle 9.8.2, KSP2 2.3.11, JDK 25 |
 | UI | Jetpack Compose for TV (`androidx.tv:tv-material` 1.1.0), Compose BOM 2026.08.00 |
-| Media | libmpv (FFmpeg) — `tv.own.owntv:libmpv`, OwnTV's own build (newest mpv + FFmpeg 9, monthly) · ExoPlayer/Media3 1.11.1 |
+| Media | libmpv (FFmpeg) — `tv.own.owntv:libmpv`, custom build (newest mpv + FFmpeg 9, monthly) · ExoPlayer/Media3 1.11.1 |
 | Database | Room 2.8.5 + Paging 3.5.1 + FTS4 (WAL) |
 | DI | Koin 4.2.2 |
 | Networking | OkHttp 5 — the panel-facing client is pinned to HTTP/1.1 for flaky IPTV panels, while the image client keeps h2 so poster grids multiplex on one connection |
 | Images | Coil 3.6.0 |
 | Preferences | DataStore |
-| SDK | `minSdk 26`, `targetSdk 36`, `compileSdk 37`, `applicationId tv.own.owntv` |
+| SDK | `minSdk 26`, `targetSdk 36`, `compileSdk 37`, `applicationId com.yai.iptv.player.tv` |
 
 ---
 
@@ -545,13 +545,13 @@ manual check, and installation on the TV itself.
 sync. **Ignore connection limit** (per playlist) lets Multiview and recordings try more streams than
 the playlist reports; the provider's refusal still stops a stream with its sentence.
 
-### 12.1 Three repositories
+### 12.1 Monorepo structure
 
 | Repo | Holds |
 |---|---|
-| **[OwnTV_Core](https://github.com/ahXN00/OwnTV_Core)** | Database, sync, parsers, EPG, backup, profiles, downloads, recording, settings storage, both playback engines, **and every translated string** |
-| **[OwnTV](https://github.com/ahXN00/OwnTV)** | This app — Compose-for-TV interface, navigation, player HUD |
-| **[OwnTV_Mobile](https://github.com/ahXN00/OwnTV_Mobile)** | The phone and tablet interface |
+| **clients/owntv-core** | Database, sync, parsers, EPG, backup, profiles, downloads, recording, settings storage, both playback engines, **and every translated string** |
+| **clients/android-tv** | This app — Compose-for-TV interface, navigation, player HUD |
+| **clients/android-mobile** | The phone and tablet interface |
 
 Core is published as `tv.own.owntv:core` and `tv.own.owntv:player-core`; both apps always consume the
 same version.
@@ -610,13 +610,14 @@ Koin modules: `appModule`, `databaseModule`, `dataModule`, `playerModule`.
 
 ## 13. Legal
 
-OwnTV is a media **player** only. It ships with no channels, playlists, subscriptions or content, and
+YAiPlayer is a media **player** only. It ships with no channels, playlists, subscriptions or content, and
 does not endorse or facilitate access to unauthorized streams. Users are solely responsible for the
 sources they add.
 
 Released under the **GNU General Public License v3.0**.
 
+YAiPlayer is based on the open source project OwnTV (https://github.com/ahXN00/OwnTV), licensed under GPL-3.0.
+
 Metadata and trailers from [TMDB](https://www.themoviedb.org/) (not endorsed or certified by TMDB).
 Subtitles from [OpenSubtitles](https://www.opensubtitles.com/) (not endorsed or certified by
-OpenSubtitles). Translations hosted free of charge by
-[Hosted Weblate](https://hosted.weblate.org/projects/owntv/).
+OpenSubtitles). 

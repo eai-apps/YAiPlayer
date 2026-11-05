@@ -1,12 +1,10 @@
-# OwnTV Mobile — i18n checks
+# YAiPlayer Mobile — i18n checks
 
-**The strings themselves are not in this repository.** Every `strings*.xml`, the language catalogue
-that owns them, the Weblate integration and the translator guide live in the core library repo:
+**The strings themselves are not in this module.** Every `strings*.xml`, the language catalogue
+that owns them, and the translator guide live in the core library:
 
-<https://github.com/ahXN00/OwnTV_Core> (`tools/i18n/README.md` there). Add, change or translate a
-string there — **including a string only this app uses**, exactly as the TV app does. A strings file
-in this repo would never be seen by Weblate and would be English-only for ever, which is the one
-thing the rule forbids.
+`clients/owntv-core` (`tools/i18n/README.md` there). Add, change or translate a
+string there — **including a string only this app uses**, exactly as the TV app does.
 
 What runs here, on this app's own Kotlin:
 
@@ -35,9 +33,8 @@ python tools\i18n\check_pseudo_locales.py --apk app\build\outputs\apk\standard\d
 ```
 
 `locales.json` is kept here too, but only because the Gradle build reads its `packaged` entries to
-set `localeFilters` before any dependency is resolved. **The core repo's copy is the authoritative
-one**, and the automated "Pin core" pull request refreshes this copy alongside `owntvCore` — never
-edit one of those two files without the other, or a new language is silently stripped out of the APK
+set `localeFilters` before any dependency is resolved. **The core copy is the authoritative
+one** — never edit one of those two files without the other, or a new language is silently stripped out of the APK
 while the build stays green.
 
 ### Clearing a literal-inventory failure

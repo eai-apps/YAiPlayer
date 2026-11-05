@@ -3,7 +3,7 @@
 **Status: complete. Every row below was checked against the code in this repository on 2026-09-14,
 not against a plan or a changelog.**
 
-Every feature of [OwnTV for Android TV](https://github.com/ahXN00/OwnTV), with its status on the
+Every feature of YAiPlayer for Android TV, with its status on the
 phone: **Port**, **Redesign**, **New** or **Dropped** — every row accounted for, every drop justified
 in writing.
 

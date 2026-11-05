@@ -1,9 +1,9 @@
-# OwnTV TV app — i18n checks
+# YAiPlayer TV app — i18n checks
 
-**The strings themselves are not in this repository.** Every `strings*.xml`, the language catalogue
-that owns them, the Weblate integration and the translator guide live in the core library repo:
-<https://github.com/ahXN00/OwnTV_Core> (`tools/i18n/README.md` there). Add, change or translate a
-string there, then bump `owntvCore` in `gradle/libs.versions.toml`.
+**The strings themselves are not in this module.** Every `strings*.xml`, the language catalogue
+that owns them, and the translator guide live in the core library:
+`clients/owntv-core` (`tools/i18n/README.md` there). Add, change or translate a
+string there.
 
 What still runs here, on the TV app's own Kotlin:
 
@@ -21,7 +21,7 @@ python3 tools/i18n/check_text_overflow.py
 ```
 
 `locales.json` is kept here too, but only because the Gradle build reads its `packaged` entries to
-set `localeFilters`. **The core repo's copy is the authoritative one** — change it there first, then
+set `localeFilters`. **The core copy is the authoritative one** — change it there first, then
 copy it across.
 
 ### Clearing a literal-inventory failure

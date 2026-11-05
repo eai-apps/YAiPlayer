@@ -1,4 +1,4 @@
-# OwnTV Core — Changelog
+# YAiPlayer Core — Changelog
 
 > Release notes: two parts per version — New features (by name) and Fixes. This file feeds the GitHub
 > release body. Tags are prefixed `core-`; a core version never lines up with a TV or mobile app version.

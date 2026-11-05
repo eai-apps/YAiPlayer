@@ -1,4 +1,4 @@
-# OwnTV — Changelog
+# YAiPlayer — Changelog
 
 > Release notes: two parts per version — New features (by name) and Fixes. This file feeds the GitHub release body and the in-app update dialog.
 >
@@ -174,7 +174,7 @@
 - **📡 Pause and rewind live TV: a channel comes back by itself after a network outage**
 - **⚡ A single CH+/CH− press opens the channel without the half-second wait** (community PR #255 by @sarmadsoomro)
 - **🗓️ Auto-match EPG finishes in seconds on large playlists** (community PR #252 by @camchis)
-- **🎬 A longer Film buffer really holds more of a high-bitrate film** (community PR ahXN00/OwnTV_Core#31 by @sarmadsoomro)
+- **🎬 A longer Film buffer really holds more of a high-bitrate film** (community PR OwnTV_Core#31 by @sarmadsoomro)
 - **⚡ Opening a channel from its preview goes straight to full screen, no black gap** (community PR #242 by @tvdev-android)
 - **😴 The screensaver no longer starts when a film stops to buffer**
 - **Customize no longer keeps a removed item's actions on screen**
@@ -799,7 +799,7 @@
 
 ### 🐛 Fixes
 
-- **Settings → About shows the updated Telegram group QR code**
+- **Settings → About shows updated information**
 - **Editing a source shows only its own type (no more inactive Xtream/M3U/Stalker chips)**
 - **Custom accent hex codes now render exactly, not a nearby shade**
 - **Accent hex field no longer hidden behind the on-screen keyboard**

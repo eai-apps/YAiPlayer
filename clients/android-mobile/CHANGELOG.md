@@ -1,4 +1,4 @@
-# OwnTV Mobile — Changelog
+# YAiPlayer Mobile — Changelog
 
 > Release notes: two parts per version — New features (by name) and Fixes. This file feeds the GitHub release body and the in-app update sheet.
 >
@@ -477,7 +477,7 @@
 - **Home settings page: why the trending row is missing, and a button to build it again**
 - **Language page with search, each language in its own script and how complete it is**
 - **Help translate, with a link, a QR code and a way to ask for a new language**
-- **About: version, licence, contributors, source code and the Telegram group with a QR code**
+- **About: version, licence, contributors and source code**
 - **Clear history by kind: live, films, shows or all of it**
 - **Building the trending row shows its stage and counts**
 - **Fixed: Monospace no longer looks identical to System Sans**

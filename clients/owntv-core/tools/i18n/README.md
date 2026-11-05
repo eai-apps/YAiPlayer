@@ -1,6 +1,6 @@
-# OwnTV translation and language contributor guide
+# YAiPlayer translation and language contributor guide
 
-`tools/i18n/locales.json` is OwnTV's authoritative language catalogue. It deliberately separates
+`tools/i18n/locales.json` is YAiPlayer's authoritative language catalogue. It deliberately separates
 three identifiers that look similar but serve different owners:
 
 - `languageTag`: runtime BCP-47 (`he`, `id`, `sr`)
@@ -12,18 +12,18 @@ Current Weblate language definitions are verified against
 [WeblateOrg/language-data](https://github.com/WeblateOrg/language-data). In particular, default/Spain
 Spanish is `es` (there is no `es_ES` definition), while Latin America is `es_419`.
 
-<!-- canonical-weblate:start -->
-**Canonical project overview:** <https://hosted.weblate.org/projects/owntv/>
 
-**New-language request form:** <https://github.com/ahXN00/OwnTV/issues/new?template=feature_request.yml&title=%5BLanguage%5D%20Add%20>
 
-The app, README, and this guide use these values from `community.json`; update that single source when either route changes.
-<!-- canonical-weblate:end -->
+
+
+
+
+
 
 ## Requesting a new language
 
 If the language is not available on Hosted Weblate, open a language request ticket before translating.
-A maintainer will verify its BCP-47 tag, Android qualifier, Weblate language code, native name, script, and text direction; register it in `locales.json`; and prepare the language across OwnTV's six Weblate components.
+A maintainer will verify its BCP-47 tag, Android qualifier, Weblate language code, native name, script, and text direction; register it in `locales.json`; and prepare the language across YAiPlayer's six resource components.
 The requester can then contribute normally through Hosted Weblate.
 
 Registration does not package an empty language in the app.

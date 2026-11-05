@@ -1,11 +1,11 @@
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: light)" srcset="brand/app-logos/logo_eggshell_light.png">
-    <img src="brand/app-logos/logo_eggshell.png" alt="OwnTV Mobile" width="300">
+    <img src="brand/app-logos/logo_eggshell.png" alt="YAiPlayer Mobile" width="300">
   </picture>
 </p>
 
-<h1 align="center">OwnTV Mobile — Master Product Brief</h1>
+<h1 align="center">YAiPlayer Mobile — Master Product Brief</h1>
 
 <p align="center">
   <b>Native Android IPTV player for phones and tablets · dual playback engine · Stage design</b><br>
@@ -16,10 +16,10 @@
 
 ## 1. Overview
 
-OwnTV Mobile is the phone and tablet member of the OwnTV family: a native Android IPTV player written
+YAiPlayer Mobile is the phone and tablet member of the YAiPlayer family: a native Android IPTV player written
 in Kotlin with Jetpack Compose, sharing its **entire engine** with
-[OwnTV for Android TV](https://github.com/ahXN00/OwnTV) through the
-[OwnTV core library](https://github.com/ahXN00/OwnTV_Core).
+YAiPlayer for Android TV through the
+YAiPlayer core library (`clients/owntv-core`).
 
 **Two interfaces, one database, one sync, one playback stack.** Everything below the screen — the
 Room schema and every migration, playlist parsing, EPG, backup, profiles, downloads, recording,
@@ -295,7 +295,7 @@ image for the whole app rather than one per panel.
 
 26 packaged interface languages, chosen on the first screen, with RTL-aware layouts. **This
 repository contains no `strings.xml` of its own and must not grow one** — a string added here would
-never reach Weblate and would be English-only for ever, so even a mobile-only string is added in
+never be translated and would be English-only for ever, so even a mobile-only string is added in
 core.
 
 A consumer-side gate enforces it: a hardcoded literal fails the compile rather than the push, and its
@@ -334,9 +334,9 @@ and each keeps its own data. Both apps sign with the **same keystore** — a cer
 
 | Repo | Holds |
 |---|---|
-| **[OwnTV_Core](https://github.com/ahXN00/OwnTV_Core)** | Database, sync, EPG, backup, profiles, downloads, recording, settings storage, both engines, all strings |
-| **[OwnTV](https://github.com/ahXN00/OwnTV)** | The Android TV interface |
-| **[OwnTV_Mobile](https://github.com/ahXN00/OwnTV_Mobile)** | This app — the phone and tablet interface |
+| **clients/owntv-core** | Database, sync, EPG, backup, profiles, downloads, recording, settings storage, both engines, all strings |
+| **clients/android-tv** | The Android TV interface |
+| **clients/android-mobile** | This app — the phone and tablet interface |
 
 A core change is made in core, verified against the television before it is released, and taken here
 by an automatic pin-bump pull request. Nothing is worked around locally: a workaround here is a bug
@@ -378,13 +378,15 @@ gates and publishes a signed release from a tag.
 
 ## 11. Legal
 
-OwnTV is a media **player** only. It ships with no channels, playlists, subscriptions or content, and
+YAiPlayer is a media **player** only. It ships with no channels, playlists, subscriptions or content, and
 does not endorse or facilitate access to unauthorized streams. Users are solely responsible for the
 sources they add.
 
 Released under the **GNU General Public License v3.0**.
 
+YAiPlayer is based on the open source project OwnTV (https://github.com/ahXN00/OwnTV), licensed under GPL-3.0.
+
 Metadata and trailers from [TMDB](https://www.themoviedb.org/) (not endorsed or certified by TMDB).
 Subtitles from [OpenSubtitles](https://www.opensubtitles.com/) (not endorsed or certified by
-OpenSubtitles). Translations hosted free of charge by
-[Hosted Weblate](https://hosted.weblate.org/projects/owntv/).
+OpenSubtitles).
+
