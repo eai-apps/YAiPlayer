@@ -388,8 +388,15 @@ fun MobileShell(
             updateManager.check()
         }
     }
+    val startupContext = LocalContext.current
+    var startupShown by remember { mutableStateOf(false) }
     LaunchedEffect(updateState) {
         if (updateState is UpdateManager.State.Available) updateSheetOpen = true
+        // Once per launch, after the automatic check: say which version this is and that it is current.
+        if (updateState is UpdateManager.State.UpToDate && updateChecked && !startupShown) {
+            startupShown = true
+            Toast.makeText(startupContext, startupContext.getString(tv.own.owntv.mobile.R.string.update_latest, updateManager.currentVersion), Toast.LENGTH_LONG).show()
+        }
     }
     // Not over the player, and not over setup: both own the whole screen for a reason.
     if (updateSheetOpen && !fullscreen) {

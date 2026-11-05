@@ -680,6 +680,16 @@ internal fun AboutPage(vm: MoreCountsViewModel, entry: FocusRequester, onOpenLan
                 OwnTVIcon(OwnTVIcon.NETWORK, StageColors.Text, Modifier.size(18.mpx))
                 Text(GITHUB_REPO, style = stageText(16, 700), color = StageColors.Text, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
+            // Read-only: a TV has no browser. The labels say what each address is for.
+            listOf(stringResource(R.string.about_telegram_channel) to "t.me/YAiPlayer", stringResource(R.string.about_telegram_support) to "t.me/YAiPlayer?direct").forEach { (label, addr) ->
+                Row(
+                    Modifier.height(44.mpx).background(StageColors.ControlFill, RoundedCornerShape(15.mpx)).padding(horizontal = 16.mpx),
+                    horizontalArrangement = Arrangement.spacedBy(9.mpx), verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    OwnTVIcon(OwnTVIcon.SHARE, StageColors.Text, Modifier.size(18.mpx))
+                    Text("$label: $addr", style = stageText(16, 700), color = StageColors.Text, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                }
+            }
             val languages = SupportedLocales.all.count { it.packaged }
             StageTool(pluralStringResource(R.plurals.more_about_languages, languages, languages), onClick = onOpenLanguage, icon = OwnTVIcon.LIST, boxed = true, modifier = Modifier.focusRequester(entry))
             StageTool(stringResource(R.string.settings_check_updates), onClick = { showUpdate = true }, icon = OwnTVIcon.REFRESH, boxed = true, modifier = Modifier.focusRequester(updateFocus))

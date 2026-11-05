@@ -130,6 +130,8 @@ fun AboutPage(onOpenLanguage: () -> Unit, modifier: Modifier = Modifier) {
         @OptIn(ExperimentalLayoutApi::class)
         FlowRow(Modifier.padding(top = 14.dp), horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             StageTool(onClick = { openLink(context, "https://$GITHUB_REPO") }, label = GITHUB_NAME, icon = MobileIcons.Translate)
+            StageTool(onClick = { openLink(context, TELEGRAM_CHANNEL_URL) }, label = stringResource(R.string.about_telegram_channel), icon = MobileIcons.Translate)
+            StageTool(onClick = { openLink(context, TELEGRAM_SUPPORT_URL) }, label = stringResource(R.string.about_telegram_support), icon = MobileIcons.Translate)
             val languages = tv.own.owntv.core.i18n.SupportedLocales.all.count { it.packaged }
             StageTool(onClick = onOpenLanguage, label = pluralStringResource(R.plurals.more_about_languages, languages, languages), icon = MobileIcons.Translate)
             StageTool(onClick = { updateSheet = true }, label = stringResource(R.string.settings_check_updates), icon = MobileIcons.Refresh)
@@ -284,6 +286,8 @@ internal fun loggedWhen(atMs: Long): String {
 
 private const val GITHUB_REPO = "github.com/eai-apps/YAiPlayer"
 private const val GITHUB_NAME = "GitHub"
+private const val TELEGRAM_CHANNEL_URL = "https://t.me/YAiPlayer"
+private const val TELEGRAM_SUPPORT_URL = "https://t.me/YAiPlayer?direct"
 
 
 private fun openLink(context: Context, url: String) {
