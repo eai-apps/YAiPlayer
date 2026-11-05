@@ -85,6 +85,7 @@ import tv.own.owntv.core.home.HeroItem
 import tv.own.owntv.core.home.TrendingHomeItem
 import tv.own.owntv.core.launcher.LauncherContinuationItem
 import tv.own.owntv.core.metadata.MetadataImages
+import tv.own.owntv.core.home.GuideSliceState
 import tv.own.owntv.core.model.HomeLiveRowMode
 import tv.own.owntv.core.model.HomeRow
 import tv.own.owntv.core.model.HomeTrendingStyle
@@ -619,6 +620,50 @@ fun HomeScreen(
                                 modifier = rowModifier,
                             )
 
+                            HomeRow.LIVE_CATEGORIES -> Column(rowModifier) {
+                                state.liveCategoryRails.forEachIndexed { i, rail ->
+                                    HomeLiveRow(
+                                        title = rail.title,
+                                        mode = HomeLiveRowMode.CARDS,
+                                        channels = rail.channels,
+                                        guide = GuideSliceState(),
+                                        onChannelClick = onPlayChannel,
+                                        onFocus = onNonHeroFocused,
+                                        // Only the first rail takes the row's entry focus; one requester per node.
+                                        firstItemFocusRequester = if (i == 0) firstItemFocusRequester else null,
+                                        start = contentStart,
+                                        track = track,
+                                    )
+                                }
+                            }
+
+                            HomeRow.ALL_CHANNELS -> HomeLiveRow(
+                                title = row.displayTitle(),
+                                mode = HomeLiveRowMode.CARDS,
+                                channels = state.allChannels,
+                                guide = GuideSliceState(),
+                                onChannelClick = onPlayChannel,
+                                onFocus = onNonHeroFocused,
+                                firstItemFocusRequester = firstItemFocusRequester,
+                                start = contentStart,
+                                track = track,
+                                modifier = rowModifier,
+                            )
+
+                            HomeRow.RECENT_MOVIES -> FavoritePosterRow(
+                                title = row.displayTitle(),
+                                items = state.recentMovies,
+                                key = { it.id },
+                                name = { it.name },
+                                poster = { it.posterUrl },
+                                start = contentStart,
+                                onItemClick = onOpenMovie,
+                                onFocus = onNonHeroFocused,
+                                firstItemFocusRequester = firstItemFocusRequester,
+                                track = track,
+                                modifier = rowModifier,
+                            )
+
                             HomeRow.CONTINUE_MOVIES -> ContinuePosterRow(
                                 title = row.displayTitle(),
                                 items = state.continueMovies,
@@ -722,6 +767,9 @@ private fun rowHasData(row: HomeRow, state: HomeUiState, sportsCards: Int): Bool
     HomeRow.FAVORITE_SERIES -> state.favoriteSeries.isNotEmpty()
     HomeRow.CONTINUE_MOVIES -> state.continueMovies.isNotEmpty()
     HomeRow.CONTINUE_SERIES -> state.continueSeries.isNotEmpty()
+    HomeRow.LIVE_CATEGORIES -> state.liveCategoryRails.isNotEmpty()
+    HomeRow.ALL_CHANNELS -> state.allChannels.isNotEmpty()
+    HomeRow.RECENT_MOVIES -> state.recentMovies.isNotEmpty()
 }
 
 private fun rowCanRender(row: HomeRow, state: HomeUiState, showHeroFallback: Boolean, sportsCards: Int): Boolean =

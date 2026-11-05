@@ -29,6 +29,9 @@ fun HomeRow.displayTitle(): String = stringResource(
         HomeRow.FAVORITE_SERIES -> R.string.home_row_favorite_series
         HomeRow.CONTINUE_MOVIES -> R.string.home_row_continue_movies
         HomeRow.CONTINUE_SERIES -> R.string.home_row_continue_series
+        HomeRow.LIVE_CATEGORIES -> R.string.home_row_live_categories
+        HomeRow.ALL_CHANNELS -> R.string.home_row_all_channels
+        HomeRow.RECENT_MOVIES -> R.string.home_row_recent_movies
     },
 )
 
@@ -44,6 +47,9 @@ fun HomeRow.settingsDescription(): String = stringResource(
         HomeRow.FAVORITE_SERIES -> R.string.home_row_favorite_series_description
         HomeRow.CONTINUE_MOVIES -> R.string.home_row_continue_movies_description
         HomeRow.CONTINUE_SERIES -> R.string.home_row_continue_series_description
+        HomeRow.LIVE_CATEGORIES -> R.string.home_row_live_categories_description
+        HomeRow.ALL_CHANNELS -> R.string.home_row_all_channels_description
+        HomeRow.RECENT_MOVIES -> R.string.home_row_recent_movies_description
     },
 )
 

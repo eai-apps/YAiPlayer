@@ -140,6 +140,14 @@ data class GuideSliceState(
         get() = channels.isNotEmpty()
 }
 
+/** One channel category drawn as its own Home rail: its name and its first channels. */
+@Immutable
+data class ChannelRail(
+    val categoryId: Long,
+    val title: String,
+    val channels: List<ChannelEntity>,
+)
+
 /** Everything Home shows, for one profile, at one moment. */
 @Immutable
 data class HomeFeed(
@@ -156,6 +164,9 @@ data class HomeFeed(
     val config: HomeConfig = HomeConfig(),
     val recentGuide: GuideSliceState = GuideSliceState(),
     val favoriteGuide: GuideSliceState = GuideSliceState(),
+    val liveCategoryRails: List<ChannelRail> = emptyList(),
+    val allChannels: List<ChannelEntity> = emptyList(),
+    val recentMovies: List<MovieEntity> = emptyList(),
 )
 
 /**
@@ -250,6 +261,33 @@ class HomeFeedReader(
                 else seriesDao.snapshotFavoritesManual(profileId, ContentOrderEntity.FAV_CONTEXT, seriesIds.toList(), FAVORITE_VOD_ROW_LIMIT)
                     .filterNot { CustomizeKeys.series(it) in hidden.series.hiddenItems || (it.categoryId != null && it.categoryId in hidden.seriesCats) }
             }
+            // The block rails: each read only while its row is switched on.
+            val allChannelsAsync = async {
+                if (HomeRow.ALL_CHANNELS !in config.visibleOrder || liveIds.isEmpty()) emptyList()
+                else channelDao.snapshotAll(liveIds.toList(), ALL_CHANNELS_ROW_LIMIT * 2)
+                    .filterNot { isChannelHidden(it, hidden) }
+                    .take(ALL_CHANNELS_ROW_LIMIT)
+            }
+            val categoryRailsAsync = async {
+                if (HomeRow.LIVE_CATEGORIES !in config.visibleOrder || liveIds.isEmpty()) emptyList()
+                else {
+                    val rails = ArrayList<ChannelRail>()
+                    for (cat in categoryDao.observe(liveIds.toList(), MediaType.LIVE).first()) {
+                        if (rails.size >= CATEGORY_RAIL_LIMIT) break
+                        if (cat.id in hidden.liveCats) continue
+                        val channels = channelDao.channelsAfterCategory(cat.id, Int.MIN_VALUE, Long.MIN_VALUE, CATEGORY_RAIL_CHANNELS)
+                            .filterNot { isChannelHidden(it, hidden) }
+                        if (channels.isNotEmpty()) rails += ChannelRail(cat.id, cat.name, channels)
+                    }
+                    rails
+                }
+            }
+            val recentMoviesAsync = async {
+                if (HomeRow.RECENT_MOVIES !in config.visibleOrder || movieIds.isEmpty()) emptyList()
+                else movieDao.recentlyAddedSnapshot(movieIds.toList(), RECENT_MOVIES_ROW_LIMIT * 2)
+                    .filterNot { CustomizeKeys.movie(it) in hidden.movie.hiddenItems || (it.categoryId != null && it.categoryId in hidden.movieCats) }
+                    .take(RECENT_MOVIES_ROW_LIMIT)
+            }
             val heroItems = buildHeroItems(items, liveWithTs, config)
             // The two guide slices read different channel sets and never depend on each other.
             val recentGuideAsync = async {
@@ -284,6 +322,9 @@ class HomeFeedReader(
                 config = config,
                 recentGuide = recentGuideAsync.await().let { it.copy(channels = it.channels.map { ch -> names.of(ch) }) },
                 favoriteGuide = favoriteGuideAsync.await().let { it.copy(channels = it.channels.map { ch -> names.of(ch) }) },
+                liveCategoryRails = categoryRailsAsync.await().map { r -> r.copy(channels = r.channels.map { names.of(it) }) },
+                allChannels = allChannelsAsync.await().map { names.of(it) },
+                recentMovies = recentMoviesAsync.await().map { names.of(it) },
             )
         }
     }
@@ -533,4 +574,8 @@ private const val MAX_HERO_ITEMS = 10
 private const val SLICE_WINDOW_MS = 360 * 60_000L
 private const val HALF_HOUR_MS = 30 * 60_000L
 private const val RECENT_LIVE_ROW_LIMIT = 20
+private const val ALL_CHANNELS_ROW_LIMIT = 30
+private const val CATEGORY_RAIL_LIMIT = 8
+private const val CATEGORY_RAIL_CHANNELS = 20
+private const val RECENT_MOVIES_ROW_LIMIT = 30
 private const val FAVORITE_VOD_ROW_LIMIT = 50

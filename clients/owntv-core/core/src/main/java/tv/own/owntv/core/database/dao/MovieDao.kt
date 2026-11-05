@@ -141,6 +141,10 @@ interface MovieDao {
 
     // Date added / last modification (newest first). NULLs sort lowest in SQLite, so unknown
     // dates land last and fall through to sortOrder DESC (reverse playlist order).
+    /** Home's "Recently added films": the newest films of the given playlists, a bounded snapshot. */
+    @Query("SELECT * FROM movies WHERE sourceId IN (:sourceIds) ORDER BY addedAt DESC, sortOrder DESC, id DESC LIMIT :limit")
+    suspend fun recentlyAddedSnapshot(sourceIds: List<Long>, limit: Int): List<MovieEntity>
+
     @Query("SELECT * FROM movies WHERE sourceId IN (:sourceIds) ORDER BY addedAt DESC, sortOrder DESC, id DESC")
     fun pagingAllDateAdded(sourceIds: List<Long>): PagingSource<Int, MovieEntity>
 

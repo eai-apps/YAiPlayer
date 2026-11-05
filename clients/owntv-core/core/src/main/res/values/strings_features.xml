@@ -250,6 +250,12 @@
     <string name="home_row_continue_movies_description">Movies with a saved position</string>
     <!-- Translators: Home row description in Settings for "Continue Watching Series". -->
     <string name="home_row_continue_series_description">Episodes to resume or play next</string>
+    <string name="home_row_live_categories">Channel categories</string>
+    <string name="home_row_live_categories_description">A row for each channel category, such as News, Cinema or Sport</string>
+    <string name="home_row_all_channels">All channels</string>
+    <string name="home_row_all_channels_description">The first channels of your playlists</string>
+    <string name="home_row_recent_movies">Recently added films</string>
+    <string name="home_row_recent_movies_description">The newest films in your playlists</string>
     <!-- Translators: Home row description in Settings for "Recent Channels". -->
     <string name="home_row_recent_description">Live channels you tuned recently</string>
     <!-- Translators: Home row description in Settings for "Favorite Channels". -->

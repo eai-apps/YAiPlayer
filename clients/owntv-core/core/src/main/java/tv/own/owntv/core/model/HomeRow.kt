@@ -13,10 +13,19 @@ enum class HomeRow {
     LIVE_SPORTS,
     RECENT_CHANNELS,
     FAVORITE_CHANNELS,
+
+    /** One rail per channel category (News, Cinema, Sport …), in the playlist's own order. */
+    LIVE_CATEGORIES,
+
+    /** The first channels of the active playlists, in provider order. */
+    ALL_CHANNELS,
     FAVORITE_MOVIES,
     FAVORITE_SERIES,
     CONTINUE_MOVIES,
-    CONTINUE_SERIES;
+    CONTINUE_SERIES,
+
+    /** Films most recently added to the playlists. */
+    RECENT_MOVIES;
 
     val implemented: Boolean get() = true
 }

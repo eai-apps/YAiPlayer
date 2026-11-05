@@ -99,6 +99,9 @@ data class HomeUiState(
     val config: HomeConfig = HomeConfig(),
     val recentGuide: GuideSliceState = GuideSliceState(),
     val favoriteGuide: GuideSliceState = GuideSliceState(),
+    val liveCategoryRails: List<tv.own.owntv.core.home.ChannelRail> = emptyList(),
+    val allChannels: List<ChannelEntity> = emptyList(),
+    val recentMovies: List<MovieEntity> = emptyList(),
     /**
      * True until the first [HomeViewModel.loadHomeData] completes. Home's queries are profile-scoped and
      * already indexed, but on a cold boot their first reads come off slow eMMC (pages not yet in the OS
@@ -429,6 +432,9 @@ class HomeViewModel(
             config = data.config,
             recentGuide = data.recentGuide,
             favoriteGuide = data.favoriteGuide,
+            liveCategoryRails = data.liveCategoryRails,
+            allChannels = data.allChannels,
+            recentMovies = data.recentMovies,
             isLoading = false,
         )
         tv.own.owntv.core.util.Perf.stamp("home-data")

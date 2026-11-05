@@ -281,6 +281,15 @@ fun HomeScreen(
     ) {
         loadingNote?.let { note -> item("library-loading") { note() } }
         rows.forEach { row ->
+            // Channel categories are one rail per category, each its own list item.
+            if (row == HomeRow.LIVE_CATEGORIES) {
+                state.liveCategoryRails.forEach { rail ->
+                    item("live-cat-${rail.categoryId}") {
+                        ChannelRail(rail.title, rail.channels, onOpenChannel = onOpenChannel, onMenu = { menuFor = it })
+                    }
+                }
+                return@forEach
+            }
             item(row.name) {
                 when (row) {
                     HomeRow.TRENDING -> when {
@@ -358,6 +367,21 @@ fun HomeScreen(
                             HomePoster(ContentTarget(MediaType.SERIES, s.id, s.name, s.posterUrl), s.posterUrl, s.rating, progress = seriesProgress[s.id])
                         },
                         onOpen = { onOpenSeries(it.id) },
+                        onMenu = { menuFor = it },
+                    )
+                    HomeRow.LIVE_CATEGORIES -> Unit
+                    HomeRow.ALL_CHANNELS -> ChannelRail(
+                        title = stringResource(R.string.home_row_all_channels),
+                        channels = state.allChannels,
+                        onOpenChannel = onOpenChannel,
+                        onMenu = { menuFor = it },
+                    )
+                    HomeRow.RECENT_MOVIES -> PosterRow(
+                        title = stringResource(R.string.home_row_recent_movies),
+                        posters = state.recentMovies.map { m ->
+                            HomePoster(ContentTarget(MediaType.MOVIE, m.id, m.name, m.posterUrl), m.posterUrl, m.rating, progress = movieProgress[m.id])
+                        },
+                        onOpen = { onOpenMovie(it.id) },
                         onMenu = { menuFor = it },
                     )
                     HomeRow.CONTINUE_MOVIES -> ContinueRow(
@@ -455,6 +479,9 @@ private fun HomeFeed.hasContent(row: HomeRow): Boolean = when (row) {
     HomeRow.FAVORITE_SERIES -> favoriteSeries.isNotEmpty()
     HomeRow.CONTINUE_MOVIES -> continueMovies.isNotEmpty()
     HomeRow.CONTINUE_SERIES -> continueSeries.isNotEmpty()
+    HomeRow.LIVE_CATEGORIES -> liveCategoryRails.isNotEmpty()
+    HomeRow.ALL_CHANNELS -> allChannels.isNotEmpty()
+    HomeRow.RECENT_MOVIES -> recentMovies.isNotEmpty()
     // Decided by the Sports row's own matches, in HomeScreen.
     HomeRow.LIVE_SPORTS -> false
 }
@@ -632,6 +659,28 @@ private fun LiveRow(
                 } else {
                     ChannelCard(channel, onClick = { onOpenChannel(channel.id) }, onLongClick = menu)
                 }
+            }
+        }
+    }
+}
+
+/** A plain channel rail (a category, All channels): the heading, then channel cards; a tap plays. */
+@Composable
+private fun ChannelRail(
+    title: String,
+    channels: List<ChannelEntity>,
+    onOpenChannel: (Long) -> Unit,
+    onMenu: (ContentTarget) -> Unit,
+) {
+    Column {
+        RowHeading(title, count = channels.size)
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp), contentPadding = PaddingValues(horizontal = 18.dp)) {
+            items(channels, key = { it.id }) { channel ->
+                ChannelCard(
+                    channel,
+                    onClick = { onOpenChannel(channel.id) },
+                    onLongClick = { onMenu(ContentTarget(MediaType.LIVE, channel.id, channel.name, channel.displayLogoUrl)) },
+                )
             }
         }
     }

@@ -102,6 +102,12 @@
     <string name="home_row_hero_description">Die große Vorschauzeile ganz oben</string>
     <string name="home_row_continue_movies_description">Filme mit gespeicherter Wiedergabeposition</string>
     <string name="home_row_continue_series_description">Fortzusetzende oder als Nächstes abzuspielende Folgen</string>
+    <string name="home_row_live_categories">Senderkategorien</string>
+    <string name="home_row_live_categories_description">Eine Reihe für jede Senderkategorie, etwa Nachrichten, Film oder Sport</string>
+    <string name="home_row_all_channels">Alle Sender</string>
+    <string name="home_row_all_channels_description">Die ersten Sender Ihrer Playlists</string>
+    <string name="home_row_recent_movies">Neu hinzugefügte Filme</string>
+    <string name="home_row_recent_movies_description">Die neuesten Filme in Ihren Playlists</string>
     <string name="home_row_recent_description">Kürzlich eingeschaltete Live-Sender</string>
     <string name="home_row_favorite_description">Deine Live-Sender in den Favoriten</string>
     <string name="home_row_favorite_movies_description">Deine Filme in den Favoriten</string>
