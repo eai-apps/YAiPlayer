@@ -245,10 +245,6 @@ class M3uParser {
     private fun correctionMinutes(hours: String?): Int? =
         hours?.trim()?.toDoubleOrNull()?.takeIf { it.isFinite() }?.let { Math.round(it * 60).toInt() }
 
-    private companion object {
-        const val EXTGRP_PREFIX_LENGTH = 8 // "#EXTGRP:"
-    }
-
     private data class ParseMetrics(
         var parseOrReadMs: Long = 0L,
         var callbackMs: Long = 0L,
@@ -427,6 +423,7 @@ class M3uParser {
 
     private companion object {
         private const val TAG = "M3uParser"
+        private const val EXTGRP_PREFIX_LENGTH = 8 // length of the #EXTGRP: prefix
         private const val STREAM_LOG_ITEM_STEP = 10_000
         private const val EXTVLCOPT = "#EXTVLCOPT:"
         private const val EXTHTTP = "#EXTHTTP:"
