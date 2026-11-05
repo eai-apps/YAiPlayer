@@ -1,0 +1,42 @@
+name: Tests
+# Юнит-тесты ядра (Stalker и др.). Запускается вручную (Actions → Tests → Run workflow)
+# и при push в ветки test/** и helper-review. Отдельно от Build, чтобы не замедлять сборку APK.
+on:
+  workflow_dispatch:
+  push:
+    branches: ['test/**', helper-review]
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  core-unit:
+    name: Core unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 25
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-home-cache-cleanup: true
+      - name: Принять лицензии Android SDK
+        run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+      - name: Тесты Stalker
+        working-directory: clients/owntv-core
+        run: |
+          chmod +x gradlew
+          ./gradlew :core:testDebugUnitTest --tests 'tv.own.owntv.core.stalker.*' --no-daemon --stacktrace
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: core-test-reports
+          path: clients/owntv-core/core/build/reports/tests/
+          if-no-files-found: ignore
