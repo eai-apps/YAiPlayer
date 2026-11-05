@@ -68,6 +68,7 @@ fun SettingsEpgSourcesPage(
     val autoRefresh by vm.autoRefresh.collectAsStateWithLifecycle()
     val useLogos by vm.useLogos.collectAsStateWithLifecycle()
     val builtinEnabled by vm.builtinEnabled.collectAsStateWithLifecycle()
+    val builtinStatus by vm.builtinStatus.collectAsStateWithLifecycle()
     val deleting by vm.deletingIds.collectAsStateWithLifecycle()
 
     var menuSource by remember { mutableStateOf<EpgSource?>(null) }
@@ -106,6 +107,27 @@ fun SettingsEpgSourcesPage(
                 minHeight = 48.dp,
                 onClick = { vm.setBuiltinEnabled(!builtinEnabled) },
             ) { StageSwitch(builtinEnabled) }
+        }
+        if (builtinEnabled) item(key = "builtin_refresh") {
+            Box(Modifier.padding(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 8.dp)) {
+                StageButton(onClick = { vm.refreshBuiltin() }, text = stringResource(R.string.settings_epg_builtin_refresh), icon = MobileIcons.Refresh, small = true)
+            }
+        }
+        if (builtinEnabled) item(key = "builtin_status") {
+            val at = builtinStatus.lastSyncAt
+            val text = when {
+                builtinStatus.syncing -> stringResource(R.string.settings_epg_builtin_syncing)
+                builtinStatus.failed -> stringResource(R.string.settings_epg_builtin_failed)
+                at != null -> stringResource(
+                    R.string.settings_epg_builtin_done,
+                    android.text.format.DateUtils.formatDateTime(
+                        androidx.compose.ui.platform.LocalContext.current, at,
+                        android.text.format.DateUtils.FORMAT_SHOW_TIME or android.text.format.DateUtils.FORMAT_SHOW_DATE,
+                    ),
+                )
+                else -> null
+            }
+            if (text != null) PageNote(text)
         }
         item(key = "note") { PageNote(stringResource(R.string.settings_epg_sources_addresses_note)) }
     }

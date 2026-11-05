@@ -770,6 +770,10 @@
     <string name="settings_epg_sources_empty">Noch keine EPG-Quellen. Füge einen XMLTV-Link hinzu.</string>
     <string name="settings_epg_builtin">Integrierter Programmführer</string>
     <string name="settings_epg_builtin_description">Programmführer und Senderlogos für Playlists, von der App bereitgestellt. Deine eigenen Quellen haben immer Vorrang.</string>
+    <string name="settings_epg_builtin_refresh">Integrierten Programmführer jetzt aktualisieren</string>
+    <string name="settings_epg_builtin_syncing">Integrierter Programmführer wird aktualisiert…</string>
+    <string name="settings_epg_builtin_failed">Der integrierte Programmführer konnte nicht aktualisiert werden. Prüfe die Verbindung und versuche es erneut.</string>
+    <string name="settings_epg_builtin_done">Integrierter Programmführer aktualisiert: %1$s. Er gilt automatisch für alle Playlists und Portale.</string>
     <string name="settings_epg_sources_add">EPG-Quelle hinzufügen</string>
     <string name="settings_epg_sources_edit">EPG-Quelle bearbeiten</string>
     <string name="settings_epg_sources_add_sync">Hinzufügen und synchronisieren</string>

@@ -784,6 +784,10 @@
     <string name="settings_epg_sources_empty">Источников EPG пока нет. Добавьте ссылку XMLTV.</string>
     <string name="settings_epg_builtin">Встроенная программа передач</string>
     <string name="settings_epg_builtin_description">Программа передач и значки каналов для плейлистов от приложения. Ваши собственные источники всегда в приоритете.</string>
+    <string name="settings_epg_builtin_refresh">Обновить встроенную программу сейчас</string>
+    <string name="settings_epg_builtin_syncing">Обновляем встроенную программу…</string>
+    <string name="settings_epg_builtin_failed">Не удалось обновить встроенную программу. Проверьте соединение и повторите.</string>
+    <string name="settings_epg_builtin_done">Встроенная программа обновлена: %1$s. Она автоматически применена ко всем плейлистам и порталам.</string>
     <string name="settings_epg_sources_add">Добавить источник EPG</string>
     <string name="settings_epg_sources_edit">Изменить источник EPG</string>
     <string name="settings_epg_sources_add_sync">Добавить и синхронизировать</string>

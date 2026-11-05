@@ -228,7 +228,7 @@ class VodTuner(
         if (url.isNullOrBlank()) {
             val ex = resolveResult.exceptionOrNull()
             val rawReason = formatVodErrorReason(ex)
-            began(pid, VodPlayback(MediaType.MOVIE, movie.id, movie.name, posterUrl = movie.posterUrl, sourceId = movie.sourceId, categoryId = movie.categoryId), handedOver = false)
+            began(pid, VodPlayback(MediaType.MOVIE, movie.id, movie.name, posterUrl = movie.posterUrl, sourceId = movie.sourceId, categoryId = movie.categoryId), false)
             player.failVodStreamLink(movie.name, rawReason) {
                 scope.launch { playMovie(movieId, startPositionMs) }
             }

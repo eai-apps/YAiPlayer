@@ -1567,6 +1567,10 @@
     <string name="settings_epg_sources_empty">No EPG sources yet. Add an XMLTV link.</string>
     <string name="settings_epg_builtin">Built-in guide</string>
     <string name="settings_epg_builtin_description">Programme guide and channel logos for playlists, supplied by the app. Your own guides always take priority.</string>
+    <string name="settings_epg_builtin_refresh">Update built-in guide now</string>
+    <string name="settings_epg_builtin_syncing">Updating the built-in guide…</string>
+    <string name="settings_epg_builtin_failed">Built-in guide could not be updated. Check the connection and try again.</string>
+    <string name="settings_epg_builtin_done">Built-in guide updated: %1$s. It is applied to all playlists and portals automatically.</string>
     <!-- Translators: Add-EPG form heading. -->
     <string name="settings_epg_sources_add">Add EPG source</string>
     <!-- Translators: Edit-EPG form heading. -->

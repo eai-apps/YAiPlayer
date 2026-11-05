@@ -8,7 +8,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -48,6 +52,32 @@ class EpgSourcesViewModel(
 
     fun setBuiltinEnabled(enabled: Boolean) {
         viewModelScope.launch { store.setBuiltinEnabled(enabled) }
+    }
+
+    /** State of the hidden built-in guides, for the status line under the refresh button. */
+    data class BuiltinStatus(val syncing: Boolean = false, val lastSyncAt: Long? = null, val failed: Boolean = false)
+
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    val builtinStatus: StateFlow<BuiltinStatus> = store.sources
+        .flatMapLatest { all ->
+            val builtin = all.filter { it.builtin }
+            val sync = if (builtin.isEmpty()) flowOf(false) else combine(builtin.map { epgSync.observeSync(it.id) }) { st -> st.any { it.isActive } }
+            sync.map { syncing ->
+                BuiltinStatus(syncing, builtin.mapNotNull { it.lastSyncAt }.maxOrNull(), builtin.isNotEmpty() && builtin.all { it.lastError != null })
+            }
+        }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), BuiltinStatus())
+
+    /** Manual refresh of the hidden built-in guides (creates them first if no playlist has synced yet). */
+    fun refreshBuiltin() {
+        viewModelScope.launch {
+            val builtin = store.getAll().filter { it.builtin }
+            if (builtin.isEmpty()) {
+                tv.own.owntv.core.sync.BuiltinGuide(store, settings, epgSync).ensure()
+            } else {
+                builtin.forEach { epgSync.enqueueSync(it.id, "manual_builtin") }
+            }
+        }
     }
 
     /** Per-source EPG auto-refresh selection (Off / Startup / staleness threshold). */
