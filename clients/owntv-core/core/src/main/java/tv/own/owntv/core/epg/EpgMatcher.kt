@@ -63,6 +63,11 @@ object EpgMatcher {
     )
 
     private val BRACKETS = Regex("[\\[(\\{][^\\])}]*[\\])}]")
+    // A time shift ("НТВ (+2)", "Channel [-1]", "ТНТ +4") is a different broadcast schedule, so it is kept as a
+    // token ("plus2"/"minus1"): it must not be erased with the other bracketed tags, or "НТВ (+2)" would
+    // pair with the unshifted "НТВ" guide and show a programme from hours away.
+    private val TIME_SHIFT_BRACKETED = Regex("[\\[({]\\s*([+-])\\s*(\\d{1,2})\\s*(?:h|ч)?\\s*[\\])}]")
+    private val TIME_SHIFT_BARE = Regex("(?<![\\p{L}\\p{N}])\\+(\\d{1,2})(?![\\p{L}\\p{N}])")
     private val SEPARATORS = Regex("[._\\-:|/+]")
     // Letters and digits of ANY script, not just ASCII: an a-z0-9 class erases Cyrillic, Greek and
     // CJK names entirely, and bestEpgMatch bails out on the resulting empty target — so channels in
@@ -103,6 +108,9 @@ object EpgMatcher {
         // Compose (NFKC), not decompose (NFKD): decomposing would leave combining marks that
         // NON_ALNUM turns into spaces, splitting "Чайка" into two tokens and degrading "ﾊﾟ" to "ハ".
         var s = java.text.Normalizer.normalize(raw, java.text.Normalizer.Form.NFKC).lowercase()
+        s = s.replace('ё', 'е') // "Ёж ТВ" and "Еж ТВ" are one channel; feeds spell it both ways
+        s = s.replace(TIME_SHIFT_BRACKETED) { m -> " " + (if (m.groupValues[1] == "+") "plus" else "minus") + m.groupValues[2] + " " }
+        s = s.replace(TIME_SHIFT_BARE) { m -> " plus" + m.groupValues[1] + " " }
         s = s.replace(BRACKETS, " ")
         s = s.replace(SEPARATORS, " ")
         s = s.replace(NON_ALNUM, " ")
