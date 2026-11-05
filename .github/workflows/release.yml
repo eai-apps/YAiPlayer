@@ -68,10 +68,18 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
           path: dist
           merge-multiple: true
+      - name: Prepare release notes
+        run: |
+          # docs/WHATS_NEW.md holds the user-facing changes for THIS release (Russian bullets).
+          notes="$(grep -v '^<!--' docs/WHATS_NEW.md | sed '/^[[:space:]]*$/d' || true)"
+          if [ -z "$notes" ]; then notes="- Внутренние улучшения и исправления"; fi
+          printf '%s\n' "$notes" > notes.md
+          cat notes.md
       - name: Publish GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -80,5 +88,25 @@ jobs:
           gh release create "v2.0.${{ github.run_number }}" dist/*.apk \
             --repo "${{ github.repository }}" \
             --title "YAiPlayer 2.0.${{ github.run_number }}" \
-            --notes "Automatic build ${{ github.run_number }} from ${{ github.sha }}." \
+            --notes-file notes.md \
             --latest
+      - name: Post to Telegram channel
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          gh api "repos/${{ github.repository }}/releases/tags/v2.0.${{ github.run_number }}" > release.json
+          python3 telegram-release/post_release.py --release-json release.json
+      - name: Reset release notes for the next release
+        continue-on-error: true
+        run: |
+          printf '%s\n' '<!-- Пункты для ЧЕЛОВЕКА (по-русски, "- Что нового"). Релиз берёт их как "что нового" и очищает файл. -->' > docs/WHATS_NEW.md
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add docs/WHATS_NEW.md
+          git diff --cached --quiet || {
+            git commit -m "Release notes: reset after v2.0.${{ github.run_number }} [skip ci]"
+            git pull --rebase origin main && git push origin HEAD:main
+          }
