@@ -1,5 +1,6 @@
 package tv.own.owntv.core.home
 
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -13,7 +14,7 @@ import tv.own.owntv.core.database.entity.CategoryEntity
 import tv.own.owntv.core.database.entity.ChannelEntity
 import tv.own.owntv.core.database.entity.MovieEntity
 import tv.own.owntv.core.database.entity.SourceEntity
-import tv.own.owntv.core.database.entity.SourceType
+import tv.own.owntv.core.model.SourceType
 import tv.own.owntv.core.model.HomeConfig
 import tv.own.owntv.core.model.HomeRow
 import tv.own.owntv.core.model.MediaType
@@ -150,7 +151,7 @@ class HomeFeedRowsTest {
         suspend fun loadLiveCategoryRails(config: HomeConfig, liveIds: Set<Long>): List<ChannelRail> {
             if (HomeRow.LIVE_CATEGORIES !in config.visibleOrder || liveIds.isEmpty()) return emptyList()
             val rails = ArrayList<ChannelRail>()
-            for (cat in categoryDao.observe(liveIds.toList(), MediaType.LIVE).let { kotlinx.coroutines.flow.first(it) }) {
+            for (cat in categoryDao.observe(liveIds.toList(), MediaType.LIVE).first()) {
                 if (rails.size >= 8) break // CATEGORY_RAIL_LIMIT
                 val channels = channelDao.channelsAfterCategory(cat.id, Int.MIN_VALUE, Long.MIN_VALUE, 20) // CATEGORY_RAIL_CHANNELS
                 if (channels.isNotEmpty()) {
