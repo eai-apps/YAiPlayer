@@ -284,7 +284,7 @@ fun HomeScreen(
             // Channel categories are one rail per category, each its own list item.
             if (row == HomeRow.LIVE_CATEGORIES) {
                 state.liveCategoryRails.forEach { rail ->
-                    item("live-cat-${rail.categoryId}") {
+                    item(rail.categoryId) {
                         ChannelRail(rail.title, rail.channels, onOpenChannel = onOpenChannel, onMenu = { menuFor = it })
                     }
                 }
