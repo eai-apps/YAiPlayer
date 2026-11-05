@@ -29,6 +29,8 @@ internal fun ResyncChoiceDialog(
     onNormal: () -> Unit,
     onClean: () -> Unit,
     onDismiss: () -> Unit,
+    /** Stalker playlists only: forget the portal session and fetch everything again. */
+    onClearStalker: (() -> Unit)? = null,
 ) {
     val focus = remember { FocusRequester() }
     LaunchedEffect(Unit) { kotlinx.coroutines.delay(60); runCatching { focus.requestFocus() } }
@@ -46,5 +48,11 @@ internal fun ResyncChoiceDialog(
             title = stringResource(R.string.settings_sources_resync_remove_full), onClick = onClean, danger = true,
             leading = { tv.own.owntv.ui.stage.StagePopupIcon(OwnTVIcon.TRASH, tv.own.owntv.ui.theme.StageColors.Danger) },
         )
+        onClearStalker?.let { clear ->
+            tv.own.owntv.ui.stage.StagePopupOption(
+                title = stringResource(R.string.settings_sources_clear_stalker), onClick = clear, danger = true,
+                leading = { tv.own.owntv.ui.stage.StagePopupIcon(OwnTVIcon.TRASH, tv.own.owntv.ui.theme.StageColors.Danger) },
+            )
+        }
     }
 }

@@ -353,6 +353,9 @@ fun ManageSourcesScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
                 onNormal = { vm.resync(src); resyncChoice = null },
                 onClean = { vm.resync(src, clean = true); resyncChoice = null },
                 onDismiss = { resyncChoice = null },
+                onClearStalker = if (src.type == tv.own.owntv.core.model.SourceType.STALKER) {
+                    { vm.clearStalkerData(src); resyncChoice = null }
+                } else null,
             )
         }
 

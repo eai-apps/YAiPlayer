@@ -747,6 +747,7 @@
     <string name="settings_sources_resync_title_full">„<xliff:g id="name">%1$s</xliff:g>“ erneut synchronisieren</string>
     <string name="settings_sources_resync_now_full">Jetzt erneut synchronisieren</string>
     <string name="settings_sources_resync_remove_full">Erneut synchronisieren und fehlende Titel entfernen</string>
+    <string name="settings_sources_clear_stalker">Stalker-Daten löschen (Sitzung und Senderliste)</string>
     <string name="settings_sources_resync_description">„Jetzt erneut synchronisieren“ ruft den neuesten Katalog ab und behält alle bereits gespeicherten Inhalte.\n\n„Erneut synchronisieren und fehlende Titel entfernen“ ermöglicht außerdem das Entfernen von Titeln, die vom Anbieter nicht mehr aufgeführt werden. Deine Favoriten, dein Wiedergabeverlauf und deine Fortsetzungspositionen für weiterhin aufgeführte Titel bleiben erhalten.</string>
     <string name="settings_sources_refresh_off">Aus</string>
     <string name="settings_sources_refresh_startup">Beim App-Start aktualisieren</string>

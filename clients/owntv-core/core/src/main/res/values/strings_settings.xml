@@ -1528,6 +1528,7 @@
     <string name="settings_sources_resync_now_full">Resync now</string>
     <!-- Translators: Option to resync and remove titles no longer listed by the provider. -->
     <string name="settings_sources_resync_remove_full">Resync and remove missing titles</string>
+    <string name="settings_sources_clear_stalker">Clear Stalker data (session and channel list)</string>
     <!-- Translators: Description of the resync options and their effects. -->
     <string name="settings_sources_resync_description">Resync now fetches the latest catalog and keeps everything already saved.\n\nResync and remove missing titles also allows removing titles the provider no longer lists. Your favorites, history and resume positions for titles that are still listed are kept.</string>
     <!-- Translators: Auto-refresh option: off (no automatic refresh). -->

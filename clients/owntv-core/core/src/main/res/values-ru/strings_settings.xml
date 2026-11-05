@@ -757,6 +757,7 @@
     <string name="settings_sources_resync_title_full">Повторно синхронизировать «<xliff:g id="name">%1$s</xliff:g>»</string>
     <string name="settings_sources_resync_now_full">Повторно синхронизировать сейчас</string>
     <string name="settings_sources_resync_remove_full">Повторно синхронизировать и удалить отсутствующие материалы</string>
+    <string name="settings_sources_clear_stalker">Очистить данные Stalker (вход и список каналов)</string>
     <string name="settings_sources_resync_description">При повторной синхронизации сейчас загружается актуальный каталог, а все уже сохранённые данные остаются.\n\nПовторная синхронизация с удалением отсутствующих материалов также позволяет удалить материалы, которых больше нет в списках поставщика. Избранное, история и позиции продолжения просмотра для материалов, которые по-прежнему доступны, сохраняются.</string>
     <string name="settings_sources_refresh_off">Выкл.</string>
     <string name="settings_sources_refresh_startup">Обновлять при запуске</string>

@@ -131,6 +131,9 @@ fun SettingsPlaylistsPage(
             } else {
                 StageMenuItem(stringResource(R.string.settings_sources_resync_now_full), onClick = { vm.resync(source); close() }, icon = MobileIcons.Refresh)
                 StageMenuItem(stringResource(R.string.settings_sources_resync_remove_full), onClick = { vm.resync(source, removeMissing = true); close() }, icon = MobileIcons.Refresh)
+                if (source.type == SourceType.STALKER) {
+                    StageMenuItem(stringResource(R.string.settings_sources_clear_stalker), onClick = { vm.clearStalkerData(source); close() }, icon = MobileIcons.Delete)
+                }
             }
             StageMenuItem(stringResource(R.string.settings_sources_edit), onClick = { editSource = source; close() }, icon = MobileIcons.Edit)
             StageMenuItem(stringResource(R.string.settings_sources_clean_names), onClick = { namesFor = source; close() }, icon = MobileIcons.AutoAwesome)

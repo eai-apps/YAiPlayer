@@ -215,6 +215,15 @@ class SettingsViewModel(
     }
 
     /**
+     * Playlists › Clear Stalker data: forget the portal session (its token) and fetch the whole catalogue
+     * again, dropping what the portal no longer lists. The login, MAC and device IDs are kept.
+     */
+    fun clearStalkerData(source: SourceEntity) {
+        stalkerAuth.invalidate(source.id)
+        resync(source, removeMissing = true)
+    }
+
+    /**
      * Stores a playlist's "Clean channel names" option and its own words ([customText], `;`-separated;
      * blank = none). Names are cleaned at sync time, so the playlist re-syncs whenever the shown names
      * would change: the option was switched, or its words changed while it is on.

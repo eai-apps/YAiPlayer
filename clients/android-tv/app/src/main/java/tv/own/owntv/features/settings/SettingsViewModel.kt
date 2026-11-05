@@ -1371,6 +1371,15 @@ class SettingsViewModel(
      * playlist. This is that way out. It is *not* a delete-and-reimport: rows keep their ids, so
      * favorites, history and resume positions on everything still listed survive untouched.
      */
+    /**
+     * Clear Stalker data: forget the portal session (its token) and fetch the whole catalogue again,
+     * dropping what the portal no longer lists. The login, MAC and device IDs are kept.
+     */
+    fun clearStalkerData(source: SourceEntity) {
+        stalkerAuth.invalidate(source.id)
+        resync(source, clean = true)
+    }
+
     fun resync(source: SourceEntity, clean: Boolean = false) {
         Log.d(TAG, "resync enqueue sourceId=${source.id} clean=$clean")
         viewModelScope.launch {
