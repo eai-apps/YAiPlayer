@@ -150,6 +150,10 @@
     <string name="home_start_watching">Start watching to see your activity here.</string>
     <!-- Translators: Empty-state message for the continue-watching row when no history exists. -->
     <string name="home_continue_empty">Your continue-watching items will appear here once playback history is available.</string>
+    <!-- Translators: Title on the empty Home screen card prompting to add a playlist or portal. -->
+    <string name="home_add_playlist_or_portal">Add playlist or portal</string>
+    <!-- Translators: Description on the empty Home screen card prompting to add a playlist or portal. -->
+    <string name="home_add_playlist_or_portal_description">Add an M3U playlist, Xtream Codes login, or Stalker portal to start watching.</string>
     <!-- Translators: Timestamp text for very recent activity (within the last minute). -->
     <string name="home_last_watched_now">Last watched just now</string>
     <!-- Translators: Plural "last watched" timestamp for minutes. "count" is the number of minutes. -->

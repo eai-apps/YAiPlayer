@@ -145,6 +145,7 @@ fun MobileNavHost(
                         onPlayerOpened = { navController.navigate(PLAYER_ROUTE) },
                         onOpenSearch = { query -> navController.navigate(searchRoute(query)) },
                         onOpenMatch = { sportsPlayback.opening = it; navController.navigate(sportsMatchRoute(it.key)) },
+                        onAddSource = { navController.navigate(setupRoute(SetupEntry.FORM)) },
                     )
                     MobileDestination.GUIDE -> GuideScreen(
                         scrollToTop = scrollToTop,

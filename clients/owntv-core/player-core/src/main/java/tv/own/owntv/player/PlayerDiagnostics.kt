@@ -6,6 +6,7 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.util.concurrent.ConcurrentLinkedDeque
 import tv.own.owntv.core.R
+import tv.own.owntv.core.network.HttpClient
 
 /**
  * Tails the app's OWN logcat for the below-the-engine playback failures the player objects can't expose:
@@ -146,6 +147,8 @@ sealed interface PlaybackFailure {
     data object MpvStreamNeverStarted : PlaybackFailure
     /** The playlist marks the stream as Apple FairPlay protected, which no Android device can decrypt. */
     data object FairPlay : PlaybackFailure
+    /** Resolving VOD stream URL from portal failed. */
+    data class VodStreamLink(val rawReason: String? = null) : PlaybackFailure
     /** Genuine unknown engine/provider text; intentionally not translated. */
     data class Raw(val message: String) : PlaybackFailure
 }
@@ -197,8 +200,18 @@ fun PlaybackFailure.describe(resolve: (Int, List<Any>) -> String): String {
         PlaybackFailure.AccountInUse -> str(R.string.player_error_account_in_use)
         PlaybackFailure.MpvStreamNeverStarted -> str(R.string.player_error_mpv_stream_never_started)
         PlaybackFailure.FairPlay -> str(R.string.player_error_fairplay)
+        is PlaybackFailure.VodStreamLink -> str(R.string.player_error_vod_stream_link)
         is PlaybackFailure.Raw -> message
     }
+}
+
+/** Formats exception type and redacted message for VOD error display. */
+fun formatVodErrorReason(throwable: Throwable?): String {
+    if (throwable == null) return "Unknown error"
+    val type = throwable.javaClass.simpleName
+    val rawMsg = throwable.message?.takeIf { it.isNotBlank() }
+    val msg = rawMsg?.let { HttpClient.redactUrl(it).take(120) }
+    return if (msg != null) "$type: $msg" else type
 }
 
 /**

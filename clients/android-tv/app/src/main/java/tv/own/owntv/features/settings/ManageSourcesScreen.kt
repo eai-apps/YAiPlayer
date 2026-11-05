@@ -64,7 +64,11 @@ import tv.own.owntv.ui.components.OwnTVSpinner
 
 /** List / add / re-sync / delete the active profile's IPTV sources. */
 @Composable
-fun ManageSourcesScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
+fun ManageSourcesScreen(
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier,
+    startOnAdd: Boolean = false,
+) {
     val vm: SettingsViewModel = koinViewModel()
     val sources by vm.sources.collectAsStateWithLifecycle()
     val importState by vm.importState.collectAsStateWithLifecycle()
@@ -79,7 +83,7 @@ fun ManageSourcesScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
     val defaultPlaylistName = stringResource(R.string.setup_name_default_playlist)
     val defaultPortalName = stringResource(R.string.setup_default_portal)
 
-    var showAdd by remember { mutableStateOf(false) }
+    var showAdd by remember { mutableStateOf(startOnAdd) }
     // Within "Add source": null = the Remote|Manual chooser, else the chosen path.
     var addMode by remember { mutableStateOf<AddMode?>(null) }
     var editingSource by remember { mutableStateOf<SourceEntity?>(null) }

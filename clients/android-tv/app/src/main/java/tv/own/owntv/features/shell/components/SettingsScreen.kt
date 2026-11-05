@@ -151,6 +151,8 @@ fun SettingsScreen(
     onBack: (() -> Unit)? = null,
     openEpgAdd: Boolean = false,
     onEpgAddConsumed: () -> Unit = {},
+    openSourcesAdd: Boolean = false,
+    onSourcesAddConsumed: () -> Unit = {},
     /** More › Settings: open at a root group, or with search open. */
     start: SettingsStart? = null,
     onStartConsumed: () -> Unit = {},
@@ -163,6 +165,8 @@ fun SettingsScreen(
     var tab by rememberSaveable { mutableStateOf(SettingsTab.ROOT) }
     // Deep-link from the Guide's "Add EPG" button: jump straight to EPG Sources in add mode.
     var consumeEpgAdd by remember { mutableStateOf(false) }
+    // Deep-link from the Home's "Add source" button: jump straight to Sources in add mode.
+    var consumeSourcesAdd by remember { mutableStateOf(false) }
     var showZoom by remember { mutableStateOf(false) }
     var showAppIcon by remember { mutableStateOf(false) }
     var showPopupSize by remember { mutableStateOf(false) }
@@ -395,6 +399,9 @@ fun SettingsScreen(
     LaunchedEffect(openEpgAdd) {
         if (openEpgAdd) { consumeEpgAdd = true; open(SettingsTab.EPG); onEpgAddConsumed() }
     }
+    LaunchedEffect(openSourcesAdd) {
+        if (openSourcesAdd) { consumeSourcesAdd = true; open(SettingsTab.SOURCES); onSourcesAddConsumed() }
+    }
 
     // Sub-screens sit below the status cluster (StageContentTop), 6 dp in from the edges.
     val sub = modifier.padding(start = 6.dp, end = 6.dp, bottom = 6.dp, top = StageContentTop)
@@ -404,7 +411,7 @@ fun SettingsScreen(
     CompositionLocalProvider(tv.own.owntv.features.settings.LocalSettingsSearch provides openSearch) {
     when (tab) {
         SettingsTab.LANGUAGE -> { LanguageSettingsScreen(onBack = { tab = SettingsTab.ROOT }, modifier = modifier) }
-        SettingsTab.SOURCES -> { ManageSourcesScreen(onBack = { tab = SettingsTab.ROOT }, modifier = modifier) }
+        SettingsTab.SOURCES -> { ManageSourcesScreen(onBack = { tab = SettingsTab.ROOT; consumeSourcesAdd = false }, modifier = modifier, startOnAdd = consumeSourcesAdd) }
         SettingsTab.EPG -> { tv.own.owntv.features.settings.EpgSourcesScreen(onBack = { tab = SettingsTab.ROOT; consumeEpgAdd = false }, modifier = modifier, startOnAdd = consumeEpgAdd) }
         SettingsTab.BACKUP -> { BackupScreen(onBack = { tab = SettingsTab.ROOT }, modifier = sub) }
         SettingsTab.LOCAL_SYNC -> { LocalSyncScreen(onBack = { tab = SettingsTab.ROOT }, modifier = sub) }

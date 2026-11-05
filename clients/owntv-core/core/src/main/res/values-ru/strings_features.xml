@@ -83,6 +83,8 @@
     <string name="home_enable_rows">Включите ряды в разделе «Настройки» → «Главный экран».</string>
     <string name="home_start_watching">Начните смотреть, и здесь появится ваша активность.</string>
     <string name="home_continue_empty">Контент для продолжения просмотра появится здесь, когда будет доступна история воспроизведения.</string>
+    <string name="home_add_playlist_or_portal">Добавить плейлист или портал</string>
+    <string name="home_add_playlist_or_portal_description">Добавьте плейлист M3U, данные Xtream Codes или портал Stalker, чтобы начать просмотр.</string>
     <string name="home_last_watched_now">Последний просмотр: только что</string>
     <plurals name="home_last_watched_minutes">
         <item quantity="one">Последний просмотр: <xliff:g id="count">%1$d</xliff:g> минуту назад</item>

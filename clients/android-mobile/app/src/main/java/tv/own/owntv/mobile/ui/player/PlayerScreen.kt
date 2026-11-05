@@ -682,7 +682,7 @@ fun PlayerScreen(
 
         val failure = error
         if (failure != null) {
-            ErrorPanel(failure = failure, info = errorInfo, onRetry = activeEngine::retry)
+            ErrorPanel(failure = failure, info = errorInfo, onRetry = activeEngine::retry, onBack = onExit)
         } else if (buffering && !noPicture) {
             // On the same material as every other message over the picture, rather than a bare ring.
             PlayerToast(Modifier.align(Alignment.Center)) {
@@ -1021,7 +1021,12 @@ private fun skip(tuner: LiveTuner, isLive: Boolean, forward: Boolean) {
 }
 
 @Composable
-private fun ErrorPanel(failure: PlaybackFailure, info: ErrorInfo?, onRetry: () -> Unit) {
+private fun ErrorPanel(
+    failure: PlaybackFailure,
+    info: ErrorInfo?,
+    onRetry: () -> Unit,
+    onBack: (() -> Unit)? = null,
+) {
     val res = LocalResources.current
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         PlayerToast {
@@ -1061,7 +1066,12 @@ private fun ErrorPanel(failure: PlaybackFailure, info: ErrorInfo?, onRetry: () -
                     modifier = Modifier.padding(top = 4.dp),
                 )
             }
-            TextButton(onClick = onRetry) { Text(stringResource(R.string.common_retry)) }
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                TextButton(onClick = onRetry) { Text(stringResource(R.string.common_retry)) }
+                if (onBack != null) {
+                    TextButton(onClick = onBack) { Text(stringResource(R.string.common_back)) }
+                }
+            }
         }
     }
 }

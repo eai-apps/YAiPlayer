@@ -48,6 +48,7 @@ import tv.own.owntv.player.MediaMeta
 import tv.own.owntv.player.MpvPlaybackEngine
 import tv.own.owntv.player.OwnTVPlayer
 import tv.own.owntv.player.PlaybackSession
+import tv.own.owntv.player.formatVodErrorReason
 import tv.own.owntv.player.PlaylistItem
 
 /**
@@ -222,7 +223,17 @@ class VodTuner(
         }
 
         if (!dataSaver.allowsStreaming()) return false
-        val url = resolve(source, movie.streamUrl) ?: return false
+        val resolveResult = runCatching { resolve(source, movie.streamUrl) }
+        val url = resolveResult.getOrNull()
+        if (url.isNullOrBlank()) {
+            val ex = resolveResult.exceptionOrNull()
+            val rawReason = formatVodErrorReason(ex)
+            began(pid, VodPlayback(MediaType.MOVIE, movie.id, movie.name, posterUrl = movie.posterUrl, sourceId = movie.sourceId, categoryId = movie.categoryId), handedOver = false)
+            player.failVodStreamLink(movie.name, rawReason) {
+                scope.launch { playMovie(movieId, startPositionMs) }
+            }
+            return true
+        }
         saveProgress()
         liveTuner.stop()
         val handedOver = cast.offer(
@@ -591,7 +602,7 @@ class VodTuner(
         itemId: Long,
         startPositionMs: Long,
     ): Boolean {
-        val url = resolve(source, streamUrl) ?: return false
+        val url = runCatching { resolve(source, streamUrl) }.getOrNull() ?: return false
         externalPlayerLauncher.launch(
             url = url,
             title = title,
@@ -610,7 +621,7 @@ class VodTuner(
     /** Stalker mints a play URL per open; the stored "URL" is a portal command until then. */
     private suspend fun resolve(source: SourceEntity?, streamUrl: String): String? =
         if (streamUrlResolver.needsResolve(source)) {
-            runCatching { streamUrlResolver.resolve(source!!, streamUrl, vod = true) }.getOrNull()
+            streamUrlResolver.resolve(source!!, streamUrl, vod = true)
         } else {
             streamUrl
         }

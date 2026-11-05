@@ -79,6 +79,7 @@ import tv.own.owntv.core.storage.MediaFolders
 import tv.own.owntv.core.repository.activeProfileSources
 import tv.own.owntv.core.settings.SettingsRepository
 import tv.own.owntv.player.OwnTVPlayer
+import tv.own.owntv.player.formatVodErrorReason
 import tv.own.owntv.ui.components.OwnTVIcon
 import tv.own.owntv.core.live.LiveKey
 import tv.own.owntv.features.search.positionOf
@@ -716,9 +717,19 @@ class MovieViewModel(
             // streamUrl stays the cmd — it's the item's identity (engine pins, downloads, history).
             val playUrl = if (streamUrlResolver.needsResolve(source)) {
                 try {
-                    streamUrlResolver.resolve(source!!, movie.streamUrl, vod = true)
+                    val resolved = streamUrlResolver.resolve(source!!, movie.streamUrl, vod = true)
+                    if (resolved.isBlank()) {
+                        val rawReason = "Portal returned empty link"
+                        player.failVodStreamLink(movie.name, rawReason) { play(movie, startPositionMs) }
+                        _playingMovie.value = movie
+                        return@launch
+                    }
+                    resolved
                 } catch (e: Exception) {
                     Log.w(TAG, "stalker resolve failed movieId=${movie.id}", e)
+                    val rawReason = formatVodErrorReason(e)
+                    player.failVodStreamLink(movie.name, rawReason) { play(movie, startPositionMs) }
+                    _playingMovie.value = movie
                     return@launch
                 }
             } else {

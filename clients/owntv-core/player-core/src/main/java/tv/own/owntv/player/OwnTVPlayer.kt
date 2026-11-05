@@ -1370,6 +1370,21 @@ class OwnTVPlayer(
     val error: StateFlow<PlaybackFailure?> = _error.asStateFlow()
     private val _errorInfo = MutableStateFlow<ErrorInfo?>(null)
     val errorInfo: StateFlow<ErrorInfo?> = _errorInfo.asStateFlow()
+    @Volatile
+    private var customRetryAction: (() -> Unit)? = null
+
+    /** Surfaces a VOD stream resolution failure to the player UI and saves the retry callback. */
+    fun failVodStreamLink(title: String, rawReason: String?, retryAction: (() -> Unit)? = null) {
+        customRetryAction = retryAction
+        _isPlaying.value = false
+        _buffering.value = false
+        item.isLive = false
+        isLiveContent = false
+        val failure = PlaybackFailure.VodStreamLink(rawReason)
+        _error.value = failure
+        _errorInfo.value = ErrorInfo(reason = null, spec = null, raw = rawReason)
+        item.meta = (item.meta ?: MediaMeta()).copy(title = title)
+    }
 
     // Captures mpv's own error output (msg-level=warn, set even in release) so the real failure reason is
     // available to show the user. Keeps error/fatal lines, plus warn lines that look like an actual failure
@@ -2840,7 +2855,9 @@ class OwnTVPlayer(
                 android.util.Log.w(TAG, "queue item resolve failed: ${e.message}")
                 if (gen == loadGeneration) {
                     _buffering.value = false
-                    _error.value = PlaybackFailure.StreamLink
+                    val rawReason = formatVodErrorReason(e)
+                    _error.value = PlaybackFailure.VodStreamLink(rawReason)
+                    _errorInfo.value = ErrorInfo(reason = null, spec = null, raw = rawReason)
                 }
                 return@launch
             }
@@ -2915,6 +2932,7 @@ class OwnTVPlayer(
     ) {
         // Internal retries keep the current item's notice; a new item must never inherit it.
         if (resetRetries) clearToast()
+        customRetryAction = null
         abandonedLiveUrl = null
         ensureInit()
         restoreTrimmedCache()
@@ -3853,6 +3871,14 @@ class OwnTVPlayer(
      * from a previous channel — could even mint and play a live URL instead of the movie.
      */
     fun retry() {
+        val custom = customRetryAction
+        if (custom != null) {
+            _error.value = null
+            _errorInfo.value = null
+            _buffering.value = true
+            custom()
+            return
+        }
         // After a live give-up [abandonLive] has stopped the stream, so the URL is the one it gave up on —
         // Retry used to return here and do nothing on that error screen, on both apps.
         val url = currentUrl ?: abandonedLiveUrl?.also { currentUrl = it } ?: return

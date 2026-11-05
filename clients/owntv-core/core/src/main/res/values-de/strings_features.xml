@@ -77,6 +77,8 @@
     <string name="home_enable_rows">Zeilen unter Einstellungen → Startbildschirm wieder aktivieren.</string>
     <string name="home_start_watching">Schau dir etwas an, damit deine Aktivitäten hier angezeigt werden.</string>
     <string name="home_continue_empty">Deine Einträge zum Weiterschauen werden hier angezeigt, sobald ein Wiedergabeverlauf verfügbar ist.</string>
+    <string name="home_add_playlist_or_portal">Playlist oder Portal hinzufügen</string>
+    <string name="home_add_playlist_or_portal_description">Fügen Sie eine M3U-Playlist, Xtream Codes oder ein Stalker-Portal hinzu, um mit der Wiedergabe zu beginnen.</string>
     <string name="home_last_watched_now">Zuletzt angesehen: gerade eben</string>
     <plurals name="home_last_watched_minutes">
         <item quantity="one">Zuletzt vor <xliff:g id="count">%1$d</xliff:g> Minute angesehen</item>

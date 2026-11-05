@@ -80,6 +80,8 @@ import tv.own.owntv.mobile.ui.shell.HomeHeading
 import tv.own.owntv.mobile.ui.shell.HomeResume
 import tv.own.owntv.mobile.ui.shell.LocalHomeChrome
 import tv.own.owntv.mobile.ui.stage.LocalStagePalette
+import tv.own.owntv.mobile.ui.stage.StageButton
+import tv.own.owntv.mobile.ui.stage.StageButtonStyle
 import tv.own.owntv.mobile.ui.stage.StageIcon
 import tv.own.owntv.mobile.ui.stage.StagePoster
 import tv.own.owntv.mobile.ui.stage.StageProgress
@@ -105,6 +107,7 @@ fun HomeScreen(
     onPlayerOpened: () -> Unit,
     onOpenSearch: (String) -> Unit,
     onOpenMatch: (tv.own.owntv.core.sports.model.Match) -> Unit,
+    onAddSource: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
     vm: HomeViewModel = koinViewModel(),
     sportsVm: tv.own.owntv.mobile.ui.screens.sports.SportsViewModel = koinViewModel(),
@@ -206,9 +209,13 @@ fun HomeScreen(
         null
     }
     if (rows.isEmpty()) {
-        Column(modifier.fillMaxSize()) {
+        Column(
+            modifier = modifier.fillMaxSize().padding(horizontal = 24.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
             loadingNote?.invoke()
-            HomeMessage(stringResource(R.string.home_start_watching), stringResource(R.string.home_continue_empty), Modifier.weight(1f))
+            EmptyHomeQuickAddCard(onAddSource = onAddSource)
         }
         return
     }
@@ -755,6 +762,47 @@ private fun ChannelCard(channel: ChannelEntity, onClick: () -> Unit, onLongClick
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
         )
+    }
+}
+
+/** Empty Home state: large card prompting the user to add a playlist or portal. */
+@Composable
+private fun EmptyHomeQuickAddCard(onAddSource: (() -> Unit)?, modifier: Modifier = Modifier) {
+    val palette = LocalStagePalette.current
+    val shape = RoundedCornerShape(24.dp)
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .background(palette.ink.copy(alpha = 0.045f))
+            .padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        StageIcon(MobileIcons.Add, 48.dp, palette.text)
+        Spacer(Modifier.height(16.dp))
+        Text(
+            text = stringResource(R.string.home_add_playlist_or_portal),
+            style = stageText(20f, 800),
+            color = palette.text,
+            textAlign = TextAlign.Center,
+        )
+        Spacer(Modifier.height(8.dp))
+        Text(
+            text = stringResource(R.string.home_add_playlist_or_portal_description),
+            style = stageText(14f, 500),
+            color = palette.muted,
+            textAlign = TextAlign.Center,
+        )
+        if (onAddSource != null) {
+            Spacer(Modifier.height(20.dp))
+            StageButton(
+                onClick = onAddSource,
+                text = stringResource(R.string.setup_add_source),
+                icon = MobileIcons.Add,
+                style = StageButtonStyle.PRIMARY,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
     }
 }
 

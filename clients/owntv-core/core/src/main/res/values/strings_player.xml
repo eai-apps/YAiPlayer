@@ -191,6 +191,8 @@
     <string name="player_error_both_engines_mpv_first">Playback failed on both video engines (mpv and ExoPlayer). The file may be corrupted or use a format this TV can\'t play. (<xliff:g id="error">%1$s</xliff:g>)</string>
     <!-- Translators: Error when the Stalker portal fails to return a stream link. "portal" refers to the Stalker middleware. -->
     <string name="player_error_stream_link">Could not get a stream link from the portal. Check the connection and try again.</string>
+    <!-- Translators: Error when the portal fails to return a movie/VOD stream link. -->
+    <string name="player_error_vod_stream_link">Could not get movie stream link from portal</string>
     <!-- Translators: Error when the video file is not properly configured for streaming (missing fast-start). -->
     <string name="player_error_not_streaming">This video isn\'t formatted for streaming. Ask the provider to re-encode with fast-start, or download it first.</string>
     <!-- Translators: Error when the connection to a live channel is lost. -->

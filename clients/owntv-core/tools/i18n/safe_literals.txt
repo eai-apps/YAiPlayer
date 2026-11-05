@@ -6575,6 +6575,7 @@
 1	technical	player-core/src/main/java/tv/own/owntv/player/PlaybackSession.kt	DEPRECATION
 1	technical	player-core/src/main/java/tv/own/owntv/player/PlaybackSession.kt	OwnTV
 1	compiler	player-core/src/main/java/tv/own/owntv/player/PlaybackSettings.kt	UNCHECKED_CAST
+1	technical	player-core/src/main/java/tv/own/owntv/player/PlayerDiagnostics.kt	$type: $msg
 1	log	player-core/src/main/java/tv/own/owntv/player/PlayerDiagnostics.kt	${e.tag}: ${e.text}
 1	regex	player-core/src/main/java/tv/own/owntv/player/PlayerDiagnostics.kt	(?:\\bhttp(?: error)? |\\bresponse code[:= ]+|\\bstatus(?: code)?[:= ]+)(\\d{3})\\b
 1	log	player-core/src/main/java/tv/own/owntv/player/PlayerDiagnostics.kt	*:S
@@ -6605,6 +6606,7 @@
 1	log	player-core/src/main/java/tv/own/owntv/player/PlayerDiagnostics.kt	MediaCodecRenderer:E
 1	log	player-core/src/main/java/tv/own/owntv/player/PlayerDiagnostics.kt	MediaCodecVideoRenderer:E
 1	log	player-core/src/main/java/tv/own/owntv/player/PlayerDiagnostics.kt	OMXClient:E
+1	technical	player-core/src/main/java/tv/own/owntv/player/PlayerDiagnostics.kt	Unknown error
 1	regex	player-core/src/main/java/tv/own/owntv/player/PlayerDiagnostics.kt	\\b(?:err(?:or)?|status|code)\\s*[:=]?\\s*(?:-12|0xfffffff4)\\b
 1	log	player-core/src/main/java/tv/own/owntv/player/PlayerDiagnostics.kt	audio codec
 1	log	player-core/src/main/java/tv/own/owntv/player/PlayerDiagnostics.kt	audioflinger

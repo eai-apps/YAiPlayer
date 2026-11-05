@@ -161,6 +161,7 @@ fun HomeScreen(
     onEntryHook: (((() -> Boolean)?) -> Unit)? = null,
     /** Sports Hub: ▶ on a Live sports card opens its match page. */
     onOpenMatch: (tv.own.owntv.core.sports.model.Match) -> Unit = {},
+    onAddSource: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
     sportsVm: tv.own.owntv.features.sports.SportsViewModel = org.koin.androidx.compose.koinViewModel(),
 ) {
@@ -323,7 +324,7 @@ fun HomeScreen(
         return
     }
     if (showEmptyState) {
-        EmptyHomeState(modifier = modifier.fillMaxSize())
+        EmptyHomeState(modifier = modifier.fillMaxSize(), onAddSource = onAddSource)
         return
     }
 
@@ -1492,10 +1493,17 @@ private fun HeroFallbackPane(
 @Composable
 private fun EmptyHomeState(
     modifier: Modifier = Modifier,
+    onAddSource: (() -> Unit)? = null,
 ) {
+    val buttonFocus = remember { FocusRequester() }
+    LaunchedEffect(Unit) {
+        if (onAddSource != null) {
+            kotlinx.coroutines.delay(100)
+            runCatching { buttonFocus.requestFocus() }
+        }
+    }
     Box(
         modifier = modifier
-            .focusProperties { canFocus = false }
             .background(tv.own.owntv.ui.theme.StageColors.GlassOff),
         contentAlignment = Alignment.Center,
     ) {
@@ -1503,7 +1511,7 @@ private fun EmptyHomeState(
             BrandLockup(markSize = 84)
             Spacer(Modifier.height(16.dp))
             Text(
-                text = stringResource(R.string.home_start_watching),
+                text = stringResource(R.string.home_add_playlist_or_portal),
                 style = tv.own.owntv.ui.theme.stageText(40, 600),
                 color = tv.own.owntv.ui.theme.StageColors.Text,
                 maxLines = 1,
@@ -1511,12 +1519,24 @@ private fun EmptyHomeState(
             )
             Spacer(Modifier.height(8.dp))
             Text(
-                text = stringResource(R.string.home_continue_empty),
+                text = stringResource(R.string.home_add_playlist_or_portal_description),
                 style = tv.own.owntv.ui.theme.stageText(29, 400),
                 color = tv.own.owntv.ui.theme.StageColors.Muted,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
+            if (onAddSource != null) {
+                Spacer(Modifier.height(24.dp))
+                StageButton(
+                    text = stringResource(R.string.setup_add_source),
+                    onClick = onAddSource,
+                    icon = OwnTVIcon.ADD,
+                    tinted = true,
+                    height = 56.mpx,
+                    textSize = 19,
+                    modifier = Modifier.focusRequester(buttonFocus),
+                )
+            }
         }
     }
 }

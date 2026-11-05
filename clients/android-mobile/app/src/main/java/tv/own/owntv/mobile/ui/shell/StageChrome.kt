@@ -508,7 +508,7 @@ fun ShellCluster(
     Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
         extra()
         onSources?.let {
-            StagePill(onClick = it, icon = MobileIcons.Add, contentDescription = stringResource(R.string.common_my_sources))
+            StagePill(onClick = it, icon = MobileIcons.Add, contentDescription = stringResource(R.string.setup_add_source))
         }
         playlist?.let { pl ->
             if (pl.iconOnly) {

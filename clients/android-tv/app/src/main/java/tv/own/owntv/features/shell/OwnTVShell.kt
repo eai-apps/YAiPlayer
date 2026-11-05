@@ -165,6 +165,8 @@ fun OwnTVShell(
     var playerMode by shellVm.playerMode
     // Deep-link: the Guide's "Add EPG" button switches to Settings and opens EPG Sources → add.
     var openEpgAdd by remember { mutableStateOf(false) }
+    // Deep-link: Home's "Add source" button switches to Settings and opens Sources → add.
+    var openSourcesAdd by remember { mutableStateOf(false) }
     // Setup's "Add a TV guide" lands on the same page once the shell is up.
     LaunchedEffect(Unit) {
         if (PendingShellRequest.addEpg) {
@@ -1216,7 +1218,7 @@ fun OwnTVShell(
                                 .focusGroup(),
                         )
 
-                        selectedSection == MainSection.SETTINGS -> tv.own.owntv.features.settings.lock.SettingsPinGate(onDismiss = { settingsStart = null; openEpgAdd = false; restoreFocus = true; onSelectSection(shellVm.sectionToLeaveLockedSettings()) }) { SettingsScreen(
+                        selectedSection == MainSection.SETTINGS -> tv.own.owntv.features.settings.lock.SettingsPinGate(onDismiss = { settingsStart = null; openEpgAdd = false; openSourcesAdd = false; restoreFocus = true; onSelectSection(shellVm.sectionToLeaveLockedSettings()) }) { SettingsScreen(
                             themeMode = themeMode,
                             uiZoomPercent = uiZoomPercent,
                             onSetZoom = onSetZoom,
@@ -1228,6 +1230,8 @@ fun OwnTVShell(
                             onBack = { restoreFocus = true; onSelectSection(MainSection.MORE) },
                             openEpgAdd = openEpgAdd,
                             onEpgAddConsumed = { openEpgAdd = false },
+                            openSourcesAdd = openSourcesAdd,
+                            onSourcesAddConsumed = { openSourcesAdd = false },
                             start = settingsStart,
                             onStartConsumed = { settingsStart = null },
                             onOpenSportsTeam = { t ->
@@ -1295,6 +1299,7 @@ fun OwnTVShell(
                                 sportsMatchRequests.pendingMatch.value = m to null
                                 onSelectSection(MainSection.SPORTS)
                             },
+                            onAddSource = { openSourcesAdd = true; onSelectSection(MainSection.SETTINGS) },
                             contentStart = if (navStyle == tv.own.owntv.core.settings.SettingsRepository.NavStyle.DOCKED) 64.mpx else 150.mpx,
                             modifier = Modifier.fillMaxSize(),
                         )

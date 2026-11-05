@@ -792,10 +792,18 @@ fun PlayerHud(
         // Status overlay (always shown).
         when {
             error != null -> Column(Modifier.align(Alignment.Center), horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(stringResource(R.string.player_playback_error), style = tv.own.owntv.ui.theme.stageText(40, 600), color = Color.White)
-                Spacer(Modifier.height(8.dp))
-                error?.let {
-                    Text(it.displayText(), style = tv.own.owntv.ui.theme.stageText(25, 400), color = Color.White.copy(alpha = 0.7f), textAlign = TextAlign.Center)
+                val isVodError = error is PlaybackFailure.VodStreamLink
+                Text(
+                    if (isVodError) error!!.displayText() else stringResource(R.string.player_playback_error),
+                    style = tv.own.owntv.ui.theme.stageText(40, 600),
+                    color = Color.White,
+                    textAlign = TextAlign.Center,
+                )
+                if (!isVodError) {
+                    Spacer(Modifier.height(8.dp))
+                    error?.let {
+                        Text(it.displayText(), style = tv.own.owntv.ui.theme.stageText(25, 400), color = Color.White.copy(alpha = 0.7f), textAlign = TextAlign.Center)
+                    }
                 }
                 // Structured technical detail so a user can report the real cause without adb/logcat:
                 // plain reason → media spec (codec • resolution • decoder) → raw engine/codec line.
@@ -845,7 +853,19 @@ fun PlayerHud(
                         )
                     }
                 } else {
-                    tv.own.owntv.ui.stage.StageButton(stringResource(R.string.common_retry), onClick = { player.retry() }, modifier = Modifier.focusRequester(retryFocus), icon = OwnTVIcon.PLAY, tinted = true)
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        tv.own.owntv.ui.stage.StageButton(
+                            stringResource(R.string.common_retry),
+                            onClick = { player.retry() },
+                            modifier = Modifier.focusRequester(retryFocus),
+                            icon = OwnTVIcon.PLAY,
+                            tinted = true,
+                        )
+                        tv.own.owntv.ui.stage.StageButton(
+                            stringResource(R.string.common_back),
+                            onClick = onBack,
+                        )
+                    }
                 }
             }
             // A provider wait looks like loading, because that is what it is: the channel is queued behind

@@ -93,6 +93,7 @@
     <string name="player_error_both_engines_exo_first">Die Wiedergabe ist mit beiden Video-Engines fehlgeschlagen (zuerst ExoPlayer, dann mpv). Die Datei ist möglicherweise beschädigt oder verwendet ein Format, das dieser Fernseher nicht wiedergeben kann.</string>
     <string name="player_error_both_engines_mpv_first">Die Wiedergabe ist mit beiden Video-Engines fehlgeschlagen (mpv und ExoPlayer). Die Datei ist möglicherweise beschädigt oder verwendet ein Format, das dieser Fernseher nicht wiedergeben kann. (<xliff:g id="error">%1$s</xliff:g>)</string>
     <string name="player_error_stream_link">Vom Portal konnte kein Stream-Link abgerufen werden. Prüfe die Verbindung und versuche es erneut.</string>
+    <string name="player_error_vod_stream_link">Filmlink konnte nicht vom Portal abgerufen werden</string>
     <string name="player_error_not_streaming">Dieses Video ist nicht für das Streaming formatiert. Bitte den Anbieter, es mit Fast Start neu zu codieren, oder lade es zuerst herunter.</string>
     <string name="player_error_lost_connection">Die Verbindung zu diesem Sender wurde unterbrochen.</string>
     <string name="player_error_channel">Dieser Sender konnte nicht wiedergegeben werden.</string>

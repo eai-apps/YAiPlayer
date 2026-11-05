@@ -192,6 +192,7 @@
 1	technical	app/src/main/java/tv/own/owntv/features/movies/MovieViewModel.kt	${StorageAccess.sanitize(movie.name)}.${movie.containerExt ?: StorageAccess.extOf(movie.streamUrl)}
 1	technical	app/src/main/java/tv/own/owntv/features/movies/MovieViewModel.kt	MOVIE
 1	log	app/src/main/java/tv/own/owntv/features/movies/MovieViewModel.kt	OwnTVHome
+1	technical	app/src/main/java/tv/own/owntv/features/movies/MovieViewModel.kt	Portal returned empty link
 2	log	app/src/main/java/tv/own/owntv/features/movies/MovieViewModel.kt	external play history record failed movieId=${movie.id} profile=$pid
 1	log	app/src/main/java/tv/own/owntv/features/movies/MovieViewModel.kt	play history record failed movieId=${movie.id} profile=$pid
 1	log	app/src/main/java/tv/own/owntv/features/movies/MovieViewModel.kt	play movieId=${movie.id} -> external player

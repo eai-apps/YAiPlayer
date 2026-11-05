@@ -93,6 +93,7 @@
     <string name="player_error_both_engines_exo_first">Воспроизведение не удалось в обоих видеодвижках (сначала ExoPlayer, затем mpv). Возможно, файл повреждён или использует формат, который этот телевизор не поддерживает.</string>
     <string name="player_error_both_engines_mpv_first">Воспроизведение не удалось в обоих видеодвижках (mpv и ExoPlayer). Возможно, файл повреждён или использует формат, который этот телевизор не поддерживает. (<xliff:g id="error">%1$s</xliff:g>)</string>
     <string name="player_error_stream_link">Не удалось получить ссылку на поток от портала. Проверьте соединение и повторите попытку.</string>
+    <string name="player_error_vod_stream_link">Не удалось получить ссылку на фильм у портала</string>
     <string name="player_error_not_streaming">Это видео не подготовлено для потокового воспроизведения. Попросите поставщика повторно закодировать его с быстрым запуском или сначала загрузите его.</string>
     <string name="player_error_lost_connection">Соединение с этим каналом потеряно.</string>
     <string name="player_error_channel">Не удалось воспроизвести этот канал.</string>

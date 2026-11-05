@@ -84,6 +84,8 @@ import tv.own.owntv.mobile.ui.nav.isTitleRoute
 import tv.own.owntv.mobile.ui.nav.SEARCH_ROUTE
 import tv.own.owntv.mobile.ui.nav.SEARCH_ROUTE_PATTERN
 import tv.own.owntv.mobile.ui.nav.SETUP_ROUTE_PATTERN
+import tv.own.owntv.mobile.ui.nav.setupRoute
+import tv.own.owntv.mobile.ui.setup.SetupEntry
 import tv.own.owntv.core.profile.profileGateRequired
 import tv.own.owntv.core.profile.shellMayCompose
 import tv.own.owntv.mobile.ui.profiles.ProfileGate
@@ -527,7 +529,7 @@ fun MobileShell(
                         onSearch = { navController.navigate(SEARCH_ROUTE) { launchSingleTop = true } },
                         onAvatar = { navController.navigate(MobileDestination.MORE.route) { launchSingleTop = true } },
                         onSources = if (onHome) ({
-                            navController.navigate(tv.own.owntv.mobile.ui.screens.settings.SettingsLeaf.PLAYLISTS.route) { launchSingleTop = true }
+                            navController.navigate(setupRoute(SetupEntry.FORM)) { launchSingleTop = true }
                         }) else null,
                         extra = {
                             // Home's Resume pill, while its hero is in view (the scrolled heading has
