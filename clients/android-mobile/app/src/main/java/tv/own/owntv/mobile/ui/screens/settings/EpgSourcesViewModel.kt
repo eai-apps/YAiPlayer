@@ -65,6 +65,22 @@ class EpgSourcesViewModel(
         viewModelScope.launch { builtinGuide.refresh() }
     }
 
+    /** Per-source EPG auto-refresh selection (Off / Startup / staleness threshold). */
+    val autoRefresh: StateFlow<Map<Long, EpgRefresh>> = settings.epgAutoRefresh
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyMap())
+
+    fun setAutoRefresh(source: EpgSource, refresh: EpgRefresh) {
+        viewModelScope.launch { settings.setEpgAutoRefresh(source.id, refresh) }
+    }
+
+    /** EPG sources whose own `<icon src>` logos replace the playlist's channel logos. */
+    val useLogos: StateFlow<Set<Long>> = settings.epgUseLogos
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptySet())
+
+    fun setUseLogos(source: EpgSource, enabled: Boolean) {
+        viewModelScope.launch { settings.setEpgUseLogos(source.id, enabled) }
+    }
+
     fun add(
         name: String,
         url: String,
