@@ -269,6 +269,8 @@ class UpdateManager(
 
     private var installReceiverRegistered = false
 
+    private val SYSTEM_INSTALLER_SUFFIXES = listOf(".share", ".fileprovider")
+
     private val installStatusReceiver = object : BroadcastReceiver() {
         override fun onReceive(ctx: Context, intent: Intent) {
             val status = intent.getIntExtra(PackageInstaller.EXTRA_STATUS, PackageInstaller.STATUS_FAILURE)
@@ -286,6 +288,9 @@ class UpdateManager(
                 PackageInstaller.STATUS_FAILURE_ABORTED -> Log.i(TAG, "install cancelled by user")
                 else -> {
                     Log.w(TAG, "install refused status=$status message=$message")
+                    // Some phones (Xiaomi/MIUI) refuse the session install outright. Hand the already
+                    // downloaded file to the system installer automatically instead of showing an error.
+                    if (SYSTEM_INSTALLER_SUFFIXES.any { installWithSystemInstaller(context.packageName + it) }) return
                     _state.value = State.Failed(Failure.InstallRejected(message?.takeIf { it.isNotBlank() }))
                 }
             }
