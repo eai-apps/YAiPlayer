@@ -96,7 +96,25 @@ def release_card(version, bullets, w=1280, h=720):
     return im.convert("RGB")
 
 
+def card_from_release(release_json, out_path):
+    """The release post picture: version + the "what's new" bullets of a GitHub release JSON."""
+    import json, re
+    rel = json.load(open(release_json, encoding="utf-8"))
+    tag = (rel.get("tag_name") or rel.get("name") or "").lstrip("vV") or "2.0"
+    bullets = []
+    for line in (rel.get("body") or "").splitlines():
+        m = re.match(r"^\s*[-*•]\s+(.*)$", line)
+        if m:
+            t = re.sub(r"[*_`]|\[([^\]]*)\]\([^)]*\)", lambda x: x.group(1) or "", m.group(1)).strip()
+            if t:
+                bullets.append(t)
+    release_card(tag, bullets or ["Улучшения и исправления"]).save(out_path)
+
+
 def main():
+    if len(sys.argv) >= 4 and sys.argv[1] == "--card":
+        card_from_release(sys.argv[3], sys.argv[2])  # --card OUT.png release.json
+        return
     os.makedirs(OUT, exist_ok=True)
     mark(1024).save(os.path.join(OUT, "logo-1024.png"))
     mark(512, radius=0.0).save(os.path.join(OUT, "logo-512-square.png"))

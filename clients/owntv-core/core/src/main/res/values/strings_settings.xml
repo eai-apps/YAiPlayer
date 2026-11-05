@@ -3261,4 +3261,6 @@
         <item quantity="one">catch-up on <xliff:g id="count">%1$s</xliff:g></item>
         <item quantity="other">catch-up on <xliff:g id="count">%1$s</xliff:g></item>
     </plurals>
+    <string name="settings_auto_widescreen">Auto 16:9 for SD video</string>
+    <string name="settings_auto_widescreen_description">Video below Full HD that arrives squeezed to 4:3 is shown widescreen (16:9) right away. A zoom you pick in the player is kept.</string>
 </resources>

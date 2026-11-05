@@ -98,7 +98,9 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           gh api "repos/${{ github.repository }}/releases/tags/v2.0.${{ github.run_number }}" > release.json
-          python3 telegram-release/post_release.py --release-json release.json
+          pip install --quiet pillow || true
+          python3 tools/brand/make_assets.py --card release-card.png release.json || true
+          python3 telegram-release/post_release.py --release-json release.json --image release-card.png
       - name: Reset release notes for the next release
         continue-on-error: true
         run: |

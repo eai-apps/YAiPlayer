@@ -214,12 +214,84 @@ def send_telegram_message(bot_token: str, chat_id: str, text: str) -> bool:
         return False
 
 
+CAPTION_LIMIT = 1024  # лимит Telegram на подпись к фото
+
+
+def _error_text(e: Exception) -> str:
+    """Описание ошибки без токена бота (он есть в URL запроса)."""
+    if isinstance(e, urllib.error.HTTPError):
+        try:
+            return json.loads(e.read().decode("utf-8")).get("description", str(e.reason))
+        except Exception:
+            return str(e.reason)
+    if isinstance(e, urllib.error.URLError):
+        return str(e.reason)
+    return type(e).__name__
+
+
+def send_telegram_photo(bot_token: str, chat_id: str, image_path: str, caption: str) -> bool:
+    """Отправляет картинку с подписью (multipart). Токен в логи не попадает."""
+    try:
+        with open(image_path, "rb") as f:
+            image = f.read()
+    except OSError:
+        print("Картинка для поста не найдена", file=sys.stderr)
+        return False
+    boundary = "----yaiplayer" + os.urandom(8).hex()
+    parts = []
+    for name, value in (("chat_id", chat_id), ("caption", caption), ("parse_mode", "HTML")):
+        parts.append(
+            f'--{boundary}\r\nContent-Disposition: form-data; name="{name}"\r\n\r\n{value}\r\n'.encode("utf-8")
+        )
+    parts.append(
+        (f'--{boundary}\r\nContent-Disposition: form-data; name="photo"; filename="release.png"\r\n'
+         "Content-Type: image/png\r\n\r\n").encode("utf-8")
+        + image + b"\r\n"
+    )
+    parts.append(f"--{boundary}--\r\n".encode("utf-8"))
+    req = urllib.request.Request(
+        f"https://api.telegram.org/bot{bot_token}/sendPhoto",
+        data=b"".join(parts),
+        headers={"Content-Type": f"multipart/form-data; boundary={boundary}"},
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            if json.loads(resp.read().decode("utf-8")).get("ok"):
+                print("Картинка с подписью опубликована в Telegram")
+                return True
+            print("Telegram не принял картинку", file=sys.stderr)
+            return False
+    except Exception as e:
+        print(f"Ошибка отправки картинки: {_error_text(e)}", file=sys.stderr)
+        return False
+
+
+def send_release_post(bot_token: str, chat_id: str, text: str, image_path: str | None) -> bool:
+    """Картинка + текст. Влезает в подпись — одним сообщением; иначе подпись = заголовок, текст следом."""
+    if image_path and os.path.exists(image_path):
+        if len(text) <= CAPTION_LIMIT:
+            if send_telegram_photo(bot_token, chat_id, image_path, text):
+                return True
+        else:
+            header, _, rest = text.partition("\n\n")
+            if send_telegram_photo(bot_token, chat_id, image_path, header):
+                return send_telegram_message(bot_token, chat_id, rest or text)
+        print("Картинка не ушла, отправляю только текст", file=sys.stderr)
+    return send_telegram_message(bot_token, chat_id, text)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Автопост релизов YAiPlayer в Telegram")
     parser.add_argument(
         "--release-json",
         required=True,
         help="Путь к JSON-файлу с данными релиза GitHub API",
+    )
+    parser.add_argument(
+        "--image",
+        default="",
+        help="Путь к PNG-картинке, которая идёт в начале поста (необязательно)",
     )
     parser.add_argument(
         "--dry-run",
@@ -260,7 +332,7 @@ def main(argv: list[str] | None = None) -> int:
         print("Telegram не настроен, пост пропущен")
         return 0
 
-    success = send_telegram_message(bot_token, chat_id, post_text)
+    success = send_release_post(bot_token, chat_id, post_text, args.image or None)
     return 0 if success else 1
 
 

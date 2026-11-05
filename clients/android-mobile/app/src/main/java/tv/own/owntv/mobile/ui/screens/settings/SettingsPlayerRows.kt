@@ -175,6 +175,7 @@ internal fun pictureSections(vm: SettingsViewModel): List<SettingSection> {
     val maxHeight = s.maxVideoHeight.pref(0)
     val zoomName = s.defaultZoom.pref(ZoomMode.FIT.name)
     val zoom = runCatching { ZoomMode.valueOf(zoomName) }.getOrDefault(ZoomMode.FIT)
+    val autoWide = s.autoWidescreen.pref(true)
     val tunneled = s.tunneledPlayback.pref(false)
     val tunnelingFailed = s.tunnelingFailed.pref(false)
     val afrFilms = s.autoFrameRateFilms.pref(false)
@@ -222,6 +223,10 @@ internal fun pictureSections(vm: SettingsViewModel): List<SettingSection> {
                     ZoomMode.entries.map { SettingsChoice(it, stringResource(it.labelRes)) }, zoom, ZoomMode.FIT,
                     { z -> vm.edit { setDefaultZoom(z.name) } },
                 ),
+                switchItem(
+                    "vp_auto_widescreen", MobileIcons.OpenInFull, stringResource(R.string.settings_auto_widescreen),
+                    stringResource(R.string.settings_auto_widescreen_description), autoWide,
+                ) { on -> vm.edit { setAutoWidescreen(on) } },
                 savedItem(
                     "vp_reset_zoom", R.string.settings_title_saved_zoom, R.string.settings_line_saved_zoom, savedZoom,
                     R.string.settings_reset_saved_zoom_confirm, R.string.settings_reset_saved_zoom_confirm_description,

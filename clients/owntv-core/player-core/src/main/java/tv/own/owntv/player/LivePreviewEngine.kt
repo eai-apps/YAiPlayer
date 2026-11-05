@@ -266,6 +266,9 @@ class LivePreviewEngine(
 
     /** Settings → Picture → Default zoom, applied to every new tune. */
     @Volatile private var defaultZoom: ZoomMode = ZoomMode.FIT
+    @Volatile private var autoWidescreen = true
+    /** A zoom was picked by the person or remembered for this channel: auto 16:9 stays out. */
+    @Volatile private var zoomChosenForItem = false
 
     /** Settings → Sound & subtitles → Default volume, the level a newly tuned channel starts at. */
     @Volatile private var defaultVolume: Int = 100
@@ -361,6 +364,7 @@ class LivePreviewEngine(
         playbackSettings.field { it.defaultZoom }.onEach { name ->
             defaultZoom = runCatching { ZoomMode.valueOf(name) }.getOrDefault(ZoomMode.FIT)
         }.launchIn(settingsScope)
+        playbackSettings.field { it.autoWidescreen }.onEach { autoWidescreen = it }.launchIn(settingsScope)
         playbackSettings.field { it.defaultVolume }.onEach { defaultVolume = it }.launchIn(settingsScope)
         playbackSettings.field { it.audioDelayMs }.onEach { ms ->
             baseAudioDelayMs = ms
@@ -1363,6 +1367,9 @@ class LivePreviewEngine(
                 _videoAspect.value =
                     (videoSize.width.toFloat() * videoSize.pixelWidthHeightRatio) / videoSize.height.toFloat()
                 _videoSize.value = videoSize.width to videoSize.height
+                if (AutoWidescreen.applies(autoWidescreen, defaultZoom, _zoomMode.value, zoomChosenForItem, videoSize.width, videoSize.height)) {
+                    _zoomMode.value = ZoomMode.FORCE_16_9
+                }
             }
             updateStreamChips()
             ensureFpsMeasurement()
@@ -1682,6 +1689,7 @@ class LivePreviewEngine(
         audioWatchdog.reset()
         _currentMeta.value = meta
         _zoomMode.value = defaultZoom // start new content at the user's default zoom, same as mpv/VOD
+        zoomChosenForItem = false
         // A different channel starts at normal volume. Re-opening the SAME one does not: a retry, a
         // decoder rebuild or a screensaver restore is the same channel continuing, and dropping the
         // boost there made a quiet channel go quiet again every time the stream hiccuped.
@@ -2781,7 +2789,7 @@ class LivePreviewEngine(
                 return@launch
             }
             row.zoomMode?.let { name ->
-                runCatching { ZoomMode.valueOf(name) }.getOrNull()?.let { _zoomMode.value = it }
+                runCatching { ZoomMode.valueOf(name) }.getOrNull()?.let { zoomChosenForItem = true; _zoomMode.value = it }
             }
             // Never un-mute the browse preview pane by restoring a level the user set in fullscreen.
             if (!muted) row.volumeBoost?.let { adjustVolume(it - _volume.value) }
@@ -2822,6 +2830,7 @@ class LivePreviewEngine(
     }
 
     override fun setZoomModeByUser(mode: ZoomMode) {
+        zoomChosenForItem = true
         setZoomMode(mode)
         val key = _currentMeta.value.contentKey ?: lastTunedUrl ?: return
         scope.launch { playbackPrefs.rememberZoom(key, mode.name) }

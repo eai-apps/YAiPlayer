@@ -26,6 +26,7 @@ from post_release import (
     extract_items,
     format_release_post,
     main,
+    send_release_post,
     send_telegram_message,
     strip_markdown,
 )
@@ -326,6 +327,65 @@ class TestPostReleaseCLIAndLogic(unittest.TestCase):
 
         self.assertTrue(success)
         self.assertIn("Пост успешно опубликован в Telegram", stdout_capture.getvalue())
+
+
+class TestPostWithImage(unittest.TestCase):
+    """Картинка идёт в начале поста; без неё или при её отказе уходит обычный текст."""
+
+    def _ok(self):
+        resp = MagicMock()
+        resp.read.return_value = json.dumps({"ok": True}).encode("utf-8")
+        resp.__enter__.return_value = resp
+        return resp
+
+    def _image(self):
+        f = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
+        f.write(b"\x89PNG fake")
+        f.close()
+        self.addCleanup(os.unlink, f.name)
+        return f.name
+
+    def test_short_post_is_one_photo_with_caption(self):
+        calls = []
+        def fake(req, timeout=0):
+            calls.append(req.full_url.rsplit("/", 1)[-1])
+            return self._ok()
+        with patch("urllib.request.urlopen", side_effect=fake), patch("sys.stdout", io.StringIO()):
+            self.assertTrue(send_release_post("tok", "@c", "<b>YAiPlayer v1</b>\n\n• a", self._image()))
+        self.assertEqual(calls, ["sendPhoto"])
+
+    def test_long_post_photo_then_text(self):
+        calls = []
+        def fake(req, timeout=0):
+            calls.append(req.full_url.rsplit("/", 1)[-1])
+            return self._ok()
+        text = "<b>YAiPlayer v1</b>\n\n" + "• строка\n" * 200
+        with patch("urllib.request.urlopen", side_effect=fake), patch("sys.stdout", io.StringIO()):
+            self.assertTrue(send_release_post("tok", "@c", text, self._image()))
+        self.assertEqual(calls, ["sendPhoto", "sendMessage"])
+
+    def test_no_image_sends_text_only(self):
+        calls = []
+        def fake(req, timeout=0):
+            calls.append(req.full_url.rsplit("/", 1)[-1])
+            return self._ok()
+        with patch("urllib.request.urlopen", side_effect=fake), patch("sys.stdout", io.StringIO()):
+            self.assertTrue(send_release_post("tok", "@c", "<b>x</b>", None))
+        self.assertEqual(calls, ["sendMessage"])
+
+    def test_photo_failure_falls_back_to_text_without_token_leak(self):
+        calls = []
+        def fake(req, timeout=0):
+            name = req.full_url.rsplit("/", 1)[-1]
+            calls.append(name)
+            if name == "sendPhoto":
+                raise urllib.error.URLError("boom")
+            return self._ok()
+        err = io.StringIO()
+        with patch("urllib.request.urlopen", side_effect=fake), patch("sys.stdout", io.StringIO()), patch("sys.stderr", err):
+            self.assertTrue(send_release_post("secret_tok", "@c", "<b>x</b>", self._image()))
+        self.assertEqual(calls, ["sendPhoto", "sendMessage"])
+        self.assertNotIn("secret_tok", err.getvalue())
 
 
 if __name__ == "__main__":

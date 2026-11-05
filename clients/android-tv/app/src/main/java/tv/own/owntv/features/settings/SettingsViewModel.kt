@@ -677,6 +677,8 @@ class SettingsViewModel(
 
     val defaultZoom: StateFlow<String> = settings.defaultZoom.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), "FIT")
     fun setDefaultZoom(name: String) { viewModelScope.launch { settings.setDefaultZoom(name) } }
+    val autoWidescreen: StateFlow<Boolean> = settings.autoWidescreen.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
+    fun setAutoWidescreen(enabled: Boolean) { viewModelScope.launch { settings.setAutoWidescreen(enabled) } }
 
     // Subtitle appearance — while subtitleStyleEnabled is false the other four are inert, and
     // each of them separately does nothing until moved off its own "Default" value.

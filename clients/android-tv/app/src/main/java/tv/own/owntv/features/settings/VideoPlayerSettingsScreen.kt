@@ -587,6 +587,7 @@ internal fun VideoPlayerGroupRows(
     val externalMovies by vm.externalPlayerMovies.collectAsStateWithLifecycle()
     val externalSeries by vm.externalPlayerSeries.collectAsStateWithLifecycle()
     val zoom by vm.defaultZoom.collectAsStateWithLifecycle()
+    val autoWidescreen by vm.autoWidescreen.collectAsStateWithLifecycle()
     val subStyleOn by vm.subtitleStyleEnabled.collectAsStateWithLifecycle()
     val openSubtitleStyle = LocalOpenSubtitleStyle.current
     val audioDelay by vm.audioDelayMs.collectAsStateWithLifecycle()
@@ -898,6 +899,13 @@ internal fun VideoPlayerGroupRows(
             value = SettingValue.Choice(stringResource(zoomMode.labelRes)),
             modifier = Modifier.focusRequester(dialogRowFocus.getValue(Dialog.ZOOM)),
             onClick = { savedScroll = scrollState.value; dialog = Dialog.ZOOM },
+        )
+        KeyedSettingRow(
+            icon = OwnTVIcon.ASPECT,
+            title = stringResource(R.string.settings_auto_widescreen),
+            desc = stringResource(R.string.settings_auto_widescreen_description),
+            value = SettingValue.Switch(autoWidescreen),
+            onClick = { vm.setAutoWidescreen(!autoWidescreen) },
         )
         KeyedSettingRow(
             quickKey = "vp_reset_zoom",

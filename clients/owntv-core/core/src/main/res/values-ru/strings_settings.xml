@@ -1813,4 +1813,6 @@
         <item quantity="many">архив на <xliff:g id="count">%1$s</xliff:g></item>
         <item quantity="other">архив на <xliff:g id="count">%1$s</xliff:g></item>
     </plurals>
+    <string name="settings_auto_widescreen">Авто 16:9 для видео ниже Full HD</string>
+    <string name="settings_auto_widescreen_description">Видео ниже Full HD, которое приходит сжатым до 4:3, сразу показывается в широком формате 16:9. Формат, выбранный вами в плеере, сохраняется.</string>
 </resources>

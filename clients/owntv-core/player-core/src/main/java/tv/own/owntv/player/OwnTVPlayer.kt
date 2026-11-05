@@ -992,6 +992,9 @@ class OwnTVPlayer(
     private var prefAudioLang = ""
     private var prefSubLang = ""
     private var defaultZoom = ZoomMode.FIT
+    private var autoWidescreen = true
+    /** The person (or a remembered choice) already decided this item's zoom; auto 16:9 stays out. */
+    @Volatile private var zoomChosenForItem = false
 
     /** Settings → the volume a newly picked item starts at, before any per-item override. */
     private var defaultVolume = 100
@@ -1226,6 +1229,7 @@ class OwnTVPlayer(
         playbackSettings.field { it.defaultZoom }.onEach { name ->
             defaultZoom = runCatching { ZoomMode.valueOf(name) }.getOrDefault(ZoomMode.FIT)
         }.launchIn(scope)
+        playbackSettings.field { it.autoWidescreen }.onEach { autoWidescreen = it }.launchIn(scope)
         playbackSettings.field { it.defaultVolume }.onEach { defaultVolume = it }.launchIn(scope)
         playbackSettings.field { it.seekStepSec }.onEach { _seekStepMs.value = it * 1000L }.launchIn(scope)
         // Auto frame rate drives the display-mode switch from the Compose surface; ExoPlayer has a
@@ -2765,6 +2769,7 @@ class OwnTVPlayer(
         playlistIndex = 0
         updateNav()
         _zoomMode.value = defaultZoom // start new content at the user's default zoom
+        zoomChosenForItem = false
         if (!muted) setVolume(defaultVolume) // …and at the default volume; loadUrl re-applies any per-item override
         loadUrl(
             url,
@@ -2797,6 +2802,7 @@ class OwnTVPlayer(
         playlistIndex = startIndex.coerceIn(0, (items.size - 1).coerceAtLeast(0))
         val item = items.getOrNull(playlistIndex) ?: return
         _zoomMode.value = defaultZoom
+        zoomChosenForItem = false
         setVolume(defaultVolume)
         loadItem(item, startPositionMs, startPaused)
         updateNav()
@@ -3715,7 +3721,7 @@ class OwnTVPlayer(
             val row = playbackPrefs.prefsFor(key) ?: return@launch
             if (gen != loadGeneration) return@launch // a newer item started while we were reading
             row.zoomMode?.let { name ->
-                runCatching { ZoomMode.valueOf(name) }.getOrNull()?.let { setZoomMode(it) }
+                runCatching { ZoomMode.valueOf(name) }.getOrNull()?.let { zoomChosenForItem = true; setZoomMode(it) }
             }
             row.volumeBoost?.let { setVolume(it) }
             row.audioDelayMs?.let {
@@ -3800,6 +3806,7 @@ class OwnTVPlayer(
 
     /** Deliberate zoom choice from the HUD — applied now and remembered for this item. */
     fun setZoomModeByUser(mode: ZoomMode) {
+        zoomChosenForItem = true
         setZoomMode(mode)
         val key = currentContentKey ?: currentUrl ?: return
         scope.launch { playbackPrefs.rememberZoom(key, mode.name) }
@@ -4845,6 +4852,9 @@ class OwnTVPlayer(
         val h = load.currentHeightPx
         _videoAspect.value = if (w > 0 && h > 0) w.toFloat() / h.toFloat() else null
         _videoSize.value = if (w > 0 && h > 0) w to h else null
+        if (AutoWidescreen.applies(autoWidescreen, defaultZoom, _zoomMode.value, zoomChosenForItem, w, h)) {
+            setZoomMode(ZoomMode.FORCE_16_9)
+        }
         updateStreamChips()
     }
 

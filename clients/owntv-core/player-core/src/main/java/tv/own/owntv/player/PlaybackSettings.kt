@@ -78,6 +78,8 @@ data class PlaybackSettings(
     /** Keep CPU and Wi-Fi awake while ExoPlayer plays. */
     val backgroundPlayback: Boolean,
     val autoFrameRateLive: Boolean,
+    /** Show video below Full HD in 16:9 at once — see [AutoWidescreen]. */
+    val autoWidescreen: Boolean,
 ) {
     companion object {
         @Volatile private var shared: Pair<SettingsRepository, StateFlow<PlaybackSettings?>>? = null
@@ -106,7 +108,7 @@ data class PlaybackSettings(
                 s.vodBufferSecs, s.vodNetworkTimeoutSecs, s.vodReconnects,
                 s.audioPassthrough, s.nightMode, s.volumeLevelling,
                 s.maxVideoHeight, s.mobileDataMaxVideoHeight, s.tunneledPlayback, s.backgroundPlayback,
-                s.softwareDecodeAbove1080p, s.outputAudioDelays, s.autoFrameRateLive,
+                s.softwareDecodeAbove1080p, s.outputAudioDelays, s.autoFrameRateLive, s.autoWidescreen,
             )
             return combine(sources) { v ->
                 PlaybackSettings(
@@ -146,6 +148,7 @@ data class PlaybackSettings(
                     softwareDecodeAbove1080p = v[33] as Boolean,
                     outputAudioDelays = v[34] as OutputAudioDelays,
                     autoFrameRateLive = v[35] as Boolean,
+                    autoWidescreen = v[36] as Boolean,
                 )
             }.stateIn(CoroutineScope(SupervisorJob() + Dispatchers.Default), SharingStarted.Eagerly, null)
         }

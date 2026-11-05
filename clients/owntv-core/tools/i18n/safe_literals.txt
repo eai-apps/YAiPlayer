@@ -3116,6 +3116,7 @@
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	auto_frame_rate_prompted
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	auto_frame_rate_reset_pre12
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	auto_play_next
+1	technical	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	auto_widescreen
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	background_playback
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	bg_accent_light
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	bg_blur

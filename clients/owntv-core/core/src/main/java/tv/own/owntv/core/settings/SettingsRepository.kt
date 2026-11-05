@@ -438,6 +438,7 @@ class SettingsRepository(private val context: Context, private val localeStore: 
         val EXTERNAL_PLAYER_MOVIES = booleanPreferencesKey("external_player_movies")
         val EXTERNAL_PLAYER_SERIES = booleanPreferencesKey("external_player_series")
         val DEFAULT_ZOOM = stringPreferencesKey("default_zoom")
+        val AUTO_WIDESCREEN = booleanPreferencesKey("auto_widescreen")
         val DEFAULT_VOLUME = intPreferencesKey("default_volume")
         val SEEK_STEP_SEC = intPreferencesKey("seek_step_sec")
         val LIVE_REWIND_STEP_SEC = intPreferencesKey("live_rewind_step_sec")
@@ -1772,7 +1773,7 @@ class SettingsRepository(private val context: Context, private val localeStore: 
 
     /** ExoPlayer may hand Dolby/DTS to the TV or receiver undecoded when the output claims it can
      *  play it (on, as before). Off: decoded in the app. mpv always decodes. */
-    val audioPassthrough: Flow<Boolean> = prefsFlow { it[Keys.AUDIO_PASSTHROUGH] ?: true }
+    val audioPassthrough: Flow<Boolean> = prefsFlow { it[Keys.AUDIO_PASSTHROUGH] ?: false }
 
     suspend fun setAudioPassthrough(enabled: Boolean) {
         context.dataStore.edit { it[Keys.AUDIO_PASSTHROUGH] = enabled }
@@ -1840,6 +1841,16 @@ class SettingsRepository(private val context: Context, private val localeStore: 
 
     suspend fun setAutoPlayNext(enabled: Boolean) {
         context.dataStore.edit { it[Keys.AUTO_PLAY_NEXT] = enabled }
+    }
+
+    /**
+     * Video below Full HD (SD, anamorphic PAL/NTSC) that would show as a squeezed 4:3 picture is shown
+     * 16:9 straight away — unless the user chose a zoom for that channel or film. On by default.
+     */
+    val autoWidescreen: Flow<Boolean> = prefsFlow { it[Keys.AUTO_WIDESCREEN] ?: true }
+
+    suspend fun setAutoWidescreen(enabled: Boolean) {
+        context.dataStore.edit { it[Keys.AUTO_WIDESCREEN] = enabled }
     }
 
     /** Default zoom/aspect mode applied when playback starts (a `ZoomMode` name). */
@@ -3225,7 +3236,7 @@ class SettingsRepository(private val context: Context, private val localeStore: 
             Keys.MULTIVIEW_ENABLED, Keys.MULTIVIEW_WARNING_ACCEPTED,
             Keys.RECORDING_RESERVE_CONNECTION, Keys.RECORD_WHAT_IM_WATCHING, Keys.RECORDING_OVER_MOBILE_DATA,
             Keys.AUDIO_PASSTHROUGH, Keys.NIGHT_MODE, Keys.VOLUME_LEVELLING, Keys.TUNNELED_PLAYBACK,
-            Keys.TIMESHIFT_ENABLED,
+            Keys.TIMESHIFT_ENABLED, Keys.AUTO_WIDESCREEN,
         )
         val floats = listOf(Keys.SUB_SCALE, Keys.SUB_SCALE_MPV, Keys.SUB_SCALE_EXO)
 
