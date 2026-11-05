@@ -4338,6 +4338,8 @@
 1	url	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	$apiBase?type=vod&action=get_ordered_list&movie_id=${enc(movieId)}&season_id=${enc(seasonId)}&episode_id=${enc(episodeId)}&p=1&JsHttpRequest=1-xml
 1	url	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	$apiBase?type=vod&action=get_ordered_list&movie_id=${enc(movieId)}&season_id=${enc(seasonId)}&episode_id=0&p=$page&JsHttpRequest=1-xml
 1	url	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	$apiBase?type=vod&action=get_ordered_list&movie_id=${enc(movieId)}&season_id=0&episode_id=0&p=$page&JsHttpRequest=1-xml
+1	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	$root/$raw
+1	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	$root/misc/logos/320/$raw
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	$root/portal.php
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	$root/server/load.php
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	$root/stalker_portal/server/load.php
@@ -4364,8 +4366,9 @@
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	*
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	.
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	.php
-1	uri	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	/
-1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	/c
+4	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	/
+2	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	//
+2	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	/c
 2	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	0
 1	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	1
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	127.0.0.1
@@ -4447,6 +4450,7 @@
 1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	guide download url=$safeUrl bytes=$written ms=${SystemClock.elapsedRealtime() - startedAt}
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	handshake candidate failed apiBase=$apiBase message=${e.message}
 1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	handshake ok apiBase=$landed
+1	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	http
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	http://
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	https://
 8	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	id

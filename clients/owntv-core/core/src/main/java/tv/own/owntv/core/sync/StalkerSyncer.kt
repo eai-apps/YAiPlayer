@@ -201,7 +201,7 @@ internal class StalkerSyncer(
                             // A channel's own tv_genre_id wins; fall back to the genre we asked for.
                             categoryId = ch.genreId?.let { catMap[it] } ?: fallbackGenreId?.let { catMap[it] },
                             name = ch.name,
-                            logoUrl = ch.logo,
+                            logoUrl = StalkerClient.absoluteLogoUrl(creds.portalUrl, ch.logo),
                             streamUrl = ch.cmd, // portal command — resolved to a real URL at play time
                             // The portal's XMLTV id when it publishes one, else its own channel id —
                             // which is the key the portal's guide (`get_epg_info`) is written under,

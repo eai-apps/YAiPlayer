@@ -1016,6 +1016,25 @@ open class StalkerClient(okHttpClient: OkHttpClient) {
         private const val DO_AUTH_ANSWER_LIMIT = 4000
         private val HTML_TAG = Regex("<[^>]*>")
 
+        /**
+         * Portals list a channel logo as a bare file name ("212.png"), which lives in the portal's logo
+         * folder, not as an address. Make it a full address; leave an address that is already one alone.
+         */
+        fun absoluteLogoUrl(portalUrl: String, logo: String?): String? {
+            val raw = logo?.trim()?.takeIf { it.isNotEmpty() } ?: return null
+            if (raw.startsWith("http", ignoreCase = true) || raw.startsWith("//")) return raw
+            val trimmed = portalUrl.trim().trimEnd('/')
+            val root = trimmed.substringBeforeLast("/c", trimmed)
+            return when {
+                raw.startsWith("/") -> {
+                    val hostEnd = trimmed.indexOf("/", trimmed.indexOf("//") + 2)
+                    (if (hostEnd > 0) trimmed.substring(0, hostEnd) else trimmed) + raw
+                }
+                raw.contains("/") -> "$root/$raw"
+                else -> "$root/misc/logos/320/$raw"
+            }
+        }
+
         /** A season row's number: the id suffix ("280:2"), 0 for Specials, else a trailing number in its name. */
         internal fun seasonNumberOf(id: String, name: String?): Int? {
             // "280:2" — the suffix after ':' is the season on classic portals.
