@@ -234,7 +234,7 @@ fun AddSourceScreen(
             )
             SourceKind.STALKER -> SourceEntity(
                 id = initial?.id ?: 0L, name = name, type = SourceType.STALKER,
-                url = portalUrl.trim(), mac = mac.trim(),
+                url = portalUrl.trim(), mac = mac.trim().ifBlank { tv.own.owntv.core.stalker.StalkerDeviceDerivation.randomMac().also { mac = it } },
                 stalkerSerialNumber = opt(stalkerSerialNumber),
                 stalkerDeviceId = opt(stalkerDeviceId),
                 stalkerDeviceId2 = opt(stalkerDeviceId2),
@@ -424,13 +424,13 @@ fun AddSourceScreen(
     val canStart = when (kind) {
         SourceKind.XTREAM -> server.isNotBlank() && username.isNotBlank() && password.isNotBlank() && hasAnySectionOn
         SourceKind.M3U -> m3uUrl.isNotBlank()
-        SourceKind.STALKER -> tv.own.owntv.core.stalker.StalkerClient.isValidPortalUrl(portalUrl) && macValid && hasAnySectionOn
+        SourceKind.STALKER -> tv.own.owntv.core.stalker.StalkerClient.isValidPortalUrl(portalUrl) && (mac.isBlank() || macValid) && hasAnySectionOn
     }
 
     val canTest = when (kind) {
         SourceKind.XTREAM -> server.isNotBlank() && username.isNotBlank() && password.isNotBlank()
         SourceKind.M3U -> m3uUrl.isNotBlank() && !m3uUrl.startsWith("/")
-        SourceKind.STALKER -> tv.own.owntv.core.stalker.StalkerClient.isValidPortalUrl(portalUrl) && macValid
+        SourceKind.STALKER -> tv.own.owntv.core.stalker.StalkerClient.isValidPortalUrl(portalUrl) && (mac.isBlank() || macValid)
     }
 
     // Every field is a row (label + value or placeholder, OK = keyboard); Start import sits in the
@@ -440,7 +440,9 @@ fun AddSourceScreen(
             SourceKind.XTREAM -> onStartXtream(name, server, username, password, userAgent, referer, epgUrl, autoRefresh, syncLive, syncMovies, syncSeries, isDefault, preferHls)
             SourceKind.M3U -> onStartM3u(name, m3uUrl, userAgent, referer, epgUrl, autoRefresh, isDefault)
             SourceKind.STALKER -> onStartStalker?.invoke(
-                name, portalUrl, mac, stalkerSerialNumber, stalkerDeviceId, stalkerDeviceId2,
+                // A blank MAC is fine for a login-only portal: make one now and keep it, so a retry
+                // after a failure presents the same device.
+                name, portalUrl, mac.ifBlank { tv.own.owntv.core.stalker.StalkerDeviceDerivation.randomMac().also { mac = it } }, stalkerSerialNumber, stalkerDeviceId, stalkerDeviceId2,
                 stalkerSignature, userAgent, referer, autoRefresh, isDefault, syncLive, syncMovies, syncSeries,
                 username, password,
             )
@@ -568,10 +570,37 @@ fun AddSourceScreen(
                     placeholder = stringResource(R.string.setup_mac_example),
                     about = if (mac.isNotBlank() && !macValid) stringResource(R.string.setup_mac_invalid) else null,
                 )
+                val genTitle = stringResource(R.string.setup_mac_generate)
+                StageSettingRow(
+                    icon = OwnTVIcon.PENCIL,
+                    title = genTitle,
+                    desc = stringResource(R.string.setup_mac_optional_note),
+                    value = SettingValue.Opens(null),
+                    onClick = { mac = tv.own.owntv.core.stalker.StalkerDeviceDerivation.randomMac() },
+                    modifier = toSubmit,
+                    help = help(genTitle, stringResource(R.string.setup_mac_optional_note), openKeys),
+                )
                 // Only for portals that ask for a login on top of the MAC; most do not.
                 field(stringResource(R.string.settings_username_optional), username, { username = it })
                 field(stringResource(R.string.settings_password_optional), password, { password = it }, password = true)
                 StageSettingsHeading(stringResource(R.string.setup_stalker_advanced_identity), 5)
+                val fillTitle = stringResource(R.string.setup_stalker_identity_fill)
+                StageSettingRow(
+                    icon = OwnTVIcon.PHONE,
+                    title = fillTitle,
+                    desc = null,
+                    value = SettingValue.Opens(null),
+                    onClick = {
+                        val canon = tv.own.owntv.core.stalker.StalkerClient.canonicalizeMac(mac)
+                            ?: tv.own.owntv.core.stalker.StalkerDeviceDerivation.randomMac().also { mac = it }
+                        val id = tv.own.owntv.core.stalker.StalkerDeviceDerivation.identityFor(canon)
+                        stalkerSerialNumber = id.serialNumber.orEmpty()
+                        stalkerDeviceId = id.deviceId.orEmpty()
+                        stalkerDeviceId2 = id.deviceId2.orEmpty()
+                    },
+                    modifier = toSubmit,
+                    help = help(fillTitle, stringResource(R.string.setup_stalker_identity_fill), openKeys),
+                )
                 field(stringResource(R.string.setup_stalker_serial_number_optional), stalkerSerialNumber, { stalkerSerialNumber = it })
                 field(stringResource(R.string.setup_stalker_device_id_optional), stalkerDeviceId, { stalkerDeviceId = it })
                 field(stringResource(R.string.setup_stalker_device_id2_optional), stalkerDeviceId2, { stalkerDeviceId2 = it })

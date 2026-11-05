@@ -4683,6 +4683,7 @@
 1	url	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	http://epg.one/epg.xml.gz
 1	url	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	http://miptv.in.ua/xmlt/mlist_epg.xml.gz
 1	url	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	https://iptvx.one/EPG_LITE
+1	technical	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	manual_builtin
 1	log	core/src/main/java/tv/own/owntv/core/sync/CatalogPriority.kt	CatalogPriority
 1	log	core/src/main/java/tv/own/owntv/core/sync/CatalogPriority.kt	pagesLeft=${row.lastPage - row.nextPage + 1}
 1	log	core/src/main/java/tv/own/owntv/core/sync/CatalogPriority.kt	priority category sourceId=${row.sourceId} type=${row.mediaType} cat=${row.categoryRemoteId}

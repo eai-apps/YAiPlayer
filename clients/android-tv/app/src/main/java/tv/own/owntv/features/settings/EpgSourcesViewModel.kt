@@ -41,6 +41,23 @@ class EpgSourcesViewModel(
     val sources: StateFlow<List<EpgSource>> =
         store.visibleSources.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
+    /** The app's hidden built-in guides for playlists and portals; on by default. */
+    val builtinEnabled: StateFlow<Boolean> =
+        store.builtinEnabled.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
+
+    fun setBuiltinEnabled(enabled: Boolean) {
+        viewModelScope.launch { store.setBuiltinEnabled(enabled) }
+    }
+
+    private val builtinGuide = tv.own.owntv.core.sync.BuiltinGuide(store, settings, epgSyncScheduler)
+
+    val builtinStatus: StateFlow<tv.own.owntv.core.sync.BuiltinGuide.Status> = builtinGuide.status()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), tv.own.owntv.core.sync.BuiltinGuide.Status())
+
+    fun refreshBuiltin() {
+        viewModelScope.launch { builtinGuide.refresh() }
+    }
+
     /** Per-source EPG auto-refresh selection (Off / Startup / staleness threshold). */
     val autoRefresh: StateFlow<Map<Long, EpgRefresh>> = settings.epgAutoRefresh
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyMap())

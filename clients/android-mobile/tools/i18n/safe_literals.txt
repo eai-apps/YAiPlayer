@@ -310,7 +310,6 @@
 1	room-schema	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/DeleteSubtitlesViewModel.kt	MOVIE
 1	room-schema	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/DeleteSubtitlesViewModel.kt	SERIES
 1	log	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/EpgSourcesViewModel.kt	add
-1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/EpgSourcesViewModel.kt	manual_builtin
 1	log	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/EpgSourcesViewModel.kt	manual_resync
 1	log	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/EpgSourcesViewModel.kt	update
 1	log	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/LocalSyncViewModel.kt	Local sync failed: $reason
