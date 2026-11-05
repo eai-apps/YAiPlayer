@@ -1378,12 +1378,11 @@ class OwnTVPlayer(
         customRetryAction = retryAction
         _isPlaying.value = false
         _buffering.value = false
-        item.isLive = false
         isLiveContent = false
         val failure = PlaybackFailure.VodStreamLink(rawReason)
         _error.value = failure
         _errorInfo.value = ErrorInfo(reason = null, spec = null, raw = rawReason)
-        item.meta = (item.meta ?: MediaMeta()).copy(title = title)
+        currentTitle = title
     }
 
     // Captures mpv's own error output (msg-level=warn, set even in release) so the real failure reason is
