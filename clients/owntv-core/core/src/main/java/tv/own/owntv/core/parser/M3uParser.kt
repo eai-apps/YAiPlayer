@@ -80,6 +80,9 @@ class M3uParser {
         // `catchup-correction` on the #EXTM3U line is the default for every entry that has none.
         var headerCorrectionMin = 0
         var pending: PendingExtInf? = null
+        // `#EXTGRP:Name` (the VLC convention, used by many providers instead of `group-title`) names the
+        // group of the entries that follow it, until the next `#EXTGRP`.
+        var currentGroup: String? = null
         // Per-channel HTTP options arrive on their own lines BETWEEN the #EXTINF and the URL, so they
         // are collected separately and consumed by the URL line.
         var pendingHeaders: MutableMap<String, String>? = null
@@ -128,6 +131,10 @@ class M3uParser {
                     )
                 }
 
+                line.startsWith("#EXTGRP:") -> {
+                    currentGroup = line.substring(EXTGRP_PREFIX_LENGTH).trim().ifEmpty { null }
+                }
+
                 line.startsWith("#") -> {
                     // Per-channel HTTP options. Every other directive (e.g. #EXTGRP) is ignored,
                     // and the three prefixes are checked only inside this branch so a playlist without
@@ -165,7 +172,7 @@ class M3uParser {
                                     name = p.name,
                                     streamUrl = url,
                                     logo = p.logo,
-                                    groupTitle = p.groupTitle,
+                                    groupTitle = p.groupTitle ?: currentGroup,
                                     tvgId = p.tvgId,
                                     tvgChno = p.tvgChno,
                                     type = p.type,
@@ -237,6 +244,10 @@ class M3uParser {
      *  not a number. Rounded to whole minutes, which is all a guide time ever needs. */
     private fun correctionMinutes(hours: String?): Int? =
         hours?.trim()?.toDoubleOrNull()?.takeIf { it.isFinite() }?.let { Math.round(it * 60).toInt() }
+
+    private companion object {
+        const val EXTGRP_PREFIX_LENGTH = 8 // "#EXTGRP:"
+    }
 
     private data class ParseMetrics(
         var parseOrReadMs: Long = 0L,
