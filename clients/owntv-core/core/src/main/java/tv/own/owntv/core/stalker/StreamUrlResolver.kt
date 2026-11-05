@@ -39,14 +39,30 @@ class StreamUrlResolver(
         // the stream id → HTTP 405). Series episodes are the exception: the season cmd is shared by
         // every episode, so it always goes through create_link to mint the episode's URL (series=<ep>).
         val direct = StalkerClient.stripCmdPrefix(storedUrl)
-        if (episode == null && StalkerClient.isDirectPlayUrl(direct)) return direct
+        // A film is the opposite case: its cmd can look like a ready URL (`http://host/2027/24/Film.mkv`,
+        // a path with a dot) while the portal only plays it with a short-lived token that create_link
+        // appends — handed over bare, the file server refuses it and the player just spins. So a film
+        // asks the portal first and keeps the stored URL only as a fallback.
+        val directLooksPlayable = StalkerClient.isDirectPlayUrl(direct)
+        if (episode == null && !vod && directLooksPlayable) return direct
         val mac = source.mac?.let { StalkerClient.canonicalizeMac(it) } ?: return direct
         val creds = source.stalkerCredentials(mac)
-        return stalkerAuth.withAuthRetry(creds) { session ->
-            stalkerClient.createLink(
-                session.apiBase, mac, session.token, creds.userAgent, storedUrl,
-                type = if (vod) "vod" else "itv", episode = episode,
-            )
+        return try {
+            stalkerAuth.withAuthRetry(creds) { session ->
+                stalkerClient.createLink(
+                    session.apiBase, mac, session.token, creds.userAgent, storedUrl,
+                    type = if (vod) "vod" else "itv", episode = episode,
+                )
+            }
+        } catch (e: kotlin.coroutines.cancellation.CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            if (vod && episode == null && directLooksPlayable) {
+                android.util.Log.w(TAG, "film create_link failed (${e.javaClass.simpleName}) — playing the stored URL", e)
+                direct
+            } else {
+                throw e
+            }
         }
     }
 

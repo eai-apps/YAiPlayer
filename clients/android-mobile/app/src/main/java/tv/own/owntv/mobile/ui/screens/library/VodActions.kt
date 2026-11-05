@@ -174,7 +174,7 @@ fun VodMenu(
                     ),
                 )
             }
-            add(
+            if (tv.own.owntv.core.download.DownloadsFeature.ENABLED) add(
                 SheetAction(
                     key = "download",
                     label = downloadAction.label(

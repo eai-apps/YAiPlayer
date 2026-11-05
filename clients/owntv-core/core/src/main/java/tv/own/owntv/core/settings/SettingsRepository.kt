@@ -749,7 +749,7 @@ class SettingsRepository(private val context: Context, private val localeStore: 
      * profile's menus and pages, and [tv.own.owntv.core.download.DownloadManager.enqueue] refuses
      * it too, so no path is left that still fills the box.
      */
-    fun downloadsAllowed(profileId: Long): Flow<Boolean> = prefsFlow { it[downloadsAllowedKey(profileId)] ?: true }
+    fun downloadsAllowed(profileId: Long): Flow<Boolean> = prefsFlow { tv.own.owntv.core.download.DownloadsFeature.ENABLED && (it[downloadsAllowedKey(profileId)] ?: true) }
 
     suspend fun setDownloadsAllowed(profileId: Long, allowed: Boolean) {
         context.dataStore.edit { it[downloadsAllowedKey(profileId)] = allowed }
@@ -757,7 +757,7 @@ class SettingsRepository(private val context: Context, private val localeStore: 
 
     /** [downloadsAllowed] for the profile in use, following profile switches. */
     val activeDownloadsAllowed: Flow<Boolean> = context.dataStore.data
-        .map { it[downloadsAllowedKey(it[Keys.ACTIVE_PROFILE] ?: -1L)] ?: true }
+        .map { tv.own.owntv.core.download.DownloadsFeature.ENABLED && (it[downloadsAllowedKey(it[Keys.ACTIVE_PROFILE] ?: -1L)] ?: true) }
         .distinctUntilChanged()
 
     private fun downloadsAllowedKey(profileId: Long) = booleanPreferencesKey("$DOWNLOADS_ALLOWED_PREFIX$profileId")

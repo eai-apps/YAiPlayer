@@ -899,7 +899,7 @@ fun MoviesScreen(
                 if (watched) vm.markMovieUnwatched(m) else vm.markMovieWatched(m)
                 contextMovie = null
             })
-            add(MenuAction("download", stringResource(R.string.content_download), OwnTVIcon.DOWNLOADS, group = VodGroupLibrary) {
+            if (tv.own.owntv.core.download.DownloadsFeature.ENABLED) add(MenuAction("download", stringResource(R.string.content_download), OwnTVIcon.DOWNLOADS, group = VodGroupLibrary) {
                 contextMovie = null
                 // Idempotent: don't re-queue an existing download — nudge to the Downloads menu.
                 if (alreadyDownloaded) toast.show(alreadyDownloadedMessage) else vm.download(m)

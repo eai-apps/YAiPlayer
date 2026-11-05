@@ -139,7 +139,7 @@ internal fun ProfileSettingsRows() {
             customPath = profiles.firstOrNull { it.id == p.id }?.avatarPath.orEmpty(),
             onPickPicture = { file -> vm.setPicture(p.id, file) },
             onClearPicture = { vm.clearPicture(p.id) },
-            allowDownloads = allowDownloads,
+            allowDownloads = allowDownloads.takeIf { tv.own.owntv.core.download.DownloadsFeature.ENABLED },
             onAllowDownloads = { vm.setDownloadsAllowed(p.id, it) },
         )
     }

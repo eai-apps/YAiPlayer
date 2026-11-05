@@ -104,6 +104,32 @@ class StreamUrlResolverTest {
         assertEquals("placeholder cmd must resolve via create_link", 1, client.createLinkCalls)
     }
 
+    // --- Films: a cmd that looks like a ready URL still goes through create_link (the portal adds the token) ---
+
+    @Test fun resolve_filmWithFileUrlCmdAsksThePortalForTheTokenedLink() = runBlocking {
+        val client = RecordingClient(resolved = "http://195.0.0.1:82/2027/24/Film.mkv?token=abc")
+        val r = resolver(client = client)
+        val cmd = "http://195.0.0.1:82/2027/24/Film.mkv"
+        assertEquals("http://195.0.0.1:82/2027/24/Film.mkv?token=abc", r.resolve(stalkerSource(cmd), cmd, vod = true))
+        assertEquals(1, client.createLinkCalls)
+        assertEquals("vod", client.lastType)
+    }
+
+    @Test fun resolve_filmFallsBackToTheStoredUrlWhenCreateLinkFails() = runBlocking {
+        val client = RecordingClient().apply { createLinkFails = true }
+        val r = resolver(client = client)
+        val cmd = "http://195.0.0.1:82/2027/24/Film.mkv"
+        assertEquals(cmd, r.resolve(stalkerSource(cmd), cmd, vod = true))
+    }
+
+    @Test fun resolve_filmWithPlaceholderCmdStillFailsWhenCreateLinkFails() {
+        val client = RecordingClient().apply { createLinkFails = true }
+        val r = resolver(client = client)
+        val cmd = "/media/file_1.mpg"
+        val failure = runCatching { runBlocking { r.resolve(stalkerSource(cmd), cmd, vod = true) } }.exceptionOrNull()
+        assertTrue("a cmd that is not a URL has nothing to fall back on", failure != null)
+    }
+
     // --- C-3: every resolve is a FRESH resolve (never cached) ---
 
     @Test fun resolve_everyCallIsFresh_createLinkRunsEachTime() = runBlocking {
@@ -347,6 +373,7 @@ class StreamUrlResolverTest {
         var lastCmd: String? = null
         var lastType: String? = null
         var lastEpisode: Int? = null
+        var createLinkFails = false
 
         // Bypass okhttp entirely (the real constructor builds a client we never use).
         constructor() : this(resolved = "http://realhost/out.m3u8")
@@ -355,6 +382,7 @@ class StreamUrlResolverTest {
             apiBase: String, mac: String, token: String, userAgent: String?, cmd: String, type: String, episode: Int?,
         ): String {
             createLinkCalls++
+            if (createLinkFails) throw java.io.IOException("portal refused create_link")
             lastCmd = cmd
             lastType = type
             lastEpisode = episode

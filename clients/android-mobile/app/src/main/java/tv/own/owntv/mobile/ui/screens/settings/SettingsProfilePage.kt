@@ -81,7 +81,7 @@ internal fun profileSections(
             onPickPicture = { uri -> vm.setPicture(profile, uri) },
             onClearPicture = { vm.clearPicture(profile) },
             extraAction = if (list.size > 1) ({ deleting = profile }) else null,
-            allowDownloads = allowDownloads,
+            allowDownloads = allowDownloads.takeIf { tv.own.owntv.core.download.DownloadsFeature.ENABLED },
             onAllowDownloads = { vm.setDownloadsAllowed(profile.id, it) },
         )
     }
