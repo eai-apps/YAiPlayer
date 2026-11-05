@@ -1,0 +1,15 @@
+# build output
+build/
+.gradle/
+**/build/
+local.properties
+node_modules/
+dist/
+# secrets — never commit
+*.jks
+*.keystore
+*.p12
+keystore.properties
+.env
+.env.*
+!.env.example

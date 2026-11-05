@@ -1,0 +1,18 @@
+{
+  "name": "YAiPlayer Web",
+  "short_name": "YAiPlayer",
+  "description": "Персональный IPTV Web-плеер и компаньон привязки YAiPlayer",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#07070f",
+  "theme_color": "#07070f",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

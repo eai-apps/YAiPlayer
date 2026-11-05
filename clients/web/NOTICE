@@ -1,0 +1,16 @@
+# YAiPlayer Web — Notices & Attribution
+
+## Source attribution
+StreamVault upstream source; original LICENSE retained.
+No additional upstream copyright wording is asserted here.
+
+## Upstream Donor
+This web application incorporates code from StreamVault (commit 31ea4226ec86c30a4e9f9c0a2e57cf2272a55d23).
+Original upstream software is licensed under the PolyForm Noncommercial License 1.0.0 (see LICENSE file).
+
+## Adaptations & Modifications
+Copyright 2026 YAiPlayer Contributors
+- Adapted for YAiPlayer ecosystem: custom auth, pairing, metadata registry, and media proxy adapters.
+- API adapters target the existing YAiPlayer Worker; runtime integration remains unverified.
+- Local source adaptation; PolyForm Noncommercial License applies to upstream web client components.
+- Do NOT copy this Web code into Android (which operates under GNU GPL-3.0).

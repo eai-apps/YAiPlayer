@@ -1,0 +1,84 @@
+name: Release (signed APK)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'clients/android-tv/**'
+      - 'clients/android-mobile/**'
+      - 'clients/owntv-core/**'
+      - '.github/workflows/release.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - app: android-tv
+            name: TV
+          - app: android-mobile
+            name: Mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Accept SDK licenses
+        run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
+      - name: Restore signing key
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > "$RUNNER_TEMP/yaiplayer-release.jks"
+          test -s "$RUNNER_TEMP/yaiplayer-release.jks"
+      - name: Build signed release
+        working-directory: clients/${{ matrix.app }}
+        env:
+          VERSION_CODE: ${{ github.run_number }}
+          VERSION_NAME: 2.0.${{ github.run_number }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          export KEYSTORE_FILE="$RUNNER_TEMP/yaiplayer-release.jks"
+          chmod +x gradlew
+          ./gradlew :app:assembleStandardRelease -Powntv.corePath=${GITHUB_WORKSPACE}/clients/owntv-core --no-daemon --stacktrace
+      - name: Collect APK
+        run: |
+          mkdir -p out
+          apk=$(ls clients/${{ matrix.app }}/app/build/outputs/apk/standard/release/*.apk | head -n1)
+          cp "$apk" out/YAiPlayer-${{ matrix.name }}.apk
+          ls -l out
+      - name: Verify signature
+        run: |
+          bt=$(ls -d $ANDROID_HOME/build-tools/* | sort -V | tail -n1)
+          "$bt/apksigner" verify --print-certs out/YAiPlayer-${{ matrix.name }}.apk | head -5
+      - uses: actions/upload-artifact@v4
+        with:
+          name: YAiPlayer-${{ matrix.name }}
+          path: out/*.apk
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ls -l dist
+          gh release create "v2.0.${{ github.run_number }}" dist/*.apk \
+            --repo "${{ github.repository }}" \
+            --title "YAiPlayer 2.0.${{ github.run_number }}" \
+            --notes "Automatic build ${{ github.run_number }} from ${{ github.sha }}." \
+            --latest
