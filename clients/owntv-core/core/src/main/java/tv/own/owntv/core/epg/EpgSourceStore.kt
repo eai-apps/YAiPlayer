@@ -74,7 +74,7 @@ class EpgSourceStore(private val context: Context) {
         context.epgStore.edit { prefs ->
             if (prefs[Keys.BUILTIN_OFF] == 1L) return@edit
             val list = EpgSourceJson.parse(prefs[Keys.LIST])
-            if (list.any { it.builtin }) return@edit
+            if (list.any { it.builtin && it.url == url }) return@edit
             val id = (prefs[Keys.NEXT_ID] ?: -1L)
             prefs[Keys.NEXT_ID] = id - 1
             val source = EpgSource(id = id, name = name, url = url, builtin = true)

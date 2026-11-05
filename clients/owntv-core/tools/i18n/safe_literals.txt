@@ -4677,8 +4677,11 @@
 1	log	core/src/main/java/tv/own/owntv/core/sync/AutoRefresh.kt	epgRefill check failed
 1	log	core/src/main/java/tv/own/owntv/core/sync/AutoRefresh.kt	epgRefill sourceId=${src.id} — synced before but guide is empty, re-fetching
 1	technical	core/src/main/java/tv/own/owntv/core/sync/AutoRefresh.kt	migration_refill
+1	technical	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	$NAME ${i + 1}
 1	technical	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	Built-in guide
 1	technical	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	builtin
+1	url	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	http://epg.one/epg.xml.gz
+1	url	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	http://miptv.in.ua/xmlt/mlist_epg.xml.gz
 1	url	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	https://iptvx.one/EPG_LITE
 1	log	core/src/main/java/tv/own/owntv/core/sync/CatalogPriority.kt	CatalogPriority
 1	log	core/src/main/java/tv/own/owntv/core/sync/CatalogPriority.kt	pagesLeft=${row.lastPage - row.nextPage + 1}
