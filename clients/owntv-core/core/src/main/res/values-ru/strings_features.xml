@@ -135,6 +135,8 @@
     <string name="update_later">Позже</string>
     <string name="update_now">Обновить сейчас</string>
     <string name="update_try_again">Попробовать ещё раз</string>
+
+    <string name="update_install_system">Установить через системный установщик</string>
     <string name="update_failed_check">Не удалось проверить наличие обновлений.</string>
     <string name="update_failed_check_http">При проверке сервер обновлений вернул ошибку HTTP <xliff:g id="code">%1$s</xliff:g>.</string>
     <string name="update_no_compatible_apk">В выпуске не найден пакет обновления для этого устройства.</string>

@@ -288,6 +288,8 @@
     <string name="update_now">Update now</string>
     <!-- Translators: Button to retry checking for updates. -->
     <string name="update_try_again">Try again</string>
+
+    <string name="update_install_system">Install with the system installer</string>
     <!-- Translators: Error when the update check fails due to a network issue. -->
     <string name="update_failed_check">Couldn\'t check for updates.</string>
     <!-- Translators: Error when the update server returns an HTTP error. "code" is the HTTP status code such as 404. Keep this as a full sentence. -->

@@ -123,6 +123,8 @@
     <string name="update_later">Später</string>
     <string name="update_now">Jetzt aktualisieren</string>
     <string name="update_try_again">Erneut versuchen</string>
+
+    <string name="update_install_system">Mit dem System-Installer installieren</string>
     <string name="update_failed_check">Die Suche nach Updates ist fehlgeschlagen.</string>
     <string name="update_failed_check_http">Der Update-Server hat bei der Suche HTTP <xliff:g id="code">%1$s</xliff:g> zurückgegeben.</string>
     <string name="update_no_compatible_apk">In diesem Release wurde kein Update-Paket für dieses Gerät gefunden.</string>

@@ -167,6 +167,21 @@ fun UpdateSheet(onDismiss: () -> Unit, checkOnOpen: Boolean = false) {
                         color = tv.own.owntv.mobile.ui.stage.LocalStagePalette.current.dim,
                     )
                     Spacer(Modifier.height(MobileDimens.GapMedium))
+                    if (s.failure is UpdateManager.Failure.InstallRejected) {
+                        // Some phones (Xiaomi) refuse the in-app install; their own installer accepts the same file.
+                        val context = androidx.compose.ui.platform.LocalContext.current
+                        StageButton(
+                            text = stringResource(R.string.update_install_system),
+                            onClick = {
+                                if (!manager.installWithSystemInstaller(context.packageName + SHARE_AUTHORITY_SUFFIX)) {
+                                    manager.retry()
+                                }
+                            },
+                            style = StageButtonStyle.PRIMARY,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                        Spacer(Modifier.height(MobileDimens.GapSmall))
+                    }
                     Row(
                         Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(MobileDimens.GapSmall),
@@ -250,3 +265,6 @@ private fun AnnotatedString.Builder.appendInline(text: String) {
         i = end + 2
     }
 }
+
+/** The app's FileProvider authority suffix, as declared in the manifest. */
+private const val SHARE_AUTHORITY_SUFFIX = ".share"

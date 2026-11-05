@@ -232,7 +232,27 @@ class UpdateManager(
             val flags = PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
             session.commit(PendingIntent.getBroadcast(context, 0, intent, flags).intentSender)
         }
-        apk.delete() // the session owns its own copy now
+        // The file stays: if the system refuses the session (Xiaomi: INSTALL_FAILED_INTERNAL_ERROR,
+        // Permission Denied) the user can still hand it to the system's own installer, see
+        // [installWithSystemInstaller]. The next download deletes it before writing.
+    }
+
+    /**
+     * Second way in for phones that refuse the session install: opens the already downloaded APK in
+     * the system package installer through a FileProvider URI ([authority] is the app's provider).
+     * Returns false when there is no file left or no installer answered, so the caller can download again.
+     */
+    fun installWithSystemInstaller(authority: String): Boolean {
+        val apk = File(File(context.filesDir, "updates"), "owntv-update.apk")
+        if (!apk.isFile) return false
+        return runCatching {
+            val uri = androidx.core.content.FileProvider.getUriForFile(context, authority, apk)
+            val intent = Intent(Intent.ACTION_VIEW)
+                .setDataAndType(uri, "application/vnd.android.package-archive")
+                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
+            context.startActivity(intent)
+            true
+        }.getOrDefault(false)
     }
 
     /** Registered once, for the app's lifetime: the confirmation round trip outlives any one call. */

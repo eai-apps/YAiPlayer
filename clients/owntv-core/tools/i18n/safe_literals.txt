@@ -5374,6 +5374,7 @@
 2	technical	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	OwnTV
 1	log	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	UpdateManager
 2	technical	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	User-Agent
+1	mime	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	application/vnd.android.package-archive
 1	mime	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	application/vnd.github+json
 1	json	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	assets
 1	json	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	body
@@ -5383,7 +5384,7 @@
 1	log	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	install refused status=$status message=$message
 1	json	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	name
 1	file-path	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	owntv-update
-1	file-path	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	owntv-update.apk
+2	file-path	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	owntv-update.apk
 1	json	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	tag_name
 1	log	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	truncated: got $copied of $total bytes
 1	uri	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	tv.own.owntv.UPDATE_INSTALL_STATUS
@@ -5391,7 +5392,7 @@
 1	log	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	update check failed: ${error.message}
 1	log	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	update download failed: ${error.message}
 1	log	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	update installed
-1	file-path	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	updates
+2	file-path	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	updates
 1	technical	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	v
 1	log	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	wrong package ${info.packageName}
 2	technical	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	x86_64

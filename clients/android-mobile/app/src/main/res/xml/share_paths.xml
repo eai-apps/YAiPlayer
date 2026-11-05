@@ -2,4 +2,6 @@
 <!-- The backup the Share button hands to the system share sheet (BackupViewModel.SHARE_DIR). -->
 <paths>
     <cache-path name="backup" path="backup-share/" />
+    <!-- The downloaded update APK, for the system installer when the in-app install is refused. -->
+    <files-path name="updates" path="updates/" />
 </paths>

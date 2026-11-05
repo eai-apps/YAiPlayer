@@ -742,6 +742,7 @@
 2	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/UpdateSheet.kt	*
 2	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/UpdateSheet.kt	**
 2	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/UpdateSheet.kt	-
+1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/UpdateSheet.kt	.share
 2	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/UpdateSheet.kt	•
 1	empty	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/customize/BulkRenameSheets.kt	\0
 4	empty	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/customize/CustomizeCategoriesPane.kt	\0
