@@ -24,7 +24,10 @@ class StalkerLoginTest {
     private val creds = StalkerCredentials(sourceId = 7L, portalUrl = "http://portal/c/", mac = "00:1A:79:AA:BB:CC")
 
     /** Records the order of the session calls. */
-    private class FakeClient(private val loginAccepted: Boolean = true) : StalkerClient(okhttp3.OkHttpClient()) {
+    private class FakeClient(
+        private val loginAccepted: Boolean = true,
+        private val profileFails: Boolean = false,
+    ) : StalkerClient(okhttp3.OkHttpClient()) {
         val calls = ArrayList<String>()
         var login: String? = null
         override suspend fun resolveHandshake(portalUrl: String, mac: String, userAgent: String?): Handshake {
@@ -45,6 +48,7 @@ class StalkerLoginTest {
             apiBase: String, mac: String, token: String, userAgent: String?, identity: StalkerDeviceIdentity,
         ): Map<String, String> {
             calls += "profile"
+            if (profileFails) throw StalkerAuthException("Authorization failed")
             return mapOf("status" to "1")
         }
     }
@@ -69,8 +73,10 @@ class StalkerLoginTest {
     }
 
     @Test
-    fun aRefusedLoginIsReportedAsAWrongLogin() {
-        val auth = StalkerAuthManager(FakeClient(loginAccepted = false))
+    fun aRefusedLoginIsReportedAsAWrongLoginWhenTheMacFallbackFailsToo() {
+        // A refused login first falls back to the plain MAC login (v2.0.14); only when that fails as
+        // well does the portal's refusal reach the user.
+        val auth = StalkerAuthManager(FakeClient(loginAccepted = false, profileFails = true))
         val e = assertThrows(StalkerClient.StalkerAuthException::class.java) {
             runBlocking { auth.sessionFor(creds.copy(login = "anna", password = "wrong")) }
         }
