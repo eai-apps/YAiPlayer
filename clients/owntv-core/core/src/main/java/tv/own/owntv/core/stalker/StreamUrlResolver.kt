@@ -1,5 +1,6 @@
 package tv.own.owntv.core.stalker
 
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import tv.own.owntv.core.database.entity.SourceEntity
 import tv.own.owntv.core.model.SourceType
 
@@ -48,12 +49,13 @@ class StreamUrlResolver(
         val mac = source.mac?.let { StalkerClient.canonicalizeMac(it) } ?: return direct
         val creds = source.stalkerCredentials(mac)
         return try {
-            stalkerAuth.withAuthRetry(creds) { session ->
+            val minted = stalkerAuth.withAuthRetry(creds) { session ->
                 stalkerClient.createLink(
                     session.apiBase, mac, session.token, creds.userAgent, storedUrl,
                     type = if (vod) "vod" else "itv", episode = episode,
                 )
             }
+            completeLink(minted, direct)
         } catch (e: kotlin.coroutines.cancellation.CancellationException) {
             throw e
         } catch (e: Exception) {
@@ -63,6 +65,26 @@ class StreamUrlResolver(
             } else {
                 throw e
             }
+        }
+    }
+
+    /**
+     * Some portals answer `create_link` with only the tail of the address — `?token=…` — and leave the
+     * client to put it after the file URL it already holds (the film's own cmd). Played as returned, the
+     * player is handed a string with no host and sits spinning. A tail that begins with `?` replaces the
+     * stored URL's query; one that begins with `/` takes its scheme and host. Anything that already
+     * has a scheme is returned untouched.
+     */
+    internal fun completeLink(minted: String, storedDirect: String): String {
+        val tail = minted.trim()
+        if (tail.isEmpty() || tail.contains("://")) return minted
+        val base = storedDirect.toHttpUrlOrNull() ?: return minted
+        return when {
+            tail.startsWith("?") -> storedDirect.substringBefore('?').substringBefore('#') + tail
+            tail.startsWith("&") -> storedDirect.substringBefore('#') + (if ('?' in storedDirect) "" else "?") +
+                (if ('?' in storedDirect) tail else tail.drop(1))
+            tail.startsWith("/") -> "${base.scheme}://${base.host}:${base.port}$tail"
+            else -> minted
         }
     }
 

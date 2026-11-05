@@ -4522,6 +4522,12 @@
 1	json	core/src/main/java/tv/own/owntv/core/stalker/StalkerExpiry.kt	null
 1	json	core/src/main/java/tv/own/owntv/core/stalker/StalkerExpiry.kt	phone
 1	json	core/src/main/java/tv/own/owntv/core/stalker/StalkerExpiry.kt	tariff_expired_date
+1	empty	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	\0
+1	url	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	${base.scheme}://${base.host}:${base.port}$tail
+1	url	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	&
+1	url	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	/
+1	url	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	://
+2	url	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	?
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	Portal listed no file for episode ${ref.episodeId}
 3	protocol	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	Stalker source ${source.id} has no valid MAC
 1	log	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	film create_link failed (${e.javaClass.simpleName}) — playing the stored URL

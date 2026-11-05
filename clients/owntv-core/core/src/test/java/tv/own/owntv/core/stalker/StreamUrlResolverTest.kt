@@ -130,6 +130,23 @@ class StreamUrlResolverTest {
         assertTrue("a cmd that is not a URL has nothing to fall back on", failure != null)
     }
 
+    @Test fun resolve_filmWhosePortalAnswersWithOnlyTheTokenTailGetsTheFileUrlBack() = runBlocking {
+        val client = RecordingClient(resolved = "?token=abc123")
+        val r = resolver(client = client)
+        val cmd = "http://195.0.0.1:82/2027/24/Film.mkv"
+        assertEquals("http://195.0.0.1:82/2027/24/Film.mkv?token=abc123", r.resolve(stalkerSource(cmd), cmd, vod = true))
+    }
+
+    @Test fun completeLink_tailsAreJoinedToTheStoredUrlAndFullLinksPassThrough() {
+        val r = resolver()
+        val stored = "http://h:82/a/b.mkv?x=1"
+        assertEquals("http://h:82/a/b.mkv?token=t", r.completeLink("?token=t", stored))
+        assertEquals("http://h:82/a/b.mkv?x=1&token=t", r.completeLink("&token=t", stored))
+        assertEquals("http://h:82/other/c.mkv?token=t", r.completeLink("/other/c.mkv?token=t", stored))
+        assertEquals("http://x/y.mkv?token=t", r.completeLink("http://x/y.mkv?token=t", stored))
+        assertEquals("?token=t", r.completeLink("?token=t", "/media/file_1.mpg")) // nothing to join to
+    }
+
     // --- C-3: every resolve is a FRESH resolve (never cached) ---
 
     @Test fun resolve_everyCallIsFresh_createLinkRunsEachTime() = runBlocking {
