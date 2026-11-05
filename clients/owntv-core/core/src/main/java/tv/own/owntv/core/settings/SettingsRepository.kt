@@ -488,7 +488,9 @@ class SettingsRepository(private val context: Context, private val localeStore: 
         val VOD_VIEW_MODE = stringPreferencesKey("vod_view_mode")
         val VOD_LAYOUT = stringPreferencesKey("vod_layout")
         val LIVE_LAYOUT = stringPreferencesKey("live_layout")
-        val LIVE_VIEW = stringPreferencesKey("live_view")
+        // "_v2": the old value was also written by Live TV's Guide view toggle, so on many devices it
+        // holds GUIDE that nobody chose here. Live TV now opens as the list unless this setting says so.
+        val LIVE_VIEW = stringPreferencesKey("live_view_v2")
         val REMINDER_MODE = stringPreferencesKey("reminder_mode")
         val REMINDER_LEAD_MIN = intPreferencesKey("reminder_lead_min")
         val GUIDE_VIEW = stringPreferencesKey("guide_view")

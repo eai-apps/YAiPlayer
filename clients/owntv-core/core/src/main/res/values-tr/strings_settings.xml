@@ -1371,7 +1371,7 @@
     <string name="settings_panel_width_live_sheet_hint">Sola basınca kategorilerin listenin üzerinde ne kadar geniş açılacağı. %%100’e dahil değildir.</string>
     <string name="settings_panel_width_summary_stage">Kategori paneli %%<xliff:g id="sheet">%1$d</xliff:g> · Liste %%<xliff:g id="list">%2$d</xliff:g> · Önizleme %%<xliff:g id="preview">%3$d</xliff:g></string>
     <string name="settings_live_opens_in">Canlı TV açılış görünümü</string>
-    <string name="settings_live_opens_in_description">Canlı TV kanal listesiyle ya da rehber ızgarasıyla açılsın. Rehber görünümü düğmesi de bunu değiştirir.</string>
+    <string name="settings_live_opens_in_description">Canlı TV kanal listesiyle ya da rehber ızgarasıyla açılsın.</string>
     <string name="settings_reminders">Program hatırlatıcıları</string>
     <string name="settings_reminders_description">Hatırlatıcı kurduğunuz bir program başlamak üzereyken ne olacağı.</string>
     <string name="settings_reminder_ask">Geçmeden önce sor</string>

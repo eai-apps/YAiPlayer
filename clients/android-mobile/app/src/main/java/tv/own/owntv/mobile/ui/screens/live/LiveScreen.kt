@@ -231,7 +231,7 @@ fun LiveScreen(
         } else if (guideView) {
             LiveGuideTools(
                 guide = guideVm,
-                onGuideView = vm::toggleLiveView,
+                onShowList = vm::showList,
                 modifier = Modifier.padding(start = 14.dp, end = 14.dp, top = TOOLS_TOP, bottom = 12.dp),
             )
         } else {
@@ -255,11 +255,7 @@ fun LiveScreen(
                         if (sort == SettingsRepository.SortMode.ALPHA) R.string.settings_sort_alpha else R.string.content_epg_sort_provider,
                     ),
                 )
-                StageTool(
-                    onClick = vm::toggleLiveView,
-                    icon = MobileIcons.Guide,
-                    contentDescription = stringResource(R.string.content_live_guide_view),
-                )
+                LiveViewSwitch(guide = false, onList = vm::showList, onGuide = vm::showGuide)
             }
         }
         if (categoryPicker) {

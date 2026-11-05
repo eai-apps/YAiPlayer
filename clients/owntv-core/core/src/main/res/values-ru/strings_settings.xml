@@ -1427,7 +1427,7 @@
     <string name="settings_panel_width_live_sheet_hint">Насколько широко категории открываются поверх списка по кнопке влево. Не входит в 100%%.</string>
     <string name="settings_panel_width_summary_stage">Панель категорий <xliff:g id="sheet">%1$d</xliff:g>%% · Список <xliff:g id="list">%2$d</xliff:g>%% · Предпросмотр <xliff:g id="preview">%3$d</xliff:g>%%</string>
     <string name="settings_live_opens_in">Прямой эфир открывается в виде</string>
-    <string name="settings_live_opens_in_description">Открывать Прямой эфир со списком каналов или с сеткой телегида. Кнопка «Вид телегида» тоже переключает это.</string>
+    <string name="settings_live_opens_in_description">Открывать Прямой эфир со списком каналов или с сеткой телегида.</string>
     <string name="settings_reminders">Напоминания о передачах</string>
     <string name="settings_reminders_description">Что происходит, когда передача с напоминанием вот-вот начнётся.</string>
     <string name="settings_reminder_ask">Спрашивать о переключении</string>

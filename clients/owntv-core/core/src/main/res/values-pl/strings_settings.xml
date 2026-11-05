@@ -1427,7 +1427,7 @@
     <string name="settings_panel_width_live_sheet_hint">Jak szeroko kategorie otwierają się nad listą po naciśnięciu w lewo. Nie wlicza się do 100%%.</string>
     <string name="settings_panel_width_summary_stage">Panel kategorii <xliff:g id="sheet">%1$d</xliff:g>%% · Lista <xliff:g id="list">%2$d</xliff:g>%% · Podgląd <xliff:g id="preview">%3$d</xliff:g>%%</string>
     <string name="settings_live_opens_in">Telewizja na żywo otwiera się w</string>
-    <string name="settings_live_opens_in_description">Otwieraj Telewizję na żywo na liście kanałów lub na siatce przewodnika. Przycisk Widok przewodnika też to zmienia.</string>
+    <string name="settings_live_opens_in_description">Otwieraj Telewizję na żywo na liście kanałów lub na siatce przewodnika.</string>
     <string name="settings_reminders">Przypomnienia o programach</string>
     <string name="settings_reminders_description">Co się dzieje, gdy program z przypomnieniem zaraz się zacznie.</string>
     <string name="settings_reminder_ask">Pytaj o przełączenie</string>

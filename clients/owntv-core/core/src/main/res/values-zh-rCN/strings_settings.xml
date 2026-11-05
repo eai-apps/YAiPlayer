@@ -1343,7 +1343,7 @@
     <string name="settings_panel_width_live_sheet_hint">按左键时分类在列表上方展开的宽度，不计入 100%%。</string>
     <string name="settings_panel_width_summary_stage">分类侧栏 <xliff:g id="sheet">%1$d</xliff:g>%% · 列表 <xliff:g id="list">%2$d</xliff:g>%% · 预览 <xliff:g id="preview">%3$d</xliff:g>%%</string>
     <string name="settings_live_opens_in">直播电视打开方式</string>
-    <string name="settings_live_opens_in_description">打开直播电视时显示频道列表或节目指南网格。直播电视里的节目指南视图按钮也会切换。</string>
+    <string name="settings_live_opens_in_description">打开直播电视时显示频道列表或节目指南网格。</string>
     <string name="settings_reminders">节目提醒</string>
     <string name="settings_reminders_description">设了提醒的节目即将开始时如何处理。</string>
     <string name="settings_reminder_ask">询问是否切换</string>

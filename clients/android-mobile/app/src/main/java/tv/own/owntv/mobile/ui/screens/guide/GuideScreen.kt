@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -514,15 +515,16 @@ fun GuideScreen(
     }
 }
 
-/** Live TV in Guide view: Today · Now · Guide view (on), over the guide's grid. */
+/** Live TV in Guide view: Today · Now · [List | Guide], over the guide's grid. */
 @Composable
-internal fun LiveGuideTools(guide: GuideViewModel, onGuideView: () -> Unit, modifier: Modifier = Modifier) {
+internal fun LiveGuideTools(guide: GuideViewModel, onShowList: () -> Unit, modifier: Modifier = Modifier) {
     val day by guide.day.collectAsStateWithLifecycle()
     var dayOpen by remember { mutableStateOf(false) }
     Row(modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
         StageTool(onClick = { dayOpen = true }, icon = MobileIcons.CalendarMonth, value = dayLabel(day))
         StageTool(onClick = { guide.requestNow() }, icon = MobileIcons.Now, label = stringResource(R.string.content_epg_now_short))
-        StageTool(onClick = onGuideView, icon = MobileIcons.Guide, label = stringResource(R.string.content_live_guide_view), on = true)
+        Spacer(Modifier.weight(1f))
+        tv.own.owntv.mobile.ui.screens.live.LiveViewSwitch(guide = true, onList = onShowList, onGuide = {})
     }
     if (dayOpen) {
         val days by guide.guideDays.collectAsStateWithLifecycle()

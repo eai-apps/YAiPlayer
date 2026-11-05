@@ -830,12 +830,20 @@ class LiveViewModel(
         return guideCandidates.forPicker(channelName, query)
     }
 
-    /** List view or Guide view: what Live TV shows, and so what it opens in next time. */
-    val liveView: StateFlow<SettingsRepository.LiveView> = settings.liveView
-        .stateIn(viewModelScope, SharingStarted.Eagerly, SettingsRepository.LiveView.LIST)
+    /**
+     * List view or Guide view for this visit. Live TV opens in what Settings › "Live TV opens in" says
+     * (the list by default); switching here is not saved any more, so one press of Guide view no longer
+     * makes every later Live TV open as the guide.
+     */
+    private val _liveView = MutableStateFlow(SettingsRepository.LiveView.LIST)
+    val liveView: StateFlow<SettingsRepository.LiveView> = _liveView
+
+    init {
+        viewModelScope.launch { _liveView.value = settings.liveView.first() }
+    }
 
     fun setLiveView(view: SettingsRepository.LiveView) {
-        viewModelScope.launch { settings.setLiveView(view) }
+        _liveView.value = view
     }
 
     /** Live TV layout: the categories as a sheet on Left (Stage), or a column always on screen. */

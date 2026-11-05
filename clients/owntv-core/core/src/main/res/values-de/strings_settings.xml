@@ -1371,7 +1371,7 @@
     <string name="settings_panel_width_live_sheet_hint">Wie breit sich die Kategorien mit Links über der Liste öffnen. Zählt nicht zu den 100 %%.</string>
     <string name="settings_panel_width_summary_stage">Kategorien-Leiste <xliff:g id="sheet">%1$d</xliff:g> %% · Liste <xliff:g id="list">%2$d</xliff:g> %% · Vorschau <xliff:g id="preview">%3$d</xliff:g> %%</string>
     <string name="settings_live_opens_in">Live-TV öffnet in</string>
-    <string name="settings_live_opens_in_description">Live-TV mit der Senderliste oder dem Programmraster öffnen. Die Schaltfläche Guide-Ansicht in Live-TV wechselt ebenfalls.</string>
+    <string name="settings_live_opens_in_description">Live-TV mit der Senderliste oder dem Programmraster öffnen.</string>
     <string name="settings_reminders">Sendungserinnerungen</string>
     <string name="settings_reminders_description">Was passiert, wenn eine Sendung mit Erinnerung gleich beginnt.</string>
     <string name="settings_reminder_ask">Vor dem Umschalten fragen</string>

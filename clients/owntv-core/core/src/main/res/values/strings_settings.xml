@@ -2583,7 +2583,7 @@
     <!-- Translators: Settings row: whether Live TV opens on the channel list or on the guide grid. -->
     <string name="settings_live_opens_in">Live TV opens in</string>
     <!-- Translators: Description of the Live TV opens in setting. -->
-    <string name="settings_live_opens_in_description">Open Live TV on the channel list or on the guide grid. The Guide view button in Live TV switches it too.</string>
+    <string name="settings_live_opens_in_description">Open Live TV on the channel list or on the guide grid.</string>
     <!-- Translators: Settings row: what a programme reminder does. -->
     <string name="settings_reminders">Program reminders</string>
     <!-- Translators: Description of the Program reminders setting. -->

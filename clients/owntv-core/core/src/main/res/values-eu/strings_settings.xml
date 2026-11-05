@@ -1371,7 +1371,7 @@
     <string name="settings_panel_width_live_sheet_hint">Zein zabal irekitzen diren kategoriak zerrendaren gainean Ezkerra sakatzean. Ez da 100%%ren parte.</string>
     <string name="settings_panel_width_summary_stage">Kategoria-orria <xliff:g id="sheet">%1$d</xliff:g>%% · Zerrenda <xliff:g id="list">%2$d</xliff:g>%% · Aurrebista <xliff:g id="preview">%3$d</xliff:g>%%</string>
     <string name="settings_live_opens_in">Zuzeneko telebista hemen irekitzen da</string>
-    <string name="settings_live_opens_in_description">Ireki Zuzeneko telebista kanal-zerrendan edo gida-saretan. Zuzeneko telebistako Gida-ikuspegia botoiak ere aldatzen du.</string>
+    <string name="settings_live_opens_in_description">Ireki Zuzeneko telebista kanal-zerrendan edo gida-saretan.</string>
     <string name="settings_reminders">Programen gogorarazpenak</string>
     <string name="settings_reminders_description">Zer gertatzen den gogorarazpena ezarri duzun programa hasteko dagoenean.</string>
     <string name="settings_reminder_ask">Galdetu aldatzeko</string>

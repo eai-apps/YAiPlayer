@@ -1628,7 +1628,7 @@ private fun StageSettingsDialogHost(settingsVm: SettingsViewModel, state: StageS
     }
 }
 
-/** Layout › Live TV opens in: List view or Guide view — the same value Live TV's toggle sets. */
+/** Layout › Live TV opens in: List view or Guide view — where Live TV starts; its own toggle is not saved. */
 @Composable
 private fun liveOpensInRootRow(settingsVm: SettingsViewModel, focus: FocusRequester, onClick: () -> Unit): RootRow {
     val view by settingsVm.liveView.collectAsStateWithLifecycle()

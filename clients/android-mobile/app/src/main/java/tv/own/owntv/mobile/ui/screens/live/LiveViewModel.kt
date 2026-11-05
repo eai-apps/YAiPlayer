@@ -240,14 +240,21 @@ class LiveViewModel(
     val sheetCounts: StateFlow<Boolean> = settings.sheetCounts
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
 
-    /** List or the guide grid — core's "Live TV opens in", remembered from the Guide view tool. */
-    val liveView: StateFlow<SettingsRepository.LiveView> = settings.liveView
-        .stateIn(viewModelScope, SharingStarted.Eagerly, SettingsRepository.LiveView.LIST)
+    /**
+     * List or the guide grid. Live TV opens in what Settings › "Live TV opens in" says (the list by
+     * default); the [List | Guide] switch only changes this visit and is never saved, so the guide can
+     * no longer "stick" after one tap.
+     */
+    private val _liveView = MutableStateFlow(SettingsRepository.LiveView.LIST)
+    val liveView: StateFlow<SettingsRepository.LiveView> = _liveView
 
-    fun toggleLiveView() {
-        val next = if (liveView.value == SettingsRepository.LiveView.GUIDE) SettingsRepository.LiveView.LIST else SettingsRepository.LiveView.GUIDE
-        viewModelScope.launch { settings.setLiveView(next) }
+    init {
+        viewModelScope.launch { _liveView.value = settings.liveView.first() }
     }
+
+    fun showList() { _liveView.value = SettingsRepository.LiveView.LIST }
+
+    fun showGuide() { _liveView.value = SettingsRepository.LiveView.GUIDE }
 
     /** What restoring [key]'s category to the playlist default would undo (empty when nothing). */
     suspend fun categoryRestorePlan(key: LiveKey): CategoryRestorePlan {

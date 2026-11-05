@@ -1483,7 +1483,7 @@
     <string name="settings_panel_width_live_sheet_hint">مدى اتساع الفئات عند فتحها فوق القائمة بالضغط يسارًا. لا يدخل ضمن نسبة ‎100%%‎.</string>
     <string name="settings_panel_width_summary_stage">لوحة الفئات <xliff:g id="sheet">%1$d</xliff:g>%% · القائمة <xliff:g id="list">%2$d</xliff:g>%% · المعاينة <xliff:g id="preview">%3$d</xliff:g>%%</string>
     <string name="settings_live_opens_in">يفتح البث التلفزيوني المباشر على</string>
-    <string name="settings_live_opens_in_description">افتح البث التلفزيوني المباشر على قائمة القنوات أو على شبكة الدليل. يغيّر زر عرض الدليل ذلك أيضًا.</string>
+    <string name="settings_live_opens_in_description">افتح البث التلفزيوني المباشر على قائمة القنوات أو على شبكة الدليل.</string>
     <string name="settings_reminders">تذكيرات البرامج</string>
     <string name="settings_reminders_description">ما يحدث عندما يوشك برنامج طلبت تذكيرك به على البدء.</string>
     <string name="settings_reminder_ask">السؤال قبل التبديل</string>
