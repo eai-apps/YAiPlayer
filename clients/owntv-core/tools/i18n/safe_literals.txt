@@ -4310,6 +4310,7 @@
 1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerAuthManager.kt	StalkerCredentials(sourceId=$sourceId, portalUrl=$portalUrl, login=${if (login.isNullOrBlank()) "none" else "set"})
 1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerAuthManager.kt	account_info unavailable sourceId=${creds.sourceId}: ${it.message}
 1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerAuthManager.kt	auth expired sourceId=${creds.sourceId} (${e.message}) — re-handshaking once
+1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerAuthManager.kt	login refused, trying MAC only: ${e.message}
 1	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerAuthManager.kt	none
 1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerAuthManager.kt	portal refused sourceId=${creds.sourceId} — dropping the session for the next attempt
 1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerAuthManager.kt	profileFields=${profile.size} status=${profile["status"] ?: "?"}

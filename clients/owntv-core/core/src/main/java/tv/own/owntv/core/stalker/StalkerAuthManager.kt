@@ -136,15 +136,28 @@ open class StalkerAuthManager(private val client: StalkerClient) {
         val startedAt = SystemClock.elapsedRealtime()
         val handshake = client.resolveHandshake(creds.portalUrl, creds.mac, creds.userAgent)
         val login = creds.login?.takeIf { it.isNotBlank() }
+        var refusedLogin: StalkerClient.StalkerAuthException? = null
         if (login != null) {
-            client.doAuth(
-                handshake.apiBase, creds.mac, handshake.token, creds.userAgent,
-                login, creds.password.orEmpty(), creds.deviceIdentity,
-            )
+            try {
+                client.doAuth(
+                    handshake.apiBase, creds.mac, handshake.token, creds.userAgent,
+                    login, creds.password.orEmpty(), creds.deviceIdentity,
+                )
+            } catch (e: StalkerClient.StalkerAuthException) {
+                // Some portals refuse the login yet already know this MAC (they bind it on the first
+                // attempt). Try the plain MAC login before giving up; if that fails too, report the
+                // portal's refusal, which is the more useful message.
+                refusedLogin = e
+                Log.i(TAG, "login refused, trying MAC only: ${e.message}")
+            }
         }
-        val profile = client.getProfile(
-            handshake.apiBase, creds.mac, handshake.token, creds.userAgent, creds.deviceIdentity,
-        )
+        val profile = try {
+            client.getProfile(
+                handshake.apiBase, creds.mac, handshake.token, creds.userAgent, creds.deviceIdentity,
+            )
+        } catch (e: java.io.IOException) {
+            throw refusedLogin ?: e
+        }
         Log.i(
             TAG,
             "session open sourceId=${creds.sourceId} apiBase=${handshake.apiBase} " +
