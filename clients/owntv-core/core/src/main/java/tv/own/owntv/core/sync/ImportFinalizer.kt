@@ -30,10 +30,12 @@ class ImportFinalizer(
     private val bulkInsertHelper: BulkInsertHelper,
     private val metadataDao: tv.own.owntv.core.database.dao.MetadataDao,
     private val epgSourceStore: tv.own.owntv.core.epg.EpgSourceStore,
+    private val builtinGuide: BuiltinGuide? = null,
 ) {
     suspend fun finalize(source: SourceEntity, deferIndexes: Boolean = false): SyncCounts {
         val counts = contentCounts(source.id)
         registerPortalGuide(source)
+        if (source.type != tv.own.owntv.core.model.SourceType.STALKER) runCatching { builtinGuide?.ensure() }
         // Bounded TTL eviction of the TMDB caches — they grow without limit as the user
         // browses. Piggy-backed here (the operation that changes data), never on cold start.
         // Indexed DELETE on updatedAt; evicted rows simply re-fetch on next focus.

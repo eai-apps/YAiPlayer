@@ -67,6 +67,7 @@ fun SettingsEpgSourcesPage(
     val sources by vm.sources.collectAsStateWithLifecycle()
     val autoRefresh by vm.autoRefresh.collectAsStateWithLifecycle()
     val useLogos by vm.useLogos.collectAsStateWithLifecycle()
+    val builtinEnabled by vm.builtinEnabled.collectAsStateWithLifecycle()
     val deleting by vm.deletingIds.collectAsStateWithLifecycle()
 
     var menuSource by remember { mutableStateOf<EpgSource?>(null) }
@@ -96,6 +97,15 @@ fun SettingsEpgSourcesPage(
                     onClick = { if (source.id !in deleting) menuSource = source },
                 )
             }
+        }
+        item(key = "builtin") {
+            StageSettingRow(
+                title = stringResource(R.string.settings_epg_builtin),
+                subtitle = stringResource(R.string.settings_epg_builtin_description),
+                icon = MobileIcons.Image,
+                minHeight = 48.dp,
+                onClick = { vm.setBuiltinEnabled(!builtinEnabled) },
+            ) { StageSwitch(builtinEnabled) }
         }
         item(key = "note") { PageNote(stringResource(R.string.settings_epg_sources_addresses_note)) }
     }

@@ -19,6 +19,8 @@ data class EpgSource(
     val userAgent: String? = null,
     val lastSyncAt: Long? = null,
     val lastError: String? = null,
+    /** The app's own hidden guide: never listed for the user, always last in the priority order. */
+    val builtin: Boolean = false,
 )
 
 private val Context.epgStore: DataStore<Preferences> by preferencesDataStore(name = "owntv_epg_sources")
@@ -40,10 +42,46 @@ class EpgSourceStore(private val context: Context) {
         val LIST = stringPreferencesKey("sources")
         val NEXT_ID = longPreferencesKey("next_id") // counts down: -1, -2, …
         val MIGRATED = longPreferencesKey("migrated_v1")
+        val BUILTIN_OFF = longPreferencesKey("builtin_off")
     }
 
     val sources: Flow<List<EpgSource>> = context.epgStore.data.map { prefs ->
         EpgSourceJson.parse(prefs[Keys.LIST])
+    }
+
+    /** What the user sees on Settings → EPG: everything except the app's own hidden guide. */
+    val visibleSources: Flow<List<EpgSource>> = sources.map { list -> list.filterNot { it.builtin } }
+
+    /** Is the built-in guide allowed? On by default; the user can switch it off. */
+    val builtinEnabled: Flow<Boolean> = context.epgStore.data.map { it[Keys.BUILTIN_OFF] != 1L }
+
+    suspend fun setBuiltinEnabled(enabled: Boolean) {
+        context.epgStore.edit { prefs ->
+            if (enabled) prefs.remove(Keys.BUILTIN_OFF) else prefs[Keys.BUILTIN_OFF] = 1L
+            if (!enabled) {
+                prefs[Keys.LIST] = EpgSourceJson.write(EpgSourceJson.parse(prefs[Keys.LIST]).filterNot { it.builtin })
+            }
+        }
+    }
+
+    /**
+     * Put the built-in guide on the list (last, so every guide the user or a portal supplies wins)
+     * unless the user switched it off. Returns the entry only when it was just created, so the caller
+     * configures and syncs it once; later syncs follow its auto-refresh setting.
+     */
+    suspend fun ensureBuiltin(name: String, url: String): EpgSource? {
+        var created: EpgSource? = null
+        context.epgStore.edit { prefs ->
+            if (prefs[Keys.BUILTIN_OFF] == 1L) return@edit
+            val list = EpgSourceJson.parse(prefs[Keys.LIST])
+            if (list.any { it.builtin }) return@edit
+            val id = (prefs[Keys.NEXT_ID] ?: -1L)
+            prefs[Keys.NEXT_ID] = id - 1
+            val source = EpgSource(id = id, name = name, url = url, builtin = true)
+            created = source
+            prefs[Keys.LIST] = EpgSourceJson.write(list + source)
+        }
+        return created
     }
 
     suspend fun getAll(): List<EpgSource> = EpgSourceJson.parse(context.epgStore.data.first()[Keys.LIST])
@@ -55,7 +93,9 @@ class EpgSourceStore(private val context: Context) {
             prefs[Keys.NEXT_ID] = id - 1
             val source = EpgSource(id = id, name = name.trim().ifBlank { "EPG" }, url = url.trim(), userAgent = userAgent?.trim()?.takeIf { it.isNotBlank() })
             created = source
-            prefs[Keys.LIST] = EpgSourceJson.write(EpgSourceJson.parse(prefs[Keys.LIST]) + source)
+            val list = EpgSourceJson.parse(prefs[Keys.LIST])
+            val at = list.indexOfFirst { it.builtin }.let { if (it < 0) list.size else it }
+            prefs[Keys.LIST] = EpgSourceJson.write(list.toMutableList().apply { add(at, source) })
         }
         return created!!
     }
@@ -67,7 +107,7 @@ class EpgSourceStore(private val context: Context) {
      * Registering it is not downloading it, so EPG stays as opt-in as it has been since v2.2.0.
      */
     suspend fun ensure(name: String, url: String, userAgent: String? = null): EpgSource =
-        getAll().firstOrNull { it.url == url } ?: add(name, url, userAgent)
+        getAll().firstOrNull { it.url == url && !it.builtin } ?: add(name, url, userAgent)
 
     suspend fun update(source: EpgSource) {
         context.epgStore.edit { prefs ->

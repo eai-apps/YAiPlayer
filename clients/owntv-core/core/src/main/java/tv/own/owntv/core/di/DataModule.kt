@@ -232,6 +232,7 @@ val dataModule = module {
             bulkInsertHelper = get(),
             metadataDao = get(),
             epgSourceStore = get(),
+            builtinGuide = tv.own.owntv.core.sync.BuiltinGuide(get(), get(), get()),
         )
     }
     // context, channelDao, movieDao, seriesDao, profileDao, favoriteDao, historyDao, progressDao,

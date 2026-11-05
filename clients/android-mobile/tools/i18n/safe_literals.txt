@@ -364,6 +364,7 @@
 1	uri	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsDestination.kt	settings/
 1	empty	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsEpgSourcesPage.kt	\0
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsEpgSourcesPage.kt	add
+1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsEpgSourcesPage.kt	builtin
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsEpgSourcesPage.kt	empty
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsEpgSourcesPage.kt	note
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsFontsPage.kt	preview

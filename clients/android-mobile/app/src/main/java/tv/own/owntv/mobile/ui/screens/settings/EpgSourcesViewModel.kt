@@ -40,7 +40,15 @@ class EpgSourcesViewModel(
     data class PlaylistEpg(val name: String, val url: String)
 
     val sources: StateFlow<List<EpgSource>> =
-        store.sources.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+        store.visibleSources.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    /** The app's hidden built-in guide for playlists; on by default. */
+    val builtinEnabled: StateFlow<Boolean> =
+        store.builtinEnabled.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
+
+    fun setBuiltinEnabled(enabled: Boolean) {
+        viewModelScope.launch { store.setBuiltinEnabled(enabled) }
+    }
 
     /** Per-source EPG auto-refresh selection (Off / Startup / staleness threshold). */
     val autoRefresh: StateFlow<Map<Long, EpgRefresh>> = settings.epgAutoRefresh

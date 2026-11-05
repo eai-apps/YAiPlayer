@@ -2066,6 +2066,7 @@
 1	protocol	core/src/main/java/tv/own/owntv/core/epg/EpgMatcher.kt	wales
 1	protocol	core/src/main/java/tv/own/owntv/core/epg/EpgMatcher.kt	za
 3	json	core/src/main/java/tv/own/owntv/core/epg/EpgSourceJson.kt	at
+2	technical	core/src/main/java/tv/own/owntv/core/epg/EpgSourceJson.kt	bi
 2	json	core/src/main/java/tv/own/owntv/core/epg/EpgSourceJson.kt	err
 2	json	core/src/main/java/tv/own/owntv/core/epg/EpgSourceJson.kt	id
 2	json	core/src/main/java/tv/own/owntv/core/epg/EpgSourceJson.kt	name
@@ -2073,6 +2074,7 @@
 2	json	core/src/main/java/tv/own/owntv/core/epg/EpgSourceJson.kt	url
 1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgSourceStore.kt	EPG
 1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgSourceStore.kt	[]
+1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgSourceStore.kt	builtin_off
 1	preference-key	core/src/main/java/tv/own/owntv/core/epg/EpgSourceStore.kt	migrated_v1
 1	preference-key	core/src/main/java/tv/own/owntv/core/epg/EpgSourceStore.kt	next_id
 1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgSourceStore.kt	owntv_epg_sources
@@ -4675,6 +4677,9 @@
 1	log	core/src/main/java/tv/own/owntv/core/sync/AutoRefresh.kt	epgRefill check failed
 1	log	core/src/main/java/tv/own/owntv/core/sync/AutoRefresh.kt	epgRefill sourceId=${src.id} — synced before but guide is empty, re-fetching
 1	technical	core/src/main/java/tv/own/owntv/core/sync/AutoRefresh.kt	migration_refill
+1	technical	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	Built-in guide
+1	technical	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	builtin
+1	url	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	https://iptvx.one/EPG_LITE
 1	log	core/src/main/java/tv/own/owntv/core/sync/CatalogPriority.kt	CatalogPriority
 1	log	core/src/main/java/tv/own/owntv/core/sync/CatalogPriority.kt	pagesLeft=${row.lastPage - row.nextPage + 1}
 1	log	core/src/main/java/tv/own/owntv/core/sync/CatalogPriority.kt	priority category sourceId=${row.sourceId} type=${row.mediaType} cat=${row.categoryRemoteId}

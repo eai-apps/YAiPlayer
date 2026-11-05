@@ -768,6 +768,8 @@
     </plurals>
     <string name="settings_epg_sources_title">EPG-Quellen</string>
     <string name="settings_epg_sources_empty">Noch keine EPG-Quellen. Füge einen XMLTV-Link hinzu.</string>
+    <string name="settings_epg_builtin">Integrierter Programmführer</string>
+    <string name="settings_epg_builtin_description">Programmführer und Senderlogos für Playlists, von der App bereitgestellt. Deine eigenen Quellen haben immer Vorrang.</string>
     <string name="settings_epg_sources_add">EPG-Quelle hinzufügen</string>
     <string name="settings_epg_sources_edit">EPG-Quelle bearbeiten</string>
     <string name="settings_epg_sources_add_sync">Hinzufügen und synchronisieren</string>

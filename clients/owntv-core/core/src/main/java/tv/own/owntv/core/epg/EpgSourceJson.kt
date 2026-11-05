@@ -22,6 +22,7 @@ internal object EpgSourceJson {
                     userAgent = o.optString("ua").takeIf { it.isNotEmpty() },
                     lastSyncAt = if (o.has("at")) o.getLong("at") else null,
                     lastError = o.optString("err").takeIf { it.isNotEmpty() },
+                    builtin = o.optBoolean("bi", false),
                 )
             }
         }.getOrDefault(emptyList())
@@ -37,6 +38,7 @@ internal object EpgSourceJson {
                         s.userAgent?.let { put("ua", it) }
                         s.lastSyncAt?.let { put("at", it) }
                         s.lastError?.let { put("err", it) }
+                        if (s.builtin) put("bi", true)
                     },
             )
         }
