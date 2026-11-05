@@ -817,6 +817,10 @@ open class StalkerClient(okHttpClient: OkHttpClient) {
         return Page(total, maxPer, items)
     }
 
+    /** Some portals put HTML in titles (e.g. a coloured "HD" span); show only the text. */
+    private fun plainTitle(raw: String): String =
+        HTML_TAG.replace(raw, "").replace("&nbsp;", " ").replace("&amp;", "&").trim()
+
     private fun readChannel(reader: JsonReader): Channel? {
         if (reader.peek() != JsonToken.BEGIN_OBJECT) { reader.skipValue(); return null }
         val f = readScalarFields(reader)
@@ -824,7 +828,7 @@ open class StalkerClient(okHttpClient: OkHttpClient) {
         val cmd = f["cmd"]?.takeIf { it.isNotBlank() } ?: return null
         return Channel(
             id = id,
-            name = f["name"] ?: f["title"] ?: id,
+            name = (f["name"] ?: f["title"])?.let(::plainTitle)?.takeIf { it.isNotBlank() } ?: id,
             number = f["number"]?.takeIf { it.isNotBlank() },
             cmd = cmd,
             logo = f["logo"]?.takeIf { it.isNotBlank() },
@@ -1010,6 +1014,7 @@ open class StalkerClient(okHttpClient: OkHttpClient) {
     companion object {
         private const val TAG = "StalkerClient"
         private const val DO_AUTH_ANSWER_LIMIT = 4000
+        private val HTML_TAG = Regex("<[^>]*>")
 
         /** A season row's number: the id suffix ("280:2"), 0 for Specials, else a trailing number in its name. */
         internal fun seasonNumberOf(id: String, name: String?): Int? {

@@ -4319,7 +4319,7 @@
 1	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerAuthManager.kt	status
 1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerAuthManager.kt	watchdog=${profile["watchdog_timeout"] ?: "?"} ms=${SystemClock.elapsedRealtime() - startedAt}
 2	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerAuthManager.kt	watchdog_timeout
-8	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	\0
+10	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	\0
 2	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	$1=***
 1	url	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	$VOD_EPISODE_SCHEME$movieId/$seasonId/$episodeId
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	$apiBase?type=${enc(type)}&action=create_link&cmd=${enc(cmd)}$seriesParam&forced_storage=0&disable_ad=0&JsHttpRequest=1-xml
@@ -4342,13 +4342,16 @@
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	$root/server/load.php
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	$root/stalker_portal/server/load.php
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	${portalRoot(url.substringBefore('?'))}/c/
+1	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	&
 2	url	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	&JsHttpRequest=1-xml
+1	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	&amp;
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	&category=${enc(it)}
 1	uri	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	&device_id2=${URLEncoder.encode(identity.deviceId2.orEmpty(), "UTF-8")}
 1	url	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	&device_id2=${URLEncoder.encode(it, "UTF-8")}
 1	uri	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	&device_id=${URLEncoder.encode(identity.deviceId.orEmpty(), "UTF-8")}
 1	url	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	&device_id=${URLEncoder.encode(it, "UTF-8")}
 1	uri	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	&login=${URLEncoder.encode(login, "UTF-8")}
+1	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	&nbsp;
 1	uri	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	&password=${URLEncoder.encode(password, "UTF-8")}
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	&series=$it
 1	url	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	&signature=${URLEncoder.encode(it, "UTF-8")}
@@ -4367,6 +4370,7 @@
 1	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	1
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	127.0.0.1
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	:
+1	regex	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	<[^>]*>
 1	uri	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	?type=stb&action=do_auth
 1	url	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	?type=stb&action=get_profile&hd=1&auth_second_step=
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	Authorization

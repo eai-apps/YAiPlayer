@@ -110,6 +110,9 @@ fun SettingsPlaylistsPage(
                 )
             }
         }
+        item(key = "app-version") {
+            PageNote(stringResource(R.string.settings_about_version, tv.own.owntv.mobile.BuildConfig.VERSION_NAME))
+        }
     }
 
     // The playlist's header, then Re-sync · Re-sync and remove · Edit · Names · Info · Auto refresh · Default · Delete.

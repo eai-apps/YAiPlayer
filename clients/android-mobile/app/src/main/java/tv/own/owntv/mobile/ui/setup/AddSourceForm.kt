@@ -137,6 +137,7 @@ fun AddSourceForm(
     var showDeviceSheet by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
+    val clipboard = androidx.compose.ui.platform.LocalClipboardManager.current
     val scope = rememberCoroutineScope()
     val pickPlaylist = rememberPlaylistFilePicker { uri ->
         scope.launch {
@@ -269,6 +270,15 @@ fun AddSourceForm(
                         title = stringResource(R.string.setup_mac_generate),
                         onClick = { mac = StalkerDeviceDerivation.randomMac() },
                     ) { }
+                }
+                if (mac.isNotBlank()) {
+                    item(key = "mac-copy") {
+                        StageSettingRow(
+                            icon = MobileIcons.Edit,
+                            title = stringResource(R.string.setup_mac_copy),
+                            onClick = { clipboard.setText(androidx.compose.ui.text.AnnotatedString(mac)) },
+                        ) { }
+                    }
                 }
                 item(key = "mac-note") { PageNote(stringResource(R.string.setup_mac_optional_note)) }
                 if (mac.isNotBlank() && !macValid) {

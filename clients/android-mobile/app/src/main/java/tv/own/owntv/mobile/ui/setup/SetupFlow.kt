@@ -346,7 +346,8 @@ private fun ImportProgress(
         is SourceImporter.ImportState.Failed -> WizardFrame(
             step = WizardStep.PLAYLIST,
             title = stringResource(R.string.setup_import_failed),
-            sub = state.failure.displayText(resources),
+            sub = state.failure.displayText(resources) + "\n\n" +
+                resources.getString(R.string.settings_about_version, tv.own.owntv.mobile.BuildConfig.VERSION_NAME),
             next = stringResource(R.string.setup_try_again_caps),
             onNext = onRetry,
             onBack = onCancel,
