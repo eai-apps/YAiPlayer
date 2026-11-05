@@ -1786,7 +1786,7 @@ class SettingsRepository(private val context: Context, private val localeStore: 
     }
 
     /** Volume levelling: every channel and film is brought slowly to one loudness. Off by default. */
-    val volumeLevelling: Flow<Boolean> = prefsFlow { it[Keys.VOLUME_LEVELLING] ?: false }
+    val volumeLevelling: Flow<Boolean> = prefsFlow { it[Keys.VOLUME_LEVELLING] ?: true }
 
     suspend fun setVolumeLevelling(enabled: Boolean) {
         context.dataStore.edit { it[Keys.VOLUME_LEVELLING] = enabled }

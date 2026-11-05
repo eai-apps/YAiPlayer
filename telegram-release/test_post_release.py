@@ -75,7 +75,7 @@ class TestPostReleaseFormatting(unittest.TestCase):
         self.assertNotIn("https://github.com/org/repo)", post)
         self.assertIn("• Добавлено переключение аудиодорожек", post)
         self.assertIn("• Улучшена стабильность на слабых ТВ", post)
-        self.assertIn("Все файлы: https://github.com/org/repo/releases/tag/v1.3.0", post)
+        self.assertNotIn("Все файлы", post)
 
     def test_format_list_max_12_items(self):
         """Проверка ограничения списка максимум 12 пунктами."""
@@ -111,8 +111,6 @@ class TestPostReleaseFormatting(unittest.TestCase):
         self.assertIn("&lt;video&gt; &amp; &lt;audio&gt;", post)
         self.assertNotIn("<video>", post)
         self.assertNotIn("<audio>", post)
-        # В URL также не должно быть незаэкранированного &
-        self.assertIn("src=gh&amp;ref=main", post)
 
     def test_long_text_truncation_boundary(self):
         """
@@ -137,7 +135,7 @@ class TestPostReleaseFormatting(unittest.TestCase):
         # А последние пункты были отброшены
         self.assertNotIn("• Пункт #10:", post)
         # Обрезка завершается на корректной границе, а не посреди символов
-        self.assertIn("Все файлы: https://github.com/org/repo/releases/tag/v2.0.0", post)
+        self.assertNotIn("https://github.com/org/repo/releases/tag", post)
 
     def test_asset_links(self):
         release_data = {
@@ -263,7 +261,7 @@ class TestPostReleaseCLIAndLogic(unittest.TestCase):
             output = out.getvalue()
             self.assertIn("<b>YAiPlayer v1.9.0</b>", output)
             self.assertIn("• Новая фича dry-run", output)
-            self.assertIn("Все файлы: https://github.com/org/repo/releases/tag/v1.9.0", output)
+            self.assertNotIn("Все файлы", output)
 
     def test_no_token_leak_on_http_error(self):
         """

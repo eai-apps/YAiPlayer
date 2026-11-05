@@ -129,8 +129,6 @@ def format_release_post(
         url = (asset.get("browser_download_url") or "").strip()
         if url and name in labels:
             footer_lines.append(f'⬇️ <a href="{html.escape(url, quote=True)}">{labels[name]}</a>')
-    if html_url:
-        footer_lines.append(f"Все файлы: {html.escape(html_url, quote=False)}")
     footer = "\n".join(footer_lines)
 
     body = release_data.get("body") or ""
