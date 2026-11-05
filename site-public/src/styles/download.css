@@ -1,0 +1,197 @@
+/**
+ * Download Page Styles
+ */
+
+.download-page {
+  padding: 60px 0 100px;
+}
+
+.download-header {
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto 40px;
+}
+
+.release-meta-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-color);
+  padding: 8px 18px;
+  border-radius: var(--radius-full);
+  margin-top: 16px;
+  font-size: 0.9rem;
+}
+
+.release-version {
+  color: #60a5fa;
+  font-weight: 700;
+  font-family: var(--font-family-mono);
+}
+
+.release-date {
+  color: var(--text-muted);
+}
+
+.download-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 32px;
+  margin-bottom: 60px;
+}
+
+.download-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  padding: 40px 32px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.download-card:hover {
+  transform: translateY(-4px);
+  border-color: #3b82f6;
+  box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.5);
+}
+
+.download-card-featured {
+  border-color: rgba(59, 130, 246, 0.5);
+  background: linear-gradient(180deg, rgba(30, 58, 138, 0.15) 0%, var(--bg-surface) 100%);
+}
+
+.download-device-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-lg);
+  background: rgba(59, 130, 246, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  margin-bottom: 24px;
+}
+
+.download-card h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.download-card-desc {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  margin-bottom: 28px;
+  flex: 1;
+}
+
+.download-btn-wrap {
+  margin-top: auto;
+}
+
+.download-btn-wrap .btn {
+  width: 100%;
+}
+
+.download-fallback-link {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 0.9rem;
+}
+
+.download-fallback-link a {
+  color: var(--text-muted);
+  text-decoration: underline;
+  transition: color 0.15s ease;
+}
+
+.download-fallback-link a:hover {
+  color: #60a5fa;
+}
+
+/* 3-Step Guide */
+.guide-steps-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  padding: 40px;
+  margin-bottom: 40px;
+}
+
+.guide-steps-card h3 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.step-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  background: var(--bg-surface-elevated);
+  padding: 18px 20px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+}
+
+.step-num {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.step-text {
+  font-size: 0.95rem;
+  color: var(--text-main);
+  line-height: 1.5;
+  padding-top: 3px;
+}
+
+/* In-app Update Card */
+.inapp-update-card {
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: var(--radius-xl);
+  padding: 28px 32px;
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.inapp-icon {
+  font-size: 1.8rem;
+  flex-shrink: 0;
+}
+
+.inapp-update-card h4 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #34d399;
+  margin-bottom: 8px;
+}
+
+.inapp-update-card p {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  line-height: 1.55;
+}

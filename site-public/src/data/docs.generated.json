@@ -1,0 +1,695 @@
+{
+  "userGuide": {
+    "ru": {
+      "html": "<h1 id=\"руководство-пользователя-yaiplayer\" class=\"docs-h1\">Руководство пользователя YAiPlayer</h1>\n<p class=\"docs-p\">Лицензия проекта: GNU General Public License v3.0 (GPL-3.0).</p>\n<hr class=\"docs-divider\" />\n<h2 id=\"1-о-приложении-yaiplayer\" class=\"docs-h2\">1. О приложении YAiPlayer</h2>\n<p class=\"docs-p\"><strong>YAiPlayer</strong> — это современный медиаплеер для воспроизведения IPTV на телевизорах с Android TV и мобильных устройствах под управлением Android.</p>\n<blockquote class=\"callout callout-important\"><div class=\"callout-title\">Важно / Important</div><p><strong>YAiPlayer не содержит встроенных каналов, фильмов, плейлистов или подписок.</strong></p><p>Приложение является исключительно плеером. Для просмотра вам необходим собственный легальный источник: ссылка на плейлист (M3U), данные доступа к серверу Xtream Codes или порталу Stalker/Ministra, предоставленные вашим поставщиком услуг.</p></blockquote>\n<hr class=\"docs-divider\" />\n<h2 id=\"2-установка-и-обновления\" class=\"docs-h2\">2. Установка и обновления</h2>\n<h3 id=\"установка-приложения\" class=\"docs-h3\">Установка приложения</h3>\n<ol class=\"docs-list docs-ol\">\n<li>Откройте страницу релизов проекта на GitHub (<code class=\"inline-code\">https://github.com/eai-apps/YAiPlayer/releases</code>).</li>\n<li>Скачайте актуальный файл <code class=\"inline-code\">.apk</code> для вашего типа устройства (версию для Android TV или версию для смартфона).</li>\n<li>При первой установке разрешите операционной системе установку приложений из внешних источников (неизвестных источников).</li>\n<li>Запустите загруженный файл и подтвердите установку.</li>\n</ol>\n<h3 id=\"проверка-и-получение-обновлений\" class=\"docs-h3\">Проверка и получение обновлений</h3>\n<p class=\"docs-p\">Приложение умеет проверять наличие новых версий напрямую:</p>\n<ul class=\"docs-list docs-ul\">\n<li>Перейдите в <strong>«Настройки»</strong> (или нажмите значок шестерёнки в меню плейлистов).</li>\n<li>Выберите раздел <strong>«О приложении»</strong>.</li>\n<li>Нажмите кнопку <strong>«Проверить обновления»</strong>.</li>\n<li>Если доступна новая версия, приложение предложит скачать и установить её.</li>\n</ul>\n<hr class=\"docs-divider\" />\n<h2 id=\"3-добавление-источника\" class=\"docs-h2\">3. Добавление источника</h2>\n<p class=\"docs-p\">Чтобы начать просмотр, необходимо подключить хотя бы один источник контента:</p>\n<h3 id=\"m3u-ссылка-или-файл\" class=\"docs-h3\">M3U-ссылка или файл</h3>\n<ul class=\"docs-list docs-ul\">\n<li>В окне добавления источника выберите <strong>«M3U-ссылка или файл»</strong>.</li>\n<li>Введите URL-адрес плейлиста (например, <code class=\"inline-code\">http://example.com/playlist.m3u8</code>) либо выберите локальный файл на устройстве.</li>\n<li>При необходимости укажите отдельную ссылку на телегид (XMLTV EPG).</li>\n</ul>\n<h3 id=\"xtream-codes-api\" class=\"docs-h3\">Xtream Codes API</h3>\n<ul class=\"docs-list docs-ul\">\n<li>Выберите вариант <strong>«Xtream Codes»</strong>.</li>\n<li>Заполните поля:</li>\n<li><strong>Адрес сервера</strong>: URL провайдера (с указанием порта, если требуется).</li>\n<li><strong>Имя пользователя</strong> (логин).</li>\n<li><strong>Пароль</strong>.</li>\n<li>Нажмите «Подключить» — приложение автоматически загрузит категории каналов, фильмов и сериалов.</li>\n</ul>\n<h3 id=\"stalker-ministra-портал\" class=\"docs-h3\">Stalker / Ministra портал</h3>\n<ul class=\"docs-list docs-ul\">\n<li>Выберите <strong>«Stalker (MAC)»</strong>.</li>\n<li>Заполните поля:</li>\n<li><strong>Адрес портала</strong>: URL портала Stalker (обычно заканчивается на <code class=\"inline-code\">/c/</code>).</li>\n<li><strong>MAC-адрес</strong>: шестнадцатеричный идентификатор в формате <code class=\"inline-code\">00:1A:79:XX:XX:XX</code>.</li>\n<li><strong>Логин и пароль</strong>: заполняются только в том случае, если ваш провайдер требует авторизацию поверх привязки к MAC-адресу.</li>\n</ul>\n<blockquote class=\"callout callout-note\"><div class=\"callout-title\">Примечание / Note</div><p><strong>Откуда взять MAC-адрес?</strong></p><p>MAC-адрес для Stalker-портала назначается вашим провайдером при оформлении подписки либо регистрируется вами в личном кабинете провайдера. Приложение позволяет использовать существующий MAC или сгенерировать совместимый адрес виртуальной приставки.</p></blockquote>\n<hr class=\"docs-divider\" />\n<h2 id=\"4-прямой-эфир-live-tv\" class=\"docs-h2\">4. Прямой эфир (Live TV)</h2>\n<p class=\"docs-p\">В разделе <strong>«Прямой эфир»</strong> доступны два режима отображения:</p>\n<ul class=\"docs-list docs-ul\">\n<li><strong>«Список каналов»</strong> — компактный список с группами категорий слева и быстрым предпросмотром выбранного канала.</li>\n<li><strong>«Телегид» (EPG)</strong> — сетка программы передач по времени, позволяющая видеть, что идёт сейчас и какие передачи планируются далее.</li>\n</ul>\n<h3 id=\"переключение-режимов\" class=\"docs-h3\">Переключение режимов</h3>\n<ul class=\"docs-list docs-ul\">\n<li>Нажмите кнопку переключателя <strong>«Список / Телегид»</strong> в верхней панели или в меню управления экраном.</li>\n<li>В меню <strong>«Настройки» → «Прямой эфир»</strong> можно настроить поведение по умолчанию: например, открывать прямой эфир сразу в виде сетки телегида или в виде списка каналов.</li>\n<li>Доступна настройка ширины столбцов (список каналов / шкала времени) и часового пояса программы передач.</li>\n</ul>\n<hr class=\"docs-divider\" />\n<h2 id=\"5-главная-страница-и-настройка-рядов\" class=\"docs-h2\">5. Главная страница и настройка рядов</h2>\n<p class=\"docs-p\">Главный экран собирает ключевые элементы для быстрого доступа:</p>\n<ul class=\"docs-list docs-ul\">\n<li><strong>«Категории каналов»</strong> — тематические подборки каналов прямо на главной (до 8 категорий по 20 каналов).</li>\n<li><strong>«Все каналы»</strong> — быстрый доступ к первым 30 каналам из ваших активных плейлистов.</li>\n<li><strong>«Недавно добавленные фильмы»</strong> — свежие поступления в фильмотеку (до 30 новинок).</li>\n<li><strong>«В эфире»</strong> / <strong>«Недавние каналы»</strong> и <strong>«Избранные каналы»</strong> — каналы, которые вы часто или недавно смотрели.</li>\n<li><strong>«Продолжить просмотр»</strong> — фильмы и серии, воспроизведение которых было приостановлено.</li>\n</ul>\n<h3 id=\"как-настроить-главную-страницу\" class=\"docs-h3\">Как настроить главную страницу</h3>\n<ol class=\"docs-list docs-ol\">\n<li>Откройте <strong>«Настройки» → «Главная»</strong>.</li>\n<li>Включайте или отключайте отображение конкретных рядов.</li>\n<li>Меняйте порядок рядов с помощью кнопок перемещения, чтобы расположить наиболее нужные блоки сверху.</li>\n</ol>\n<hr class=\"docs-divider\" />\n<h2 id=\"6-устранение-неполадок\" class=\"docs-h2\">6. Устранение неполадок</h2>\n<h3 id=\"если-каналы-не-появились-или-синхронизация-завершилась-с-ошибкой\" class=\"docs-h3\">Если каналы не появились или синхронизация завершилась с ошибкой:</h3>\n<ol class=\"docs-list docs-ol\">\n<li>Проверьте правильность введённого адреса, логина и пароля.</li>\n<li>Убедитесь, что устройство подключено к интернету и сервер провайдера доступен.</li>\n<li>Откройте <strong>«Настройки» → «Плейлисты»</strong>, выберите проблемный источник и нажмите <strong>«Синхронизировать заново»</strong>.</li>\n</ol>\n<h3 id=\"если-не-работает-stalker-портал\" class=\"docs-h3\">Если не работает Stalker-портал:</h3>\n<ol class=\"docs-list docs-ol\">\n<li>Убедитесь, что провайдер активировал подписку именно для введённого MAC-адреса.</li>\n<li>В карточке источника выберите пункт <strong>«Очистить данные Stalker (сессия и список каналов)»</strong>, после чего повторите вход. Это сбросит устаревший токен сессии и кешированные списки.</li>\n<li>Если портал использует проверку модели приставки, перейдите в расширенные настройки Stalker в карточке источника и проверьте параметр User-Agent (например, выберите профиль MAG250).</li>\n</ol>\n<hr class=\"docs-divider\" />\n<h2 id=\"7-приватность-и-безопасность\" class=\"docs-h2\">7. Приватность и безопасность</h2>\n<ul class=\"docs-list docs-ul\">\n<li><strong>Прямое соединение</strong>: YAiPlayer подключается напрямую к серверам вашего провайдера IPTV и EPG.</li>\n<li><strong>Без сторонней телеметрии</strong>: приложение не собирает персональные данные, не содержит рекламных модулей и не отправляет логи на сторонние аналитические платформы.</li>\n<li><strong>Локальное хранение</strong>: пароли, токены и списки избранного хранятся локально на вашем устройстве в защищённом хранилище приложения.</li>\n<li><strong>Резервные копии</strong>: при создании резервной копии настроек обращайте внимание на параметры шифрования, если вы планируете передавать файл бэкапа на другие устройства.</li>\n<li>&lt;!-- TODO(Claude): подтвердить отсутствие внешних сетевых запросов к TMDB без явного включения в настройках метаданных --&gt;</li>\n</ul>",
+      "toc": [
+        {
+          "level": 2,
+          "title": "1. О приложении YAiPlayer",
+          "id": "1-о-приложении-yaiplayer"
+        },
+        {
+          "level": 2,
+          "title": "2. Установка и обновления",
+          "id": "2-установка-и-обновления"
+        },
+        {
+          "level": 3,
+          "title": "Установка приложения",
+          "id": "установка-приложения"
+        },
+        {
+          "level": 3,
+          "title": "Проверка и получение обновлений",
+          "id": "проверка-и-получение-обновлений"
+        },
+        {
+          "level": 2,
+          "title": "3. Добавление источника",
+          "id": "3-добавление-источника"
+        },
+        {
+          "level": 3,
+          "title": "M3U-ссылка или файл",
+          "id": "m3u-ссылка-или-файл"
+        },
+        {
+          "level": 3,
+          "title": "Xtream Codes API",
+          "id": "xtream-codes-api"
+        },
+        {
+          "level": 3,
+          "title": "Stalker / Ministra портал",
+          "id": "stalker-ministra-портал"
+        },
+        {
+          "level": 2,
+          "title": "4. Прямой эфир (Live TV)",
+          "id": "4-прямой-эфир-live-tv"
+        },
+        {
+          "level": 3,
+          "title": "Переключение режимов",
+          "id": "переключение-режимов"
+        },
+        {
+          "level": 2,
+          "title": "5. Главная страница и настройка рядов",
+          "id": "5-главная-страница-и-настройка-рядов"
+        },
+        {
+          "level": 3,
+          "title": "Как настроить главную страницу",
+          "id": "как-настроить-главную-страницу"
+        },
+        {
+          "level": 2,
+          "title": "6. Устранение неполадок",
+          "id": "6-устранение-неполадок"
+        },
+        {
+          "level": 3,
+          "title": "Если каналы не появились или синхронизация завершилась с ошибкой:",
+          "id": "если-каналы-не-появились-или-синхронизация-завершилась-с-ошибкой"
+        },
+        {
+          "level": 3,
+          "title": "Если не работает Stalker-портал:",
+          "id": "если-не-работает-stalker-портал"
+        },
+        {
+          "level": 2,
+          "title": "7. Приватность и безопасность",
+          "id": "7-приватность-и-безопасность"
+        }
+      ]
+    },
+    "en": {
+      "html": "<h1 id=\"yaiplayer-user-guide\" class=\"docs-h1\">YAiPlayer User Guide</h1>\n<p class=\"docs-p\">Project License: GNU General Public License v3.0 (GPL-3.0).</p>\n<hr class=\"docs-divider\" />\n<h2 id=\"1-about-yaiplayer\" class=\"docs-h2\">1. About YAiPlayer</h2>\n<p class=\"docs-p\"><strong>YAiPlayer</strong> is a media player engineered for IPTV streaming on Android TV and Android mobile devices.</p>\n<blockquote class=\"callout callout-important\"><div class=\"callout-title\">Важно / Important</div><p><strong>YAiPlayer does not provide, host, or bundle any TV channels, movies, playlists, or streaming content.</strong></p><p>The application functions solely as a playback client. To stream content, you must supply your own legitimate playlist URL (M3U), Xtream Codes server credentials, or Stalker/Ministra portal access details provided by your IPTV service provider.</p></blockquote>\n<hr class=\"docs-divider\" />\n<h2 id=\"2-installation-in-app-updates\" class=\"docs-h2\">2. Installation &amp; In-App Updates</h2>\n<h3 id=\"installation\" class=\"docs-h3\">Installation</h3>\n<ol class=\"docs-list docs-ol\">\n<li>Visit the project's official GitHub Releases page (<code class=\"inline-code\">https://github.com/eai-apps/YAiPlayer/releases</code>).</li>\n<li>Download the latest <code class=\"inline-code\">.apk</code> package corresponding to your target platform (Android TV or mobile device).</li>\n<li>If prompted by Android, grant permission to install applications from unknown sources.</li>\n<li>Launch the downloaded package and confirm installation.</li>\n</ol>\n<h3 id=\"checking-for-updates\" class=\"docs-h3\">Checking for Updates</h3>\n<p class=\"docs-p\">The application includes a built-in update verification system:</p>\n<ul class=\"docs-list docs-ul\">\n<li>Open <strong>Settings</strong> (or tap the gear icon in the Playlists menu).</li>\n<li>Navigate to <strong>About</strong>.</li>\n<li>Select <strong>Check for updates</strong>.</li>\n<li>When a new version is detected, the app prompts you to download and install the update.</li>\n</ul>\n<hr class=\"docs-divider\" />\n<h2 id=\"3-adding-a-content-source\" class=\"docs-h2\">3. Adding a Content Source</h2>\n<p class=\"docs-p\">To begin streaming, configure at least one content source:</p>\n<h3 id=\"m3u-playlist-url-or-file\" class=\"docs-h3\">M3U Playlist URL or File</h3>\n<ul class=\"docs-list docs-ul\">\n<li>Select <strong>Add source</strong> and choose <strong>M3U playlist or file</strong>.</li>\n<li>Enter your playlist URL (e.g., <code class=\"inline-code\">http://example.com/playlist.m3u8</code>) or browse for a local file on your device.</li>\n<li>Optionally specify a secondary XMLTV EPG guide URL.</li>\n</ul>\n<h3 id=\"xtream-codes-api\" class=\"docs-h3\">Xtream Codes API</h3>\n<ul class=\"docs-list docs-ul\">\n<li>Select <strong>Xtream Codes</strong>.</li>\n<li>Complete the authentication fields:</li>\n<li><strong>Server URL</strong>: Provider address (including port number if required).</li>\n<li><strong>Username</strong>.</li>\n<li><strong>Passcode</strong>.</li>\n<li>Select \"Connect\" — the player will synchronize live channel categories, movies (VOD), and series.</li>\n</ul>\n<h3 id=\"stalker-ministra-portal\" class=\"docs-h3\">Stalker / Ministra Portal</h3>\n<ul class=\"docs-list docs-ul\">\n<li>Select <strong>Stalker (MAC)</strong>.</li>\n<li>Complete the configuration:</li>\n<li><strong>Portal URL</strong>: Web address of the Stalker middleware (commonly ending with <code class=\"inline-code\">/c/</code>).</li>\n<li><strong>MAC address</strong>: Standard hexadecimal identifier format (<code class=\"inline-code\">00:1A:79:XX:XX:XX</code>).</li>\n<li><strong>Username and Passcode</strong>: Optional fields, required only when your provider enforces dual credentials above MAC authentication.</li>\n</ul>\n<blockquote class=\"callout callout-note\"><div class=\"callout-title\">Примечание / Note</div><p><strong>Obtaining your MAC Address</strong></p><p>Your Stalker MAC address is provisioned by your IPTV provider upon subscription activation or configured in your provider's customer billing portal. YAiPlayer allows you to enter an assigned MAC or generate a compatible virtual device identifier.</p></blockquote>\n<hr class=\"docs-divider\" />\n<h2 id=\"4-live-tv-electronic-program-guide-epg\" class=\"docs-h2\">4. Live TV &amp; Electronic Program Guide (EPG)</h2>\n<p class=\"docs-p\">The <strong>Live TV</strong> section provides two distinct viewing layouts:</p>\n<ul class=\"docs-list docs-ul\">\n<li><strong>Channel List</strong>: A multi-column view displaying channel categories on the left alongside a live channel preview window.</li>\n<li><strong>TV Guide (EPG)</strong>: A comprehensive chronological grid mapping program schedules across time slots.</li>\n</ul>\n<h3 id=\"switching-views-preferences\" class=\"docs-h3\">Switching Views &amp; Preferences</h3>\n<ul class=\"docs-list docs-ul\">\n<li>Tap or select the <strong>Channels / TV Guide</strong> toggle in the top action bar to switch layouts.</li>\n<li>Under <strong>Settings → Live TV</strong>, define default startup behavior, such as launching Live TV directly into the TV Guide grid.</li>\n<li>Adjust panel widths (category list / channel list / preview) and configure EPG time offset to match your local timezone.</li>\n</ul>\n<hr class=\"docs-divider\" />\n<h2 id=\"5-home-screen-feed-customization\" class=\"docs-h2\">5. Home Screen &amp; Feed Customization</h2>\n<p class=\"docs-p\">The Home screen highlights active playlists and frequently accessed media:</p>\n<ul class=\"docs-list docs-ul\">\n<li><strong>Channel Categories</strong>: Up to 8 category rails with up to 20 channels each directly on Home.</li>\n<li><strong>All Channels</strong>: Immediate access to the first 30 channels from your active playlists.</li>\n<li><strong>Recently Added Movies</strong>: New movie catalogue arrivals (up to 30 titles).</li>\n<li><strong>On Now / Recent &amp; Favorite Channels</strong>: Live feeds you frequently watch.</li>\n<li><strong>Continue Watching</strong>: Quick resume cards for movies and TV show episodes in progress.</li>\n</ul>\n<h3 id=\"reordering-and-hiding-rows\" class=\"docs-h3\">Reordering and Hiding Rows</h3>\n<ol class=\"docs-list docs-ol\">\n<li>Open <strong>Settings → Home</strong>.</li>\n<li>Toggle row visibility to show or hide individual content rails.</li>\n<li>Reorder rows up or down to position preferred categories at the top of the Home feed.</li>\n</ol>\n<hr class=\"docs-divider\" />\n<h2 id=\"6-troubleshooting\" class=\"docs-h2\">6. Troubleshooting</h2>\n<h3 id=\"playlist-synchronization-errors-or-missing-channels\" class=\"docs-h3\">Playlist synchronization errors or missing channels:</h3>\n<ol class=\"docs-list docs-ol\">\n<li>Verify network connectivity and ensure the provider server URL, username, and passcode are correct.</li>\n<li>Navigate to <strong>Settings → Playlists</strong>, select the source, and choose <strong>Re-sync</strong>.</li>\n</ol>\n<h3 id=\"stalker-portal-access-or-playback-refusal\" class=\"docs-h3\">Stalker portal access or playback refusal:</h3>\n<ol class=\"docs-list docs-ol\">\n<li>Ensure the provider has authorized the exact MAC address configured in the app.</li>\n<li>In the playlist menu, choose <strong>Clear Stalker data (session and channel list)</strong> and reconnect to refresh expired session keys.</li>\n<li>If your provider enforces hardware device checks, open advanced Stalker parameters in the source settings and verify the User-Agent / device model preset (e.g., MAG250).</li>\n</ol>\n<hr class=\"docs-divider\" />\n<h2 id=\"7-privacy-security\" class=\"docs-h2\">7. Privacy &amp; Security</h2>\n<ul class=\"docs-list docs-ul\">\n<li><strong>Direct Connections</strong>: YAiPlayer establishes direct network connections exclusively to your configured IPTV and EPG providers.</li>\n<li><strong>No Third-Party Telemetry</strong>: The application does not collect personal data, contains no advertising frameworks, and transmits no analytics or diagnostic tracking logs.</li>\n<li><strong>Local Credential Storage</strong>: credentials, authentication keys, and user customization preferences remain stored locally on your device within sandboxed application storage.</li>\n<li><strong>Configuration Backups</strong>: When exporting settings backups containing credentials, utilize backup encryption options before moving files off the device.</li>\n<li>&lt;!-- TODO(Claude): confirm whether external TMDB metadata requests occur when TMDB is not explicitly enabled in settings --&gt;</li>\n</ul>",
+      "toc": [
+        {
+          "level": 2,
+          "title": "1. About YAiPlayer",
+          "id": "1-about-yaiplayer"
+        },
+        {
+          "level": 2,
+          "title": "2. Installation & In-App Updates",
+          "id": "2-installation-in-app-updates"
+        },
+        {
+          "level": 3,
+          "title": "Installation",
+          "id": "installation"
+        },
+        {
+          "level": 3,
+          "title": "Checking for Updates",
+          "id": "checking-for-updates"
+        },
+        {
+          "level": 2,
+          "title": "3. Adding a Content Source",
+          "id": "3-adding-a-content-source"
+        },
+        {
+          "level": 3,
+          "title": "M3U Playlist URL or File",
+          "id": "m3u-playlist-url-or-file"
+        },
+        {
+          "level": 3,
+          "title": "Xtream Codes API",
+          "id": "xtream-codes-api"
+        },
+        {
+          "level": 3,
+          "title": "Stalker / Ministra Portal",
+          "id": "stalker-ministra-portal"
+        },
+        {
+          "level": 2,
+          "title": "4. Live TV & Electronic Program Guide (EPG)",
+          "id": "4-live-tv-electronic-program-guide-epg"
+        },
+        {
+          "level": 3,
+          "title": "Switching Views & Preferences",
+          "id": "switching-views-preferences"
+        },
+        {
+          "level": 2,
+          "title": "5. Home Screen & Feed Customization",
+          "id": "5-home-screen-feed-customization"
+        },
+        {
+          "level": 3,
+          "title": "Reordering and Hiding Rows",
+          "id": "reordering-and-hiding-rows"
+        },
+        {
+          "level": 2,
+          "title": "6. Troubleshooting",
+          "id": "6-troubleshooting"
+        },
+        {
+          "level": 3,
+          "title": "Playlist synchronization errors or missing channels:",
+          "id": "playlist-synchronization-errors-or-missing-channels"
+        },
+        {
+          "level": 3,
+          "title": "Stalker portal access or playback refusal:",
+          "id": "stalker-portal-access-or-playback-refusal"
+        },
+        {
+          "level": 2,
+          "title": "7. Privacy & Security",
+          "id": "7-privacy-security"
+        }
+      ]
+    },
+    "de": {
+      "html": "<h1 id=\"yaiplayer-benutzerhandbuch\" class=\"docs-h1\">YAiPlayer Benutzerhandbuch</h1>\n<p class=\"docs-p\">Projektlizenz: GNU General Public License v3.0 (GPL-3.0).</p>\n<hr class=\"docs-divider\" />\n<h2 id=\"1-ber-yaiplayer\" class=\"docs-h2\">1. Über YAiPlayer</h2>\n<p class=\"docs-p\"><strong>YAiPlayer</strong> ist ein moderner Mediaplayer für IPTV-Wiedergabe auf Android TV und Android-Mobilgeräten.</p>\n<blockquote class=\"callout callout-important\"><div class=\"callout-title\">Важно / Important</div><p><strong>YAiPlayer enthält weder Sender noch Filme, Serien, Playlists oder Abonnements.</strong></p><p>Die Anwendung dient ausschließlich als Wiedergabe-Client. Für die Nutzung benötigen Sie eine eigene, legale Quelle: eine M3U-Playlist-URL, Xtream-Codes-Zugangsdaten oder ein Stalker/Ministra-Portal Ihres jeweiligen Anbieters.</p></blockquote>\n<hr class=\"docs-divider\" />\n<h2 id=\"2-installation-app-updates\" class=\"docs-h2\">2. Installation &amp; App-Updates</h2>\n<h3 id=\"installation\" class=\"docs-h3\">Installation</h3>\n<ol class=\"docs-list docs-ol\">\n<li>Rufen Sie die GitHub-Releases-Seite des Projekts auf (<code class=\"inline-code\">https://github.com/eai-apps/YAiPlayer/releases</code>).</li>\n<li>Laden Sie die aktuelle <code class=\"inline-code\">.apk</code>-Datei für Ihr Gerät herunter (Android TV oder Mobiltelefon).</li>\n<li>Erlauben Sie bei Bedarf in den Android-Sicherheitseinstellungen die Installation von Apps aus unbekannten Quellen.</li>\n<li>Öffnen Sie die heruntergeladene Datei und bestätigen Sie die Installation.</li>\n</ol>\n<h3 id=\"updates-innerhalb-der-app-prfen\" class=\"docs-h3\">Updates innerhalb der App prüfen</h3>\n<p class=\"docs-p\">Die App verfügt über eine integrierte Update-Funktion:</p>\n<ul class=\"docs-list docs-ul\">\n<li>Öffnen Sie <strong>Einstellungen</strong> (oder das Zahnradsymbol im Playlist-Menü).</li>\n<li>Wählen Sie den Menüpunkt <strong>Über</strong>.</li>\n<li>Klicken Sie auf <strong>Auf Updates prüfen</strong>.</li>\n<li>Steht eine neue Version bereit, bietet die App den Download und die Aktualisierung an.</li>\n</ul>\n<hr class=\"docs-divider\" />\n<h2 id=\"3-quelle-hinzufgen\" class=\"docs-h2\">3. Quelle hinzufügen</h2>\n<p class=\"docs-p\">Um Inhalte abzuspielen, fügen Sie mindestens eine Quelle hinzu:</p>\n<h3 id=\"m3u-playlist-oder-datei\" class=\"docs-h3\">M3U-Playlist oder Datei</h3>\n<ul class=\"docs-list docs-ul\">\n<li>Wählen Sie <strong>Quelle hinzufügen</strong> und danach <strong>M3U-Playlist oder Datei</strong>.</li>\n<li>Geben Sie die URL Ihrer Playlist ein (z. B. <code class=\"inline-code\">http://example.com/playlist.m3u8</code>) oder wählen Sie eine lokale Datei auf dem Gerät aus.</li>\n<li>Optional kann eine separate XMLTV-EPG-Programmführer-Adresse hinterlegt werden.</li>\n</ul>\n<h3 id=\"xtream-codes-api\" class=\"docs-h3\">Xtream Codes API</h3>\n<ul class=\"docs-list docs-ul\">\n<li>Wählen Sie <strong>Xtream Codes</strong>.</li>\n<li>Füllen Sie die Verbindungsdaten aus:</li>\n<li><strong>Serveradresse</strong>: URL des Anbieters (inklusive Portnummer, falls erforderlich).</li>\n<li><strong>Benutzername</strong>.</li>\n<li><strong>Passwort</strong>.</li>\n<li>Bestätigen Sie mit „Verbinden“ — die App synchronisiert Live-TV-Kategorien, Filme (VOD) und Serien.</li>\n</ul>\n<h3 id=\"stalker-ministra-portal\" class=\"docs-h3\">Stalker / Ministra Portal</h3>\n<ul class=\"docs-list docs-ul\">\n<li>Wählen Sie <strong>Stalker (MAC)</strong>.</li>\n<li>Tragen Sie die erforderlichen Angaben ein:</li>\n<li><strong>Portaladresse</strong>: URL des Stalker-Portals (häufig mit Endung <code class=\"inline-code\">/c/</code>).</li>\n<li><strong>MAC-Adresse</strong>: Format <code class=\"inline-code\">00:1A:79:XX:XX:XX</code>.</li>\n<li><strong>Benutzername und Passwort</strong>: Nur erforderlich, wenn Ihr Anbieter zusätzlich zur MAC-Adresse eine Benutzeranmeldung verlangt.</li>\n</ul>\n<blockquote class=\"callout callout-note\"><div class=\"callout-title\">Примечание / Note</div><p><strong>Woher stammt die MAC-Adresse?</strong></p><p>Die MAC-Adresse für ein Stalker-Portal wird von Ihrem Anbieter bei der Freischaltung zugewiesen oder in dessen Kundenbereich eingetragen. YAiPlayer ermöglicht die Eingabe einer zugewiesenen MAC-Adresse oder die Generierung einer kompatiblen virtuellen Kennung.</p></blockquote>\n<hr class=\"docs-divider\" />\n<h2 id=\"4-live-tv-programmfhrer-epg\" class=\"docs-h2\">4. Live-TV &amp; Programmführer (EPG)</h2>\n<p class=\"docs-p\">Im Bereich <strong>Live-TV</strong> stehen zwei Ansichten zur Verfügung:</p>\n<ul class=\"docs-list docs-ul\">\n<li><strong>Senderliste</strong>: Mehrspaltige Übersicht mit Kategorien auf der linken Seite und Vorschaufenster für den ausgewählten Sender.</li>\n<li><strong>Programmführer (EPG)</strong>: Zeitachsen-Gitter mit dem aktuellen und kommenden Sendeprogramm.</li>\n</ul>\n<h3 id=\"ansicht-wechseln-und-anpassen\" class=\"docs-h3\">Ansicht wechseln und anpassen</h3>\n<ul class=\"docs-list docs-ul\">\n<li>Nutzen Sie die Schaltfläche <strong>Senderliste / Programmführer</strong> in der oberen Leiste, um zwischen den Darstellungen zu wechseln.</li>\n<li>Unter <strong>Einstellungen → Live-TV</strong> können Sie festlegen, welches Layout beim Start von Live-TV standardmäßig geöffnet werden soll.</li>\n<li>Passen Sie Spaltenbreiten (Kategorien, Senderliste, Vorschau) und Zeitverschiebungen für das EPG an Ihre Zeitzone an.</li>\n</ul>\n<hr class=\"docs-divider\" />\n<h2 id=\"5-startseite-zeilen-anpassen\" class=\"docs-h2\">5. Startseite &amp; Zeilen anpassen</h2>\n<p class=\"docs-p\">Die Startseite bündelt wichtige Inhalte für den schnellen Zugriff:</p>\n<ul class=\"docs-list docs-ul\">\n<li><strong>Senderkategorien</strong>: Bis zu 8 Kategoriereihen mit jeweils bis zu 20 Sendern direkt auf der Startseite.</li>\n<li><strong>Alle Sender</strong>: Direkter Zugriff auf die ersten 30 Sender Ihrer aktiven Playlists.</li>\n<li><strong>Kürzlich hinzugefügte Filme</strong>: Neue VOD-Titel aus Ihren Quellen (bis zu 30 Filme).</li>\n<li><strong>Zuletzt gesehen &amp; Favoriten</strong>: Sender und Sendungen, die Sie regelmäßig abrufen.</li>\n<li><strong>Weiterschauen</strong>: Schneller Wiedereinstieg für angefangene Filme und Serienepisoden.</li>\n</ul>\n<h3 id=\"startseite-konfigurieren\" class=\"docs-h3\">Startseite konfigurieren</h3>\n<ol class=\"docs-list docs-ol\">\n<li>Öffnen Sie <strong>Einstellungen → Startseite</strong>.</li>\n<li>Blenden Sie Zeilen nach Bedarf ein oder aus.</li>\n<li>Passen Sie die Reihenfolge der Zeilen an, um bevorzugte Kategorien weiter oben zu platzieren.</li>\n</ol>\n<hr class=\"docs-divider\" />\n<h2 id=\"6-fehlerbehebung\" class=\"docs-h2\">6. Fehlerbehebung</h2>\n<h3 id=\"sender-werden-nicht-geladen-oder-synchronisierung-schlgt-fehl\" class=\"docs-h3\">Sender werden nicht geladen oder Synchronisierung schlägt fehl:</h3>\n<ol class=\"docs-list docs-ol\">\n<li>Prüfen Sie Internetverbindung sowie Richtigkeit von Serveradresse, Benutzername und Passwort.</li>\n<li>Öffnen Sie <strong>Einstellungen → Playlists</strong>, wählen Sie die betroffene Quelle und starten Sie <strong>Neu synchronisieren</strong>.</li>\n</ol>\n<h3 id=\"stalker-portal-verweigert-die-verbindung\" class=\"docs-h3\">Stalker-Portal verweigert die Verbindung:</h3>\n<ol class=\"docs-list docs-ol\">\n<li>Vergewissern Sie sich, dass die in der App angegebene MAC-Adresse bei Ihrem Anbieter freigeschaltet ist.</li>\n<li>Wählen Sie im Menü der Quelle <strong>Stalker-Daten löschen (Sitzung und Senderliste)</strong> und verbinden Sie sich erneut, um abgelaufene Sitzungsschlüssel zu erneuern.</li>\n<li>Falls Ihr Anbieter bestimmte Geräteprüfungen voraussetzt, überprüfen Sie in den erweiterten Stalker-Einstellungen das User-Agent-Profil (z. B. MAG250).</li>\n</ol>\n<hr class=\"docs-divider\" />\n<h2 id=\"7-datenschutz-sicherheit\" class=\"docs-h2\">7. Datenschutz &amp; Sicherheit</h2>\n<ul class=\"docs-list docs-ul\">\n<li><strong>Direkte Verbindung</strong>: YAiPlayer kommuniziert ausschließlich direkt mit Ihren konfigurierten IPTV- und EPG-Servern.</li>\n<li><strong>Keine Telemetrie von Drittanbietern</strong>: Die App erhebt keine personenbezogenen Daten, enthält keine Werbemodule und überträgt keine Diagnosedaten an Analysedienste.</li>\n<li><strong>Lokale Speicherung</strong>: Zugangsdaten, Schlüssel und Favoriten verbleiben verschlüsselt im geschützten Speicherbereich Ihres Geräts.</li>\n<li><strong>Sicherungen</strong>: Wenn Sie Einstellungen und Playlists sichern, nutzen Sie vor der Weitergabe der Datei die integrierte Passwortverschlüsselung.</li>\n<li>&lt;!-- TODO(Claude): Bestätigen, ob externe TMDB-Metadatenabfragen ohne explizite Aktivierung in den Einstellungen erfolgen --&gt;</li>\n</ul>",
+      "toc": [
+        {
+          "level": 2,
+          "title": "1. Über YAiPlayer",
+          "id": "1-ber-yaiplayer"
+        },
+        {
+          "level": 2,
+          "title": "2. Installation & App-Updates",
+          "id": "2-installation-app-updates"
+        },
+        {
+          "level": 3,
+          "title": "Installation",
+          "id": "installation"
+        },
+        {
+          "level": 3,
+          "title": "Updates innerhalb der App prüfen",
+          "id": "updates-innerhalb-der-app-prfen"
+        },
+        {
+          "level": 2,
+          "title": "3. Quelle hinzufügen",
+          "id": "3-quelle-hinzufgen"
+        },
+        {
+          "level": 3,
+          "title": "M3U-Playlist oder Datei",
+          "id": "m3u-playlist-oder-datei"
+        },
+        {
+          "level": 3,
+          "title": "Xtream Codes API",
+          "id": "xtream-codes-api"
+        },
+        {
+          "level": 3,
+          "title": "Stalker / Ministra Portal",
+          "id": "stalker-ministra-portal"
+        },
+        {
+          "level": 2,
+          "title": "4. Live-TV & Programmführer (EPG)",
+          "id": "4-live-tv-programmfhrer-epg"
+        },
+        {
+          "level": 3,
+          "title": "Ansicht wechseln und anpassen",
+          "id": "ansicht-wechseln-und-anpassen"
+        },
+        {
+          "level": 2,
+          "title": "5. Startseite & Zeilen anpassen",
+          "id": "5-startseite-zeilen-anpassen"
+        },
+        {
+          "level": 3,
+          "title": "Startseite konfigurieren",
+          "id": "startseite-konfigurieren"
+        },
+        {
+          "level": 2,
+          "title": "6. Fehlerbehebung",
+          "id": "6-fehlerbehebung"
+        },
+        {
+          "level": 3,
+          "title": "Sender werden nicht geladen oder Synchronisierung schlägt fehl:",
+          "id": "sender-werden-nicht-geladen-oder-synchronisierung-schlgt-fehl"
+        },
+        {
+          "level": 3,
+          "title": "Stalker-Portal verweigert die Verbindung:",
+          "id": "stalker-portal-verweigert-die-verbindung"
+        },
+        {
+          "level": 2,
+          "title": "7. Datenschutz & Sicherheit",
+          "id": "7-datenschutz-sicherheit"
+        }
+      ]
+    }
+  },
+  "legal": {
+    "privacy": {
+      "ru": {
+        "html": "<h1 id=\"политика-конфиденциальности-datenschutzerklrung\" class=\"docs-h1\">Политика конфиденциальности (Datenschutzerklärung)</h1>\n<p class=\"docs-p\">Настоящая политика конфиденциальности разъясняет характер, объём и цели обработки персональных данных на веб-сайте проекта YAiPlayer в соответствии с Общим регламентом по защите данных Европейского Союза (DSGVO (Regulation EU 2016/679)).</p>\n<hr class=\"docs-divider\" />\n<h2 id=\"1-ответственное-лицо\" class=\"docs-h2\">1. Ответственное лицо</h2>\n<p class=\"docs-p\">Ответственным за обработку данных на данном веб-сайте является:</p>\n<ul class=\"docs-list docs-ul\">\n<li><strong>Наименование / Имя</strong>: <code class=\"inline-code\"><span class=\"legal-placeholder\">{{ИМЯ}}</span></code></li>\n<li><strong>Адрес</strong>: <code class=\"inline-code\"><span class=\"legal-placeholder\">{{АДРЕС}}</span></code></li>\n<li><strong>Электронная почта</strong>: <code class=\"inline-code\"><span class=\"legal-placeholder\">{{ПОЧТА}}</span></code></li>\n</ul>\n<hr class=\"docs-divider\" />\n<h2 id=\"2-какие-данные-обрабатываются-в-настоящее-время\" class=\"docs-h2\">2. Какие данные обрабатываются в настоящее время</h2>\n<h3 id=\"21-посещение-веб-сайта-серверные-логи\" class=\"docs-h3\">2.1. Посещение веб-сайта (Серверные логи)</h3>\n<p class=\"docs-p\">При посещении нашего веб-сайта браузер автоматически передаёт техническую информацию, которая сохраняется в системных журналах сетевой инфраструктуры:</p>\n<ul class=\"docs-list docs-ul\">\n<li>IP-адрес запрашивающего устройства (в обезличенном или сокращённом виде);</li>\n<li>Дата и точное время обращения;</li>\n<li>Запрошенный URL и объём переданных данных;</li>\n<li>Тип и версия веб-браузера, операционная система;</li>\n<li>HTTP Referrer (ранее посещённая страница);</li>\n<li>HTTP-код ответа сервера.</li>\n</ul>\n<p class=\"docs-p\"><strong>Цель обработки</strong>: обеспечение стабильности, безопасности и защиты веб-сайта от сетевых атак (DDoS).</p>\n<p class=\"docs-p\"><strong>Правовое основание</strong>: ст. 6 абз. 1 лит. f DSGVO (законный интерес в безопасном и бесперебойном предоставлении сайта).</p>\n<h3 id=\"22-хостинг-и-cdn-cloudflare\" class=\"docs-h3\">2.2. Хостинг и CDN (Cloudflare)</h3>\n<p class=\"docs-p\">Веб-сайт размещён на платформе <strong>Cloudflare Pages</strong> (поставщик: Cloudflare, Inc., 101 Townsend St, San Francisco, CA 94107, USA).</p>\n<p class=\"docs-p\">Cloudflare действует как сеть доставки контента (CDN) и защитный экран. Обработка технических запросов происходит через глобальную сеть серверов Cloudflare. В рамках обеспечения соответствия требованиям законодательства ЕС используются стандартные договорные положения (Standard Contractual Clauses, SCC).</p>\n<h3 id=\"23-файлы-cookie-и-трекеры\" class=\"docs-h3\">2.3. Файлы cookie и трекеры</h3>\n<p class=\"docs-p\">Веб-сайт <strong>не использует</strong> маркетинговые, аналитические или рекламные файлы cookie и не отслеживает действия посетителей на других сайтах. Временные технические cookie могут использоваться исключительно для защиты от спама и атак на уровне CDN.</p>\n<hr class=\"docs-divider\" />\n<h2 id=\"3-обработка-данных-при-регистрации-аккаунта-будет-доступно-при-запуске-аккаунтов\" class=\"docs-h2\">3. Обработка данных при регистрации аккаунта (БУДЕТ ДОСТУПНО ПРИ ЗАПУСКЕ АККАУНТОВ)</h2>\n<blockquote class=\"callout callout-note\"><div class=\"callout-title\">Примечание / Note</div><p><strong>Данный раздел вступит в силу только после официального запуска функционала учётных записей и облачной синхронизации.</strong> В текущей версии сайта регистрация пользователей и облачное хранилище не активированы.</p></blockquote>\n<p class=\"docs-p\">Когда функция аккаунтов будет включена:</p>\n<ul class=\"docs-list docs-ul\">\n<li><strong>Регистрационные данные</strong>: адрес электронной почты и криптографический хеш пароля (пароли в открытом виде никогда не сохраняются).</li>\n<li><strong>Синхронизируемые данные</strong>: зашифрованные клиентские данные настроек, плейлистов и избранного. Данные передаются и сохраняются в зашифрованном виде.</li>\n<li><strong>Цель</strong>: предоставление пользователю возможности переносить настройки между своими устройствами.</li>\n<li><strong>Правовое основание</strong>: ст. 6 абз. 1 лит. b DSGVO (исполнение соглашения об обслуживании).</li>\n</ul>\n<hr class=\"docs-divider\" />\n<h2 id=\"4-права-субъекта-данных-пользователя\" class=\"docs-h2\">4. Права субъекта данных (пользователя)</h2>\n<p class=\"docs-p\">В соответствии с положениями DSGVO вы обладаете следующими правами:</p>\n<ul class=\"docs-list docs-ul\">\n<li><strong>Право на доступ</strong> (ст. 15 DSGVO): право запросить подтверждение и копию обрабатываемых персональных данных;</li>\n<li><strong>Право на исправление</strong> (ст. 16 DSGVO): право требовать исправления неточных или неполных сведений;</li>\n<li><strong>Право на удаление</strong> (ст. 17 DSGVO): право требовать безвозвратного удаления персональных данных («право на забвение»);</li>\n<li><strong>Право на ограничение обработки</strong> (ст. 18 DSGVO);</li>\n<li><strong>Право на переносимость данных</strong> (ст. 20 DSGVO);</li>\n<li><strong>Право на отзыв согласия и возражение</strong> (ст. 21 DSGVO): право возразить против обработки данных, производимой на основании законного интереса (ст. 6 абз. 1 лит. f DSGVO).</li>\n</ul>\n<p class=\"docs-p\">Для реализации ваших прав обратитесь по адресу: <code class=\"inline-code\"><span class=\"legal-placeholder\">{{ПОЧТА}}</span></code>.</p>\n<hr class=\"docs-divider\" />\n<h2 id=\"5-право-на-подачу-жалобы-в-надзорный-орган\" class=\"docs-h2\">5. Право на подачу жалобы в надзорный орган</h2>\n<p class=\"docs-p\">Если вы считаете, что обработка ваших персональных данных нарушает требования DSGVO, вы имеете право подать жалобу в уполномоченный орган по надзору за защитой данных в государстве вашего проживания или места работы (ст. 77 DSGVO).</p>\n<hr class=\"docs-divider\" />\n<h2 id=\"6-актуальность-и-изменение-политики\" class=\"docs-h2\">6. Актуальность и изменение политики</h2>\n<p class=\"docs-p\">Настоящая редакция действует с момента размещения на сайте. В связи с развитием функционала проекта и изменением законодательства положения политики могут обновляться.</p>",
+        "toc": [
+          {
+            "level": 2,
+            "title": "1. Ответственное лицо",
+            "id": "1-ответственное-лицо"
+          },
+          {
+            "level": 2,
+            "title": "2. Какие данные обрабатываются в настоящее время",
+            "id": "2-какие-данные-обрабатываются-в-настоящее-время"
+          },
+          {
+            "level": 3,
+            "title": "2.1. Посещение веб-сайта (Серверные логи)",
+            "id": "21-посещение-веб-сайта-серверные-логи"
+          },
+          {
+            "level": 3,
+            "title": "2.2. Хостинг и CDN (Cloudflare)",
+            "id": "22-хостинг-и-cdn-cloudflare"
+          },
+          {
+            "level": 3,
+            "title": "2.3. Файлы cookie и трекеры",
+            "id": "23-файлы-cookie-и-трекеры"
+          },
+          {
+            "level": 2,
+            "title": "3. Обработка данных при регистрации аккаунта (БУДЕТ ДОСТУПНО ПРИ ЗАПУСКЕ АККАУНТОВ)",
+            "id": "3-обработка-данных-при-регистрации-аккаунта-будет-доступно-при-запуске-аккаунтов"
+          },
+          {
+            "level": 2,
+            "title": "4. Права субъекта данных (пользователя)",
+            "id": "4-права-субъекта-данных-пользователя"
+          },
+          {
+            "level": 2,
+            "title": "5. Право на подачу жалобы в надзорный орган",
+            "id": "5-право-на-подачу-жалобы-в-надзорный-орган"
+          },
+          {
+            "level": 2,
+            "title": "6. Актуальность и изменение политики",
+            "id": "6-актуальность-и-изменение-политики"
+          }
+        ]
+      },
+      "en": {
+        "html": "<h1 id=\"privacy-policy-datenschutzerklrung\" class=\"docs-h1\">Privacy Policy (Datenschutzerklärung)</h1>\n<p class=\"docs-p\">This Privacy Policy explains the nature, scope, and purposes of personal data processing on the YAiPlayer website pursuant to the General Data Protection Regulation (General Data Protection Regulation (Regulation (EU) 2016/679 / DSGVO)).</p>\n<hr class=\"docs-divider\" />\n<h2 id=\"1-controller-responsible-entity\" class=\"docs-h2\">1. Controller / Responsible Entity</h2>\n<p class=\"docs-p\">The data controller for this website is:</p>\n<ul class=\"docs-list docs-ul\">\n<li><strong>Entity / Name</strong>: <code class=\"inline-code\"><span class=\"legal-placeholder\">{{NAME}}</span></code></li>\n<li><strong>Address</strong>: <code class=\"inline-code\"><span class=\"legal-placeholder\">{{ADDRESS}}</span></code></li>\n<li><strong>Email</strong>: <code class=\"inline-code\"><span class=\"legal-placeholder\">{{EMAIL}}</span></code></li>\n</ul>\n<hr class=\"docs-divider\" />\n<h2 id=\"2-data-processed-currently\" class=\"docs-h2\">2. Data Processed Currently</h2>\n<h3 id=\"21-website-access-server-logs\" class=\"docs-h3\">2.1. Website Access &amp; Server Logs</h3>\n<p class=\"docs-p\">When accessing this website, the visitor's web browser automatically transmits technical connection metadata recorded in CDN and server infrastructure logs:</p>\n<ul class=\"docs-list docs-ul\">\n<li>IP address of the accessing client (anonymized or truncated where supported);</li>\n<li>Date and exact timestamp of request;</li>\n<li>Requested resource URL and transferred payload size;</li>\n<li>Browser software type, version, and operating system;</li>\n<li>HTTP Referrer header;</li>\n<li>HTTP status code returned.</li>\n</ul>\n<p class=\"docs-p\"><strong>Purpose</strong>: Maintaining availability, monitoring operational integrity, and mitigating network attacks (e.g. DDoS).</p>\n<p class=\"docs-p\"><strong>Legal Basis</strong>: Art. 6(1)(f) DSGVO (legitimate interest in secure and resilient service delivery).</p>\n<h3 id=\"22-hosting-content-delivery-network-cloudflare\" class=\"docs-h3\">2.2. Hosting &amp; Content Delivery Network (Cloudflare)</h3>\n<p class=\"docs-p\">This website is hosted on <strong>Cloudflare Pages</strong> (provided by Cloudflare, Inc., 101 Townsend St, San Francisco, CA 94107, USA).</p>\n<p class=\"docs-p\">Cloudflare operates as a reverse proxy, content delivery network (CDN), and security barrier. Web traffic routes through Cloudflare's global edge infrastructure. For cross-border transfers from the EU, Cloudflare relies on Standard Contractual Clauses (SCCs).</p>\n<h3 id=\"23-cookies-and-tracking\" class=\"docs-h3\">2.3. Cookies and Tracking</h3>\n<p class=\"docs-p\">This website <strong>does not use</strong> tracking, analytics, or behavioral advertising cookies. Strictly necessary security credentials may be issued by the CDN layer to mitigate automated abuse.</p>\n<hr class=\"docs-divider\" />\n<h2 id=\"3-account-processing-future-feature-active-only-once-accounts-are-launched\" class=\"docs-h2\">3. Account Processing (FUTURE FEATURE — ACTIVE ONLY ONCE ACCOUNTS ARE LAUNCHED)</h2>\n<blockquote class=\"callout callout-note\"><div class=\"callout-title\">Примечание / Note</div><p><strong>This section will take effect only once the user account and cloud synchronization features are officially launched.</strong> In the current release, user registration and cloud storage are not enabled.</p></blockquote>\n<p class=\"docs-p\">Upon launch of account features:</p>\n<ul class=\"docs-list docs-ul\">\n<li><strong>Registration details</strong>: User email address and salted cryptographic credential hash (plaintext credentials are never stored).</li>\n<li><strong>Synchronized configuration</strong>: Client-side encrypted configuration payloads, playlist identifiers, and favorites.</li>\n<li><strong>Purpose</strong>: Allowing users to sync playlists and configuration across authorized personal devices.</li>\n<li><strong>Legal Basis</strong>: Art. 6(1)(b) DSGVO (performance of a contract/service requested by the user).</li>\n</ul>\n<hr class=\"docs-divider\" />\n<h2 id=\"4-rights-of-data-subjects\" class=\"docs-h2\">4. Rights of Data Subjects</h2>\n<p class=\"docs-p\">Under the DSGVO, you have the following rights regarding your personal data:</p>\n<ul class=\"docs-list docs-ul\">\n<li><strong>Right of access</strong> (Art. 15 DSGVO);</li>\n<li><strong>Right to rectification</strong> (Art. 16 DSGVO);</li>\n<li><strong>Right to erasure / Right to be forgotten</strong> (Art. 17 DSGVO);</li>\n<li><strong>Right to restriction of processing</strong> (Art. 18 DSGVO);</li>\n<li><strong>Right to data portability</strong> (Art. 20 DSGVO);</li>\n<li><strong>Right to object</strong> (Art. 21 DSGVO) to data processing based on legitimate interests (Art. 6(1)(f) DSGVO).</li>\n</ul>\n<p class=\"docs-p\">To exercise these rights, contact: <code class=\"inline-code\"><span class=\"legal-placeholder\">{{EMAIL}}</span></code>.</p>\n<hr class=\"docs-divider\" />\n<h2 id=\"5-right-to-lodge-a-complaint\" class=\"docs-h2\">5. Right to Lodge a Complaint</h2>\n<p class=\"docs-p\">Pursuant to Art. 77 DSGVO, you have the right to lodge a complaint with a supervisory data protection authority in your EU member state of habitual residence, place of work, or place of the alleged infringement.</p>\n<hr class=\"docs-divider\" />\n<h2 id=\"6-updates-to-this-policy\" class=\"docs-h2\">6. Updates to this Policy</h2>\n<p class=\"docs-p\">This policy reflects current processing activities and will be updated as new features (e.g., account synchronization) are introduced.</p>",
+        "toc": [
+          {
+            "level": 2,
+            "title": "1. Controller / Responsible Entity",
+            "id": "1-controller-responsible-entity"
+          },
+          {
+            "level": 2,
+            "title": "2. Data Processed Currently",
+            "id": "2-data-processed-currently"
+          },
+          {
+            "level": 3,
+            "title": "2.1. Website Access & Server Logs",
+            "id": "21-website-access-server-logs"
+          },
+          {
+            "level": 3,
+            "title": "2.2. Hosting & Content Delivery Network (Cloudflare)",
+            "id": "22-hosting-content-delivery-network-cloudflare"
+          },
+          {
+            "level": 3,
+            "title": "2.3. Cookies and Tracking",
+            "id": "23-cookies-and-tracking"
+          },
+          {
+            "level": 2,
+            "title": "3. Account Processing (FUTURE FEATURE — ACTIVE ONLY ONCE ACCOUNTS ARE LAUNCHED)",
+            "id": "3-account-processing-future-feature-active-only-once-accounts-are-launched"
+          },
+          {
+            "level": 2,
+            "title": "4. Rights of Data Subjects",
+            "id": "4-rights-of-data-subjects"
+          },
+          {
+            "level": 2,
+            "title": "5. Right to Lodge a Complaint",
+            "id": "5-right-to-lodge-a-complaint"
+          },
+          {
+            "level": 2,
+            "title": "6. Updates to this Policy",
+            "id": "6-updates-to-this-policy"
+          }
+        ]
+      },
+      "de": {
+        "html": "<h1 id=\"datenschutzerklrung\" class=\"docs-h1\">Datenschutzerklärung</h1>\n<p class=\"docs-p\">Diese Datenschutzerklärung informiert über Art, Umfang und Zweck der Verarbeitung personenbezogener Daten auf der Website von YAiPlayer gemäß der Datenschutz-Grundverordnung (DSGVO).</p>\n<hr class=\"docs-divider\" />\n<h2 id=\"1-verantwortlicher\" class=\"docs-h2\">1. Verantwortlicher</h2>\n<p class=\"docs-p\">Verantwortlich für die Datenverarbeitung auf dieser Website ist:</p>\n<ul class=\"docs-list docs-ul\">\n<li><strong>Name / Organisation</strong>: <code class=\"inline-code\"><span class=\"legal-placeholder\">{{NAME}}</span></code></li>\n<li><strong>Anschrift</strong>: <code class=\"inline-code\"><span class=\"legal-placeholder\">{{ADRESSE}}</span></code></li>\n<li><strong>E-Mail</strong>: <code class=\"inline-code\"><span class=\"legal-placeholder\">{{E_MAIL}}</span></code></li>\n</ul>\n<hr class=\"docs-divider\" />\n<h2 id=\"2-derzeit-verarbeitete-daten\" class=\"docs-h2\">2. Derzeit verarbeitete Daten</h2>\n<h3 id=\"21-bereitstellung-der-website-und-server-logfiles\" class=\"docs-h3\">2.1. Bereitstellung der Website und Server-Logfiles</h3>\n<p class=\"docs-p\">Beim Aufruf unserer Website erfasst das System automatisiert Daten und Informationen des aufrufenden Rechners:</p>\n<ul class=\"docs-list docs-ul\">\n<li>IP-Adresse des Nutzers (in anonymisierter oder gekürzter Form);</li>\n<li>Datum und Uhrzeit des Zugriffs;</li>\n<li>Aufgerufene URL und übertragene Datenmenge;</li>\n<li>Browsertyp, Browserversion und Betriebssystem;</li>\n<li>Referrer URL (die zuvor besuchte Seite);</li>\n<li>HTTP-Statuscode.</li>\n</ul>\n<p class=\"docs-p\"><strong>Zweck</strong>: Gewährleistung der Funktionsfähigkeit, Stabilität und Abwehr von Cyberangriffen (DDoS).</p>\n<p class=\"docs-p\"><strong>Rechtsgrundlage</strong>: Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an einem sicheren und zuverlässigen Betrieb).</p>\n<h3 id=\"22-hosting-ber-cloudflare-pages\" class=\"docs-h3\">2.2. Hosting über Cloudflare Pages</h3>\n<p class=\"docs-p\">Wir nutzen für das Hosting unserer Website den Dienst <strong>Cloudflare Pages</strong> (Anbieter: Cloudflare, Inc., 101 Townsend St, San Francisco, CA 94107, USA).</p>\n<p class=\"docs-p\">Cloudflare agiert als Content Delivery Network (CDN) und Sicherheitsfilter. Der Datenverkehr wird über das weltweite Servernetzwerk von Cloudflare geleitet. Bei der Übermittlung von Daten in Drittstaaten werden EU-Standardvertragsklauseln (Standard Contractual Clauses, SCC) herangezogen.</p>\n<h3 id=\"23-cookies-und-tracking\" class=\"docs-h3\">2.3. Cookies und Tracking</h3>\n<p class=\"docs-p\">Auf dieser Website werden <strong>keine</strong> Analyse-, Werbe- oder Tracking-Cookies eingesetzt. Ausschließlich technisch notwendige Sicherheits-Cookies der CDN-Infrastruktur können zur Abwehr missbräuchlicher Anfragen temporär gesetzt werden.</p>\n<hr class=\"docs-divider\" />\n<h2 id=\"3-datenverarbeitung-bei-registrierung-zuknftige-funktion-erst-bei-konto-start-aktiv\" class=\"docs-h2\">3. Datenverarbeitung bei Registrierung (ZUKÜNFTIGE FUNKTION — ERST BEI KONTO-START AKTIV)</h2>\n<blockquote class=\"callout callout-note\"><div class=\"callout-title\">Примечание / Note</div><p><strong>Dieser Abschnitt tritt erst in Kraft, sobald die Kontofunktion und die Cloud-Synchronisation offiziell freigeschaltet sind.</strong> In der aktuellen Version der Website sind Benutzerregistrierungen und Cloud-Speicher nicht aktiviert.</p></blockquote>\n<p class=\"docs-p\">Nach Freischaltung der Konten:</p>\n<ul class=\"docs-list docs-ul\">\n<li><strong>Kontodaten</strong>: E-Mail-Adresse und kryptografischer Passwort-Hash (Passwörter werden niemals im Klartext gespeichert).</li>\n<li><strong>Synchronisierte Daten</strong>: Verschlüsselte Konfigurationsdaten, Playlists und Favoriten des Nutzers.</li>\n<li><strong>Zweck</strong>: Ermöglichung der geräteübergreifenden Synchronisation von Einstellungen.</li>\n<li><strong>Rechtsgrundlage</strong>: Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung bzw. vorvertragliche Maßnahmen).</li>\n</ul>\n<hr class=\"docs-divider\" />\n<h2 id=\"4-rechte-der-betroffenen-person\" class=\"docs-h2\">4. Rechte der betroffenen Person</h2>\n<p class=\"docs-p\">Ihnen stehen nach der DSGVO folgende Rechte zu:</p>\n<ul class=\"docs-list docs-ul\">\n<li><strong>Auskunftsrecht</strong> (Art. 15 DSGVO);</li>\n<li><strong>Recht auf Berichtigung</strong> (Art. 16 DSGVO);</li>\n<li><strong>Recht auf Löschung</strong> (Art. 17 DSGVO);</li>\n<li><strong>Recht auf Einschränkung der Verarbeitung</strong> (Art. 18 DSGVO);</li>\n<li><strong>Recht auf Datenübertragbarkeit</strong> (Art. 20 DSGVO);</li>\n<li><strong>Widerspruchsrecht</strong> (Art. 21 DSGVO) gegen Verarbeitungen auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO.</li>\n</ul>\n<p class=\"docs-p\">Zur Ausübung Ihrer Rechte kontaktieren Sie uns unter: <code class=\"inline-code\"><span class=\"legal-placeholder\">{{E_MAIL}}</span></code>.</p>\n<hr class=\"docs-divider\" />\n<h2 id=\"5-beschwerderecht-bei-einer-aufsichtsbehrde\" class=\"docs-h2\">5. Beschwerderecht bei einer Aufsichtsbehörde</h2>\n<p class=\"docs-p\">Gemäß Art. 77 DSGVO haben Sie das Recht, sich bei einer Datenschutz-Aufsichtsbehörde zu beschweren, wenn Sie der Ansicht sind, dass die Verarbeitung Ihrer personenbezogenen Daten gegen die DSGVO verstößt.</p>\n<hr class=\"docs-divider\" />\n<h2 id=\"6-gltigkeit-und-nderungen\" class=\"docs-h2\">6. Gültigkeit und Änderungen</h2>\n<p class=\"docs-p\">Diese Erklärung wird bei Einführung neuer Funktionen (wie der Kontoverwaltung) entsprechend aktualisiert.</p>",
+        "toc": [
+          {
+            "level": 2,
+            "title": "1. Verantwortlicher",
+            "id": "1-verantwortlicher"
+          },
+          {
+            "level": 2,
+            "title": "2. Derzeit verarbeitete Daten",
+            "id": "2-derzeit-verarbeitete-daten"
+          },
+          {
+            "level": 3,
+            "title": "2.1. Bereitstellung der Website und Server-Logfiles",
+            "id": "21-bereitstellung-der-website-und-server-logfiles"
+          },
+          {
+            "level": 3,
+            "title": "2.2. Hosting über Cloudflare Pages",
+            "id": "22-hosting-ber-cloudflare-pages"
+          },
+          {
+            "level": 3,
+            "title": "2.3. Cookies und Tracking",
+            "id": "23-cookies-und-tracking"
+          },
+          {
+            "level": 2,
+            "title": "3. Datenverarbeitung bei Registrierung (ZUKÜNFTIGE FUNKTION — ERST BEI KONTO-START AKTIV)",
+            "id": "3-datenverarbeitung-bei-registrierung-zuknftige-funktion-erst-bei-konto-start-aktiv"
+          },
+          {
+            "level": 2,
+            "title": "4. Rechte der betroffenen Person",
+            "id": "4-rechte-der-betroffenen-person"
+          },
+          {
+            "level": 2,
+            "title": "5. Beschwerderecht bei einer Aufsichtsbehörde",
+            "id": "5-beschwerderecht-bei-einer-aufsichtsbehrde"
+          },
+          {
+            "level": 2,
+            "title": "6. Gültigkeit und Änderungen",
+            "id": "6-gltigkeit-und-nderungen"
+          }
+        ]
+      }
+    },
+    "terms": {
+      "ru": {
+        "html": "<h1 id=\"условия-использования-terms-of-service\" class=\"docs-h1\">Условия использования (Terms of Service)</h1>\n<p class=\"docs-p\">Добро пожаловать в проект <strong>YAiPlayer</strong>. Пожалуйста, внимательно ознакомьтесь с настоящими условиями использования перед использованием веб-сайта и программных продуктов проекта.</p>\n<hr class=\"docs-divider\" />\n<h2 id=\"1-назначение-и-правовая-природа-программного-обеспечения\" class=\"docs-h2\">1. Назначение и правовая природа программного обеспечения</h2>\n<p class=\"docs-p\">1.1. <strong>YAiPlayer является исключительно медиаплеером и программным инструментом для воспроизведения потокового аудио и видео.</strong></p>\n<p class=\"docs-p\">1.2. Проект YAiPlayer, его разработчики и владельцы веб-сайта <strong>не размещают, не транслируют, не продают и не предоставляют никаких телевизионных каналов, фильмов, сериалов, плейлистов или подписок</strong>.</p>\n<p class=\"docs-p\">1.3. Приложение не содержит предустановленных ссылок на сторонний медиаконтент. Все источники контента добавляются пользователем самостоятельно.</p>\n<hr class=\"docs-divider\" />\n<h2 id=\"2-ответственность-пользователя-за-источники-контента\" class=\"docs-h2\">2. Ответственность пользователя за источники контента</h2>\n<p class=\"docs-p\">2.1. Пользователь несёт полную и единоличную юридическую ответственность за любые ссылки на плейлисты (M3U), учётные записи серверов Xtream Codes, порталы Stalker/Ministra и адреса телегидов (EPG), которые он добавляет в приложение.</p>\n<p class=\"docs-p\">2.2. Пользователь обязуется подключать только те источники, на просмотр и использование которых у него есть законные права, действующая подписка или прямое разрешение правообладателей.</p>\n<p class=\"docs-p\">2.3. Запрещается использовать YAiPlayer для доступа к нелегальным, пиратским или нарушающим авторские права материалам.</p>\n<p class=\"docs-p\">2.4. Разработчики YAiPlayer не контролируют и не имеют технической возможности проверять законность источников, настраиваемых конечными пользователями.</p>\n<hr class=\"docs-divider\" />\n<h2 id=\"3-отказ-от-гарантий-disclaimer-of-warranties\" class=\"docs-h2\">3. Отказ от гарантий (Disclaimer of Warranties)</h2>\n<p class=\"docs-p\">3.1. Программное обеспечение YAiPlayer и настоящий веб-сайт предоставляются на условиях <strong>«КАК ЕСТЬ» («AS IS»)</strong> и <strong>«ПО МЕРЕ ДОСТУПНОСТИ» («AS AVAILABLE»)</strong> без каких-либо явных или подразумеваемых гарантий.</p>\n<p class=\"docs-p\">3.2. Разработчики не гарантируют бесперебойную работу, совместимость со всеми типами сторонних потоков, кодеков или серверов, а также пригодность приложения для конкретных целей.</p>\n<p class=\"docs-p\">3.3. Разработчики не несут ответственности за сбои в трансляциях, ошибки сторонних серверов провайдеров или прекращение вещания каналов поставщиками услуг.</p>\n<hr class=\"docs-divider\" />\n<h2 id=\"4-ограничение-ответственности\" class=\"docs-h2\">4. Ограничение ответственности</h2>\n<p class=\"docs-p\">В максимально допустимой применимым законодательством степени разработчики YAiPlayer не несут ответственности за любые прямые, косвенные, случайные или штрафные убытки, возникшие в результате использования или невозможности использования программного обеспечения либо действий сторонних контент-провайдеров.</p>\n<hr class=\"docs-divider\" />\n<h2 id=\"5-лицензия-на-программное-обеспечение\" class=\"docs-h2\">5. Лицензия на программное обеспечение</h2>\n<p class=\"docs-p\">Исходный код приложения YAiPlayer распространяется на условиях лицензии <strong>GNU General Public License v3.0 (GPL-3.0)</strong>. Ознакомиться с полным текстом лицензии можно в репозитории проекта.</p>\n<hr class=\"docs-divider\" />\n<h2 id=\"6-контакты\" class=\"docs-h2\">6. Контакты</h2>\n<p class=\"docs-p\">По вопросам условий использования обращайтесь: <code class=\"inline-code\"><span class=\"legal-placeholder\">{{ПОЧТА}}</span></code>.</p>",
+        "toc": [
+          {
+            "level": 2,
+            "title": "1. Назначение и правовая природа программного обеспечения",
+            "id": "1-назначение-и-правовая-природа-программного-обеспечения"
+          },
+          {
+            "level": 2,
+            "title": "2. Ответственность пользователя за источники контента",
+            "id": "2-ответственность-пользователя-за-источники-контента"
+          },
+          {
+            "level": 2,
+            "title": "3. Отказ от гарантий (Disclaimer of Warranties)",
+            "id": "3-отказ-от-гарантий-disclaimer-of-warranties"
+          },
+          {
+            "level": 2,
+            "title": "4. Ограничение ответственности",
+            "id": "4-ограничение-ответственности"
+          },
+          {
+            "level": 2,
+            "title": "5. Лицензия на программное обеспечение",
+            "id": "5-лицензия-на-программное-обеспечение"
+          },
+          {
+            "level": 2,
+            "title": "6. Контакты",
+            "id": "6-контакты"
+          }
+        ]
+      },
+      "en": {
+        "html": "<h1 id=\"terms-of-service\" class=\"docs-h1\">Terms of Service</h1>\n<p class=\"docs-p\">Please review these Terms of Service carefully before utilizing the <strong>YAiPlayer</strong> website and associated client applications.</p>\n<hr class=\"docs-divider\" />\n<h2 id=\"1-nature-and-functionality-of-the-software\" class=\"docs-h2\">1. Nature and Functionality of the Software</h2>\n<p class=\"docs-p\">1.1. <strong>YAiPlayer is strictly a media player software tool designed for streaming playback.</strong></p>\n<p class=\"docs-p\">1.2. The YAiPlayer project, its contributors, and operators <strong>do not host, broadcast, distribute, license, or sell any media streams, television broadcasts, movies, series, playlists, or IPTV subscriptions.</strong></p>\n<p class=\"docs-p\">1.3. The software comes without any bundled, preset, or indexed third-party streaming media. All playlists and streaming portals are configured independently by the end user.</p>\n<hr class=\"docs-divider\" />\n<h2 id=\"2-user-responsibility-for-content-sources\" class=\"docs-h2\">2. User Responsibility for Content Sources</h2>\n<p class=\"docs-p\">2.1. The user assumes sole and exclusive legal responsibility for any playlist links (M3U), server endpoints (Xtream Codes API), portal identifiers (Stalker/Ministra), and EPG URLs configured within the software.</p>\n<p class=\"docs-p\">2.2. The user warrants that they possess lawful access rights, valid subscriptions, or copyright licenses for all streaming sources imported into the application.</p>\n<p class=\"docs-p\">2.3. Using YAiPlayer to access unauthorized, pirated, or infringing streams is strictly prohibited.</p>\n<p class=\"docs-p\">2.4. YAiPlayer developers maintain no technical custody, control, or monitoring capabilities over user-configured streaming endpoints.</p>\n<hr class=\"docs-divider\" />\n<h2 id=\"3-disclaimer-of-warranties\" class=\"docs-h2\">3. Disclaimer of Warranties</h2>\n<p class=\"docs-p\">3.1. The software and website are provided on an <strong>\"AS IS\"</strong> and <strong>\"AS AVAILABLE\"</strong> basis without representations or warranties of any kind, whether express or implied.</p>\n<p class=\"docs-p\">3.2. We do not warrant that the software will be uninterrupted, error-free, compatible with every streaming protocol or third-party middleware implementation, or fit for a particular purpose.</p>\n<p class=\"docs-p\">3.3. YAiPlayer is not responsible for stream interruptions, network failures, or provider-side service suspensions.</p>\n<hr class=\"docs-divider\" />\n<h2 id=\"4-limitation-of-liability\" class=\"docs-h2\">4. Limitation of Liability</h2>\n<p class=\"docs-p\">To the maximum extent permitted under applicable law, the project authors and maintainers shall not be liable for any direct, indirect, incidental, consequential, or punitive damages arising from the use or inability to use the software, or from reliance on any content accessed through third-party feeds.</p>\n<hr class=\"docs-divider\" />\n<h2 id=\"5-software-licensing\" class=\"docs-h2\">5. Software Licensing</h2>\n<p class=\"docs-p\">The YAiPlayer codebase is licensed under the <strong>GNU General Public License v3.0 (GPL-3.0)</strong>. Refer to the project repository for full license terms.</p>\n<hr class=\"docs-divider\" />\n<h2 id=\"6-inquiries\" class=\"docs-h2\">6. Inquiries</h2>\n<p class=\"docs-p\">Questions regarding these Terms of Service may be addressed to: <code class=\"inline-code\"><span class=\"legal-placeholder\">{{EMAIL}}</span></code>.</p>",
+        "toc": [
+          {
+            "level": 2,
+            "title": "1. Nature and Functionality of the Software",
+            "id": "1-nature-and-functionality-of-the-software"
+          },
+          {
+            "level": 2,
+            "title": "2. User Responsibility for Content Sources",
+            "id": "2-user-responsibility-for-content-sources"
+          },
+          {
+            "level": 2,
+            "title": "3. Disclaimer of Warranties",
+            "id": "3-disclaimer-of-warranties"
+          },
+          {
+            "level": 2,
+            "title": "4. Limitation of Liability",
+            "id": "4-limitation-of-liability"
+          },
+          {
+            "level": 2,
+            "title": "5. Software Licensing",
+            "id": "5-software-licensing"
+          },
+          {
+            "level": 2,
+            "title": "6. Inquiries",
+            "id": "6-inquiries"
+          }
+        ]
+      },
+      "de": {
+        "html": "<h1 id=\"nutzungsbedingungen-terms-of-service\" class=\"docs-h1\">Nutzungsbedingungen (Terms of Service)</h1>\n<p class=\"docs-p\">Bitte lesen Sie die nachfolgenden Nutzungsbedingungen aufmerksam durch, bevor Sie die Website oder Anwendungen von <strong>YAiPlayer</strong> nutzen.</p>\n<hr class=\"docs-divider\" />\n<h2 id=\"1-gegenstand-und-zweck-der-software\" class=\"docs-h2\">1. Gegenstand und Zweck der Software</h2>\n<p class=\"docs-p\">1.1. <strong>YAiPlayer ist ein reiner Mediaplayer zur Wiedergabe von Audio- und Videostreams.</strong></p>\n<p class=\"docs-p\">1.2. YAiPlayer, dessen Entwickler sowie die Betreiber dieser Website <strong>stellen weder Sender, Filme, Serien noch Playlists oder Abonnements bereit, hosten diese nicht und vertreiben diese nicht.</strong></p>\n<p class=\"docs-p\">1.3. Die Software wird ohne vorinstallierte oder verlinkte Inhalte ausgeliefert. Alle Inhalte und Quellen werden ausschließlich vom Nutzer selbst hinzugefügt.</p>\n<hr class=\"docs-divider\" />\n<h2 id=\"2-verantwortlichkeit-des-nutzers-fr-inhalte\" class=\"docs-h2\">2. Verantwortlichkeit des Nutzers für Inhalte</h2>\n<p class=\"docs-p\">2.1. Der Nutzer trägt die alleinige und uneingeschränkte rechtliche Verantwortung für alle von ihm in die Anwendung eingebundenen Quellen (M3U-Playlists, Xtream-Codes-Server, Stalker-Portale und EPG-Guides).</p>\n<p class=\"docs-p\">2.2. Der Nutzer sichert zu, dass er über die erforderlichen Rechte, Lizenzen oder rechtmäßigen Abonnements für alle genutzten Streams verfügt.</p>\n<p class=\"docs-p\">2.3. Die Nutzung der Software zum Abruf urheberrechtswidriger oder nicht autorisierter Inhalte ist unzulässig.</p>\n<p class=\"docs-p\">2.4. Die Entwickler von YAiPlayer haben weder Kenntnis noch Einfluss auf die vom Nutzer eingebundenen Datenströme.</p>\n<hr class=\"docs-divider\" />\n<h2 id=\"3-gewhrleistungsausschluss\" class=\"docs-h2\">3. Gewährleistungsausschluss</h2>\n<p class=\"docs-p\">3.1. Die Bereitstellung der Software und dieser Website erfolgt im Zustand <strong>„WIE BESEHEN“ („AS IS“)</strong> und ohne ausdrückliche oder stillschweigende Gewährleistungen.</p>\n<p class=\"docs-p\">3.2. Wir übernehmen keine Gewähr für die ununterbrochene Funktionsfähigkeit, Fehlerfreiheit oder Kompatibilität mit beliebigen Streaming-Servern, Codecs oder Drittanbieter-Schnittstellen.</p>\n<p class=\"docs-p\">3.3. Für Ausfälle auf Seiten externer Streaming-Anbieter besteht keinerlei Haftung.</p>\n<hr class=\"docs-divider\" />\n<h2 id=\"4-haftungsbeschrnkung\" class=\"docs-h2\">4. Haftungsbeschränkung</h2>\n<p class=\"docs-p\">Soweit gesetzlich zulässig, ist die Haftung für mittelbare Schäden, Folgeschäden oder entgangenen Gewinn im Zusammenhang mit der Nutzung dieser Software ausgeschlossen.</p>\n<hr class=\"docs-divider\" />\n<h2 id=\"5-lizenzierung\" class=\"docs-h2\">5. Lizenzierung</h2>\n<p class=\"docs-p\">Der Quellcode von YAiPlayer unterliegt der <strong>GNU General Public License v3.0 (GPL-3.0)</strong>.</p>\n<hr class=\"docs-divider\" />\n<h2 id=\"6-kontakt\" class=\"docs-h2\">6. Kontakt</h2>\n<p class=\"docs-p\">Für Rückfragen zu den Nutzungsbedingungen wenden Sie sich bitte an: <code class=\"inline-code\"><span class=\"legal-placeholder\">{{E_MAIL}}</span></code>.</p>",
+        "toc": [
+          {
+            "level": 2,
+            "title": "1. Gegenstand und Zweck der Software",
+            "id": "1-gegenstand-und-zweck-der-software"
+          },
+          {
+            "level": 2,
+            "title": "2. Verantwortlichkeit des Nutzers für Inhalte",
+            "id": "2-verantwortlichkeit-des-nutzers-fr-inhalte"
+          },
+          {
+            "level": 2,
+            "title": "3. Gewährleistungsausschluss",
+            "id": "3-gewhrleistungsausschluss"
+          },
+          {
+            "level": 2,
+            "title": "4. Haftungsbeschränkung",
+            "id": "4-haftungsbeschrnkung"
+          },
+          {
+            "level": 2,
+            "title": "5. Lizenzierung",
+            "id": "5-lizenzierung"
+          },
+          {
+            "level": 2,
+            "title": "6. Kontakt",
+            "id": "6-kontakt"
+          }
+        ]
+      }
+    },
+    "impressum": {
+      "ru": {
+        "html": "<h1 id=\"выходные-данные-impressum\" class=\"docs-h1\">Выходные данные (Impressum)</h1>\n<p class=\"docs-p\">Сведения в соответствии с § 5 Закона о цифровых услугах Германии (Digitale-Dienste-Gesetz, DDG):</p>\n<h2 id=\"ответственное-лицо-поставщик-услуг\" class=\"docs-h2\">Ответственное лицо / Поставщик услуг</h2>\n<ul class=\"docs-list docs-ul\">\n<li><strong>Имя / Наименование</strong>: <code class=\"inline-code\"><span class=\"legal-placeholder\">{{ИМЯ}}</span></code></li>\n<li><strong>Юридический / Почтовый адрес</strong>: <code class=\"inline-code\"><span class=\"legal-placeholder\">{{АДРЕС}}</span></code></li>\n<li><strong>Страна</strong>: <code class=\"inline-code\"><span class=\"legal-placeholder\">{{СТРАНА}}</span></code></li>\n</ul>\n<h2 id=\"контактная-информация\" class=\"docs-h2\">Контактная информация</h2>\n<ul class=\"docs-list docs-ul\">\n<li><strong>Электронная почта</strong>: <code class=\"inline-code\"><span class=\"legal-placeholder\">{{ПОЧТА}}</span></code></li>\n<li><strong>Телефон</strong> (при наличии): <code class=\"inline-code\"><span class=\"legal-placeholder\">{{ТЕЛЕФОН}}</span></code></li>\n<li><strong>Форма обратной связи</strong>: <code class=\"inline-code\"><span class=\"legal-placeholder\">{{ССЫЛКА_НА_КОНТАКТЫ}}</span></code></li>\n</ul>\n<h2 id=\"регистрационные-данные-если-применимо\" class=\"docs-h2\">Регистрационные данные (если применимо)</h2>\n<ul class=\"docs-list docs-ul\">\n<li><strong>Реестр</strong>: <code class=\"inline-code\"><span class=\"legal-placeholder\">{{РЕЕСТР_И_НОМЕР}}</span></code></li>\n<li><strong>Идентификационный номер налогоплательщика (USt-IdNr.)</strong>: <code class=\"inline-code\"><span class=\"legal-placeholder\">{{НДС_НОМЕР}}</span></code></li>\n</ul>\n<h2 id=\"ответственный-за-содержание-в-соответствии-с-18-абз-2-mstv\" class=\"docs-h2\">Ответственный за содержание в соответствии с § 18 абз. 2 MStV</h2>\n<ul class=\"docs-list docs-ul\">\n<li><strong>Имя</strong>: <code class=\"inline-code\"><span class=\"legal-placeholder\">{{ИМЯ_ОТВЕТСТВЕННОГО}}</span></code></li>\n<li><strong>Адрес</strong>: <code class=\"inline-code\"><span class=\"legal-placeholder\">{{АДРЕС_ОТВЕТСТВЕННОГО}}</span></code></li>\n</ul>\n<h2 id=\"досудебное-урегулирование-споров\" class=\"docs-h2\">Досудебное урегулирование споров</h2>\n<p class=\"docs-p\">Европейская комиссия предоставляет платформу для онлайн-урегулирования споров (OS): <a href=\"https://ec.europa.eu/consumers/odr\" class=\"docs-link\" target=\"_blank\" rel=\"noopener noreferrer\">https://ec.europa.eu/consumers/odr</a>.</p>\n<p class=\"docs-p\">Мы не обязаны и не готовы участвовать в процедурах разрешения споров в потребительских арбитражных органах.</p>",
+        "toc": [
+          {
+            "level": 2,
+            "title": "Ответственное лицо / Поставщик услуг",
+            "id": "ответственное-лицо-поставщик-услуг"
+          },
+          {
+            "level": 2,
+            "title": "Контактная информация",
+            "id": "контактная-информация"
+          },
+          {
+            "level": 2,
+            "title": "Регистрационные данные (если применимо)",
+            "id": "регистрационные-данные-если-применимо"
+          },
+          {
+            "level": 2,
+            "title": "Ответственный за содержание в соответствии с § 18 абз. 2 MStV",
+            "id": "ответственный-за-содержание-в-соответствии-с-18-абз-2-mstv"
+          },
+          {
+            "level": 2,
+            "title": "Досудебное урегулирование споров",
+            "id": "досудебное-урегулирование-споров"
+          }
+        ]
+      },
+      "en": {
+        "html": "<h1 id=\"legal-notice-impressum\" class=\"docs-h1\">Legal Notice (Impressum)</h1>\n<p class=\"docs-p\">Information pursuant to § 5 of the German Digital Services Act (Digitale-Dienste-Gesetz, DDG):</p>\n<h2 id=\"service-provider-responsible-entity\" class=\"docs-h2\">Service Provider / Responsible Entity</h2>\n<ul class=\"docs-list docs-ul\">\n<li><strong>Name / Entity</strong>: <code class=\"inline-code\"><span class=\"legal-placeholder\">{{NAME}}</span></code></li>\n<li><strong>Address</strong>: <code class=\"inline-code\"><span class=\"legal-placeholder\">{{ADDRESS}}</span></code></li>\n<li><strong>Country</strong>: <code class=\"inline-code\"><span class=\"legal-placeholder\">{{COUNTRY}}</span></code></li>\n</ul>\n<h2 id=\"contact-details\" class=\"docs-h2\">Contact Details</h2>\n<ul class=\"docs-list docs-ul\">\n<li><strong>Email</strong>: <code class=\"inline-code\"><span class=\"legal-placeholder\">{{EMAIL}}</span></code></li>\n<li><strong>Phone</strong> (optional): <code class=\"inline-code\"><span class=\"legal-placeholder\">{{PHONE}}</span></code></li>\n<li><strong>Contact URL</strong>: <code class=\"inline-code\"><span class=\"legal-placeholder\">{{CONTACT_URL}}</span></code></li>\n</ul>\n<h2 id=\"commercial-register-if-applicable\" class=\"docs-h2\">Commercial Register (if applicable)</h2>\n<ul class=\"docs-list docs-ul\">\n<li><strong>Register &amp; Registration Number</strong>: <code class=\"inline-code\"><span class=\"legal-placeholder\">{{REGISTER_AND_NUMBER}}</span></code></li>\n<li><strong>VAT Identification Number (USt-IdNr.)</strong>: <code class=\"inline-code\"><span class=\"legal-placeholder\">{{VAT_ID}}</span></code></li>\n</ul>\n<h2 id=\"responsible-for-content-pursuant-to-18-2-mstv\" class=\"docs-h2\">Responsible for Content pursuant to § 18 (2) MStV</h2>\n<ul class=\"docs-list docs-ul\">\n<li><strong>Name</strong>: <code class=\"inline-code\"><span class=\"legal-placeholder\">{{CONTENT_RESPONSIBLE_NAME}}</span></code></li>\n<li><strong>Address</strong>: <code class=\"inline-code\"><span class=\"legal-placeholder\">{{CONTENT_RESPONSIBLE_ADDRESS}}</span></code></li>\n</ul>\n<h2 id=\"online-dispute-resolution\" class=\"docs-h2\">Online Dispute Resolution</h2>\n<p class=\"docs-p\">The European Commission provides a platform for online dispute resolution (ODR): <a href=\"https://ec.europa.eu/consumers/odr\" class=\"docs-link\" target=\"_blank\" rel=\"noopener noreferrer\">https://ec.europa.eu/consumers/odr</a>.</p>\n<p class=\"docs-p\">We are neither obligated nor willing to participate in dispute resolution proceedings before a consumer arbitration board.</p>",
+        "toc": [
+          {
+            "level": 2,
+            "title": "Service Provider / Responsible Entity",
+            "id": "service-provider-responsible-entity"
+          },
+          {
+            "level": 2,
+            "title": "Contact Details",
+            "id": "contact-details"
+          },
+          {
+            "level": 2,
+            "title": "Commercial Register (if applicable)",
+            "id": "commercial-register-if-applicable"
+          },
+          {
+            "level": 2,
+            "title": "Responsible for Content pursuant to § 18 (2) MStV",
+            "id": "responsible-for-content-pursuant-to-18-2-mstv"
+          },
+          {
+            "level": 2,
+            "title": "Online Dispute Resolution",
+            "id": "online-dispute-resolution"
+          }
+        ]
+      },
+      "de": {
+        "html": "<h1 id=\"impressum\" class=\"docs-h1\">Impressum</h1>\n<p class=\"docs-p\">Angaben gemäß § 5 Digitale-Dienste-Gesetz (DDG):</p>\n<h2 id=\"diensteanbieter-verantwortlich\" class=\"docs-h2\">Diensteanbieter / Verantwortlich</h2>\n<ul class=\"docs-list docs-ul\">\n<li><strong>Name / Unternehmen</strong>: <code class=\"inline-code\"><span class=\"legal-placeholder\">{{NAME}}</span></code></li>\n<li><strong>Anschrift</strong>: <code class=\"inline-code\"><span class=\"legal-placeholder\">{{ADRESSE}}</span></code></li>\n<li><strong>Land</strong>: <code class=\"inline-code\"><span class=\"legal-placeholder\">{{LAND}}</span></code></li>\n</ul>\n<h2 id=\"kontakt\" class=\"docs-h2\">Kontakt</h2>\n<ul class=\"docs-list docs-ul\">\n<li><strong>E-Mail</strong>: <code class=\"inline-code\"><span class=\"legal-placeholder\">{{E_MAIL}}</span></code></li>\n<li><strong>Telefon</strong> (optional): <code class=\"inline-code\"><span class=\"legal-placeholder\">{{TELEFON}}</span></code></li>\n<li><strong>Kontaktformular / Website</strong>: <code class=\"inline-code\"><span class=\"legal-placeholder\">{{KONTAKT_URL}}</span></code></li>\n</ul>\n<h2 id=\"registereintrag-falls-zutreffend\" class=\"docs-h2\">Registereintrag (falls zutreffend)</h2>\n<ul class=\"docs-list docs-ul\">\n<li><strong>Registergericht und Registernummer</strong>: <code class=\"inline-code\"><span class=\"legal-placeholder\">{{REGISTER_UND_NUMMER}}</span></code></li>\n<li><strong>Umsatzsteuer-Identifikationsnummer gemäß § 27a UStG</strong>: <code class=\"inline-code\"><span class=\"legal-placeholder\">{{UST_IDNR}}</span></code></li>\n</ul>\n<h2 id=\"verantwortlich-fr-den-inhalt-nach-18-abs-2-mstv\" class=\"docs-h2\">Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</h2>\n<ul class=\"docs-list docs-ul\">\n<li><strong>Name</strong>: <code class=\"inline-code\"><span class=\"legal-placeholder\">{{INHALTLICH_VERANTWORTLICHER_NAME}}</span></code></li>\n<li><strong>Anschrift</strong>: <code class=\"inline-code\"><span class=\"legal-placeholder\">{{INHALTLICH_VERANTWORTLICHER_ADRESSE}}</span></code></li>\n</ul>\n<h2 id=\"verbraucherstreitbeilegung-universalschlichtungsstelle\" class=\"docs-h2\">Verbraucherstreitbeilegung / Universalschlichtungsstelle</h2>\n<p class=\"docs-p\">Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit: <a href=\"https://ec.europa.eu/consumers/odr\" class=\"docs-link\" target=\"_blank\" rel=\"noopener noreferrer\">https://ec.europa.eu/consumers/odr</a>.</p>\n<p class=\"docs-p\">Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.</p>",
+        "toc": [
+          {
+            "level": 2,
+            "title": "Diensteanbieter / Verantwortlich",
+            "id": "diensteanbieter-verantwortlich"
+          },
+          {
+            "level": 2,
+            "title": "Kontakt",
+            "id": "kontakt"
+          },
+          {
+            "level": 2,
+            "title": "Registereintrag (falls zutreffend)",
+            "id": "registereintrag-falls-zutreffend"
+          },
+          {
+            "level": 2,
+            "title": "Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV",
+            "id": "verantwortlich-fr-den-inhalt-nach-18-abs-2-mstv"
+          },
+          {
+            "level": 2,
+            "title": "Verbraucherstreitbeilegung / Universalschlichtungsstelle",
+            "id": "verbraucherstreitbeilegung-universalschlichtungsstelle"
+          }
+        ]
+      }
+    },
+    "opensource": {
+      "ru": {
+        "html": "<h1 id=\"лицензии-и-открытый-исходный-код-open-source-notices\" class=\"docs-h1\">Лицензии и открытый исходный код (Open Source Notices)</h1>\n<p class=\"docs-p\">Проект <strong>YAiPlayer</strong> построен на основе свободного и открытого программного обеспечения (Open Source) и благодарен сообществу разработчиков за созданные компоненты.</p>\n<hr class=\"docs-divider\" />\n<h2 id=\"лицензия-приложения-yaiplayer\" class=\"docs-h2\">Лицензия приложения YAiPlayer</h2>\n<ul class=\"docs-list docs-ul\">\n<li><strong>Проект</strong>: YAiPlayer</li>\n<li><strong>Репозиторий</strong>: <a href=\"https://github.com/eai-apps/YAiPlayer\" class=\"docs-link\" target=\"_blank\" rel=\"noopener noreferrer\">https://github.com/eai-apps/YAiPlayer</a></li>\n<li><strong>Лицензия</strong>: <a href=\"https://www.gnu.org/licenses/gpl-3.0.html\" class=\"docs-link\" target=\"_blank\" rel=\"noopener noreferrer\">GNU General Public License v3.0 (GPL-3.0)</a></li>\n</ul>\n<p class=\"docs-p\">Вы имеете право запускать, изучать, модифицировать и распространять исходный код приложения в соответствии с условиями лицензии GPL-3.0.</p>\n<hr class=\"docs-divider\" />\n<h2 id=\"исходный-проект-upstream\" class=\"docs-h2\">Исходный проект (Upstream)</h2>\n<p class=\"docs-p\">Приложение YAiPlayer создано на основе открытого проекта <strong>OwnTV</strong>:</p>\n<ul class=\"docs-list docs-ul\">\n<li><strong>Оригинальный проект</strong>: OwnTV (<code class=\"inline-code\">tv.own.owntv</code>)</li>\n<li><strong>Лицензия оригинального проекта</strong>: GNU General Public License v3.0 (GPL-3.0)</li>\n<li>&lt;!-- TODO(Claude): указать актуальную каноническую ссылку на репозиторий проекта OwnTV при публикации --&gt;</li>\n</ul>\n<hr class=\"docs-divider\" />\n<h2 id=\"используемые-библиотеки-и-компоненты\" class=\"docs-h2\">Используемые библиотеки и компоненты</h2>\n<p class=\"docs-p\">Ниже приведён перечень основных сторонних библиотек, используемых при сборке приложения, и их лицензии:</p>\n<div class=\"table-container\"><table class=\"docs-table\"><thead><tr><th>Компонент / Библиотека</th><th>Назначение</th><th>Лицензия</th></tr></thead><tbody><tr><td><strong>AndroidX / Jetpack</strong> (Core, Room, DataStore, WorkManager, Paging, SQLite)</td><td>Архитектурные компоненты платформы Android</td><td>Apache License 2.0</td></tr><tr><td><strong>Jetpack Compose Runtime</strong></td><td>Управление состоянием интерфейса</td><td>Apache License 2.0</td></tr><tr><td><strong>KotlinX Coroutines</strong> (<code class=\"inline-code\">kotlinx-coroutines</code>)</td><td>Асинхронное программирование на Kotlin</td><td>Apache License 2.0</td></tr><tr><td><strong>Media3 / ExoPlayer</strong> (<code class=\"inline-code\">androidx.media3</code>)</td><td>Мультимедийный плеер для HLS, DASH и прогрессивных потоков</td><td>Apache License 2.0</td></tr><tr><td><strong>libmpv</strong> (OwnTV mpv/FFmpeg build)</td><td>Нативный медиадвижок для аппаратного/программного декодирования</td><td>GPLv3 / LGPLv2.1+</td></tr><tr><td><strong>OkHttp 5</strong> (<code class=\"inline-code\">com.squareup.okhttp3:okhttp</code>)</td><td>Сетевой стек HTTP/HTTPS с поддержкой HTTP/2</td><td>Apache License 2.0</td></tr><tr><td><strong>Koin</strong> (<code class=\"inline-code\">io.insert-koin:koin-android</code>)</td><td>Внедрение зависимостей (Dependency Injection)</td><td>Apache License 2.0</td></tr><tr><td><strong>ZXing Core</strong> (<code class=\"inline-code\">com.google.zxing:core</code>)</td><td>Генерация и обработка QR-кодов</td><td>Apache License 2.0</td></tr><tr><td><strong>juniversalchardet</strong></td><td>Определение кодировок локальных текстовых файлов субтитров</td><td>MPL 1.1 / LGPL 2.1 / GPL 2.0</td></tr><tr><td><strong>org.json</strong></td><td>Парсинг и обработка данных JSON в тестах и конфигурациях</td><td>The JSON License / Apache 2.0 &lt;!-- TODO(Claude): подтвердить совместимость JSON License при распространении дистрибутива --&gt;</td></tr><tr><td><strong>JUnit 4</strong></td><td>Фреймворк автоматизированного тестирования</td><td>Eclipse Public License 1.0 (EPL-1.0)</td></tr></tbody></table></div>\n<hr class=\"docs-divider\" />\n<h2 id=\"получение-исходного-кода-сторонних-компонентов\" class=\"docs-h2\">Получение исходного кода сторонних компонентов</h2>\n<p class=\"docs-p\">Тексты лицензий и исходный код открытых библиотек доступны в соответствующих репозиториях авторов и разработчиков. По запросу на электронную почту <code class=\"inline-code\"><span class=\"legal-placeholder\">{{ПОЧТА}}</span></code> может быть предоставлена дополнительная информация об использованных компонентах.</p>",
+        "toc": [
+          {
+            "level": 2,
+            "title": "Лицензия приложения YAiPlayer",
+            "id": "лицензия-приложения-yaiplayer"
+          },
+          {
+            "level": 2,
+            "title": "Исходный проект (Upstream)",
+            "id": "исходный-проект-upstream"
+          },
+          {
+            "level": 2,
+            "title": "Используемые библиотеки и компоненты",
+            "id": "используемые-библиотеки-и-компоненты"
+          },
+          {
+            "level": 2,
+            "title": "Получение исходного кода сторонних компонентов",
+            "id": "получение-исходного-кода-сторонних-компонентов"
+          }
+        ]
+      },
+      "en": {
+        "html": "<h1 id=\"open-source-notices-licenses\" class=\"docs-h1\">Open Source Notices &amp; Licenses</h1>\n<p class=\"docs-p\"><strong>YAiPlayer</strong> is built with and supported by free and open-source software (FOSS). We acknowledge and thank the open-source community for their contributions.</p>\n<hr class=\"docs-divider\" />\n<h2 id=\"yaiplayer-application-license\" class=\"docs-h2\">YAiPlayer Application License</h2>\n<ul class=\"docs-list docs-ul\">\n<li><strong>Project</strong>: YAiPlayer</li>\n<li><strong>Repository</strong>: <a href=\"https://github.com/eai-apps/YAiPlayer\" class=\"docs-link\" target=\"_blank\" rel=\"noopener noreferrer\">https://github.com/eai-apps/YAiPlayer</a></li>\n<li><strong>License</strong>: <a href=\"https://www.gnu.org/licenses/gpl-3.0.html\" class=\"docs-link\" target=\"_blank\" rel=\"noopener noreferrer\">GNU General Public License v3.0 (GPL-3.0)</a></li>\n</ul>\n<p class=\"docs-p\">You are free to run, study, modify, and redistribute the source code pursuant to the terms of the GNU General Public License version 3.0.</p>\n<hr class=\"docs-divider\" />\n<h2 id=\"upstream-project-attribution\" class=\"docs-h2\">Upstream Project Attribution</h2>\n<p class=\"docs-p\">YAiPlayer is derived from and builds upon the open-source <strong>OwnTV</strong> codebase:</p>\n<ul class=\"docs-list docs-ul\">\n<li><strong>Upstream Project</strong>: OwnTV (<code class=\"inline-code\">tv.own.owntv</code>)</li>\n<li><strong>Upstream License</strong>: GNU General Public License v3.0 (GPL-3.0)</li>\n<li>&lt;!-- TODO(Claude): specify authoritative upstream repository URL for OwnTV prior to publishing --&gt;</li>\n</ul>\n<hr class=\"docs-divider\" />\n<h2 id=\"third-party-libraries-and-dependencies\" class=\"docs-h2\">Third-Party Libraries and Dependencies</h2>\n<p class=\"docs-p\">The following list identifies the core external open-source libraries integrated into the YAiPlayer codebase along with their respective software licenses:</p>\n<div class=\"table-container\"><table class=\"docs-table\"><thead><tr><th>Component / Library</th><th>Purpose</th><th>License</th></tr></thead><tbody><tr><td><strong>AndroidX / Jetpack</strong> (Core, Room, DataStore, WorkManager, Paging, SQLite)</td><td>Android architecture and persistent storage</td><td>Apache License 2.0</td></tr><tr><td><strong>Jetpack Compose Runtime</strong></td><td>UI state management and runtime composition</td><td>Apache License 2.0</td></tr><tr><td><strong>KotlinX Coroutines</strong> (<code class=\"inline-code\">kotlinx-coroutines</code>)</td><td>Asynchronous coroutines concurrency framework</td><td>Apache License 2.0</td></tr><tr><td><strong>Media3 / ExoPlayer</strong> (<code class=\"inline-code\">androidx.media3</code>)</td><td>Playback engine for adaptive HLS/DASH streams</td><td>Apache License 2.0</td></tr><tr><td><strong>libmpv</strong> (OwnTV mpv / FFmpeg build)</td><td>Native media engine for hardware/software decoding</td><td>GPLv3 / LGPLv2.1+</td></tr><tr><td><strong>OkHttp 5</strong> (<code class=\"inline-code\">com.squareup.okhttp3:okhttp</code>)</td><td>HTTP/HTTPS networking client</td><td>Apache License 2.0</td></tr><tr><td><strong>Koin</strong> (<code class=\"inline-code\">io.insert-koin:koin-android</code>)</td><td>Dependency injection container</td><td>Apache License 2.0</td></tr><tr><td><strong>ZXing Core</strong> (<code class=\"inline-code\">com.google.zxing:core</code>)</td><td>QR code generation for companion setup</td><td>Apache License 2.0</td></tr><tr><td><strong>juniversalchardet</strong></td><td>Subtitle character encoding detection</td><td>MPL 1.1 / LGPL 2.1 / GPL 2.0</td></tr><tr><td><strong>org.json</strong></td><td>JSON object parsing in JVM tests and configs</td><td>The JSON License / Apache 2.0 &lt;!-- TODO(Claude): verify JSON License compatibility for binary distribution --&gt;</td></tr><tr><td><strong>JUnit 4</strong></td><td>Automated testing framework</td><td>Eclipse Public License 1.0 (EPL-1.0)</td></tr></tbody></table></div>\n<hr class=\"docs-divider\" />\n<h2 id=\"source-code-requests\" class=\"docs-h2\">Source Code Requests</h2>\n<p class=\"docs-p\">License texts and corresponding upstream source code are available in their respective developer repositories. For license inquiries or source bundle inquiries, contact <code class=\"inline-code\"><span class=\"legal-placeholder\">{{EMAIL}}</span></code>.</p>",
+        "toc": [
+          {
+            "level": 2,
+            "title": "YAiPlayer Application License",
+            "id": "yaiplayer-application-license"
+          },
+          {
+            "level": 2,
+            "title": "Upstream Project Attribution",
+            "id": "upstream-project-attribution"
+          },
+          {
+            "level": 2,
+            "title": "Third-Party Libraries and Dependencies",
+            "id": "third-party-libraries-and-dependencies"
+          },
+          {
+            "level": 2,
+            "title": "Source Code Requests",
+            "id": "source-code-requests"
+          }
+        ]
+      },
+      "de": {
+        "html": "<h1 id=\"open-source-hinweise-und-lizenzen\" class=\"docs-h1\">Open-Source-Hinweise und Lizenzen</h1>\n<p class=\"docs-p\"><strong>YAiPlayer</strong> basiert auf freier und quelloffener Software (Open Source). Wir bedanken uns bei den Entwicklern und der Open-Source-Community für die Bereitstellung dieser Komponenten.</p>\n<hr class=\"docs-divider\" />\n<h2 id=\"lizenz-der-yaiplayer-anwendung\" class=\"docs-h2\">Lizenz der YAiPlayer-Anwendung</h2>\n<ul class=\"docs-list docs-ul\">\n<li><strong>Projekt</strong>: YAiPlayer</li>\n<li><strong>Repository</strong>: <a href=\"https://github.com/eai-apps/YAiPlayer\" class=\"docs-link\" target=\"_blank\" rel=\"noopener noreferrer\">https://github.com/eai-apps/YAiPlayer</a></li>\n<li><strong>Lizenz</strong>: <a href=\"https://www.gnu.org/licenses/gpl-3.0.html\" class=\"docs-link\" target=\"_blank\" rel=\"noopener noreferrer\">GNU General Public License v3.0 (GPL-3.0)</a></li>\n</ul>\n<p class=\"docs-p\">Sie haben das Recht, die Anwendung unter den Bedingungen der GPL-3.0 auszuführen, zu studieren, zu verändern und weiterzugeben.</p>\n<hr class=\"docs-divider\" />\n<h2 id=\"ursprngliches-projekt-upstream\" class=\"docs-h2\">Ursprüngliches Projekt (Upstream)</h2>\n<p class=\"docs-p\">YAiPlayer basiert auf dem quelloffenen Projekt <strong>OwnTV</strong>:</p>\n<ul class=\"docs-list docs-ul\">\n<li><strong>Ursprungsprojekt</strong>: OwnTV (<code class=\"inline-code\">tv.own.owntv</code>)</li>\n<li><strong>Lizenz des Ursprungsprojekts</strong>: GNU General Public License v3.0 (GPL-3.0)</li>\n<li>&lt;!-- TODO(Claude): Offiziellen Upstream-Link zum OwnTV-Repository vor der Veröffentlichung nachtragen --&gt;</li>\n</ul>\n<hr class=\"docs-divider\" />\n<h2 id=\"verwendete-open-source-bibliotheken\" class=\"docs-h2\">Verwendete Open-Source-Bibliotheken</h2>\n<p class=\"docs-p\">Die nachfolgende Übersicht führt die wesentlichen Drittanbieter-Bibliotheken und deren Lizenzen auf:</p>\n<div class=\"table-container\"><table class=\"docs-table\"><thead><tr><th>Komponente / Bibliothek</th><th>Verwendungszweck</th><th>Lizenz</th></tr></thead><tbody><tr><td><strong>AndroidX / Jetpack</strong> (Core, Room, DataStore, WorkManager, Paging, SQLite)</td><td>Android-Architekturkomponenten und Datenbank</td><td>Apache License 2.0</td></tr><tr><td><strong>Jetpack Compose Runtime</strong></td><td>Zustandsverwaltung der Benutzeroberfläche</td><td>Apache License 2.0</td></tr><tr><td><strong>KotlinX Coroutines</strong> (<code class=\"inline-code\">kotlinx-coroutines</code>)</td><td>Asynchrone Programmierung in Kotlin</td><td>Apache License 2.0</td></tr><tr><td><strong>Media3 / ExoPlayer</strong> (<code class=\"inline-code\">androidx.media3</code>)</td><td>Medienwiedergabe für adaptive Streams (HLS, DASH)</td><td>Apache License 2.0</td></tr><tr><td><strong>libmpv</strong> (OwnTV mpv / FFmpeg Build)</td><td>Nativer Wiedergabekern für Audio-/Videodekodierung</td><td>GPLv3 / LGPLv2.1+</td></tr><tr><td><strong>OkHttp 5</strong> (<code class=\"inline-code\">com.squareup.okhttp3:okhttp</code>)</td><td>HTTP/HTTPS-Netzwerk-Client</td><td>Apache License 2.0</td></tr><tr><td><strong>Koin</strong> (<code class=\"inline-code\">io.insert-koin:koin-android</code>)</td><td>Dependency Injection</td><td>Apache License 2.0</td></tr><tr><td><strong>ZXing Core</strong> (<code class=\"inline-code\">com.google.zxing:core</code>)</td><td>QR-Code-Erzeugung für den Verbindungsaufbau</td><td>Apache License 2.0</td></tr><tr><td><strong>juniversalchardet</strong></td><td>Zeichensatzerkennung lokaler Untertiteldateien</td><td>MPL 1.1 / LGPL 2.1 / GPL 2.0</td></tr><tr><td><strong>org.json</strong></td><td>JSON-Verarbeitung in Tests und Hilfsklassen</td><td>The JSON License / Apache 2.0 &lt;!-- TODO(Claude): Lizenzkompatibilität der JSON-Lizenz für Binärdistribution prüfen --&gt;</td></tr><tr><td><strong>JUnit 4</strong></td><td>Test-Framework für automatisierte Tests</td><td>Eclipse Public License 1.0 (EPL-1.0)</td></tr></tbody></table></div>\n<hr class=\"docs-divider\" />\n<h2 id=\"anfragen-zum-quellcode\" class=\"docs-h2\">Anfragen zum Quellcode</h2>\n<p class=\"docs-p\">Die Lizenztexte und Quelltexte der Drittanbieter-Komponenten sind in den Repositorien der jeweiligen Autoren abrufbar. Für Lizenzanfragen kontaktieren Sie bitte: <code class=\"inline-code\"><span class=\"legal-placeholder\">{{E_MAIL}}</span></code>.</p>",
+        "toc": [
+          {
+            "level": 2,
+            "title": "Lizenz der YAiPlayer-Anwendung",
+            "id": "lizenz-der-yaiplayer-anwendung"
+          },
+          {
+            "level": 2,
+            "title": "Ursprüngliches Projekt (Upstream)",
+            "id": "ursprngliches-projekt-upstream"
+          },
+          {
+            "level": 2,
+            "title": "Verwendete Open-Source-Bibliotheken",
+            "id": "verwendete-open-source-bibliotheken"
+          },
+          {
+            "level": 2,
+            "title": "Anfragen zum Quellcode",
+            "id": "anfragen-zum-quellcode"
+          }
+        ]
+      }
+    }
+  },
+  "legalPending": [
+    "privacy",
+    "terms",
+    "impressum",
+    "opensource"
+  ]
+}
