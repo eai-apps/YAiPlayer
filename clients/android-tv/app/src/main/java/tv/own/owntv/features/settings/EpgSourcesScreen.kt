@@ -32,6 +32,8 @@ fun EpgSourcesScreen(onBack: () -> Unit, modifier: Modifier = Modifier, startOnA
     val autoRefreshMap by vm.autoRefresh.collectAsStateWithLifecycle()
     val useLogosIds by vm.useLogos.collectAsStateWithLifecycle()
     val deletingIds by vm.deletingIds.collectAsStateWithLifecycle()
+    val builtinEnabled by vm.builtinEnabled.collectAsStateWithLifecycle()
+    val builtinStatus by vm.builtinStatus.collectAsStateWithLifecycle()
 
     var editing by remember { mutableStateOf<EpgSource?>(null) }
     var adding by remember { mutableStateOf(startOnAdd) }
@@ -144,6 +146,45 @@ fun EpgSourcesScreen(onBack: () -> Unit, modifier: Modifier = Modifier, startOnA
                     onDelete = { contextId = source.id; contextIndex = index; confirmDelete = source },
                 )
             }
+        }
+        // The app's own hidden guides (programme + logos for playlists and portals): one switch, one refresh.
+        val ok = stringResource(R.string.common_ok)
+        val back = stringResource(R.string.common_back)
+        val parent = stringResource(R.string.settings_group_sources)
+        val builtinTitle = stringResource(R.string.settings_epg_builtin)
+        val builtinDesc = stringResource(R.string.settings_epg_builtin_description)
+        StageSettingRow(
+            icon = OwnTVIcon.EPG,
+            title = builtinTitle,
+            desc = builtinDesc,
+            value = SettingValue.Switch(builtinEnabled),
+            onClick = { vm.setBuiltinEnabled(!builtinEnabled) },
+            help = SettingHelp(builtinTitle, builtinDesc, hints = listOf(ok to stringResource(R.string.settings_key_switch), back to parent)),
+        )
+        if (builtinEnabled) {
+            val refreshTitle = stringResource(R.string.settings_epg_builtin_refresh)
+            StageSettingRow(
+                icon = OwnTVIcon.REFRESH,
+                title = refreshTitle,
+                desc = null,
+                value = SettingValue.Opens(null),
+                onClick = { vm.refreshBuiltin() },
+                help = SettingHelp(refreshTitle, builtinDesc, hints = listOf(ok to refreshTitle, back to parent)),
+            )
+            val at = builtinStatus.lastSyncAt
+            val statusText = when {
+                builtinStatus.syncing -> stringResource(R.string.settings_epg_builtin_syncing)
+                builtinStatus.failed -> stringResource(R.string.settings_epg_builtin_failed)
+                at != null -> stringResource(
+                    R.string.settings_epg_builtin_done,
+                    android.text.format.DateUtils.formatDateTime(
+                        androidx.compose.ui.platform.LocalContext.current, at,
+                        android.text.format.DateUtils.FORMAT_SHOW_TIME or android.text.format.DateUtils.FORMAT_SHOW_DATE,
+                    ),
+                )
+                else -> null
+            }
+            if (statusText != null) StageSettingsNote(statusText, null)
         }
     }
 

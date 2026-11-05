@@ -1,5 +1,11 @@
 package tv.own.owntv.core.sync
 
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import tv.own.owntv.core.epg.EpgSourceStore
 import tv.own.owntv.core.settings.EpgAutoRefresh
 import tv.own.owntv.core.settings.EpgRefresh
@@ -17,6 +23,22 @@ class BuiltinGuide(
     private val settings: SettingsRepository,
     private val scheduler: EpgSyncScheduler,
 ) {
+    /** State of the hidden guides, shared by the phone and TV settings screens. */
+    data class Status(val syncing: Boolean = false, val lastSyncAt: Long? = null, val failed: Boolean = false)
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun status(): Flow<Status> = store.sources.flatMapLatest { all ->
+        val builtin = all.filter { it.builtin }
+        val syncing = if (builtin.isEmpty()) flowOf(false) else combine(builtin.map { scheduler.observeSync(it.id) }) { st -> st.any { it.isActive } }
+        syncing.map { Status(it, builtin.mapNotNull { b -> b.lastSyncAt }.maxOrNull(), builtin.isNotEmpty() && builtin.all { b -> b.lastError != null }) }
+    }
+
+    /** Manual refresh: re-sync the hidden guides, creating them first if no playlist has synced yet. */
+    suspend fun refresh() {
+        val builtin = store.getAll().filter { it.builtin }
+        if (builtin.isEmpty()) ensure() else builtin.forEach { scheduler.enqueueSync(it.id, "manual_builtin") }
+    }
+
     suspend fun ensure() {
         FEEDS.forEachIndexed { i, url ->
             val created = store.ensureBuiltin("$NAME ${i + 1}", url) ?: return@forEachIndexed

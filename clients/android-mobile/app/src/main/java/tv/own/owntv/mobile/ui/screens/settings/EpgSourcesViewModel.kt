@@ -54,46 +54,15 @@ class EpgSourcesViewModel(
         viewModelScope.launch { store.setBuiltinEnabled(enabled) }
     }
 
+    private val builtinGuide = tv.own.owntv.core.sync.BuiltinGuide(store, settings, epgSync)
+
     /** State of the hidden built-in guides, for the status line under the refresh button. */
-    data class BuiltinStatus(val syncing: Boolean = false, val lastSyncAt: Long? = null, val failed: Boolean = false)
+    val builtinStatus: StateFlow<tv.own.owntv.core.sync.BuiltinGuide.Status> = builtinGuide.status()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), tv.own.owntv.core.sync.BuiltinGuide.Status())
 
-    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-    val builtinStatus: StateFlow<BuiltinStatus> = store.sources
-        .flatMapLatest { all ->
-            val builtin = all.filter { it.builtin }
-            val sync = if (builtin.isEmpty()) flowOf(false) else combine(builtin.map { epgSync.observeSync(it.id) }) { st -> st.any { it.isActive } }
-            sync.map { syncing ->
-                BuiltinStatus(syncing, builtin.mapNotNull { it.lastSyncAt }.maxOrNull(), builtin.isNotEmpty() && builtin.all { it.lastError != null })
-            }
-        }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), BuiltinStatus())
-
-    /** Manual refresh of the hidden built-in guides (creates them first if no playlist has synced yet). */
+    /** Manual refresh of the hidden built-in guides. */
     fun refreshBuiltin() {
-        viewModelScope.launch {
-            val builtin = store.getAll().filter { it.builtin }
-            if (builtin.isEmpty()) {
-                tv.own.owntv.core.sync.BuiltinGuide(store, settings, epgSync).ensure()
-            } else {
-                builtin.forEach { epgSync.enqueueSync(it.id, "manual_builtin") }
-            }
-        }
-    }
-
-    /** Per-source EPG auto-refresh selection (Off / Startup / staleness threshold). */
-    val autoRefresh: StateFlow<Map<Long, EpgRefresh>> = settings.epgAutoRefresh
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyMap())
-
-    fun setAutoRefresh(source: EpgSource, refresh: EpgRefresh) {
-        viewModelScope.launch { settings.setEpgAutoRefresh(source.id, refresh) }
-    }
-
-    /** EPG sources whose own `<icon src>` logos replace the playlist's channel logos. */
-    val useLogos: StateFlow<Set<Long>> = settings.epgUseLogos
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptySet())
-
-    fun setUseLogos(source: EpgSource, enabled: Boolean) {
-        viewModelScope.launch { settings.setEpgUseLogos(source.id, enabled) }
+        viewModelScope.launch { builtinGuide.refresh() }
     }
 
     fun add(
