@@ -286,6 +286,9 @@ fun HomeScreen(
         contentPadding = PaddingValues(top = if (trendingFirst) 0.dp else 8.dp, bottom = 22.dp),
         verticalArrangement = Arrangement.spacedBy(22.dp),
     ) {
+        if (!trendingFirst) item("brand-badge") {
+            tv.own.owntv.mobile.ui.YaiBadge(Modifier.padding(horizontal = 16.dp))
+        }
         loadingNote?.let { note -> item("library-loading") { note() } }
         rows.forEach { row ->
             // Channel categories are one rail per category, each its own list item.

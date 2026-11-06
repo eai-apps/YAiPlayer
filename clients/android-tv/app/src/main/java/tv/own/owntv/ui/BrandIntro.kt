@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -98,6 +99,37 @@ fun BrandIntro(enabled: Boolean, modifier: Modifier = Modifier) {
                 "YAiPlayer",
                 modifier = Modifier.graphicsLayer { alpha = name.value; translationY = (1f - name.value) * 24.dp.toPx() },
                 style = TextStyle(color = Color.White, fontSize = 34.sp, fontWeight = FontWeight.Bold),
+            )
+        }
+    }
+}
+
+
+/** The YAi logo as a small flat mark: violet tile, white play triangle, cyan dot. */
+@Composable
+fun YaiLogoMark(size: androidx.compose.ui.unit.Dp, modifier: Modifier = Modifier) {
+    Canvas(modifier.size(size)) {
+        val u = this.size.minDimension / 56f
+        drawRoundRect(Color(0xFF5B3FD6), cornerRadius = CornerRadius(13.5f * u, 13.5f * u), size = this.size)
+        val tri = Path().apply {
+            moveTo(22.7f * u, 20f * u); lineTo(40.2f * u, 30f * u); lineTo(22.7f * u, 40f * u); close()
+        }
+        drawPath(tri, Color.White)
+        drawCircle(Color(0xFF22D3EE), radius = 3.6f * u, center = Offset(41f * u, 17f * u))
+    }
+}
+
+/** Top-left badge of the home screen: the logo, the name and "our player" under it. */
+@Composable
+fun YaiBadge(modifier: Modifier = Modifier, scale: Float = 1f) {
+    androidx.compose.foundation.layout.Row(modifier, verticalAlignment = Alignment.CenterVertically) {
+        YaiLogoMark((36 * scale).dp)
+        androidx.compose.foundation.layout.Spacer(Modifier.width((10 * scale).dp))
+        Column {
+            BasicText("YAiPlayer", style = TextStyle(color = Color.White, fontSize = (17 * scale).sp, fontWeight = FontWeight.Bold))
+            BasicText(
+                androidx.compose.ui.res.stringResource(tv.own.owntv.R.string.brand_our_player),
+                style = TextStyle(color = Color(0xFF22D3EE), fontSize = (12 * scale).sp, fontWeight = FontWeight.Medium),
             )
         }
     }
