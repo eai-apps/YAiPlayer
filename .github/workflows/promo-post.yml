@@ -1,0 +1,33 @@
+name: Promo post to Telegram
+# Рекламный пост с постером: раз в 3 дня в 9:00 по Берлину (08:00 UTC зимой). Постер рисуется из tools/brand/make_promo.py,
+# текст — docs/promo/post.html. Добавили функцию — поправьте оба файла.
+on:
+  schedule:
+    - cron: "0 8 * * *"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Опубликовать сейчас, не дожидаясь очереди"
+        default: "true"
+permissions:
+  contents: read
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Is it a posting day?
+        id: gate
+        run: |
+          day=$(( $(date -u +%s) / 86400 ))
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ $((day % 3)) -eq 0 ]; then echo "go=true" >> "$GITHUB_OUTPUT"; else echo "go=false" >> "$GITHUB_OUTPUT"; fi
+      - name: Draw the poster and post it
+        if: steps.gate.outputs.go == 'true'
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          pip install --quiet pillow
+          python3 tools/brand/make_promo.py promo-poster.png
+          python3 telegram-release/post_release.py --announce-file docs/promo/post.html --image promo-poster.png --with-downloads

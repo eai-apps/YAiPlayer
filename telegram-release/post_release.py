@@ -349,6 +349,11 @@ def main(argv: list[str] | None = None) -> int:
         help="Разовое объявление: текст (HTML) из файла уходит в канал с кнопками «Подписаться» и «Обсуждение»",
     )
     parser.add_argument(
+        "--with-downloads",
+        action="store_true",
+        help="К объявлению добавить кнопки скачивания приложения",
+    )
+    parser.add_argument(
         "--dry-run",
         action="store_true",
         help="Только напечатать итоговый текст сообщения без отправки в Telegram",
@@ -370,7 +375,15 @@ def main(argv: list[str] | None = None) -> int:
         row = ([{"text": "🔔 Подписаться", "url": f"https://t.me/{chat_id[1:]}"}] if chat_id.startswith("@") else []) + [
             {"text": "💬 Обсуждение", "url": CHAT_URL}
         ]
-        return 0 if send_telegram_message(bot_token, chat_id, text, [row]) else 1
+        rows = [row]
+        if args.with_downloads:
+            repo = os.environ.get("GITHUB_REPOSITORY", "eai-apps/YAiPlayer")
+            base = f"https://github.com/{repo}/releases/latest/download"
+            rows = [
+                [{"text": "⬇️ Скачать для Android TV", "url": f"{base}/YAiPlayer-TV.apk"}],
+                [{"text": "📱 Скачать для телефона", "url": f"{base}/YAiPlayer-Mobile.apk"}],
+            ] + rows
+        return 0 if send_release_post(bot_token, chat_id, text, args.image or None, rows) else 1
 
     if not args.release_json:
         parser.error("нужен --release-json или --announce-file")
