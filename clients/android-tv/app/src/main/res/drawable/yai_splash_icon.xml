@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The YAi logo for the system launch screen: violet tile, white play triangle, cyan dot. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="240dp"
+    android:height="240dp"
+    android:viewportWidth="240"
+    android:viewportHeight="240">
+    <group android:translateX="40" android:translateY="40" android:scaleX="2.857" android:scaleY="2.857">
+        <path
+            android:fillColor="#5B3FD6"
+            android:pathData="M13.5,0 H42.5 A13.5,13.5 0 0 1 56,13.5 V42.5 A13.5,13.5 0 0 1 42.5,56 H13.5 A13.5,13.5 0 0 1 0,42.5 V13.5 A13.5,13.5 0 0 1 13.5,0 Z" />
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M22.7,20 L40.2,30 L22.7,40 Z" />
+        <path
+            android:fillColor="#22D3EE"
+            android:pathData="M37.4,17 a3.6,3.6 0 1,0 7.2,0 a3.6,3.6 0 1,0 -7.2,0 Z" />
+    </group>
+</vector>

@@ -315,6 +315,10 @@ fun ManageSourcesScreen(
                         icon = tv.own.owntv.ui.components.OwnTVIcon.ADD, boxed = true,
                         modifier = Modifier.focusRequester(addFocus),
                     )
+                    tv.own.owntv.ui.stage.StageTool(
+                        stringResource(R.string.settings_sources_use_other_profiles), onClick = { vm.useOtherProfilesPlaylists() },
+                        icon = tv.own.owntv.ui.components.OwnTVIcon.REFRESH, boxed = true,
+                    )
                 },
             ) {
                 if (sources.isEmpty()) StageSettingsNote(stringResource(R.string.settings_sources_empty), null)

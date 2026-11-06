@@ -31,31 +31,31 @@
         <item name="postSplashScreenTheme">@style/Theme.OwnTVMobile</item>
     </style>
     <style name="Theme.OwnTVMobile.Starting.Petrol">
-        <item name="windowSplashScreenAnimatedIcon">@drawable/owntv_splash_static_petrol</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/yai_splash_icon</item>
     </style>
     <style name="Theme.OwnTVMobile.Starting.Sunflower">
-        <item name="windowSplashScreenAnimatedIcon">@drawable/owntv_splash_static_sunflower</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/yai_splash_icon</item>
     </style>
     <style name="Theme.OwnTVMobile.Starting.Cobalt">
-        <item name="windowSplashScreenAnimatedIcon">@drawable/owntv_splash_static_cobalt</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/yai_splash_icon</item>
     </style>
     <style name="Theme.OwnTVMobile.Starting.Tomato">
-        <item name="windowSplashScreenAnimatedIcon">@drawable/owntv_splash_static_tomato</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/yai_splash_icon</item>
     </style>
     <style name="Theme.OwnTVMobile.Starting.Board">
-        <item name="windowSplashScreenAnimatedIcon">@drawable/owntv_splash_static_board</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/yai_splash_icon</item>
     </style>
     <style name="Theme.OwnTVMobile.Starting.Eggshell">
-        <item name="windowSplashScreenAnimatedIcon">@drawable/owntv_splash_static_eggshell</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/yai_splash_icon</item>
     </style>
     <style name="Theme.OwnTVMobile.Starting.Olive">
-        <item name="windowSplashScreenAnimatedIcon">@drawable/owntv_splash_static_olive</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/yai_splash_icon</item>
     </style>
     <style name="Theme.OwnTVMobile.Starting.OliveCream">
-        <item name="windowSplashScreenAnimatedIcon">@drawable/owntv_splash_static_olive_cream</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/yai_splash_icon</item>
     </style>
     <style name="Theme.OwnTVMobile.Starting.Pixel">
-        <item name="windowSplashScreenAnimatedIcon">@drawable/owntv_splash_static_pixel</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/yai_splash_icon</item>
     </style>
 
     <!--

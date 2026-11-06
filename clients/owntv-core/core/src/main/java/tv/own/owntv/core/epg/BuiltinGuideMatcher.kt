@@ -29,7 +29,25 @@ class BuiltinGuideMatcher(
 
     private val matcher = EpgAutoMatcher(channelDao, GuideCandidates(epgDao))
 
+    /**
+     * Guide links are kept per profile, so a profile made after the built-in guide matched its channels
+     * has none: no programme, no guide logo. Give every profile the matches the others already have
+     * (never overriding one it has set itself).
+     */
+    suspend fun syncProfiles() {
+        val profiles = db.profileDao().getAllOnce()
+        if (profiles.size < 2) return
+        val all = profiles.associate { it.id to customize.observe(it.id, MediaType.LIVE).first().epgMatches }
+        val union = LinkedHashMap<String, String>()
+        all.values.forEach { m -> m.forEach { (k, v) -> union.putIfAbsent(k, v) } }
+        profiles.forEach { p ->
+            val have = all[p.id].orEmpty()
+            if (union.keys.any { it !in have }) customize.update(p.id, MediaType.LIVE) { it.copy(epgMatches = union + it.epgMatches) }
+        }
+    }
+
     suspend fun run(): Result {
+        runCatching { syncProfiles() }
         val sourceIds = db.sourceDao().getAllOnce().map { it.id }
         val profiles = db.profileDao().getAllOnce()
         if (sourceIds.isEmpty() || profiles.isEmpty()) return Result(0, 0)

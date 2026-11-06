@@ -42,7 +42,7 @@ private object BrandIntroState { var played = false }
 
 /**
  * The launch animation: the logo spins in and settles, a ring of light pulses out, the name rises under
- * it, then the whole thing fades away. About 1.6 s, drawn over the app while it finishes loading
+ * it, then the whole thing fades away. About 3.3 s, drawn over the app while it finishes loading
  * underneath — it never delays the app. Off when animations are off.
  */
 @Composable
@@ -57,13 +57,13 @@ fun BrandIntro(enabled: Boolean, modifier: Modifier = Modifier) {
     LaunchedEffect(Unit) {
         BrandIntroState.played = true
         kotlinx.coroutines.coroutineScope {
-            launch { spin.animateTo(0f, tween(900, easing = FastOutSlowInEasing)) }
-            launch { pop.animateTo(1f, tween(900, easing = FastOutSlowInEasing)) }
-            launch { kotlinx.coroutines.delay(450); ring.animateTo(1f, tween(900, easing = LinearEasing)) }
-            launch { kotlinx.coroutines.delay(650); name.animateTo(1f, tween(500, easing = FastOutSlowInEasing)) }
+            launch { spin.animateTo(0f, tween(1500, easing = FastOutSlowInEasing)) }
+            launch { pop.animateTo(1f, tween(1500, easing = FastOutSlowInEasing)) }
+            launch { kotlinx.coroutines.delay(800); ring.animateTo(1f, tween(1700, easing = LinearEasing)) }
+            launch { kotlinx.coroutines.delay(1200); name.animateTo(1f, tween(800, easing = FastOutSlowInEasing)) }
         }
-        kotlinx.coroutines.delay(250)
-        fade.animateTo(0f, tween(350, easing = LinearEasing))
+        kotlinx.coroutines.delay(700)
+        fade.animateTo(0f, tween(450, easing = LinearEasing))
         visible = false
     }
     Box(

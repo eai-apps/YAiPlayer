@@ -1823,5 +1823,6 @@
     <string name="settings_epg_builtin_feed_channels">Программа для каналов: %1$d</string>
     <string name="settings_epg_builtin_feed_syncing">Обновляется…</string>
     <string name="settings_epg_builtin_feed_failed">Не удалось — нажмите, чтобы повторить</string>
+    <string name="settings_sources_use_other_profiles">Плейлисты других профилей</string>
     <string name="settings_sources_guide_logos">Иконки из телегида</string>
 </resources>

@@ -92,8 +92,9 @@ fun SettingsPlaylistsPage(
     SettingsCrumb(pluralStringResource(R.plurals.settings_sources_count, sources.size, sources.size), SettingsGroup.SOURCES)
     SettingsStagePage(modifier) {
         item(key = "add") {
-            Box(Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp)) {
+            androidx.compose.foundation.layout.Row(Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 StageButton(onClick = { nav(SettingsLeaf.ADD_SOURCE.route) }, text = stringResource(R.string.settings_sources_add), icon = MobileIcons.Add, small = true)
+                StageButton(onClick = vm::useOtherProfilesPlaylists, text = stringResource(R.string.settings_sources_use_other_profiles), icon = MobileIcons.Refresh, small = true)
             }
         }
         if (sources.isEmpty()) item(key = "empty") { PageNote(stringResource(R.string.settings_sources_empty)) }

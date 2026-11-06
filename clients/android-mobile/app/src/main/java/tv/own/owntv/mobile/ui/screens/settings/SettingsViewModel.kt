@@ -108,6 +108,16 @@ class SettingsViewModel(
         viewModelScope.launch { settings.block() }
     }
 
+    /** Opt in: give the active profile the playlists the other profiles already have. */
+    fun useOtherProfilesPlaylists() {
+        viewModelScope.launch {
+            val pid = settings.activeProfileId.first()
+            if (pid < 0) return@launch
+            sourceDao.allSourceIds().forEach { sourceDao.link(tv.own.owntv.core.database.entity.ProfileSourceCrossRef(profileId = pid, sourceId = it)) }
+            runCatching { org.koin.core.context.GlobalContext.get().get<tv.own.owntv.core.epg.BuiltinGuideMatcher>().syncProfiles() }
+        }
+    }
+
     /** Playlists whose channels without a logo get one from the built-in guide, by channel name. */
     val guideLogoSources: StateFlow<Set<Long>> = settings.guideLogoSources
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptySet())

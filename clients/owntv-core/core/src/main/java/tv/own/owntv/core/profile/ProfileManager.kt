@@ -5,7 +5,6 @@ import kotlinx.coroutines.flow.first
 import tv.own.owntv.core.database.dao.ProfileDao
 import tv.own.owntv.core.database.dao.SourceDao
 import tv.own.owntv.core.database.entity.ProfileEntity
-import tv.own.owntv.core.database.entity.ProfileSourceCrossRef
 import tv.own.owntv.core.launcher.LauncherIntegrationRepository
 import tv.own.owntv.core.settings.SettingsRepository
 import tv.own.owntv.core.subtitles.OpenSubtitlesAccountManager
@@ -35,8 +34,8 @@ class ProfileManager(
     fun verifyPin(profile: ProfileEntity, pin: String): Boolean = Pin.verify(pin, profile.pinHash)
 
     /**
-     * Add a profile. It inherits every source that already exists — one account, several viewers —
-     * so it has something to watch immediately; favorites and history stay its own.
+     * Add a profile. It starts CLEAN: no playlists of its own yet, so the person adds theirs (or opts in
+     * to the other profiles' playlists in Settings → Playlists). Favorites and history are its own too.
      */
     suspend fun create(name: String, avatarId: Int, isKids: Boolean, pin: String?, fallbackName: String): Long {
         val id = profileDao.insert(
@@ -48,7 +47,6 @@ class ProfileManager(
                 pinHash = pin?.takeIf { it.isNotBlank() }?.let { Pin.hash(it) },
             ),
         )
-        sourceDao.allSourceIds().forEach { sourceDao.link(ProfileSourceCrossRef(profileId = id, sourceId = it)) }
         return id
     }
 

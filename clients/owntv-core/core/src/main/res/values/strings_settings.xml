@@ -3271,5 +3271,6 @@
     <string name="settings_epg_builtin_feed_channels">Programme for %1$d of your channels</string>
     <string name="settings_epg_builtin_feed_syncing">Updating…</string>
     <string name="settings_epg_builtin_feed_failed">Failed — tap to retry</string>
+    <string name="settings_sources_use_other_profiles">Use playlists of other profiles</string>
     <string name="settings_sources_guide_logos">Logos from the guide</string>
 </resources>
