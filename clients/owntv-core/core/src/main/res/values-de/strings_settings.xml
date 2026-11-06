@@ -1735,4 +1735,8 @@
     </plurals>
     <string name="settings_auto_widescreen">Auto-16:9 für SD-Video</string>
     <string name="settings_auto_widescreen_description">Video unterhalb von Full HD, das gestaucht als 4:3 ankommt, wird sofort im Breitbildformat 16:9 gezeigt. Ein im Player gewählter Zoom bleibt erhalten.</string>
+    <string name="settings_epg_builtin_schedule">Eingebauten Sendeplan aktualisieren</string>
+    <string name="settings_epg_builtin_schedule_weekly">Wöchentlich</string>
+    <string name="settings_epg_builtin_schedule_daily">Täglich</string>
+    <string name="settings_epg_builtin_schedule_manual">Nur manuell</string>
 </resources>

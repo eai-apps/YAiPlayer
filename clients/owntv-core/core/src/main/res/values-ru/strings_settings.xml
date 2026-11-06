@@ -1815,4 +1815,8 @@
     </plurals>
     <string name="settings_auto_widescreen">Авто 16:9 для видео ниже Full HD</string>
     <string name="settings_auto_widescreen_description">Видео ниже Full HD, которое приходит сжатым до 4:3, сразу показывается в широком формате 16:9. Формат, выбранный вами в плеере, сохраняется.</string>
+    <string name="settings_epg_builtin_schedule">Обновлять встроенную программу</string>
+    <string name="settings_epg_builtin_schedule_weekly">Раз в неделю</string>
+    <string name="settings_epg_builtin_schedule_daily">Раз в день</string>
+    <string name="settings_epg_builtin_schedule_manual">Только вручную</string>
 </resources>

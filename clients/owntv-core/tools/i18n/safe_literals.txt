@@ -1850,6 +1850,9 @@
 1	json	core/src/main/java/tv/own/owntv/core/drm/DrmConfig.kt	scheme
 2	protocol	core/src/main/java/tv/own/owntv/core/drm/DrmConfig.kt	widevine
 1	technical	core/src/main/java/tv/own/owntv/core/drm/DrmConfig.kt	{
+1	log	core/src/main/java/tv/own/owntv/core/epg/BuiltinGuideMatcher.kt	BuiltinGuideMatcher
+1	log	core/src/main/java/tv/own/owntv/core/epg/BuiltinGuideMatcher.kt	built-in auto-match applied=${outcome.applied.size} review=${outcome.review.size} needing=${outcome.needingMatch}
+1	log	core/src/main/java/tv/own/owntv/core/epg/BuiltinGuideMatcher.kt	cache fill after auto-match failed: ${it.message}
 2	empty	core/src/main/java/tv/own/owntv/core/epg/CatchupUrl.kt	\0
 1	uri	core/src/main/java/tv/own/owntv/core/epg/CatchupUrl.kt	$base&$body
 1	uri	core/src/main/java/tv/own/owntv/core/epg/CatchupUrl.kt	$base?$body
@@ -5082,6 +5085,8 @@
 1	log	core/src/main/java/tv/own/owntv/core/sync/work/EpgSyncWorker.kt	Starting EPG sync sourceId=${source.id} reason=$reason
 1	log	core/src/main/java/tv/own/owntv/core/sync/work/EpgSyncWorker.kt	auto refresh waiting for playback to stop sourceId=$sourceId
 1	preference-key	core/src/main/java/tv/own/owntv/core/sync/work/EpgSyncWorker.kt	baseProgrammes
+1	log	core/src/main/java/tv/own/owntv/core/sync/work/EpgSyncWorker.kt	built-in auto-match failed: ${it.message}
+1	technical	core/src/main/java/tv/own/owntv/core/sync/work/EpgSyncWorker.kt	builtin_next
 1	preference-key	core/src/main/java/tv/own/owntv/core/sync/work/EpgSyncWorker.kt	channels
 1	preference-key	core/src/main/java/tv/own/owntv/core/sync/work/EpgSyncWorker.kt	programmes
 1	preference-key	core/src/main/java/tv/own/owntv/core/sync/work/EpgSyncWorker.kt	reason

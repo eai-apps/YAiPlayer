@@ -30,6 +30,8 @@ data class AutoMatchOutcome(
     val hadCandidates: Boolean,
     /** A confident hit was held back because its guide channel carries no programmes. */
     val withheldForNoProgrammes: Int,
+    /** Channels that still had no working guide when the run began (applied, review and no-hit alike). */
+    val needingMatch: Int = 0,
 )
 
 /**
@@ -114,6 +116,7 @@ class EpgAutoMatcher(
                 review = review.sortedByDescending { it.score },
                 hadCandidates = true,
                 withheldForNoProgrammes = withheld,
+                needingMatch = unmatched.size,
             )
         }
     }
