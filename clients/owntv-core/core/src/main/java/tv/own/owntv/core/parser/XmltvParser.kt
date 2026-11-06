@@ -16,6 +16,9 @@ import java.util.zip.GZIPInputStream
  * tree — the caller stores them in chunks and filters to a time window.
  */
 object XmltvParser {
+    /** Joins a channel's several `<display-name>` aliases into one stored string (feeds such as miptv do the same). */
+    const val NAME_JOIN = " • "
+    private const val MAX_DISPLAY_NAMES = 8
     private const val TAG = "XmltvParser"
     private const val STREAM_LOG_ITEM_STEP = 10_000
 
@@ -138,6 +141,7 @@ object XmltvParser {
             return false
         }
         var displayName: String? = null
+        var extraNames = 0
         // XMLTV `<icon src="…"/>` — the feed's own channel logo. Kept only when it looks like an http(s)
         // URL: some feeds put local paths or junk here, and a non-loadable value would blank the logo.
         var iconUrl: String? = null
@@ -146,8 +150,14 @@ object XmltvParser {
                 ctx.ensureActive()
                 when (parser.next()) {
                     XmlPullParser.START_TAG -> {
-                        if (parser.name == "display-name" && displayName == null) {
-                            displayName = readText(parser).trim().takeIf { it.isNotBlank() }
+                        if (parser.name == "display-name") {
+                            // A channel often carries several names (its aliases); keep them all, joined,
+                            // so name matching can try each. The first stays first — it is the one shown.
+                            val name = readText(parser).trim().takeIf { it.isNotBlank() }
+                            if (name != null && extraNames < MAX_DISPLAY_NAMES) {
+                                displayName = if (displayName == null) name else "$displayName$NAME_JOIN$name"
+                                extraNames++
+                            }
                         } else if (parser.name == "icon" && iconUrl == null) {
                             iconUrl = parser.getAttributeValue(null, "src")?.trim()
                                 ?.takeIf { it.startsWith("http://", true) || it.startsWith("https://", true) }

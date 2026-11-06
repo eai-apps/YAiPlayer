@@ -67,6 +67,12 @@ class EpgAutoMatcher(
         cust: SectionCustomizations,
         playlistIds: List<Long>,
         maxChannels: Int = MAX_CHANNELS,
+        /**
+         * Apply a confident hit even onto a guide channel with no programmes stored yet. Right for the built-in
+         * feeds, which keep programmes only for channels already linked, so every candidate looks empty until
+         * it is matched; wrong for a user's own feed, where empty really means empty.
+         */
+        applyEmptyGuides: Boolean = false,
     ): AutoMatchOutcome {
         val startedAt = SystemClock.elapsedRealtime()
         val candidates = guideCandidates.all()
@@ -95,7 +101,7 @@ class EpgAutoMatcher(
                 val hasProgrammes = hasProgrammesById[match.epgChannelId] == true
                 val confident = match.score >= EpgMatcher.AUTO_THRESHOLD
                 when {
-                    confident && hasProgrammes -> applied.add(CustomizeKeys.channel(channel) to match.epgChannelId)
+                    confident && (hasProgrammes || applyEmptyGuides) -> applied.add(CustomizeKeys.channel(channel) to match.epgChannelId)
                     // Confident, but the guide channel is empty. Applying it would report a success
                     // the user cannot see, so it is offered instead.
                     confident -> {
@@ -157,7 +163,12 @@ class EpgAutoMatcher(
      * won the tie, was then withheld for having no programmes, and the channel stayed unmatched.
      */
     private fun prepareWithProgrammesFirst(candidates: List<GuideCandidate>) = EpgMatcher.prepare(
-        candidates.sortedByDescending { it.hasProgrammes }.map { EpgMatcher.Candidate(it.epgChannelId, it.displayName) },
+        // A channel stored with several aliases ("A • B • C") is tried under each of them.
+        candidates.sortedByDescending { it.hasProgrammes }.flatMap { c ->
+            val names = c.displayName?.split(tv.own.owntv.core.parser.XmltvParser.NAME_JOIN)?.map { it.trim() }?.filter { it.isNotEmpty() }.orEmpty()
+            if (names.size <= 1) listOf(EpgMatcher.Candidate(c.epgChannelId, c.displayName))
+            else names.map { EpgMatcher.Candidate(c.epgChannelId, it) }
+        },
     )
 
     private fun EpgMatcher.Result.toSuggestion(channel: ChannelEntity, hasProgrammes: Boolean) =

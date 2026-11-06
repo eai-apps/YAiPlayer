@@ -2536,6 +2536,7 @@
 1	technical	core/src/main/java/tv/own/owntv/core/parser/XmltvDetails.kt	seconds
 1	technical	core/src/main/java/tv/own/owntv/core/parser/XmltvDetails.kt	xmltv_ns
 1	protocol	core/src/main/java/tv/own/owntv/core/parser/XmltvParser.kt	\0
+1	technical	core/src/main/java/tv/own/owntv/core/parser/XmltvParser.kt	$displayName$NAME_JOIN$name
 1	protocol	core/src/main/java/tv/own/owntv/core/parser/XmltvParser.kt	Skipping malformed <channel> element
 1	protocol	core/src/main/java/tv/own/owntv/core/parser/XmltvParser.kt	Skipping malformed <programme> element
 1	protocol	core/src/main/java/tv/own/owntv/core/parser/XmltvParser.kt	XmltvParser
@@ -2574,6 +2575,7 @@
 1	technical	core/src/main/java/tv/own/owntv/core/parser/XmltvParser.kt	value
 1	technical	core/src/main/java/tv/own/owntv/core/parser/XmltvParser.kt	xmltv_ns
 1	protocol	core/src/main/java/tv/own/owntv/core/parser/XmltvParser.kt	—
+1	technical	core/src/main/java/tv/own/owntv/core/parser/XmltvParser.kt	•
 2	protocol	core/src/main/java/tv/own/owntv/core/parser/XmltvTime.kt	\0
 7	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	\0
 1	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	#EXTM3U

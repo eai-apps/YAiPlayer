@@ -34,7 +34,7 @@ class BuiltinGuideMatcher(
         val profiles = db.profileDao().getAllOnce()
         if (sourceIds.isEmpty() || profiles.isEmpty()) return Result(0, 0)
         val cust = customize.observe(profiles.first().id, MediaType.LIVE).first()
-        val outcome = matcher.run(cust, sourceIds)
+        val outcome = matcher.run(cust, sourceIds, applyEmptyGuides = true)
         if (!outcome.hadCandidates) return Result(0, outcome.needingMatch)
         if (outcome.applied.isNotEmpty()) {
             val clean = outcome.applied.associate { it.first to it.second.trim().lowercase() }.filterValues { it.isNotEmpty() }

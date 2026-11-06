@@ -75,7 +75,7 @@ class EpgSyncWorker(
                 epgRepository.refreshUrl(source.id, source.url, source.userAgent) { channels, count ->
                     progress.publish(channels, count)
                 }
-            } catch (e: tv.own.owntv.core.repository.EpgRepository.GuideMatchesNoChannelException) {
+            } catch (e: tv.own.owntv.core.repository.EpgRepository.NoProgrammesInWindowException) {
                 // The built-in feeds are filtered to channels a playlist links by id; a portal has none.
                 // The feed's own channel list is stored all the same — that is what name matching reads.
                 if (!source.builtin) throw e
