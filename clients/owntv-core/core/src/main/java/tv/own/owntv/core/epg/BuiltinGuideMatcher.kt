@@ -46,9 +46,30 @@ class BuiltinGuideMatcher(
         }
     }
 
+    /**
+     * A Stalker portal brings its own guide; the built-in one is not for it. An earlier version linked those
+     * channels to the built-in feeds too, which shadowed the portal's programme — drop those links again
+     * (only ones that point INTO the built-in feeds, so a match the user made by hand elsewhere stays).
+     */
+    private suspend fun dropPortalLinks(portalIds: List<Long>, profiles: List<tv.own.owntv.core.database.entity.ProfileEntity>) {
+        if (portalIds.isEmpty()) return
+        val builtin = org.koin.core.context.GlobalContext.get().get<EpgSourceStore>().getAll().filter { it.builtin }
+        val builtinIds = builtin.flatMapTo(HashSet()) { epgDao.epgChannelIdsForSource(it.id).map { id -> id.trim().lowercase() } }
+        if (builtinIds.isEmpty()) return
+        val keys = channelDao.allForSources(portalIds, 20_000).mapTo(HashSet()) { tv.own.owntv.core.customize.CustomizeKeys.channel(it) }
+        profiles.forEach { p ->
+            val have = customize.observe(p.id, MediaType.LIVE).first().epgMatches
+            val drop = have.filter { (k, v) -> k in keys && v.trim().lowercase() in builtinIds }.keys
+            if (drop.isNotEmpty()) customize.update(p.id, MediaType.LIVE) { it.copy(epgMatches = it.epgMatches - drop) }
+        }
+    }
+
     suspend fun run(): Result {
+        val all = db.sourceDao().getAllOnce()
+        val portalIds = all.filter { it.type == tv.own.owntv.core.model.SourceType.STALKER }.map { it.id }
+        runCatching { dropPortalLinks(portalIds, db.profileDao().getAllOnce()) }
         runCatching { syncProfiles() }
-        val sourceIds = db.sourceDao().getAllOnce().map { it.id }
+        val sourceIds = all.filter { it.id !in portalIds }.map { it.id }
         val profiles = db.profileDao().getAllOnce()
         if (sourceIds.isEmpty() || profiles.isEmpty()) return Result(0, 0)
         val cust = customize.observe(profiles.first().id, MediaType.LIVE).first()

@@ -268,8 +268,10 @@ private fun SyncLine.text(): String = when (this) {
             if (sync.programmes > 0) add(pluralStringResource(R.plurals.sync_count_epg, sync.programmes, compactCount(context, sync.programmes)))
         }
         val countsText = countParts.joinToString(stringResource(R.string.sync_counts_separator))
-        if (countsText.isBlank()) stringResource(R.string.sync_status_epg, sync.sourceName)
-        else stringResource(R.string.sync_status_epg_with_counts, sync.sourceName, countsText)
+        // The hidden built-in feeds are never named; they all read as the built-in guide.
+        val shown = if (sync.sourceName.startsWith(tv.own.owntv.core.sync.BuiltinGuide.NAME)) stringResource(R.string.settings_epg_builtin) else sync.sourceName
+        if (countsText.isBlank()) stringResource(R.string.sync_status_epg, shown)
+        else stringResource(R.string.sync_status_epg_with_counts, shown, countsText)
     }
     // No percentage: a recording ends on the clock, not on a byte count, so there is nothing to be
     // a percentage of.
