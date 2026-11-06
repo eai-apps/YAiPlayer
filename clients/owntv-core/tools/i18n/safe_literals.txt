@@ -4690,6 +4690,7 @@
 1	technical	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	$NAME ${i + 1}
 1	technical	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	Built-in guide
 1	technical	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	builtin
+1	technical	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	builtin_playlist
 1	url	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	http://epg.one/epg.xml.gz
 1	url	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	http://miptv.in.ua/xmlt/mlist_epg.xml.gz
 1	url	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	https://iptvx.one/EPG_LITE

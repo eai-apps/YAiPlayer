@@ -35,7 +35,9 @@ class ImportFinalizer(
     suspend fun finalize(source: SourceEntity, deferIndexes: Boolean = false): SyncCounts {
         val counts = contentCounts(source.id)
         registerPortalGuide(source)
-        runCatching { builtinGuide?.ensure() }
+        // A portal that brings its own guide does not need the built-in one forced on it.
+        val ownGuide = source.type == tv.own.owntv.core.model.SourceType.STALKER && source.importPortalEpg
+        if (!ownGuide) runCatching { builtinGuide?.onPlaylistImported() }
         // Bounded TTL eviction of the TMDB caches — they grow without limit as the user
         // browses. Piggy-backed here (the operation that changes data), never on cold start.
         // Indexed DELETE on updatedAt; evicted rows simply re-fetch on next focus.
