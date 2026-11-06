@@ -4716,6 +4716,7 @@
 1	log	core/src/main/java/tv/own/owntv/core/sync/ImportFinalizer.kt	ensureContentIndexes failed ms=${SystemClock.elapsedRealtime() - startedAt}
 1	log	core/src/main/java/tv/own/owntv/core/sync/ImportFinalizer.kt	ensureContentIndexes start
 2	technical	core/src/main/java/tv/own/owntv/core/sync/ImportFinalizer.kt	movies
+1	technical	core/src/main/java/tv/own/owntv/core/sync/ImportFinalizer.kt	portal
 2	technical	core/src/main/java/tv/own/owntv/core/sync/ImportFinalizer.kt	series
 2	technical	core/src/main/java/tv/own/owntv/core/sync/LocalPlaylistFile.kt	/
 2	url	core/src/main/java/tv/own/owntv/core/sync/LocalPlaylistFile.kt	content://
