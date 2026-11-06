@@ -962,6 +962,7 @@
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/setup/AddSourceForm.kt	mac-bad
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/setup/AddSourceForm.kt	mac-copy
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/setup/AddSourceForm.kt	mac-generate
+1	technical	app/src/main/java/tv/own/owntv/mobile/ui/setup/AddSourceForm.kt	mac-generate-reliable
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/setup/AddSourceForm.kt	mac-note
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/setup/AddSourceForm.kt	model
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/setup/AddSourceForm.kt	name
