@@ -49,6 +49,20 @@ class ProfilesViewModel(
 
     fun verifyPin(profile: ProfileEntity, pin: String): Boolean = manager.verifyPin(profile, pin)
 
+    /** The guest profile id, -1 until one has been made. */
+    val guestProfileId: StateFlow<Long> = settings.guestProfileId
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), -1L)
+
+    /** Enter as guest: made on first use (no sources of other profiles), then it is the active profile. */
+    fun enterGuest(onEntered: (ProfileEntity) -> Unit) {
+        viewModelScope.launch {
+            val id = manager.ensureGuest(context.getString(tv.own.owntv.mobile.R.string.profiles_guest_name))
+            val guest = profileDao.getById(id) ?: return@launch
+            manager.switchTo(id)
+            onEntered(guest)
+        }
+    }
+
     /** Make [profile] the one in use; [onSwitched] runs once the preference has actually committed. */
     fun switchTo(profile: ProfileEntity, onSwitched: () -> Unit = {}) {
         viewModelScope.launch {

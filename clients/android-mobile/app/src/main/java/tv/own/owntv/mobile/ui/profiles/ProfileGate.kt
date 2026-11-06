@@ -105,12 +105,22 @@ fun ProfileGate(
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(top = 4.dp, bottom = 82.dp),
         )
-        val tiles: List<ProfileEntity?> = profiles + null
+        // The guest ("no registration, no profile") is a tile of its own until its profile exists.
+        val guestId by vm.guestProfileId.collectAsStateWithLifecycle()
+        val guestMissing = profiles.none { it.id == guestId }
+        val tiles: List<Any> = profiles + "add" + (if (guestMissing) listOf("guest") else emptyList())
         tiles.chunked(2).forEach { pair ->
             Row(Modifier.fillMaxWidth().padding(bottom = 26.dp), horizontalArrangement = Arrangement.spacedBy(20.dp)) {
-                pair.forEach { profile ->
+                pair.forEach { tile ->
+                    val profile = tile as? ProfileEntity
                     Box(Modifier.weight(1f), contentAlignment = Alignment.TopCenter) {
-                        if (profile == null) {
+                        if (tile == "guest") {
+                            AddProfileTile(
+                                onClick = { vm.enterGuest(onEntered) },
+                                label = stringResource(R.string.profiles_guest_name),
+                                icon = MobileIcons.Person,
+                            )
+                        } else if (profile == null) {
                             AddProfileTile(onClick = { addProfile = true })
                         } else {
                             ProfileTile(
@@ -185,7 +195,7 @@ private fun ProfileTile(profile: ProfileEntity, current: Boolean, onClick: () ->
 
 /** The outlined circle with + and Add profile in the muted colour. */
 @Composable
-private fun AddProfileTile(onClick: () -> Unit) {
+private fun AddProfileTile(onClick: () -> Unit, label: String = stringResource(R.string.profiles_add), icon: androidx.compose.ui.graphics.vector.ImageVector = MobileIcons.Add) {
     val palette = LocalStagePalette.current
     val interaction = remember { MutableInteractionSource() }
     Column(Modifier.stageClickable(interaction, onClick, null), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -196,10 +206,10 @@ private fun AddProfileTile(onClick: () -> Unit) {
                 .drawBehind { drawCircle(palette.ink.copy(alpha = 0.2f), size.minDimension / 2 - 1.dp.toPx(), style = Stroke(2.dp.toPx())) },
             contentAlignment = Alignment.Center,
         ) {
-            StageIcon(MobileIcons.Add, 30.dp, palette.muted)
+            StageIcon(icon, 30.dp, palette.muted)
         }
         Text(
-            text = stringResource(R.string.profiles_add),
+            text = label,
             style = stageText(15f, 700),
             color = palette.muted,
             maxLines = 1,

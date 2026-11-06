@@ -62,6 +62,19 @@ class ProfilesViewModel(
 
     fun verifyPin(profile: ProfileEntity, pin: String): Boolean = manager.verifyPin(profile, pin)
 
+    /** The guest profile id, -1 until one has been made. */
+    val guestProfileId: StateFlow<Long> = settings.guestProfileId
+        .stateIn(viewModelScope, SharingStarted.Eagerly, -1L)
+
+    /** Enter as guest: made on first use (no sources of other profiles), then it is the active profile. */
+    fun enterGuest(guestName: String, onEntered: (Long) -> Unit) {
+        viewModelScope.launch {
+            val id = manager.ensureGuest(guestName)
+            manager.switchTo(id)
+            onEntered(id)
+        }
+    }
+
     /**
      * Create a new profile. New profiles inherit the existing sources (single-account, multi-viewer)
      * so they immediately have content; favorites/history stay per-profile. [picture], when the user

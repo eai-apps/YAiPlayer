@@ -45,6 +45,8 @@ fun ProfileGate(onEnter: (Long) -> Unit, onAddProfile: () -> Unit, modifier: Mod
     val vm: ProfilesViewModel = koinViewModel()
     val profiles by vm.profiles.collectAsStateWithLifecycle()
 
+    val guestId by vm.guestProfileId.collectAsStateWithLifecycle()
+    val guestName = stringResource(R.string.profiles_guest_name)
     var pinFor by remember { mutableStateOf<ProfileEntity?>(null) }
     var pinError by remember { mutableStateOf(false) }
     val firstFocus = remember { FocusRequester() }
@@ -81,6 +83,10 @@ fun ProfileGate(onEnter: (Long) -> Unit, onAddProfile: () -> Unit, modifier: Mod
                     )
                 }
                 item { AddTile(onClick = onAddProfile) }
+                // "No registration, no profile": shown until the guest profile exists (then it is a tile above).
+                if (profiles.none { it.id == guestId }) {
+                    item { AddTile(onClick = { vm.enterGuest(guestName, onEnter) }, label = guestName, icon = OwnTVIcon.PERSON) }
+                }
             }
         }
     }
@@ -126,7 +132,7 @@ private fun ProfileTile(profile: ProfileEntity, modifier: Modifier = Modifier, o
 }
 
 @Composable
-private fun AddTile(onClick: () -> Unit) {
+private fun AddTile(onClick: () -> Unit, label: String = stringResource(R.string.profiles_add), icon: OwnTVIcon = OwnTVIcon.ADD) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         tv.own.owntv.ui.stage.StageSurface(
             onClick = onClick,
@@ -139,10 +145,10 @@ private fun AddTile(onClick: () -> Unit) {
                 modifier = Modifier.size(104.dp).clip(CircleShape).background(tv.own.owntv.ui.theme.StageColors.Ink.copy(alpha = 0.08f)),
                 contentAlignment = Alignment.Center,
             ) {
-                OwnTVIcon(OwnTVIcon.ADD, tint = tv.own.owntv.ui.theme.StageColors.Muted, modifier = Modifier.size(40.dp))
+                OwnTVIcon(icon, tint = tv.own.owntv.ui.theme.StageColors.Muted, modifier = Modifier.size(40.dp))
             }
         }
         Spacer(Modifier.height(10.dp))
-        Text(stringResource(R.string.profiles_add), style = tv.own.owntv.ui.theme.stageText(32, 600), color = tv.own.owntv.ui.theme.StageColors.Muted)
+        Text(label, style = tv.own.owntv.ui.theme.stageText(32, 600), color = tv.own.owntv.ui.theme.StageColors.Muted)
     }
 }

@@ -338,6 +338,7 @@ class SettingsRepository(private val context: Context, private val localeStore: 
         val FOCUS_HIGHLIGHT = stringPreferencesKey("focus_highlight_color")
         val FOCUS_HIGHLIGHT_WIDTH = intPreferencesKey("focus_highlight_width")
         val ACTIVE_PROFILE = longPreferencesKey("active_profile_id")
+        val GUEST_PROFILE = longPreferencesKey("guest_profile_id")
         val DEFAULT_SOURCE = longPreferencesKey("default_source_id")
         val DOWNLOAD_ROOT = stringPreferencesKey("download_root")
         val REFRESH_SOURCE_IDS = stringSetPreferencesKey("refresh_source_ids")
@@ -3099,6 +3100,13 @@ class SettingsRepository(private val context: Context, private val localeStore: 
         context.dataStore.edit { it[Keys.ACTIVE_PROFILE] = id }
     }
 
+    /** The guest profile (no registration, never synced); -1 = none made yet. Local to this device. */
+    val guestProfileId: Flow<Long> = prefsFlow { it[Keys.GUEST_PROFILE] ?: -1L }
+
+    suspend fun setGuestProfileId(id: Long) {
+        context.dataStore.edit { it[Keys.GUEST_PROFILE] = id }
+    }
+
     // --- Global proxy (Approach 1 — one app-wide HTTP proxy) ---
     // Covers all OkHttp traffic (playlist/API/EPG/images/downloads/updates/weather + ExoPlayer) and mpv
     // playback via its http-proxy option. Per-source overrides and SOCKS are future work; the proxy
@@ -3316,7 +3324,7 @@ class SettingsRepository(private val context: Context, private val localeStore: 
         Keys.LIVE_ENGINE, Keys.VOD_ENGINE, Keys.VOD_PREFER_EXO, Keys.HW_DECODING, Keys.SOFTWARE_DECODE_ABOVE_1080P, Keys.AUTO_FRAME_RATE, Keys.AUTO_FRAME_RATE_LIVE,
         Keys.AFR_PAUSE_SECS, Keys.AFR_MATCH_RESOLUTION,
         Keys.PREFER_SDR, Keys.SURROUND_MODE, Keys.SURROUND_SOUND, Keys.AUDIO_PASSTHROUGH,
-        Keys.TUNNELED_PLAYBACK,
+        Keys.TUNNELED_PLAYBACK, Keys.GUEST_PROFILE,
     ).map { it.name }.toSet()
 
     /** Whether a backup's settings block holds any of the [deviceSpecificSettings]. */

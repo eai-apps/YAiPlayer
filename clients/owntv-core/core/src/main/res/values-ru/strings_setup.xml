@@ -291,4 +291,7 @@
     <string name="setup_mac_optional_note">MAC необязателен: оставьте пустым, и он создастся сам. При повторе остаётся тот же MAC, потому что некоторые порталы привязывают логин к первому увиденному.</string>
     <string name="setup_stalker_identity_fill">Заполнить серийный номер и Device ID по MAC</string>
     <string name="setup_mac_copy">Копировать MAC-адрес</string>
+    <string name="profiles_guest_name">Гость</string>
+    <string name="setup_continue_as_guest">Продолжить как гость</string>
+    <string name="setup_continue_as_guest_description">Без регистрации и создания профиля: добавьте свой плейлист, Stalker-портал или телегид и смотрите. При выходе ничего не стирается; синхронизации между устройствами нет.</string>
 </resources>

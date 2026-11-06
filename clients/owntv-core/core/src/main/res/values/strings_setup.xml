@@ -551,4 +551,7 @@
     <string name="setup_mac_optional_note">The MAC is optional: leave it empty and one is generated. The same MAC is kept if you retry, because some portals bind your login to the first one they see.</string>
     <string name="setup_stalker_identity_fill">Fill serial number and device IDs from the MAC</string>
     <string name="setup_mac_copy">Copy MAC address</string>
+    <string name="profiles_guest_name">Guest</string>
+    <string name="setup_continue_as_guest">Continue as guest</string>
+    <string name="setup_continue_as_guest_description">No sign-up and no profile to create: add your own playlist, Stalker portal or guide and watch. Nothing is erased when you leave; there is no sync between devices.</string>
 </resources>

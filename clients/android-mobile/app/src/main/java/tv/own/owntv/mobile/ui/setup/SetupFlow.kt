@@ -211,6 +211,7 @@ fun SetupFlow(
                 onCreateProfile = { step = Step.CREATE_PROFILE },
                 onRestore = { backupOrigin = Step.CHOICE; step = Step.RESTORE; pickBackup() },
                 onSyncDevice = { step = Step.SYNC_DEVICE },
+                onGuest = { vm.startGuest { step = Step.ADD_CONTENT } },
                 onBack = { step = Step.DISCLAIMER },
             )
             // A sync brings whole profiles with it, exactly as a restored backup does, so it finishes

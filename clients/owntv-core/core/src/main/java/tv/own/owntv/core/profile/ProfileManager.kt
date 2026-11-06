@@ -1,5 +1,6 @@
 package tv.own.owntv.core.profile
 
+import tv.own.owntv.core.database.dao.ensureGuest
 import kotlinx.coroutines.flow.first
 import tv.own.owntv.core.database.dao.ProfileDao
 import tv.own.owntv.core.database.dao.SourceDao
@@ -50,6 +51,9 @@ class ProfileManager(
         sourceDao.allSourceIds().forEach { sourceDao.link(ProfileSourceCrossRef(profileId = id, sourceId = it)) }
         return id
     }
+
+    /** The guest profile, made on first use — see [ensureGuest]. */
+    suspend fun ensureGuest(name: String): Long = profileDao.ensureGuest(settings, name)
 
     /** Apply the editor's changes. [pin]: null keeps the existing PIN, "" removes it. */
     suspend fun edit(profile: ProfileEntity, name: String, avatarId: Int, isKids: Boolean, pin: String?) {
