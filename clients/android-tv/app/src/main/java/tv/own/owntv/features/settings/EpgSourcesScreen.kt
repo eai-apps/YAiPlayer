@@ -34,6 +34,7 @@ fun EpgSourcesScreen(onBack: () -> Unit, modifier: Modifier = Modifier, startOnA
     val deletingIds by vm.deletingIds.collectAsStateWithLifecycle()
     val builtinEnabled by vm.builtinEnabled.collectAsStateWithLifecycle()
     val builtinStatus by vm.builtinStatus.collectAsStateWithLifecycle()
+    val builtinSchedule by vm.builtinSchedule.collectAsStateWithLifecycle()
 
     var editing by remember { mutableStateOf<EpgSource?>(null) }
     var adding by remember { mutableStateOf(startOnAdd) }
@@ -162,6 +163,23 @@ fun EpgSourcesScreen(onBack: () -> Unit, modifier: Modifier = Modifier, startOnA
             help = SettingHelp(builtinTitle, builtinDesc, hints = listOf(ok to stringResource(R.string.settings_key_switch), back to parent)),
         )
         if (builtinEnabled) {
+            val scheduleTitle = stringResource(R.string.settings_epg_builtin_schedule)
+            StageSettingRow(
+                icon = OwnTVIcon.REFRESH,
+                title = scheduleTitle,
+                desc = null,
+                value = SettingValue.Choice(
+                    stringResource(
+                        when (builtinSchedule) {
+                            tv.own.owntv.core.sync.BuiltinGuide.Schedule.WEEKLY -> R.string.settings_epg_builtin_schedule_weekly
+                            tv.own.owntv.core.sync.BuiltinGuide.Schedule.DAILY -> R.string.settings_epg_builtin_schedule_daily
+                            tv.own.owntv.core.sync.BuiltinGuide.Schedule.MANUAL_ONLY -> R.string.settings_epg_builtin_schedule_manual
+                        },
+                    ),
+                ),
+                onClick = { vm.cycleBuiltinSchedule() },
+                help = SettingHelp(scheduleTitle, builtinDesc, hints = listOf(ok to scheduleTitle, back to parent)),
+            )
             val refreshTitle = stringResource(R.string.settings_epg_builtin_refresh)
             StageSettingRow(
                 icon = OwnTVIcon.REFRESH,

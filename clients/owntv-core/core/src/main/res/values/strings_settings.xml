@@ -3263,4 +3263,8 @@
     </plurals>
     <string name="settings_auto_widescreen">Auto 16:9 for SD video</string>
     <string name="settings_auto_widescreen_description">Video below Full HD that arrives squeezed to 4:3 is shown widescreen (16:9) right away. A zoom you pick in the player is kept.</string>
+    <string name="settings_epg_builtin_schedule">Update built-in guide</string>
+    <string name="settings_epg_builtin_schedule_weekly">Weekly</string>
+    <string name="settings_epg_builtin_schedule_daily">Daily</string>
+    <string name="settings_epg_builtin_schedule_manual">Only by hand</string>
 </resources>

@@ -69,6 +69,7 @@ fun SettingsEpgSourcesPage(
     val useLogos by vm.useLogos.collectAsStateWithLifecycle()
     val builtinEnabled by vm.builtinEnabled.collectAsStateWithLifecycle()
     val builtinStatus by vm.builtinStatus.collectAsStateWithLifecycle()
+    val builtinSchedule by vm.builtinSchedule.collectAsStateWithLifecycle()
     val deleting by vm.deletingIds.collectAsStateWithLifecycle()
 
     var menuSource by remember { mutableStateOf<EpgSource?>(null) }
@@ -107,6 +108,15 @@ fun SettingsEpgSourcesPage(
                 minHeight = 48.dp,
                 onClick = { vm.setBuiltinEnabled(!builtinEnabled) },
             ) { StageSwitch(builtinEnabled) }
+        }
+        if (builtinEnabled) item(key = "builtin_schedule") {
+            StageSettingRow(
+                title = stringResource(R.string.settings_epg_builtin_schedule),
+                subtitle = stringResource(builtinScheduleLabel(builtinSchedule)),
+                icon = MobileIcons.Refresh,
+                minHeight = 48.dp,
+                onClick = { vm.cycleBuiltinSchedule() },
+            ) {}
         }
         if (builtinEnabled) item(key = "builtin_refresh") {
             Box(Modifier.padding(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 8.dp)) {
@@ -493,3 +503,9 @@ private fun epgAutoRefreshLabel(mode: EpgAutoRefresh): String = stringResource(
         EpgAutoRefresh.MANUAL -> R.string.settings_sources_refresh_manual
     },
 )
+
+private fun builtinScheduleLabel(s: tv.own.owntv.core.sync.BuiltinGuide.Schedule): Int = when (s) {
+    tv.own.owntv.core.sync.BuiltinGuide.Schedule.WEEKLY -> R.string.settings_epg_builtin_schedule_weekly
+    tv.own.owntv.core.sync.BuiltinGuide.Schedule.DAILY -> R.string.settings_epg_builtin_schedule_daily
+    tv.own.owntv.core.sync.BuiltinGuide.Schedule.MANUAL_ONLY -> R.string.settings_epg_builtin_schedule_manual
+}

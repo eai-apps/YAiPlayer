@@ -54,6 +54,13 @@ class EpgSourcesViewModel(
     val builtinStatus: StateFlow<tv.own.owntv.core.sync.BuiltinGuide.Status> = builtinGuide.status()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), tv.own.owntv.core.sync.BuiltinGuide.Status())
 
+    val builtinSchedule: StateFlow<tv.own.owntv.core.sync.BuiltinGuide.Schedule> = builtinGuide.schedule()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), tv.own.owntv.core.sync.BuiltinGuide.Schedule.WEEKLY)
+
+    fun cycleBuiltinSchedule() {
+        viewModelScope.launch { builtinGuide.cycleSchedule() }
+    }
+
     fun refreshBuiltin() {
         viewModelScope.launch { builtinGuide.refresh() }
     }

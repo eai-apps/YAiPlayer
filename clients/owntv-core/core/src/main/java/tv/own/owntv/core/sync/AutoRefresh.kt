@@ -81,7 +81,11 @@ class AutoRefresh(
         // --- EPG sources ---
         val epgModes = settings.epgAutoRefresh.first()
         if (epgModes.isNotEmpty()) {
-            epgSourceStore.getAll().forEach { src ->
+            val all = epgSourceStore.getAll()
+            // The built-in guide is a chain: its first feed asks for the next, so only the first is due here.
+            val firstBuiltinId = all.firstOrNull { it.builtin }?.id
+            all.forEach { src ->
+                if (src.builtin && src.id != firstBuiltinId) return@forEach
                 val mode = epgModes[src.id] ?: EpgRefresh.OFF
                 if (shouldRefreshEpg(mode, src.lastSyncAt, nowMs, includeStartup)) {
                     val base = epgDao.countForSources(listOf(src.id))
