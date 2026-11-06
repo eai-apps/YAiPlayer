@@ -4444,6 +4444,7 @@
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	User-Agent
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	X-User-Agent
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	[:\\-. ]
+1	regex	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	\\[S\\d{1,3}]\\s*$
 1	regex	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	\\bspecials?\\b
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	\\d{4}
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	action=
