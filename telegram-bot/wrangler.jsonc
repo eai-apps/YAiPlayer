@@ -1,0 +1,10 @@
+{
+  "name": "yaiplayer-bot",
+  "main": "worker.js",
+  "compatibility_date": "2026-11-01",
+  "workers_dev": true,
+  "vars": {
+    "CHANNEL": "@YAiPlayer",
+    "CHAT": "@YAiPlayer_Chat"
+  }
+}
