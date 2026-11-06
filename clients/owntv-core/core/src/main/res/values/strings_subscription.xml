@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="subscription_expiry_title">Subscription: %1$s</string>
+    <string name="subscription_expiry_today">Dear subscriber! Your payment period ends today. Please top up your account to avoid service interruption.</string>
+    <plurals name="subscription_expiry_message">
+        <item quantity="one">Dear subscriber! Your payment period ends in %1$d day. Please top up your account to avoid service interruption.</item>
+        <item quantity="other">Dear subscriber! Your payment period ends in %1$d days. Please top up your account to avoid service interruption.</item>
+    </plurals>
+    <string name="subscription_expiry_ok">OK</string>
+</resources>
