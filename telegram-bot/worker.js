@@ -1,7 +1,8 @@
 // YAiPlayer bot v0.3 — Cloudflare Worker (Telegram webhook + cron).
 // Secrets: BOT_TOKEN, WEBHOOK_SECRET.  Vars: CHANNEL, CHAT, ADMIN_ID.  KV binding: DB.
 // Everything in the menu is editable by the admin with buttons (no commands): see the "🛠 Админка" button.
-const VERSION = "0.3";
+const VERSION = "0.3.1";
+const SUPPORT_URL = "https://t.me/YAiPlayer?direct"; // the channel's own direct messages = tech support
 const REPO = "eai-apps/YAiPlayer";
 const DL = (f) => `https://github.com/${REPO}/releases/latest/download/${f}`;
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -18,18 +19,34 @@ const api = (env, method, body) =>
 const defaultCfg = (env) => ({
   welcome: "👋 <b>YAiPlayer</b> — IPTV-плеер для Android TV и телефона.\n\nПлеер в бете: пишите о багах в чат. Выберите, что нужно:",
   req: [], // extra channels the user must join before the download link
+  v: 2,
   next: 10,
   root: ["1", "2", "3", "4"],
   nodes: {
     1: { t: "📥 Скачать плеер", k: "download" },
     2: { t: "🌐 Каналы и проекты", k: "section", c: ["5", "6"] },
     3: { t: "☕ Поддержать автора", k: "donate" },
-    4: { t: "🛟 Сообщить о проблеме", k: "url", u: tme(env.CHAT) },
+    4: { t: "🛟 Сообщить о проблеме", k: "section", c: ["7", "8"] },
     5: { t: "🔔 Канал YAiPlayer", k: "url", u: tme(env.CHANNEL) },
     6: { t: "💬 Чат", k: "url", u: tme(env.CHAT) },
+    7: { t: "✉️ Написать в техподдержку", k: "url", u: SUPPORT_URL },
+    8: { t: "💬 Спросить в чате", k: "url", u: tme(env.CHAT) },
   },
 });
-const getCfg = async (env) => JSON.parse((await env.DB.get("cfg")) || "null") || defaultCfg(env);
+// v2: "Сообщить о проблеме" became a section (tech support + chat) instead of a plain chat link.
+function migrate(env, cfg) {
+  if (cfg.v >= 2) return cfg;
+  cfg.v = 2;
+  const old = cfg.nodes[4];
+  if (old && old.k === "url" && old.u === tme(env.CHAT)) {
+    cfg.nodes[7] = { t: "✉️ Написать в техподдержку", k: "url", u: SUPPORT_URL };
+    cfg.nodes[8] = { t: "💬 Спросить в чате", k: "url", u: tme(env.CHAT) };
+    cfg.nodes[4] = { t: old.t, k: "section", c: ["7", "8"] };
+    cfg.next = Math.max(cfg.next || 10, 10);
+  }
+  return cfg;
+}
+const getCfg = async (env) => migrate(env, JSON.parse((await env.DB.get("cfg")) || "null") || defaultCfg(env));
 const saveCfg = (env, c) => env.DB.put("cfg", JSON.stringify(c));
 const childrenOf = (cfg, pid) => (pid === "root" ? cfg.root : cfg.nodes[pid]?.c || []);
 const setChildren = (cfg, pid, list) => { if (pid === "root") cfg.root = list; else cfg.nodes[pid].c = list; };
@@ -99,16 +116,17 @@ async function showNode(env, q, chat, uid, id) {
   const back = { inline_keyboard: [[{ text: "⬅️ Назад", callback_data: `n:${parentOf(cfg, id)}` }]] };
   if (n.k === "section") return render(`<b>${esc(n.t)}</b>`, await menuKeyboard(env, cfg, id, uid));
   if (n.k === "text") return render(n.x || "—", back);
-  if (n.k === "download") return render("Чтобы получить ссылку на скачивание, подпишитесь на канал и вступите в чат, затем нажмите «Получить ссылку».", await gateKeyboard(env, cfg, id));
+  if (n.k === "download") return render("Чтобы получить ссылку на скачивание, подпишитесь на канал, затем нажмите «Получить ссылку».", await gateKeyboard(env, cfg, id));
   if (n.k === "donate") return render("☕ <b>Поддержать автора</b>\nПлеер бесплатный. Если он вам нравится, можно поддержать разработку звёздами Telegram:", {
     inline_keyboard: [[{ text: "⭐ 50", callback_data: "star:50" }, { text: "⭐ 100", callback_data: "star:100" }, { text: "⭐ 250", callback_data: "star:250" }], back.inline_keyboard[0]],
   });
 }
 
 // ---------- download gate ----------
-const requiredChats = (env, cfg) => [env.CHANNEL, env.CHAT, ...(cfg.req || [])];
+// Only the channel (and any extra channels the admin added) is required; the chat is optional.
+const requiredChats = (env, cfg) => [env.CHANNEL, ...(cfg.req || [])];
 async function gateKeyboard(env, cfg, id) {
-  const urls = requiredChats(env, cfg).map((c, i) => ({ text: i === 0 ? "🔔 Канал" : i === 1 ? "💬 Чат" : `➕ ${c}`, url: tme(c) }));
+  const urls = requiredChats(env, cfg).map((c, i) => ({ text: i === 0 ? "🔔 Подписаться на канал" : `➕ ${c}`, url: tme(c) }));
   const rows = [];
   for (let i = 0; i < urls.length; i += 2) rows.push(urls.slice(i, i + 2));
   rows.push([{ text: "✅ Получить ссылку", callback_data: "check" }]);
@@ -255,7 +273,7 @@ async function onAdminCb(env, q, d) {
     const cfg = await getCfg(env);
     const rows = cfg.req.map((c, i) => [BTN(`🗑 ${c}`, `a:reqdel:${i}`)]);
     rows.push([BTN("➕ Добавить канал", "a:reqadd")], [BTN("⬅️ Назад", "a:home")]);
-    return show(env, q, `📢 <b>Обязательные каналы</b>\nКроме @YAiPlayer и чата, человек должен подписаться на:\n${cfg.req.length ? cfg.req.map(esc).join("\n") : "— пока нет —"}\n\n⚠️ Бот должен быть администратором в этих каналах, иначе проверка не сработает.`, { inline_keyboard: rows });
+    return show(env, q, `📢 <b>Обязательные каналы</b>\nКроме @YAiPlayer, человек должен подписаться на:\n${cfg.req.length ? cfg.req.map(esc).join("\n") : "— пока нет —"}\n\n⚠️ Бот должен быть администратором в этих каналах, иначе проверка не сработает.`, { inline_keyboard: rows });
   }
   if (cmd === "reqadd") { await setState(env, uid, { a: "reqadd" }); return show(env, q, "Пришлите адрес канала, например @mychannel.", { inline_keyboard: [[BTN("Отмена", "a:req")]] }); }
   if (cmd === "reqdel") {
