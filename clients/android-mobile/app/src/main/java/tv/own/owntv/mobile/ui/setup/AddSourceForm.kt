@@ -271,6 +271,13 @@ fun AddSourceForm(
                         onClick = { mac = StalkerDeviceDerivation.randomMac() },
                     ) { }
                 }
+                item(key = "mac-generate-reliable") {
+                    StageSettingRow(
+                        icon = MobileIcons.Edit,
+                        title = stringResource(R.string.setup_mac_generate_reliable),
+                        onClick = { mac = StalkerDeviceDerivation.reliableMac() },
+                    ) { }
+                }
                 if (mac.isNotBlank()) {
                     item(key = "mac-copy") {
                         StageSettingRow(

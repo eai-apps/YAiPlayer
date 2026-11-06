@@ -248,7 +248,8 @@ internal fun VodHero(info: VodTitleInfo, modifier: Modifier = Modifier) {
         info.plot?.takeIf { it.isNotBlank() }?.let {
             Text(
                 it, style = stageText(19.5f, 400).copy(lineHeight = (19.5f * 1.55f).mpxSp), color = StageColors.Body,
-                maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.widthIn(max = 860.mpx),
+                // Room for a real description, not two cut-off lines (the cast row, when present, takes some).
+                maxLines = if (info.cast.isNotEmpty()) 4 else 6, overflow = TextOverflow.Ellipsis, modifier = Modifier.widthIn(max = 1000.mpx),
             )
         }
         if (info.cast.isNotEmpty()) VodCast(info.cast, 6, Modifier.padding(top = 20.mpx))

@@ -10,11 +10,21 @@ import kotlin.random.Random
  */
 object StalkerDeviceDerivation {
     private const val MAG_PREFIX = "00:1A:79"
+    private const val YAI_PREFIX = "59:41:49"
 
     /** A random MAC with the MAG vendor prefix, canonical `AA:BB:CC:DD:EE:FF` form. */
     fun randomMac(random: Random = Random.Default): String {
         val tail = (0 until 3).joinToString(":") { "%02X".format(random.nextInt(256)) }
         return "$MAG_PREFIX:$tail"
+    }
+
+    /**
+     * A "reliable" MAC: the fixed YAiPlayer prefix (ASCII "YAI" = 59:41:49) plus three random bytes, so an
+     * operator can recognise the app's devices and they do not collide with real MAG boxes (00:1A:79).
+     */
+    fun reliableMac(random: Random = Random.Default): String {
+        val tail = (0 until 3).joinToString(":") { "%02X".format(random.nextInt(256)) }
+        return "$YAI_PREFIX:$tail"
     }
 
     /** Serial number, device id and device id 2 derived from [canonicalMac] (upper-case hex). */

@@ -580,6 +580,15 @@ fun AddSourceScreen(
                     modifier = toSubmit,
                     help = help(genTitle, stringResource(R.string.setup_mac_optional_note), openKeys),
                 )
+                val reliableTitle = stringResource(R.string.setup_mac_generate_reliable)
+                StageSettingRow(
+                    icon = OwnTVIcon.PENCIL,
+                    title = reliableTitle,
+                    desc = stringResource(R.string.setup_mac_optional_note),
+                    value = SettingValue.Opens(null),
+                    onClick = { mac = tv.own.owntv.core.stalker.StalkerDeviceDerivation.reliableMac() },
+                    help = help(reliableTitle, stringResource(R.string.setup_mac_optional_note), openKeys),
+                )
                 // Only for portals that ask for a login on top of the MAC; most do not.
                 field(stringResource(R.string.settings_username_optional), username, { username = it })
                 field(stringResource(R.string.settings_password_optional), password, { password = it }, password = true)

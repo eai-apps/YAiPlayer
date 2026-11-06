@@ -684,7 +684,6 @@ class LivePreviewEngine(
                 ),
             )
         }
-        currentUrl?.let { out += StreamInfoRow(StreamInfoLabel.SOURCE, StreamInfoValue.Source(HttpClient.redactUrl(it))) }
         return out
     }
     /** Recompute the preview's mini chips (aspect · resolution · fps · audio · bitrate) from the active

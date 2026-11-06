@@ -887,13 +887,17 @@ open class StalkerClient(okHttpClient: OkHttpClient) {
         }
     }
 
+    /** The portal localises category/genre titles by this cookie: ask for the device language (ru → Russian). */
+    private fun portalLanguage(): String =
+        java.util.Locale.getDefault().language.takeIf { it.length == 2 && it.all(Char::isLetter) } ?: "en"
+
     /** The MAG request every portal call is made with — headers in exactly one place. */
     private fun portalRequest(url: String, mac: String, token: String?, userAgent: String?): Request {
         val referer = "${portalRoot(url.substringBefore('?'))}/c/"
         val builder = Request.Builder()
             .url(url)
             .header("User-Agent", userAgent?.takeIf { it.isNotBlank() } ?: DEFAULT_MAG_USER_AGENT)
-            .header("Cookie", "mac=${URLEncoder.encode(mac, "UTF-8")}; stb_lang=en; timezone=${TimeZone.getDefault().id}")
+            .header("Cookie", "mac=${URLEncoder.encode(mac, "UTF-8")}; stb_lang=${portalLanguage()}; timezone=${TimeZone.getDefault().id}")
             .header("X-User-Agent", "Model: MAG250; Link: WiFi")
             .header("Referer", referer)
         if (token != null) builder.header("Authorization", "Bearer $token")

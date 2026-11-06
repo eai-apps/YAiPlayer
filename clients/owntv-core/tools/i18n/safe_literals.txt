@@ -4479,7 +4479,7 @@
 2	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	js
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	localhost
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	logo
-1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	mac=${URLEncoder.encode(mac, "UTF-8")}; stb_lang=en; timezone=${TimeZone.getDefault().id}
+1	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	mac=${URLEncoder.encode(mac, "UTF-8")}; stb_lang=${portalLanguage()}; timezone=${TimeZone.getDefault().id}
 5	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	max_page_items
 2	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	msg
 8	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	name
