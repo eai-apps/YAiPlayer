@@ -152,9 +152,9 @@ class TestPostReleaseFormatting(unittest.TestCase):
         }
         rows = build_buttons(release_data, "@YAiPlayer")
         urls = [b["url"] for r in rows for b in r]
-        # постоянные ссылки: без номера версии
-        self.assertIn("https://github.com/o/r/releases/latest/download/YAiPlayer-TV.apk", urls)
-        self.assertIn("https://github.com/o/r/releases/latest/download/YAiPlayer-Mobile.apk", urls)
+        # прямых ссылок на скачивание нет: ссылку выдаёт бот после подписки
+        self.assertIn("https://t.me/YAiPlayer_bot?start=dl", urls)
+        self.assertFalse(any("github.com" in u for u in urls))
         self.assertIn("https://t.me/YAiPlayer", urls)
         self.assertIn("https://t.me/YAiPlayer_Chat", urls)
         self.assertFalse(any("v2.0.9/" in u or "other.txt" in u for u in urls))

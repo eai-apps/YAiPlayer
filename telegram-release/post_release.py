@@ -19,6 +19,7 @@ MAX_ITEMS_COUNT = 12
 MAX_POST_LENGTH = 4000
 MORE_TEXT = "… полный список по ссылке"
 CHAT_URL = "https://t.me/YAiPlayer_Chat"
+BOT_URL = "https://t.me/YAiPlayer_bot?start=dl"
 
 # Эмодзи вместо «•»: подбираем по смыслу пункта, по умолчанию — искра.
 EMOJI_RULES = [
@@ -55,15 +56,9 @@ def decorate(text: str) -> str:
 
 
 def build_buttons(release_data: dict, chat_id: str = "") -> list[list[dict]]:
-    """Кнопки под постом: скачать TV / телефон, подписаться, чат обсуждения."""
-    labels = {"YAiPlayer-TV.apk": "⬇️ Скачать для Android TV", "YAiPlayer-Mobile.apk": "📱 Скачать для телефона"}
-    rows: list[list[dict]] = []
-    for asset in release_data.get("assets") or []:
-        name = asset.get("name") or ""
-        url = (asset.get("browser_download_url") or "").strip()
-        if url and name in labels and "/releases/download/" in url:
-            base = url.split("/releases/download/")[0]
-            rows.append([{"text": labels[name], "url": f"{base}/releases/latest/download/{name}"}])
+    """Кнопки под постом: получить ссылку (через бота), подписаться, чат обсуждения.
+    Прямых ссылок на скачивание в постах нет — ссылку выдаёт бот после подписки на канал."""
+    rows: list[list[dict]] = [[{"text": "📥 Получить ссылку", "url": BOT_URL}]]
     last: list[dict] = []
     if chat_id.startswith("@"):
         last.append({"text": "🔔 Подписаться", "url": f"https://t.me/{chat_id[1:]}"})
@@ -377,12 +372,7 @@ def main(argv: list[str] | None = None) -> int:
         ]
         rows = [row]
         if args.with_downloads:
-            repo = os.environ.get("GITHUB_REPOSITORY", "eai-apps/YAiPlayer")
-            base = f"https://github.com/{repo}/releases/latest/download"
-            rows = [
-                [{"text": "⬇️ Скачать для Android TV", "url": f"{base}/YAiPlayer-TV.apk"}],
-                [{"text": "📱 Скачать для телефона", "url": f"{base}/YAiPlayer-Mobile.apk"}],
-            ] + rows
+            rows = [[{"text": "📥 Получить ссылку", "url": BOT_URL}]] + rows
         return 0 if send_release_post(bot_token, chat_id, text, args.image or None, rows) else 1
 
     if not args.release_json:
