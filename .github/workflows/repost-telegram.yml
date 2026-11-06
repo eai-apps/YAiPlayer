@@ -1,0 +1,25 @@
+name: Repost release to Telegram
+
+# Manual: re-send the Telegram post for an existing release (after its notes were edited).
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag, e.g. v2.0.37"
+        required: true
+
+jobs:
+  repost:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Post to Telegram channel
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          gh api "repos/${{ github.repository }}/releases/tags/${{ inputs.tag }}" > release.json
+          pip install --quiet pillow || true
+          python3 tools/brand/make_assets.py --card release-card.png release.json || true
+          python3 telegram-release/post_release.py --release-json release.json --image release-card.png
