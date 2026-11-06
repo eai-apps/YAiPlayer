@@ -1,5 +1,6 @@
 package tv.own.owntv.features.more
 
+import androidx.compose.ui.graphics.asImageBitmap
 import tv.own.owntv.ui.theme.stageTone
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
@@ -693,6 +694,25 @@ internal fun AboutPage(vm: MoreCountsViewModel, entry: FocusRequester, onOpenLan
             val languages = SupportedLocales.all.count { it.packaged }
             StageTool(pluralStringResource(R.plurals.more_about_languages, languages, languages), onClick = onOpenLanguage, icon = OwnTVIcon.LIST, boxed = true, modifier = Modifier.focusRequester(entry))
             StageTool(stringResource(R.string.settings_check_updates), onClick = { showUpdate = true }, icon = OwnTVIcon.REFRESH, boxed = true, modifier = Modifier.focusRequester(updateFocus))
+        }
+        // Scan with a phone: the channel with news and the support chat (a TV has no browser to open them).
+        Row(Modifier.padding(top = 22.mpx), horizontalArrangement = Arrangement.spacedBy(28.mpx)) {
+            listOf(
+                stringResource(R.string.about_telegram_channel) to "https://t.me/YAiPlayer",
+                stringResource(R.string.about_telegram_support) to "https://t.me/YAiPlayer?direct",
+            ).forEach { (label, link) ->
+                val qr = remember(link) { tv.own.owntv.core.companion.CompanionLink.renderQr(link, 360) }
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    if (qr != null) {
+                        androidx.compose.foundation.Image(
+                            bitmap = qr.asImageBitmap(),
+                            contentDescription = label,
+                            modifier = Modifier.size(150.mpx).background(androidx.compose.ui.graphics.Color.White, RoundedCornerShape(12.mpx)).padding(6.mpx),
+                        )
+                    }
+                    Text(label, style = stageText(16, 700), color = StageColors.Text, modifier = Modifier.padding(top = 8.mpx))
+                }
+            }
         }
     }
     if (showUpdate) {

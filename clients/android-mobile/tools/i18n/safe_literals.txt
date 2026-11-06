@@ -54,6 +54,7 @@
 1	protocol	app/src/main/java/tv/own/owntv/mobile/playback/PlaybackService.kt	tv.own.owntv.mobile.TOGGLE
 1	technical	app/src/main/java/tv/own/owntv/mobile/reminder/ReminderNotifier.kt	owntv_reminders
 1	empty	app/src/main/java/tv/own/owntv/mobile/reminder/ReminderPrompt.kt	\0
+1	technical	app/src/main/java/tv/own/owntv/mobile/ui/BrandIntro.kt	YAiPlayer
 1	empty	app/src/main/java/tv/own/owntv/mobile/ui/LocalizedContent.kt	\0
 1	empty	app/src/main/java/tv/own/owntv/mobile/ui/categorylock/CategoryLockPrompts.kt	\0
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/components/AirDateLabel.kt	yMMMd

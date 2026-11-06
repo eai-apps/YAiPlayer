@@ -43,6 +43,18 @@ def gradient(w, h, a="#161233", b="#0B0D18"):
     return Image.composite(top, base, mask)
 
 
+def avatar_named(size=640):
+    """Square avatar with the player name under the mark (Telegram crops it to a circle: all content stays inside)."""
+    im = gradient(size, size).convert("RGBA")
+    d = ImageDraw.Draw(im)
+    m = mark(int(size * 0.46))
+    im.alpha_composite(m, ((size - m.size[0]) // 2, int(size * 0.17)))
+    f = font(BOLD, int(size * 0.115))
+    t = "YAiPlayer"
+    d.text(((size - text_w(d, t, f)) / 2, int(size * 0.69)), t, font=f, fill=WHITE)
+    return im.convert("RGB")
+
+
 def banner(w, h, tagline):
     im = gradient(w, h).convert("RGBA")
     m = mark(int(h * 0.42))
@@ -120,6 +132,7 @@ def main():
     mark(512, radius=0.0).save(os.path.join(OUT, "logo-512-square.png"))
     mark(640, radius=0.0).save(os.path.join(OUT, "telegram-avatar-640.png"))  # Telegram rounds it itself
     mark(256).save(os.path.join(OUT, "favicon-256.png"))
+    avatar_named(640).save(os.path.join(OUT, "telegram-avatar-named-640.png"))
     banner(1280, 720, "IPTV-плеер для Android TV и телефона").save(os.path.join(OUT, "telegram-banner-1280x720.png"))
     banner(1200, 630, "IPTV-плеер для Android TV и телефона").save(os.path.join(OUT, "site-og-1200x630.png"))
     version = sys.argv[1] if len(sys.argv) > 1 else "2.0.0"

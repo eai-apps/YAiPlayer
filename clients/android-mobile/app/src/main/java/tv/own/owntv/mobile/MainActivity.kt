@@ -19,6 +19,7 @@ import androidx.activity.compose.setContent
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
@@ -164,11 +165,15 @@ open class MainActivity : FragmentActivity() {
                 GlassBackdropRoot {
                     // Inside the backdrop, because a sheet's whole reason for living in this window
                     // is that it can frost the same wallpaper everything else frosts.
-                    MobileSheetHost {
-                        // Width, not device type: a phone in landscape and a tablet in split-screen
-                        // are the same problem, and the configuration re-reads itself on every
-                        // rotation and resize.
-                        MobileShell(windowWidthDp = LocalConfiguration.current.screenWidthDp)
+                    androidx.compose.foundation.layout.Box(androidx.compose.ui.Modifier.fillMaxSize()) {
+                        MobileSheetHost {
+                            // Width, not device type: a phone in landscape and a tablet in split-screen
+                            // are the same problem, and the configuration re-reads itself on every
+                            // rotation and resize.
+                            MobileShell(windowWidthDp = LocalConfiguration.current.screenWidthDp)
+                        }
+                        // The launch animation, over the app while it loads (once per cold start).
+                        tv.own.owntv.mobile.ui.BrandIntro(enabled = true)
                     }
                 }
             }

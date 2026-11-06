@@ -487,6 +487,7 @@ open class MainActivity : ComponentActivity() {
                             else -> Unit
                         }
                         } // end foreground Box (above the background layer)
+                        tv.own.owntv.ui.BrandIntro(enabled = animationLevel != tv.own.owntv.core.theme.AnimationLevel.OFF)
                     }
                     } // end LocalizedContent
                 }
