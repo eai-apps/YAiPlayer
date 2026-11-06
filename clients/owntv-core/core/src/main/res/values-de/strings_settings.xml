@@ -1743,4 +1743,5 @@
     <string name="settings_epg_builtin_feed_channels">Sendeplan für %1$d deiner Sender</string>
     <string name="settings_epg_builtin_feed_syncing">Wird aktualisiert…</string>
     <string name="settings_epg_builtin_feed_failed">Fehlgeschlagen – zum Wiederholen tippen</string>
+    <string name="settings_sources_guide_logos">Logos aus dem Guide</string>
 </resources>

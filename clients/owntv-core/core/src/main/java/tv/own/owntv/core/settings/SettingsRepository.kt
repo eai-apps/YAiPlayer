@@ -349,6 +349,7 @@ class SettingsRepository(private val context: Context, private val localeStore: 
         val EPG_AUTO_REFRESH = stringPreferencesKey("epg_auto_refresh")
         // Per-EPG-source: use that feed's own <icon src> channel logos instead of the playlist's.
         val EPG_USE_LOGOS = stringPreferencesKey("epg_use_logos")
+        val GUIDE_LOGO_SOURCES = stringPreferencesKey("guide_logo_sources")
         val M3U_VOD_RESORT_CHECKED = booleanPreferencesKey("m3u_vod_resort_checked")
         val REFRESH_MIGRATED = booleanPreferencesKey("refresh_migration_done")
         val EPG_REFILL_CHECKED = booleanPreferencesKey("epg_refill_checked")
@@ -2311,6 +2312,22 @@ class SettingsRepository(private val context: Context, private val localeStore: 
         parseRefreshMap(raw)
             .filterValues { it.toBoolean() }
             .keys.mapNotNullTo(LinkedHashSet()) { it.toLongOrNull() }
+    }
+
+    /**
+     * Playlists / portals whose channels WITHOUT a logo of their own get one from the built-in guide, by exact
+     * channel name. Off by default and switched on by hand: many portals simply publish no logos.
+     */
+    val guideLogoSources: Flow<Set<Long>> = parsedFlow(Keys.GUIDE_LOGO_SOURCES) { raw ->
+        parseRefreshMap(raw)
+            .filterValues { it.toBoolean() }
+            .keys.mapNotNullTo(LinkedHashSet()) { it.toLongOrNull() }
+    }
+
+    suspend fun setGuideLogos(sourceId: Long, enabled: Boolean) {
+        context.dataStore.edit { prefs ->
+            prefs[Keys.GUIDE_LOGO_SOURCES] = writeRefreshMap(readRefreshMap(prefs[Keys.GUIDE_LOGO_SOURCES]), sourceId, enabled.toString())
+        }
     }
 
     suspend fun setEpgUseLogos(sourceId: Long, enabled: Boolean) {

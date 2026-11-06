@@ -74,6 +74,7 @@ fun ManageSourcesScreen(
     val importState by vm.importState.collectAsStateWithLifecycle()
     val progress by vm.progress.collectAsStateWithLifecycle()
     val playlistAutoRefresh by vm.playlistAutoRefresh.collectAsStateWithLifecycle()
+    val guideLogoSources by vm.guideLogoSources.collectAsStateWithLifecycle()
     val defaultId by vm.defaultSourceId.collectAsStateWithLifecycle()
     val sourceExpiry by vm.sourceExpiry.collectAsStateWithLifecycle()
     val sourceTest by vm.sourceTest.collectAsStateWithLifecycle()
@@ -342,6 +343,8 @@ fun ManageSourcesScreen(
                         onTest = { contextId = source.id; contextIndex = index; vm.testSource(source) },
                         onResync = { contextId = source.id; contextIndex = index; resyncChoice = source },
                         onCleanNames = { contextId = source.id; contextIndex = index; nameCleanup = source },
+                        guideLogos = source.id in guideLogoSources,
+                        onToggleGuideLogos = { vm.setGuideLogos(source, source.id !in guideLogoSources) },
                         onCancelSync = { contextId = source.id; contextIndex = index; vm.cancelResync(source) },
                         onDelete = { contextId = source.id; contextIndex = index; confirmDelete = source },
                     )
@@ -416,6 +419,8 @@ private fun SourceRow(
     onTest: () -> Unit,
     onResync: () -> Unit,
     onCleanNames: () -> Unit,
+    guideLogos: Boolean,
+    onToggleGuideLogos: () -> Unit,
     onCancelSync: () -> Unit,
     onDelete: () -> Unit,
 ) {
@@ -457,6 +462,11 @@ private fun SourceRow(
             if (syncState.isActive) onCancelSync else onResync,
         ),
         StageAction(OwnTVIcon.SPARKLE, stringResource(R.string.settings_sources_clean_names), onCleanNames),
+        StageAction(
+            OwnTVIcon.SPARKLE,
+            stringResource(R.string.settings_sources_guide_logos) + ": " + stringResource(if (guideLogos) R.string.common_on else R.string.common_off),
+            onToggleGuideLogos,
+        ),
         StageAction(OwnTVIcon.TRASH, stringResource(R.string.settings_sources_delete), onDelete, danger = true),
     )
     StageSettingRow(

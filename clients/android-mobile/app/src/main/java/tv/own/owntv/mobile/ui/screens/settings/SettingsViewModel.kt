@@ -108,6 +108,18 @@ class SettingsViewModel(
         viewModelScope.launch { settings.block() }
     }
 
+    /** Playlists whose channels without a logo get one from the built-in guide, by channel name. */
+    val guideLogoSources: StateFlow<Set<Long>> = settings.guideLogoSources
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptySet())
+
+    fun setGuideLogos(source: SourceEntity, enabled: Boolean) {
+        viewModelScope.launch {
+            settings.setGuideLogos(source.id, enabled)
+            // The logos come from the guide's channel list: make sure that list exists (it is fetched once).
+            if (enabled) runCatching { tv.own.owntv.core.sync.BuiltinGuide.fromKoin().ensure() }
+        }
+    }
+
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     val sources: StateFlow<List<SourceEntity>> = settings.activeProfileId
         .flatMapLatest { profileId ->

@@ -20,6 +20,7 @@ from unittest.mock import MagicMock, patch
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from post_release import (
+    build_buttons,
     MAX_ITEMS_COUNT,
     MAX_POST_LENGTH,
     MORE_TEXT,
@@ -71,11 +72,11 @@ class TestPostReleaseFormatting(unittest.TestCase):
         self.assertIn("<b>YAiPlayer v1.3.0</b>", post)
         self.assertIn("Что изменилось", post)
         self.assertNotIn("##", post)
-        self.assertIn("• Поддержка HLS плеера в core", post)
+        self.assertIn("Поддержка HLS плеера в core", post)
         self.assertNotIn("[core]", post)
         self.assertNotIn("https://github.com/org/repo)", post)
-        self.assertIn("• Добавлено переключение аудиодорожек", post)
-        self.assertIn("• Улучшена стабильность на слабых ТВ", post)
+        self.assertIn("Добавлено переключение аудиодорожек", post)
+        self.assertIn("Улучшена стабильность на слабых ТВ", post)
         self.assertNotIn("Все файлы", post)
 
     def test_format_list_max_12_items(self):
@@ -90,12 +91,12 @@ class TestPostReleaseFormatting(unittest.TestCase):
 
         # Первые 12 пунктов должны присутствовать
         for i in range(1, 13):
-            self.assertIn(f"• Пункт изменений #{i}", post)
+            self.assertIn(f"Пункт изменений #{i}", post)
 
         # Пункты 13, 14, 15 должны отсутствовать
-        self.assertNotIn("• Пункт изменений #13", post)
-        self.assertNotIn("• Пункт изменений #14", post)
-        self.assertNotIn("• Пункт изменений #15", post)
+        self.assertNotIn("Пункт изменений #13", post)
+        self.assertNotIn("Пункт изменений #14", post)
+        self.assertNotIn("Пункт изменений #15", post)
 
         # Должен быть добавлен маркер усечения
         self.assertIn(MORE_TEXT, post)
@@ -132,9 +133,9 @@ class TestPostReleaseFormatting(unittest.TestCase):
         self.assertLessEqual(len(post), MAX_POST_LENGTH)
         self.assertIn(MORE_TEXT, post)
         # Проверяем, что первый пункт целиком попал
-        self.assertIn("• Пункт #1:", post)
+        self.assertIn("Пункт #1:", post)
         # А последние пункты были отброшены
-        self.assertNotIn("• Пункт #10:", post)
+        self.assertNotIn("Пункт #10:", post)
         # Обрезка завершается на корректной границе, а не посреди символов
         self.assertNotIn("https://github.com/org/repo/releases/tag", post)
 
@@ -149,12 +150,14 @@ class TestPostReleaseFormatting(unittest.TestCase):
                 {"name": "other.txt", "browser_download_url": "https://x/o.txt"},
             ],
         }
-        post = format_release_post(release_data)
+        rows = build_buttons(release_data, "@YAiPlayer")
+        urls = [b["url"] for r in rows for b in r]
         # постоянные ссылки: без номера версии
-        self.assertIn('<a href="https://github.com/o/r/releases/latest/download/YAiPlayer-TV.apk">Android TV (приставка)</a>', post)
-        self.assertIn('<a href="https://github.com/o/r/releases/latest/download/YAiPlayer-Mobile.apk">Телефон / планшет</a>', post)
-        self.assertNotIn("v2.0.9/", post)
-        self.assertNotIn("other.txt", post)
+        self.assertIn("https://github.com/o/r/releases/latest/download/YAiPlayer-TV.apk", urls)
+        self.assertIn("https://github.com/o/r/releases/latest/download/YAiPlayer-Mobile.apk", urls)
+        self.assertIn("https://t.me/YAiPlayer", urls)
+        self.assertIn("https://t.me/YAiPlayer_Chat", urls)
+        self.assertFalse(any("v2.0.9/" in u or "other.txt" in u for u in urls))
 
 
 class TestPostReleaseCLIAndLogic(unittest.TestCase):
@@ -263,7 +266,7 @@ class TestPostReleaseCLIAndLogic(unittest.TestCase):
             mock_url.assert_not_called()
             output = out.getvalue()
             self.assertIn("<b>YAiPlayer v1.9.0</b>", output)
-            self.assertIn("• Новая фича dry-run", output)
+            self.assertIn("Новая фича dry-run", output)
             self.assertNotIn("Все файлы", output)
 
     def test_no_token_leak_on_http_error(self):

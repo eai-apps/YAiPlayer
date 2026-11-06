@@ -3271,4 +3271,5 @@
     <string name="settings_epg_builtin_feed_channels">Programme for %1$d of your channels</string>
     <string name="settings_epg_builtin_feed_syncing">Updating…</string>
     <string name="settings_epg_builtin_feed_failed">Failed — tap to retry</string>
+    <string name="settings_sources_guide_logos">Logos from the guide</string>
 </resources>

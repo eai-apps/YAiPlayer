@@ -18,6 +18,58 @@ import urllib.request
 MAX_ITEMS_COUNT = 12
 MAX_POST_LENGTH = 4000
 MORE_TEXT = "… полный список по ссылке"
+CHAT_URL = "https://t.me/YAiPlayer_Chat"
+
+# Эмодзи вместо «•»: подбираем по смыслу пункта, по умолчанию — искра.
+EMOJI_RULES = [
+    (("телегид", "программ", "epg", "эпг"), "📺"),
+    (("иконк", "логотип", "значк"), "🖼"),
+    (("исправ", "ошибк", "сбой", "вылет", "не закры", "не работ"), "🛠"),
+    (("быстр", "скорост", "плавн", "оптимиз", "экономи"), "⚡️"),
+    (("портал", "плейлист", "источник", "канал"), "📡"),
+    (("звук", "аудио", "видео", "качеств", "картинк"), "🎬"),
+    (("поиск", "ищет"), "🔎"),
+    (("профил", "аккаунт", "синхрон", "регистрац"), "👤"),
+    (("дизайн", "оформлен", "тема", "вид ", "экран", "главн"), "🎨"),
+    (("язык", "перевод"), "🌐"),
+    (("тв", "приставк", "пульт"), "📺"),
+]
+
+
+def pick_emoji(item: str) -> str:
+    low = item.lower()
+    for words, emoji in EMOJI_RULES:
+        if any(w in low for w in words):
+            return emoji
+    return "✨"
+
+
+def decorate(text: str) -> str:
+    """Заменяет маркер «• » у пунктов на подходящий эмодзи."""
+    out = []
+    for line in text.split("\n"):
+        if line.startswith("• "):
+            line = f"{pick_emoji(line)} {line[2:]}"
+        out.append(line)
+    return "\n".join(out)
+
+
+def build_buttons(release_data: dict, chat_id: str = "") -> list[list[dict]]:
+    """Кнопки под постом: скачать TV / телефон, подписаться, чат обсуждения."""
+    labels = {"YAiPlayer-TV.apk": "⬇️ Скачать для Android TV", "YAiPlayer-Mobile.apk": "📱 Скачать для телефона"}
+    rows: list[list[dict]] = []
+    for asset in release_data.get("assets") or []:
+        name = asset.get("name") or ""
+        url = (asset.get("browser_download_url") or "").strip()
+        if url and name in labels and "/releases/download/" in url:
+            base = url.split("/releases/download/")[0]
+            rows.append([{"text": labels[name], "url": f"{base}/releases/latest/download/{name}"}])
+    last: list[dict] = []
+    if chat_id.startswith("@"):
+        last.append({"text": "🔔 Подписаться", "url": f"https://t.me/{chat_id[1:]}"})
+    last.append({"text": "💬 Обсуждение", "url": CHAT_URL})
+    rows.append(last)
+    return rows
 
 
 def strip_markdown(text: str) -> str:
@@ -119,21 +171,9 @@ def format_release_post(
     tag_name = release_data.get("tag_name") or release_data.get("name") or ""
     tag_name = tag_name.strip()
     escaped_tag = html.escape(tag_name, quote=False)
-    header = f"<b>YAiPlayer {escaped_tag}</b>" if escaped_tag else "<b>YAiPlayer</b>"
+    header = f"🚀 <b>YAiPlayer {escaped_tag}</b>" if escaped_tag else "🚀 <b>YAiPlayer</b>"
 
-    html_url = (release_data.get("html_url") or "").strip()
-    footer_lines: list[str] = []
-    labels = {"YAiPlayer-TV.apk": "Android TV (приставка)", "YAiPlayer-Mobile.apk": "Телефон / планшет"}
-    for asset in release_data.get("assets") or []:
-        name = asset.get("name") or ""
-        url = (asset.get("browser_download_url") or "").strip()
-        # Постоянная ссылка без номера версии: всегда ведёт на последний релиз.
-        if url and name in labels:
-            repo_base = url.split("/releases/download/")[0] if "/releases/download/" in url else ""
-            if repo_base:
-                url = f"{repo_base}/releases/latest/download/{name}"
-            footer_lines.append(f'⬇️ <a href="{html.escape(url, quote=True)}">{labels[name]}</a>')
-    footer = "\n".join(footer_lines)
+    footer = f'💬 Обсуждение и баги — <a href="{CHAT_URL}">наш чат</a>'
 
     body = release_data.get("body") or ""
     items, was_truncated = extract_items(body, max_items=max_items)
@@ -165,14 +205,14 @@ def format_release_post(
             ):
                 current_items.pop()
 
-    post = assemble(current_items, show_more)
+    post = decorate(assemble(current_items, show_more))
     if len(post) > max_length:
         post = post[:max_length]
 
     return post
 
 
-def send_telegram_message(bot_token: str, chat_id: str, text: str) -> bool:
+def send_telegram_message(bot_token: str, chat_id: str, text: str, buttons: list | None = None) -> bool:
     """
     Отправляет сообщение в Telegram через HTTP API.
     Гарантированно не выводит токен в логи или сообщения об ошибках.
@@ -182,7 +222,10 @@ def send_telegram_message(bot_token: str, chat_id: str, text: str) -> bool:
         "chat_id": chat_id,
         "text": text,
         "parse_mode": "HTML",
+        "disable_web_page_preview": True,
     }
+    if buttons:
+        payload["reply_markup"] = {"inline_keyboard": buttons}
     data = json.dumps(payload).encode("utf-8")
     req = urllib.request.Request(
         api_url,
@@ -233,7 +276,7 @@ def _error_text(e: Exception) -> str:
     return type(e).__name__
 
 
-def send_telegram_photo(bot_token: str, chat_id: str, image_path: str, caption: str) -> bool:
+def send_telegram_photo(bot_token: str, chat_id: str, image_path: str, caption: str, buttons: list | None = None) -> bool:
     """Отправляет картинку с подписью (multipart). Токен в логи не попадает."""
     try:
         with open(image_path, "rb") as f:
@@ -243,7 +286,10 @@ def send_telegram_photo(bot_token: str, chat_id: str, image_path: str, caption: 
         return False
     boundary = "----yaiplayer" + os.urandom(8).hex()
     parts = []
-    for name, value in (("chat_id", chat_id), ("caption", caption), ("parse_mode", "HTML")):
+    fields = [("chat_id", chat_id), ("caption", caption), ("parse_mode", "HTML")]
+    if buttons:
+        fields.append(("reply_markup", json.dumps({"inline_keyboard": buttons})))
+    for name, value in fields:
         parts.append(
             f'--{boundary}\r\nContent-Disposition: form-data; name="{name}"\r\n\r\n{value}\r\n'.encode("utf-8")
         )
@@ -271,25 +317,25 @@ def send_telegram_photo(bot_token: str, chat_id: str, image_path: str, caption: 
         return False
 
 
-def send_release_post(bot_token: str, chat_id: str, text: str, image_path: str | None) -> bool:
+def send_release_post(bot_token: str, chat_id: str, text: str, image_path: str | None, buttons: list | None = None) -> bool:
     """Картинка + текст. Влезает в подпись — одним сообщением; иначе подпись = заголовок, текст следом."""
     if image_path and os.path.exists(image_path):
         if len(text) <= CAPTION_LIMIT:
-            if send_telegram_photo(bot_token, chat_id, image_path, text):
+            if send_telegram_photo(bot_token, chat_id, image_path, text, buttons):
                 return True
         else:
             header, _, rest = text.partition("\n\n")
             if send_telegram_photo(bot_token, chat_id, image_path, header):
-                return send_telegram_message(bot_token, chat_id, rest or text)
+                return send_telegram_message(bot_token, chat_id, rest or text, buttons)
         print("Картинка не ушла, отправляю только текст", file=sys.stderr)
-    return send_telegram_message(bot_token, chat_id, text)
+    return send_telegram_message(bot_token, chat_id, text, buttons)
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Автопост релизов YAiPlayer в Telegram")
     parser.add_argument(
         "--release-json",
-        required=True,
+        default="",
         help="Путь к JSON-файлу с данными релиза GitHub API",
     )
     parser.add_argument(
@@ -298,12 +344,36 @@ def main(argv: list[str] | None = None) -> int:
         help="Путь к PNG-картинке, которая идёт в начале поста (необязательно)",
     )
     parser.add_argument(
+        "--announce-file",
+        default="",
+        help="Разовое объявление: текст (HTML) из файла уходит в канал с кнопками «Подписаться» и «Обсуждение»",
+    )
+    parser.add_argument(
         "--dry-run",
         action="store_true",
         help="Только напечатать итоговый текст сообщения без отправки в Telegram",
     )
 
     args = parser.parse_args(argv)
+
+    if args.announce_file:
+        with open(args.announce_file, "r", encoding="utf-8") as f:
+            text = f.read().strip()
+        if args.dry_run:
+            print(text)
+            return 0
+        bot_token = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
+        chat_id = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
+        if not bot_token or not chat_id:
+            print("Telegram не настроен, пост пропущен")
+            return 0
+        row = ([{"text": "🔔 Подписаться", "url": f"https://t.me/{chat_id[1:]}"}] if chat_id.startswith("@") else []) + [
+            {"text": "💬 Обсуждение", "url": CHAT_URL}
+        ]
+        return 0 if send_telegram_message(bot_token, chat_id, text, [row]) else 1
+
+    if not args.release_json:
+        parser.error("нужен --release-json или --announce-file")
 
     try:
         with open(args.release_json, "r", encoding="utf-8") as f:
@@ -336,7 +406,7 @@ def main(argv: list[str] | None = None) -> int:
         print("Telegram не настроен, пост пропущен")
         return 0
 
-    success = send_release_post(bot_token, chat_id, post_text, args.image or None)
+    success = send_release_post(bot_token, chat_id, post_text, args.image or None, build_buttons(release_data, chat_id))
     return 0 if success else 1
 
 

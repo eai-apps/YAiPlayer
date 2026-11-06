@@ -4,6 +4,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flatMapLatest
@@ -37,6 +39,12 @@ object EpgLogoStore {
     var icons by mutableStateOf<Map<String, String>>(emptyMap())
         internal set
 
+    /** Normalized guide channel NAME (every alias) → icon: logos for channels whose playlist has none. */
+    private var nameIcons by mutableStateOf<Map<String, String>>(emptyMap())
+
+    /** Playlists the user switched "Logos from the guide" on for. */
+    private var guideLogoSources by mutableStateOf<Set<Long>>(emptySet())
+
     /** The active profile's Live TV matches; empty until [start] has read them. */
     internal var matches by mutableStateOf(EpgMatchResolver(emptyMap()))
 
@@ -53,6 +61,25 @@ object EpgLogoStore {
                     // Several enabled feeds can carry the same channel: first one wins, which is stable
                     // because the DAO returns rows in source order.
                     icons = rows.associate { it.epgChannelId to it.iconUrl }
+                }
+            }
+        }
+        scope.launch {
+            // Only built while a playlist asked for it; one pass over the stored guide channels, then memory.
+            settings.guideLogoSources.collectLatest { sources ->
+                guideLogoSources = sources
+                if (sources.isEmpty()) {
+                    nameIcons = emptyMap()
+                    return@collectLatest
+                }
+                settings.epgUseLogos.collectLatest { feedIds ->
+                    if (feedIds.isEmpty()) {
+                        nameIcons = emptyMap()
+                        return@collectLatest
+                    }
+                    epgDao.observeChannelNameIcons(feedIds.toList()).collectLatest { rows ->
+                        nameIcons = withContext(Dispatchers.Default) { buildNameIcons(rows) }
+                    }
                 }
             }
         }
@@ -76,13 +103,32 @@ object EpgLogoStore {
         sources.forEach { settings.setEpgUseLogos(it, true) }
     }
 
+    private fun buildNameIcons(rows: List<tv.own.owntv.core.database.entity.EpgChannelNameIcon>): Map<String, String> {
+        val out = HashMap<String, String>(rows.size * 2)
+        for (r in rows) {
+            for (alias in r.displayName.split(tv.own.owntv.core.parser.XmltvParser.NAME_JOIN)) {
+                val key = EpgMatcher.normalizeForEpg(alias)
+                // Short or numeric-only names are too ambiguous to trust ("1", "tv").
+                if (key.length >= 3 && key.any { it.isLetter() }) out.putIfAbsent(key, r.iconUrl)
+            }
+        }
+        return out
+    }
+
     /** The feed icon for [channel], or null when there is none / no feed has logos enabled. */
     fun iconFor(channel: ChannelEntity): String? {
-        if (icons.isEmpty()) return null
+        if (icons.isEmpty() && nameIcons.isEmpty()) return null
         matches.epgIdFor(channel)?.let { id -> icons[id.trim().lowercase()]?.let { return it } }
         val own = channel.epgChannelId
-        if (own.isNullOrBlank()) return null
-        return icons[own.trim().lowercase()]
+        if (!own.isNullOrBlank()) icons[own.trim().lowercase()]?.let { return it }
+        return byNameIcon(channel)
+    }
+
+    /** Exact-name logo for a channel of an opted-in playlist that carries none itself. */
+    private fun byNameIcon(channel: ChannelEntity): String? {
+        if (nameIcons.isEmpty() || channel.sourceId !in guideLogoSources) return null
+        if (!channel.logoUrl.isNullOrBlank()) return null
+        return nameIcons[EpgMatcher.normalizeForEpg(channel.name)]
     }
 }
 

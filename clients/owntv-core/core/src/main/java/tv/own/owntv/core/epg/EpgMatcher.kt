@@ -35,6 +35,8 @@ object EpgMatcher {
         "hevc", "h265", "h264", "fps", "raw", "vip", "backup", "feed", "alt",
         "1080p", "1080", "720p", "720", "480p", "540p", "2160p", "fullhd",
         "multi", "multisub", "latino",
+        // ".red HD orig" is the same channel as ".red" (original-audio feed): the tag must not block the match.
+        "orig",
     )
 
     // Country/region codes IPTV names tag on as a leading/trailing group prefix ("DE| …", "… UK"),

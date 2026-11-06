@@ -1,0 +1,20 @@
+name: Post announcement to Telegram
+on:
+  workflow_dispatch:
+    inputs:
+      file:
+        description: "Файл из docs/announcements"
+        required: true
+        default: "chat.html"
+permissions:
+  contents: read
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Send
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python3 telegram-release/post_release.py --announce-file "docs/announcements/${{ inputs.file }}"

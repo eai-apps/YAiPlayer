@@ -1219,6 +1219,7 @@
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	SELECT DISTINCT sourceId FROM epg_channels WHERE epgChannelId IN (:epgChannelIds) AND iconUrl IS NOT NULL AND iconUrl != ''
 1	sql	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	SELECT MAX(id) FROM epg_programmes
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	SELECT description FROM epg_programmes WHERE id = :programmeId LIMIT 1
+1	sql	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	SELECT displayName, iconUrl FROM epg_channels WHERE sourceId IN (:sourceIds) AND displayName IS NOT NULL AND iconUrl IS NOT NULL AND iconUrl != ''
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	SELECT epgChannelId FROM epg_channels WHERE sourceId = :sourceId
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	SELECT epgChannelId, displayName, normName, normId FROM epg_channels LIMIT :limit
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	SELECT epgChannelId, iconUrl FROM epg_channels WHERE sourceId IN (:sourceIds) AND iconUrl IS NOT NULL AND iconUrl != ''
@@ -2027,6 +2028,7 @@
 1	protocol	core/src/main/java/tv/own/owntv/core/epg/EpgMatcher.kt	norway
 1	protocol	core/src/main/java/tv/own/owntv/core/epg/EpgMatcher.kt	nz
 1	protocol	core/src/main/java/tv/own/owntv/core/epg/EpgMatcher.kt	one
+1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgMatcher.kt	orig
 1	protocol	core/src/main/java/tv/own/owntv/core/epg/EpgMatcher.kt	pe
 1	protocol	core/src/main/java/tv/own/owntv/core/epg/EpgMatcher.kt	peru
 1	protocol	core/src/main/java/tv/own/owntv/core/epg/EpgMatcher.kt	pk
@@ -3177,6 +3179,7 @@
 1	technical	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	guest_profile_id
 1	log	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	guide_days_to_keep
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	guide_density_pct
+1	technical	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	guide_logo_sources
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	guide_preview
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	guide_show_empty
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	guide_view
@@ -4696,7 +4699,7 @@
 1	technical	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	builtin_playlist
 1	url	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	http://miptv.in.ua/xmlt/mlist_epg.xml.gz
 1	technical	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	http://ru.epg.one/epg.xml.gz
-1	technical	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	https://iptvx.one/EPG
+1	technical	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	https://iptvx.one/EPG_LITE
 1	technical	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	manual_builtin
 1	technical	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	manual_feed
 1	log	core/src/main/java/tv/own/owntv/core/sync/CatalogPriority.kt	CatalogPriority

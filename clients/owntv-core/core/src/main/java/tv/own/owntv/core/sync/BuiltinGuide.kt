@@ -140,12 +140,15 @@ class BuiltinGuide(
     companion object {
         const val NAME = "Built-in guide"
 
+        /** For screens whose view model cannot take it as a constructor argument. */
+        fun fromKoin(): BuiltinGuide = org.koin.core.context.GlobalContext.get().let { BuiltinGuide(it.get(), it.get(), it.get()) }
+
         /** A guide covers about a week, so a weekly refresh is plenty; more often is the user's choice. */
         val DEFAULT_REFRESH = EpgRefresh(EpgAutoRefresh.MANUAL, manualDays = 7)
 
         /** In fallback order: a channel missing from one feed is looked up in the next. */
         val FEEDS = listOf(
-            "https://iptvx.one/EPG",
+            "https://iptvx.one/EPG_LITE",
             "http://ru.epg.one/epg.xml.gz",
             "http://miptv.in.ua/xmlt/mlist_epg.xml.gz",
         )

@@ -93,6 +93,12 @@ fun EpgProgrammeEntity.withDetails(details: EpgDetails): EpgProgrammeEntity = if
     episode = details.episode,
 )
 
+/** A guide channel's display name (aliases joined by [tv.own.owntv.core.parser.XmltvParser.NAME_JOIN]) and its icon. */
+data class EpgChannelNameIcon(
+    val displayName: String,
+    val iconUrl: String,
+)
+
 /** Projection for the "Use this guide's channel logos" override: one EPG channel id → its feed icon. */
 data class EpgChannelIcon(
     val epgChannelId: String,

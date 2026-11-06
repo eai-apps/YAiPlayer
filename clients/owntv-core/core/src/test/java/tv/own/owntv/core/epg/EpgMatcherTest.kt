@@ -18,6 +18,14 @@ class EpgMatcherTest {
     }
 
     @Test
+    fun normalize_ignoresOrigTag() {
+        // ".red HD orig" is the original-audio feed of ".red": same guide channel.
+        assertEquals(EpgMatcher.normalizeForEpg(".red"), EpgMatcher.normalizeForEpg(".red HD orig"))
+        assertEquals(EpgMatcher.normalizeForEpg(".black"), EpgMatcher.normalizeForEpg(".black orig"))
+        assertTrue(EpgMatcher.scoreNormalized(EpgMatcher.normalizeForEpg(".red HD orig"), EpgMatcher.normalizeForEpg(".red")) >= EpgMatcher.AUTO_THRESHOLD)
+    }
+
+    @Test
     fun normalize_dropsSpelledOutCountryNamesAtEnds() {
         assertEquals("mtv", EpgMatcher.normalizeForEpg("MTV France"))
         assertEquals("mtv", EpgMatcher.normalizeForEpg("FR| MTV HD"))

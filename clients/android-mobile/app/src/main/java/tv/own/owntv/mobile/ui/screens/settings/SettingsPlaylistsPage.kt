@@ -74,6 +74,7 @@ fun SettingsPlaylistsPage(
 ) {
     val sources by vm.sources.collectAsStateWithLifecycle()
     val defaultId by vm.defaultSourceId.collectAsStateWithLifecycle()
+    val guideLogoSources by vm.guideLogoSources.collectAsStateWithLifecycle()
     val expiry by vm.sourceExpiry.collectAsStateWithLifecycle()
     val deleting by vm.deletingSourceIds.collectAsStateWithLifecycle()
     val test by vm.sourceTest.collectAsStateWithLifecycle()
@@ -137,6 +138,12 @@ fun SettingsPlaylistsPage(
             }
             StageMenuItem(stringResource(R.string.settings_sources_edit), onClick = { editSource = source; close() }, icon = MobileIcons.Edit)
             StageMenuItem(stringResource(R.string.settings_sources_clean_names), onClick = { namesFor = source; close() }, icon = MobileIcons.AutoAwesome)
+            StageMenuItem(
+                stringResource(R.string.settings_sources_guide_logos),
+                onClick = { vm.setGuideLogos(source, source.id !in guideLogoSources) },
+                icon = MobileIcons.AutoAwesome,
+                value = stringResource(if (source.id in guideLogoSources) R.string.common_on else R.string.common_off),
+            )
             // "Info", not "Test": the expensive measurement lives behind Re-test inside the sheet.
             StageMenuItem(stringResource(R.string.settings_sources_info), onClick = { vm.testSource(source); close() }, icon = MobileIcons.Info)
             StageMenuItem(
