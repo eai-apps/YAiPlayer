@@ -4590,6 +4590,24 @@
 1	technical	core/src/main/java/tv/own/owntv/core/storage/StorageAccess.kt	mp4
 1	technical	core/src/main/java/tv/own/owntv/core/storage/StorageAccess.kt	package:${context.packageName}
 1	technical	core/src/main/java/tv/own/owntv/core/storage/StorageAccess.kt	untitled
+1	technical	core/src/main/java/tv/own/owntv/core/subscription/SubscriptionExpiry.kt	EEEE, MMMM d, yyyy, h:mm a
+1	technical	core/src/main/java/tv/own/owntv/core/subscription/SubscriptionExpiry.kt	HH
+1	technical	core/src/main/java/tv/own/owntv/core/subscription/SubscriptionExpiry.kt	MMM d, yyyy
+1	technical	core/src/main/java/tv/own/owntv/core/subscription/SubscriptionExpiry.kt	MMMM d, yyyy
+1	technical	core/src/main/java/tv/own/owntv/core/subscription/SubscriptionExpiry.kt	d MMM yyyy
+1	technical	core/src/main/java/tv/own/owntv/core/subscription/SubscriptionExpiry.kt	d MMMM yyyy
+1	technical	core/src/main/java/tv/own/owntv/core/subscription/SubscriptionExpiry.kt	dd-MM-yyyy
+1	technical	core/src/main/java/tv/own/owntv/core/subscription/SubscriptionExpiry.kt	dd.MM.yyyy
+1	technical	core/src/main/java/tv/own/owntv/core/subscription/SubscriptionExpiry.kt	dd.MM.yyyy HH:mm
+1	technical	core/src/main/java/tv/own/owntv/core/subscription/SubscriptionExpiry.kt	dd.MM.yyyy HH:mm:ss
+1	technical	core/src/main/java/tv/own/owntv/core/subscription/SubscriptionExpiry.kt	dd/MM/yyyy
+1	technical	core/src/main/java/tv/own/owntv/core/subscription/SubscriptionExpiry.kt	shown_${it.sourceId}
+1	technical	core/src/main/java/tv/own/owntv/core/subscription/SubscriptionExpiry.kt	shown_${s.id}
+1	technical	core/src/main/java/tv/own/owntv/core/subscription/SubscriptionExpiry.kt	subscription_expiry
+1	technical	core/src/main/java/tv/own/owntv/core/subscription/SubscriptionExpiry.kt	yyyy-MM-dd
+1	technical	core/src/main/java/tv/own/owntv/core/subscription/SubscriptionExpiry.kt	yyyy-MM-dd HH:mm
+1	technical	core/src/main/java/tv/own/owntv/core/subscription/SubscriptionExpiry.kt	yyyy-MM-dd HH:mm:ss
+1	technical	core/src/main/java/tv/own/owntv/core/subscription/SubscriptionExpiry.kt	yyyy-MM-dd'T'HH:mm:ss
 1	technical	core/src/main/java/tv/own/owntv/core/subtitles/MovieHash.kt	%016x
 1	log	core/src/main/java/tv/own/owntv/core/subtitles/OpenSubtitlesAccountManager.kt	OpenSubtitles
 1	log	core/src/main/java/tv/own/owntv/core/subtitles/OpenSubtitlesAccountManager.kt	silent re-login failed — manual sign-in needed
