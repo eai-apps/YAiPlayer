@@ -8,11 +8,20 @@ on:
         description: "Release tag, e.g. v2.0.37"
         required: true
 
+permissions:
+  contents: write
+
 jobs:
   repost:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Replace the release notes when a corrected text is on file
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          f="docs/release-notes-fix/${{ inputs.tag }}.md"
+          if [ -f "$f" ]; then gh release edit "${{ inputs.tag }}" --repo "${{ github.repository }}" --notes-file "$f"; fi
       - name: Post to Telegram channel
         env:
           GH_TOKEN: ${{ github.token }}
