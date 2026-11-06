@@ -12,6 +12,7 @@ import kotlinx.coroutines.withContext
 import tv.own.owntv.core.R
 import tv.own.owntv.core.backup.BackupManager
 import tv.own.owntv.core.database.dao.ProfileDao
+import tv.own.owntv.core.database.dao.ensureGuest
 import tv.own.owntv.core.database.dao.SourceDao
 import tv.own.owntv.core.database.entity.ProfileEntity
 import tv.own.owntv.core.database.entity.ProfileSourceCrossRef
@@ -124,6 +125,13 @@ class SourceImporter(
                 pinHash = pin?.takeIf { it.isNotBlank() }?.let { Pin.hash(it) },
             ),
         )
+        return createdProfileId
+    }
+
+    /** "Continue as guest": the guest profile (made if needed) is what the rest of onboarding attaches to. */
+    suspend fun createGuestProfile(name: String): Long {
+        createdProfileName = name
+        createdProfileId = profileDao.ensureGuest(settings, name)
         return createdProfileId
     }
 

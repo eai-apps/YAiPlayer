@@ -279,4 +279,7 @@
     <string name="setup_importing_title"><xliff:g id="name">%1$s</xliff:g> wird importiert</string>
     <string name="setup_add_guide">TV-Guide hinzufügen</string>
     <string name="setup_add_guide_line">Eine Neuinstallation hat noch keinen Guide</string>
+    <string name="profiles_guest_name">Gast</string>
+    <string name="setup_continue_as_guest">Als Gast fortfahren</string>
+    <string name="setup_continue_as_guest_description">Ohne Registrierung und ohne Profil: eigene Playlist, Stalker-Portal oder Programmführer hinzufügen und schauen. Beim Verlassen wird nichts gelöscht; keine Synchronisierung zwischen Geräten.</string>
 </resources>

@@ -218,7 +218,7 @@ fun DisclaimerStep(onAgree: () -> Unit, onBack: () -> Unit) {
  * restore brings its own profiles.
  */
 @Composable
-fun SetupChoiceStep(onCreateProfile: () -> Unit, onRestore: () -> Unit, onSyncDevice: () -> Unit, onBack: () -> Unit) {
+fun SetupChoiceStep(onCreateProfile: () -> Unit, onRestore: () -> Unit, onSyncDevice: () -> Unit, onBack: () -> Unit, onGuest: () -> Unit = {}) {
     WizardFrame(
         step = WizardStep.PROFILE,
         title = stringResource(R.string.setup_set_up_owntv),
@@ -227,6 +227,7 @@ fun SetupChoiceStep(onCreateProfile: () -> Unit, onRestore: () -> Unit, onSyncDe
         onNext = {},
         onBack = onBack,
     ) {
+        WizardCard(MobileIcons.Person, stringResource(R.string.setup_continue_as_guest), stringResource(R.string.setup_continue_as_guest_description), onGuest)
         WizardCard(MobileIcons.Person, stringResource(R.string.setup_new_profile), stringResource(R.string.setup_create_profile_add_sources), onCreateProfile)
         // The phone restores from a file it picks itself; Remote restore lives on the Backup page.
         WizardCard(MobileIcons.Download, stringResource(R.string.setup_restore_a_backup), stringResource(R.string.setup_import_profiles_playlists), onRestore)

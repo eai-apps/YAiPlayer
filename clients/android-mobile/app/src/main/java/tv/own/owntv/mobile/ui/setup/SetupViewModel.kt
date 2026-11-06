@@ -181,6 +181,14 @@ class SetupViewModel(
         }
     }
 
+    /** "Continue as guest": no name, no PIN, no registration — the guest profile takes the content added next. */
+    fun startGuest(onCreated: () -> Unit) {
+        appScope.launch {
+            importer.createGuestProfile(context.getString(R.string.profiles_guest_name))
+            onMain(onCreated)
+        }
+    }
+
     /** Playlists another profile already has, which this one can share rather than re-import. */
     suspend fun availableExistingSources(): List<SourceEntity> = importer.availableExistingSources()
 

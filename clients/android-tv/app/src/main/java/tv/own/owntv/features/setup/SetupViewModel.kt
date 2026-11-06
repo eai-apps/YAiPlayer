@@ -101,6 +101,14 @@ class SetupViewModel(
         }
     }
 
+    /** "Continue as guest": no name, no PIN, no registration — the guest profile takes the content added next. */
+    fun startGuest(guestName: String, onCreated: () -> Unit) {
+        viewModelScope.launch {
+            importer.createGuestProfile(guestName)
+            onCreated()
+        }
+    }
+
     fun startXtream(
         name: String,
         server: String,

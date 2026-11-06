@@ -130,8 +130,12 @@ fun Onboarding(firstRun: Boolean, onDone: (Long?) -> Unit, onCancel: () -> Unit,
                     back = WizardAction(stringResource(R.string.common_back), { step = Step.DISCLAIMER }),
                     next = null,
                 ) {
+                    val guestName = stringResource(R.string.profiles_guest_name)
                     WizardCards(
                         listOf(
+                            WizardCard(OwnTVIcon.PERSON, stringResource(R.string.setup_continue_as_guest), stringResource(R.string.setup_continue_as_guest_description)) {
+                                vm.startGuest(guestName) { step = Step.ADD_CONTENT }
+                            },
                             WizardCard(OwnTVIcon.PERSON, stringResource(R.string.setup_new_profile), stringResource(R.string.setup_create_profile_add_sources)) { step = Step.CREATE_PROFILE },
                             WizardCard(OwnTVIcon.DOWNLOADS, stringResource(R.string.setup_restore_a_backup), stringResource(R.string.setup_restore_card_line)) {
                                 backupOrigin = Step.SETUP_CHOICE; step = Step.IMPORT_BACKUP_CHOOSER
