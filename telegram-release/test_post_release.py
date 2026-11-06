@@ -144,14 +144,16 @@ class TestPostReleaseFormatting(unittest.TestCase):
             "body": "* Релиз",
             "html_url": "https://github.com/org/repo/releases/tag/v2.0.9",
             "assets": [
-                {"name": "YAiPlayer-TV.apk", "browser_download_url": "https://x/TV.apk"},
-                {"name": "YAiPlayer-Mobile.apk", "browser_download_url": "https://x/M.apk"},
+                {"name": "YAiPlayer-TV.apk", "browser_download_url": "https://github.com/o/r/releases/download/v2.0.9/YAiPlayer-TV.apk"},
+                {"name": "YAiPlayer-Mobile.apk", "browser_download_url": "https://github.com/o/r/releases/download/v2.0.9/YAiPlayer-Mobile.apk"},
                 {"name": "other.txt", "browser_download_url": "https://x/o.txt"},
             ],
         }
         post = format_release_post(release_data)
-        self.assertIn('<a href="https://x/TV.apk">Android TV (приставка)</a>', post)
-        self.assertIn('<a href="https://x/M.apk">Телефон / планшет</a>', post)
+        # постоянные ссылки: без номера версии
+        self.assertIn('<a href="https://github.com/o/r/releases/latest/download/YAiPlayer-TV.apk">Android TV (приставка)</a>', post)
+        self.assertIn('<a href="https://github.com/o/r/releases/latest/download/YAiPlayer-Mobile.apk">Телефон / планшет</a>', post)
+        self.assertNotIn("v2.0.9/", post)
         self.assertNotIn("other.txt", post)
 
 

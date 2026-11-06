@@ -127,7 +127,11 @@ def format_release_post(
     for asset in release_data.get("assets") or []:
         name = asset.get("name") or ""
         url = (asset.get("browser_download_url") or "").strip()
+        # Постоянная ссылка без номера версии: всегда ведёт на последний релиз.
         if url and name in labels:
+            repo_base = url.split("/releases/download/")[0] if "/releases/download/" in url else ""
+            if repo_base:
+                url = f"{repo_base}/releases/latest/download/{name}"
             footer_lines.append(f'⬇️ <a href="{html.escape(url, quote=True)}">{labels[name]}</a>')
     footer = "\n".join(footer_lines)
 
