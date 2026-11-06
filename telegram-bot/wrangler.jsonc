@@ -8,6 +8,7 @@
     "CHAT": "@YAiPlayer_Chat",
     "ADMIN_ID": "1500697706"
   },
+  "triggers": { "crons": ["* * * * *"] },
   "kv_namespaces": [
     { "binding": "DB", "id": "adf32a473ba941ea968dda85f89bee81" }
   ]
