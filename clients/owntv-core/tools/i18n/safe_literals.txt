@@ -4461,6 +4461,7 @@
 2	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	descr
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	description
 1	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	do_auth answer: ${redactForLog(answer.take(300))}
+1	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	en
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	enable_tv_archive
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	ffmpeg
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	ffrt
@@ -4514,9 +4515,11 @@
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	yyyy-MM-dd HH:mm:ss
 1	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerDeviceDerivation.kt	\0
 1	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerDeviceDerivation.kt	$MAG_PREFIX:$tail
-2	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerDeviceDerivation.kt	%02X
+1	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerDeviceDerivation.kt	$YAI_PREFIX:$tail
+3	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerDeviceDerivation.kt	%02X
 1	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerDeviceDerivation.kt	00:1A:79
-1	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerDeviceDerivation.kt	:
+1	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerDeviceDerivation.kt	59:41:49
+2	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerDeviceDerivation.kt	:
 1	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerDeviceDerivation.kt	MD5
 2	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerDeviceDerivation.kt	SHA-256
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerEpgLoader.kt	Portal returned no guide
