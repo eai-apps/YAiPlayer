@@ -5,6 +5,10 @@
   "workers_dev": true,
   "vars": {
     "CHANNEL": "@YAiPlayer",
-    "CHAT": "@YAiPlayer_Chat"
-  }
+    "CHAT": "@YAiPlayer_Chat",
+    "ADMIN_ID": "1500697706"
+  },
+  "kv_namespaces": [
+    { "binding": "DB", "id": "adf32a473ba941ea968dda85f89bee81" }
+  ]
 }
