@@ -729,7 +729,11 @@ class ExoSubtitleEngine(
         // means this player must not be given a sink that can bitstream Dolby/DTS.
         val renderers = ownTVRenderers(
             context,
-            forceStereo = !AudioOutputPolicy.allowsMultichannel(surroundMode),
+            // Decoded in the app (no passthrough) and left on Auto: mix down to stereo. A multichannel PCM
+            // stream is silent on TVs that accept only two channels, and stereo is what volume control and
+            // levelling work on. A receiver user who wants 5.1 PCM picks "Surround" explicitly.
+            forceStereo = !AudioOutputPolicy.allowsMultichannel(surroundMode) ||
+                (!passthroughAllowed && surroundMode == tv.own.owntv.core.player.SurroundMode.AUTO),
             softwareFirst = softwarePreferred,
             audioDelay = audioDelay,
             passthrough = passthroughAllowed,
