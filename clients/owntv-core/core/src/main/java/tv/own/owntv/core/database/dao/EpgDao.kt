@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.Flow
 import tv.own.owntv.core.database.entity.EpgHashProjection
 import tv.own.owntv.core.database.entity.EpgChannelEntity
 import tv.own.owntv.core.database.entity.EpgChannelIcon
+import tv.own.owntv.core.database.entity.EpgChannelNameIcon
 import tv.own.owntv.core.database.entity.EpgChannelName
 import tv.own.owntv.core.database.entity.EpgProgrammeEntity
 import tv.own.owntv.core.database.entity.EpgProgrammeLite
