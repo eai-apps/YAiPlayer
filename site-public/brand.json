@@ -1,0 +1,45 @@
+{
+  "name": "YAiPlayer",
+  "tagline": "Next-Gen IPTV Player for Mobile & Android TV",
+  "slogan": {
+    "ru": "Умный IPTV-плеер нового поколения для телефона и Android TV",
+    "en": "Smart next-generation IPTV player for phone and Android TV",
+    "de": "Intelligenter IPTV-Player der nächsten Generation für Smartphone und Android TV"
+  },
+  "colors": {
+    "primary": "#3b82f6",
+    "primaryHover": "#2563eb",
+    "primaryLight": "#dbeafe",
+    "accent": "#8b5cf6",
+    "accentHover": "#7c3aed",
+    "accentLight": "#ede9fe",
+    "success": "#10b981",
+    "warning": "#f59e0b",
+    "danger": "#ef4444",
+    "dark": {
+      "bg": "#0b0f19",
+      "surface": "#111827",
+      "surfaceElevated": "#1f2937",
+      "border": "#374151",
+      "text": "#f9fafb",
+      "textMuted": "#9ca3af"
+    }
+  },
+  "logo": {
+    "path": "./logo.svg",
+    "width": 36,
+    "height": 36,
+    "alt": "YAiPlayer Logo"
+  },
+  "links": {
+    "repo": "https://github.com/eai-apps/YAiPlayer",
+    "releases": "https://github.com/eai-apps/YAiPlayer/releases/latest",
+    "releasesApi": "https://api.github.com/repos/eai-apps/YAiPlayer/releases/latest",
+    "telegramChannel": "https://t.me/YAiPlayer",
+    "telegramBot": "https://t.me/YAiPlayer_bot"
+  },
+  "apk": {
+    "mobile": "YAiPlayer-Mobile.apk",
+    "tv": "YAiPlayer-TV.apk"
+  }
+}

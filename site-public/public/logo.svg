@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6" />
+      <stop offset="50%" stop-color="#6366f1" />
+      <stop offset="100%" stop-color="#8b5cf6" />
+    </linearGradient>
+    <linearGradient id="glowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#60a5fa" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#c084fc" stop-opacity="0.2" />
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#3b82f6" flood-opacity="0.35" />
+    </filter>
+  </defs>
+
+  <!-- Base squircle -->
+  <rect x="12" y="12" width="104" height="104" rx="28" fill="url(#bgGrad)" filter="url(#shadow)" />
+  <rect x="13" y="13" width="102" height="102" rx="27" stroke="rgba(255,255,255,0.25)" stroke-width="2" />
+
+  <!-- Signal / Broadcast arcs -->
+  <path d="M 44 38 C 56 32, 72 32, 84 38" stroke="rgba(255,255,255,0.4)" stroke-width="4" stroke-linecap="round" />
+  <path d="M 52 46 C 60 42, 68 42, 76 46" stroke="rgba(255,255,255,0.7)" stroke-width="4" stroke-linecap="round" />
+
+  <!-- Modern Play Triangle with rounded corners -->
+  <path d="M 52 56.5 C 52 53.8, 55 52.1, 57.4 53.5 L 85.2 69 C 87.6 70.4, 87.6 73.8, 85.2 75.2 L 57.4 90.7 C 55 92.1, 52 90.4, 52 87.7 Z" fill="#ffffff" />
+
+  <!-- Accent dot / pulse -->
+  <circle cx="88" cy="40" r="4" fill="#38bdf8" />
+</svg>
