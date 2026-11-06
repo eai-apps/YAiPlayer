@@ -209,16 +209,11 @@
 1	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	&date=${enc(date)}&p=$page&JsHttpRequest=1-xml
 1	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	(?i)(token|password|pass)=[^&\\s]*
 1	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	\\s+
-1	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	en
 1	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	mark_archive
 1	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	start_timestamp
 1	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	stop_timestamp
 1	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	time
 1	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	time_to
-1	core/src/main/java/tv/own/owntv/core/stalker/StalkerDeviceDerivation.kt	$YAI_PREFIX:$tail
-1	core/src/main/java/tv/own/owntv/core/stalker/StalkerDeviceDerivation.kt	%02X
-1	core/src/main/java/tv/own/owntv/core/stalker/StalkerDeviceDerivation.kt	59:41:49
-1	core/src/main/java/tv/own/owntv/core/stalker/StalkerDeviceDerivation.kt	:
 1	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	StreamUrlResolver
 1	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	archive guide lookup failed ch=$channelRemoteId
 1	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	auto /media/$programmeId.mpg
