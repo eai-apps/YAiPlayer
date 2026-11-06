@@ -70,7 +70,6 @@ import tv.own.owntv.features.home.ChannelPlate
 import tv.own.owntv.features.home.OnNowCard
 import tv.own.owntv.features.home.timeLeftText
 import tv.own.owntv.features.shell.components.ClearHistoryDialog
-import tv.own.owntv.features.shell.components.GITHUB_REPO
 import tv.own.owntv.features.shell.components.playbackDisplayName
 import tv.own.owntv.features.update.UpdateDialog
 import tv.own.owntv.player.PlaybackErrorLog
@@ -673,14 +672,6 @@ internal fun AboutPage(vm: MoreCountsViewModel, entry: FocusRequester, onOpenLan
         Text(stringResource(R.string.settings_contributions), style = stageText(16, 500), color = StageColors.Dim,
             modifier = Modifier.padding(top = 10.mpx, bottom = 24.mpx).widthIn(max = 860.mpx))
         Row(Modifier.padding(top = 22.mpx), horizontalArrangement = Arrangement.spacedBy(10.mpx)) {
-            // The link is for reading: a TV has no browser to open it in.
-            Row(
-                Modifier.height(44.mpx).background(StageColors.ControlFill, RoundedCornerShape(15.mpx)).padding(horizontal = 16.mpx),
-                horizontalArrangement = Arrangement.spacedBy(9.mpx), verticalAlignment = Alignment.CenterVertically,
-            ) {
-                OwnTVIcon(OwnTVIcon.NETWORK, StageColors.Text, Modifier.size(18.mpx))
-                Text(GITHUB_REPO, style = stageText(16, 700), color = StageColors.Text, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            }
             // Read-only: a TV has no browser. The labels say what each address is for.
             listOf(stringResource(R.string.about_telegram_channel) to "t.me/YAiPlayer", stringResource(R.string.about_telegram_support) to "t.me/YAiPlayer?direct").forEach { (label, addr) ->
                 Row(

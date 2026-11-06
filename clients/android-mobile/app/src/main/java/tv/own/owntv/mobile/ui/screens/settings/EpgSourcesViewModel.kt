@@ -67,6 +67,14 @@ class EpgSourcesViewModel(
         viewModelScope.launch { builtinGuide.cycleSchedule() }
     }
 
+    /** The three built-in feeds one by one: how many channels each supplies, and a refresh for each. */
+    val builtinFeeds: StateFlow<List<tv.own.owntv.core.sync.BuiltinGuide.Feed>> = builtinGuide.feeds()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    fun refreshBuiltinFeed(id: Long) {
+        viewModelScope.launch { builtinGuide.refreshFeed(id) }
+    }
+
     /** Manual refresh of the hidden built-in guides. */
     fun refreshBuiltin() {
         viewModelScope.launch { builtinGuide.refresh() }

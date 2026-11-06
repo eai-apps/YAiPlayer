@@ -188,6 +188,10 @@ interface EpgDao {
     fun countForSource(sourceId: Long): Flow<Int>
 
     /** How many distinct channels actually have guide data (for the Guide's status line). */
+    /** How many of the playlists' channels this one guide source supplies programmes for (live, for the settings rows). */
+    @Query("SELECT COUNT(DISTINCT epgChannelId) FROM epg_programmes WHERE sourceId = :sourceId")
+    fun channelsWithProgrammesFlow(sourceId: Long): kotlinx.coroutines.flow.Flow<Int>
+
     @Query("SELECT COUNT(DISTINCT epgChannelId) FROM epg_programmes WHERE sourceId IN (:sourceIds)")
     suspend fun countGuideChannels(sourceIds: List<Long>): Int
 

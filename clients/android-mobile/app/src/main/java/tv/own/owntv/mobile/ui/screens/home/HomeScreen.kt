@@ -752,7 +752,13 @@ private fun ChannelCard(channel: ChannelEntity, onClick: () -> Unit, onLongClick
         ) {
             ChannelLogoImage(
                 url = channel.displayLogoUrl,
-                fallback = { StageIcon(MobileIcons.LiveTv, 20.dp, palette.dim) },
+                // No logo from the playlist or the guide: the channel's number (or first letter), like the TV's plate.
+                fallback = {
+                    Text(
+                        channel.number?.toString() ?: channel.name.take(1).uppercase(),
+                        style = stageText(18f, 800), color = palette.text, maxLines = 1,
+                    )
+                },
                 modifier = Modifier.fillMaxHeight(0.6f).fillMaxWidth(0.7f),
             )
         }

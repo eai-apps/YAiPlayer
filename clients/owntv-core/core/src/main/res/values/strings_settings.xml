@@ -3267,4 +3267,8 @@
     <string name="settings_epg_builtin_schedule_weekly">Weekly</string>
     <string name="settings_epg_builtin_schedule_daily">Daily</string>
     <string name="settings_epg_builtin_schedule_manual">Only by hand</string>
+    <string name="settings_epg_builtin_feed">Source %1$d</string>
+    <string name="settings_epg_builtin_feed_channels">Programme for %1$d of your channels</string>
+    <string name="settings_epg_builtin_feed_syncing">Updating…</string>
+    <string name="settings_epg_builtin_feed_failed">Failed — tap to retry</string>
 </resources>

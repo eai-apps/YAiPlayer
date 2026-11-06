@@ -57,6 +57,7 @@ class PlaybackService : Service() {
 
     private val cast: CastController by inject()
     private val tuner: LiveTuner by inject()
+    private val vodTuner: tv.own.owntv.mobile.ui.screens.library.VodTuner by inject()
     private val session: PlaybackSession by inject()
     private val localeStore: LocaleStore by inject()
 
@@ -126,7 +127,16 @@ class PlaybackService : Service() {
             ACTION_BACK -> remote?.seekBy(-SEEK_MS) ?: local.seekBy(-SEEK_MS)
             ACTION_FORWARD -> remote?.seekBy(SEEK_MS) ?: local.seekBy(SEEK_MS)
             ACTION_AUDIO_ONLY -> local.enterAudioOnly()
-            ACTION_STOP -> tuner.stop() // which stops this service in turn
+            ACTION_STOP -> {
+                // The cross can be pressed over a film as well as a channel: stop whichever has the
+                // stream, then take the notification down ourselves — relying on the tuner to stop this
+                // service left it standing (and re-posting itself) when the engine's last state change
+                // arrived after the stop.
+                vodTuner.stop()
+                tuner.stop()
+                stopForeground(STOP_FOREGROUND_REMOVE)
+                stopSelf()
+            }
         }
         // Not sticky: a service the system restarts with no stream behind it would post a notification
         // for nothing playing, with no way for the user to make it go away.

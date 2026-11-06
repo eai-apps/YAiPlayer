@@ -554,5 +554,4 @@
     <string name="profiles_guest_name">Guest</string>
     <string name="setup_continue_as_guest">Continue as guest</string>
     <string name="setup_continue_as_guest_description">No sign-up and no profile to create: add your own playlist, Stalker portal or guide and watch. Nothing is erased when you leave; there is no sync between devices.</string>
-    <string name="brand_our_player">Our player</string>
 </resources>

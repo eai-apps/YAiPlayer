@@ -35,6 +35,7 @@ fun EpgSourcesScreen(onBack: () -> Unit, modifier: Modifier = Modifier, startOnA
     val builtinEnabled by vm.builtinEnabled.collectAsStateWithLifecycle()
     val builtinStatus by vm.builtinStatus.collectAsStateWithLifecycle()
     val builtinSchedule by vm.builtinSchedule.collectAsStateWithLifecycle()
+    val builtinFeeds by vm.builtinFeeds.collectAsStateWithLifecycle()
 
     var editing by remember { mutableStateOf<EpgSource?>(null) }
     var adding by remember { mutableStateOf(startOnAdd) }
@@ -189,6 +190,24 @@ fun EpgSourcesScreen(onBack: () -> Unit, modifier: Modifier = Modifier, startOnA
                 onClick = { vm.refreshBuiltin() },
                 help = SettingHelp(refreshTitle, builtinDesc, hints = listOf(ok to refreshTitle, back to parent)),
             )
+            builtinFeeds.forEach { feed ->
+                val feedTitle = stringResource(R.string.settings_epg_builtin_feed, feed.number)
+                StageSettingRow(
+                    icon = OwnTVIcon.REFRESH,
+                    title = feedTitle,
+                    desc = stringResource(
+                        when {
+                            feed.syncing -> R.string.settings_epg_builtin_feed_syncing
+                            feed.failed -> R.string.settings_epg_builtin_feed_failed
+                            else -> R.string.settings_epg_builtin_feed_channels
+                        },
+                        feed.channels,
+                    ),
+                    value = SettingValue.Opens(null),
+                    onClick = { vm.refreshBuiltinFeed(feed.id) },
+                    help = SettingHelp(feedTitle, builtinDesc, hints = listOf(ok to feedTitle, back to parent)),
+                )
+            }
             val at = builtinStatus.lastSyncAt
             val statusText = when {
                 builtinStatus.syncing -> stringResource(R.string.settings_epg_builtin_syncing)

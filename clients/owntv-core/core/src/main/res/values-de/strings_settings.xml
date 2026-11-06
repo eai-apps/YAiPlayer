@@ -1739,4 +1739,8 @@
     <string name="settings_epg_builtin_schedule_weekly">Wöchentlich</string>
     <string name="settings_epg_builtin_schedule_daily">Täglich</string>
     <string name="settings_epg_builtin_schedule_manual">Nur manuell</string>
+    <string name="settings_epg_builtin_feed">Quelle %1$d</string>
+    <string name="settings_epg_builtin_feed_channels">Sendeplan für %1$d deiner Sender</string>
+    <string name="settings_epg_builtin_feed_syncing">Wird aktualisiert…</string>
+    <string name="settings_epg_builtin_feed_failed">Fehlgeschlagen – zum Wiederholen tippen</string>
 </resources>

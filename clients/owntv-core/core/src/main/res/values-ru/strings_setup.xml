@@ -294,5 +294,4 @@
     <string name="profiles_guest_name">Гость</string>
     <string name="setup_continue_as_guest">Продолжить как гость</string>
     <string name="setup_continue_as_guest_description">Без регистрации и создания профиля: добавьте свой плейлист, Stalker-портал или телегид и смотрите. При выходе ничего не стирается; синхронизации между устройствами нет.</string>
-    <string name="brand_our_player">Наш плеер</string>
 </resources>

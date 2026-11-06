@@ -129,7 +129,6 @@ fun AboutPage(onOpenLanguage: () -> Unit, modifier: Modifier = Modifier) {
         // The project's own community channel and site go here once they exist (not OwnTV's).
         @OptIn(ExperimentalLayoutApi::class)
         FlowRow(Modifier.padding(top = 14.dp), horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            StageTool(onClick = { openLink(context, "https://$GITHUB_REPO") }, label = GITHUB_NAME, icon = MobileIcons.Translate)
             StageTool(onClick = { openLink(context, TELEGRAM_CHANNEL_URL) }, label = stringResource(R.string.about_telegram_channel), icon = MobileIcons.Translate)
             StageTool(onClick = { openLink(context, TELEGRAM_SUPPORT_URL) }, label = stringResource(R.string.about_telegram_support), icon = MobileIcons.Translate)
             val languages = tv.own.owntv.core.i18n.SupportedLocales.all.count { it.packaged }
@@ -284,8 +283,6 @@ internal fun loggedWhen(atMs: Long): String {
     }
 }
 
-private const val GITHUB_REPO = "github.com/eai-apps/YAiPlayer"
-private const val GITHUB_NAME = "GitHub"
 private const val TELEGRAM_CHANNEL_URL = "https://t.me/YAiPlayer"
 private const val TELEGRAM_SUPPORT_URL = "https://t.me/YAiPlayer?direct"
 

@@ -1819,4 +1819,8 @@
     <string name="settings_epg_builtin_schedule_weekly">Раз в неделю</string>
     <string name="settings_epg_builtin_schedule_daily">Раз в день</string>
     <string name="settings_epg_builtin_schedule_manual">Только вручную</string>
+    <string name="settings_epg_builtin_feed">Источник %1$d</string>
+    <string name="settings_epg_builtin_feed_channels">Программа для каналов: %1$d</string>
+    <string name="settings_epg_builtin_feed_syncing">Обновляется…</string>
+    <string name="settings_epg_builtin_feed_failed">Не удалось — нажмите, чтобы повторить</string>
 </resources>

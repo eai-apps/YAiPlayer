@@ -70,6 +70,7 @@ fun SettingsEpgSourcesPage(
     val builtinEnabled by vm.builtinEnabled.collectAsStateWithLifecycle()
     val builtinStatus by vm.builtinStatus.collectAsStateWithLifecycle()
     val builtinSchedule by vm.builtinSchedule.collectAsStateWithLifecycle()
+    val builtinFeeds by vm.builtinFeeds.collectAsStateWithLifecycle()
     val deleting by vm.deletingIds.collectAsStateWithLifecycle()
 
     var menuSource by remember { mutableStateOf<EpgSource?>(null) }
@@ -122,6 +123,23 @@ fun SettingsEpgSourcesPage(
             Box(Modifier.padding(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 8.dp)) {
                 StageButton(onClick = { vm.refreshBuiltin() }, text = stringResource(R.string.settings_epg_builtin_refresh), icon = MobileIcons.Refresh, small = true)
             }
+        }
+        if (builtinEnabled) items(builtinFeeds.size, key = { "builtin_feed_${builtinFeeds[it].id}" }) { i ->
+            val feed = builtinFeeds[i]
+            StageSettingRow(
+                title = stringResource(R.string.settings_epg_builtin_feed, feed.number),
+                subtitle = stringResource(
+                    when {
+                        feed.syncing -> R.string.settings_epg_builtin_feed_syncing
+                        feed.failed -> R.string.settings_epg_builtin_feed_failed
+                        else -> R.string.settings_epg_builtin_feed_channels
+                    },
+                    feed.channels,
+                ),
+                icon = MobileIcons.Refresh,
+                minHeight = 48.dp,
+                onClick = { vm.refreshBuiltinFeed(feed.id) },
+            ) {}
         }
         if (builtinEnabled) item(key = "builtin_status") {
             val at = builtinStatus.lastSyncAt

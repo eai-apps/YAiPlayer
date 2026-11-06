@@ -83,7 +83,7 @@ class EpgSyncWorker(
             }
             progress.flush()
             store.setSynced(source.id, System.currentTimeMillis(), null)
-            if (source.builtin) continueBuiltinChain(source.id)
+            if (source.builtin) continueBuiltinChain(source.id, chain = reason != "manual_feed")
             // A series rule is a standing instruction about programmes that do not exist in the
             // database until the guide mentioning them is fetched — so this is the moment "record
             // every showing" becomes actual timers. Best-effort: a rule that could not be
@@ -128,11 +128,11 @@ class EpgSyncWorker(
      * the playlists' channels are matched by name; the next feed is fetched only while some channel
      * still has no guide.
      */
-    private suspend fun continueBuiltinChain(thisId: Long) {
+    private suspend fun continueBuiltinChain(thisId: Long, chain: Boolean = true) {
         val result = runCatching {
             org.koin.core.context.GlobalContext.get().get<tv.own.owntv.core.epg.BuiltinGuideMatcher>().run()
         }.onFailure { Log.w(TAG, "built-in auto-match failed: ${it.message}") }.getOrNull() ?: return
-        if (result.stillWithoutGuide == 0) return
+        if (!chain || result.stillWithoutGuide == 0) return
         val builtin = store.getAll().filter { it.builtin }
         val next = builtin.getOrNull(builtin.indexOfFirst { it.id == thisId } + 1) ?: return
         tv.own.owntv.core.sync.work.EpgSyncScheduler(applicationContext)

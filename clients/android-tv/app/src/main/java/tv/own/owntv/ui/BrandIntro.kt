@@ -128,7 +128,9 @@ fun YaiBadge(modifier: Modifier = Modifier, scale: Float = 1f) {
         Column {
             BasicText("YAiPlayer", style = TextStyle(color = Color.White, fontSize = (17 * scale).sp, fontWeight = FontWeight.Bold))
             BasicText(
-                androidx.compose.ui.res.stringResource(tv.own.owntv.R.string.brand_our_player),
+                "v" + androidx.compose.ui.platform.LocalContext.current.let { c ->
+                    runCatching { c.packageManager.getPackageInfo(c.packageName, 0).versionName }.getOrNull().orEmpty()
+                },
                 style = TextStyle(color = Color(0xFF22D3EE), fontSize = (12 * scale).sp, fontWeight = FontWeight.Medium),
             )
         }

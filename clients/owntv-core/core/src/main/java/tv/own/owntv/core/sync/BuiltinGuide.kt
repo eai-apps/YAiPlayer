@@ -69,6 +69,7 @@ class BuiltinGuide(
 
     /** Manual refresh: re-sync the hidden guides, creating them first if no playlist has synced yet. */
     suspend fun refresh() {
+        fixUrls()
         val builtin = store.getAll().filter { it.builtin }
         if (builtin.isEmpty()) ensure() else builtin.firstOrNull()?.let { scheduler.enqueueSync(it.id, "manual_builtin") }
     }
@@ -78,11 +79,55 @@ class BuiltinGuide(
      * this playlist's channels existed, so run the chain again: it matches the new channels by name.
      */
     suspend fun onPlaylistImported() {
+        fixUrls()
         val builtin = store.getAll().filter { it.builtin }
         if (builtin.isEmpty()) ensure() else scheduler.enqueueSync(builtin.first().id, "builtin_playlist", policy = androidx.work.ExistingWorkPolicy.KEEP)
     }
 
+    /** One built-in feed as the settings screens show it. */
+    data class Feed(
+        val id: Long,
+        val number: Int,
+        val syncing: Boolean,
+        val lastSyncAt: Long?,
+        val failed: Boolean,
+        /** Channels of the user's playlists that this feed supplies programmes for. */
+        val channels: Int,
+    )
+
+    private val epgDao: tv.own.owntv.core.database.dao.EpgDao by lazy {
+        org.koin.core.context.GlobalContext.get().get()
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun feeds(): Flow<List<Feed>> = store.sources.flatMapLatest { all ->
+        val builtin = all.filter { it.builtin }
+        if (builtin.isEmpty()) flowOf(emptyList())
+        else combine(
+            builtin.mapIndexed { i, b ->
+                combine(scheduler.observeSync(b.id), epgDao.channelsWithProgrammesFlow(b.id)) { st, n ->
+                    Feed(b.id, i + 1, st.isActive, b.lastSyncAt, b.lastError != null, n)
+                }
+            },
+        ) { it.toList() }
+    }
+
+    /** Refresh one feed on its own, without starting the others. */
+    suspend fun refreshFeed(id: Long) {
+        fixUrls()
+        scheduler.enqueueSync(id, "manual_feed")
+    }
+
+    /** Older installs carry the first three addresses; point them at the current list, keeping their order. */
+    suspend fun fixUrls() {
+        store.getAll().filter { it.builtin }.forEachIndexed { i, s ->
+            val url = FEEDS.getOrNull(i) ?: return@forEachIndexed
+            if (s.url != url) store.update(s.copy(url = url, lastSyncAt = null, lastError = null))
+        }
+    }
+
     suspend fun ensure() {
+        fixUrls()
         FEEDS.forEachIndexed { i, url ->
             val created = store.ensureBuiltin("$NAME ${i + 1}", url) ?: return@forEachIndexed
             settings.setEpgUseLogos(created.id, true)
@@ -100,8 +145,8 @@ class BuiltinGuide(
 
         /** In fallback order: a channel missing from one feed is looked up in the next. */
         val FEEDS = listOf(
-            "https://iptvx.one/EPG_LITE",
-            "http://epg.one/epg.xml.gz",
+            "https://iptvx.one/EPG",
+            "http://ru.epg.one/epg.xml.gz",
             "http://miptv.in.ua/xmlt/mlist_epg.xml.gz",
         )
     }
