@@ -73,6 +73,15 @@ class BuiltinGuide(
         if (builtin.isEmpty()) ensure() else builtin.firstOrNull()?.let { scheduler.enqueueSync(it.id, "manual_builtin") }
     }
 
+    /**
+     * A playlist was just imported or re-synced. If the guide already exists, its feeds were fetched before
+     * this playlist's channels existed, so run the chain again: it matches the new channels by name.
+     */
+    suspend fun onPlaylistImported() {
+        val builtin = store.getAll().filter { it.builtin }
+        if (builtin.isEmpty()) ensure() else scheduler.enqueueSync(builtin.first().id, "builtin_playlist", policy = androidx.work.ExistingWorkPolicy.KEEP)
+    }
+
     suspend fun ensure() {
         FEEDS.forEachIndexed { i, url ->
             val created = store.ensureBuiltin("$NAME ${i + 1}", url) ?: return@forEachIndexed
