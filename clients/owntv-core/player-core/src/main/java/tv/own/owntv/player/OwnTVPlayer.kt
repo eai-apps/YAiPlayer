@@ -4915,7 +4915,7 @@ class OwnTVPlayer(
         when (property) {
             "hwdec-current" -> {
                 android.util.Log.i(TAG, "hwdec-current='$value' (height=${load.currentHeightPx}px, setting=${if (hwDecoding) "on" else "off"})")
-                LiveDiagnosticsLog.event("mpv hwdec-current='$value' height=${load.currentHeightPx}px vo=${runCatching { getPropertyString("vo") }.getOrNull()} direct=${_directRender.value} archive=${item.archiveThisItem} copy=${item.forceCopyThisLoad} soft=${item.forceSoftwareThisLoad}")
+                LiveDiagnosticsLog.event("mpv hwdec-current='$value' height=${load.currentHeightPx}px direct=${_directRender.value} archive=${item.archiveThisItem} copy=${item.forceCopyThisLoad} soft=${item.forceSoftwareThisLoad}")
                 load.currentHwdec = value
                 enforceDecodeGuard()
             }

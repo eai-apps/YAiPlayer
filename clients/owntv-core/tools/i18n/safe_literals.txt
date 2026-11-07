@@ -6391,6 +6391,7 @@
 1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	live stream didn't start — trying format fallback -> ${altFormat.substringAfterLast('.')}
 1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	live=$isLiveContent; awaiting their END_FILEs
 1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	load#=$mpvLoadCount freshSurface=$usedFreshSurface
+1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	load: live=$isLive archive=$isArchive start=${startPositionMs}ms software=$wantSoftware copy=$wantCopy surfaceAttached=$surfaceAttached
 1	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	loadfile
 1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	lowSpec=${budget.lowSpec} direct=${useDirect()} hwdec=${getPropertyString("hwdec")}
 1	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	manual engine toggle
@@ -6411,10 +6412,13 @@
 1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	mpv $line
 1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	mpv $why — reopening with tolerant demuxing (discardcorrupt/genpts/ignore_err)
 1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	mpv frames: est-vf-fps=${m.getPropertyString("estimated-vf-fps")}
+1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	mpv hwdec-current='$value' height=${load.currentHeightPx}px direct=${_directRender.value} archive=${item.archiveThisItem} copy=${item.forceCopyThisLoad} soft=${item.forceSoftwareThisLoad}
 1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	mpv live first position after ${now - l.loadStartTime}ms
 1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	mpv live mid-play reconnects exhausted ($MAX_LIVE_RECONNECTS) — surfacing error
 1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	mpv live open timed out after ${openingMs}ms — surfacing error
 1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	mpv load waits for a fresh surface (previous item ${lastVideoHeightPx}p)
+1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	mpv pause=$value pos=${_position.value}ms
+1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	mpv paused-for-cache=$value pos=${_position.value}ms
 1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	mpv ready: ${getPropertyString("mpv-version")} ffmpeg=${getPropertyString("ffmpeg-version")}
 1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	mpv reported ${load.brokenPtsHits} broken video timestamps — switching to free-running video timing
 1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	mpv surface attached in ${android.os.SystemClock.elapsedRealtime() - t0}ms, pending load=$pendingLoad
