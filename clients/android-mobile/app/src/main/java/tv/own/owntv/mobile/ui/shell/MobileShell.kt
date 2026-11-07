@@ -398,6 +398,7 @@ fun MobileShell(
             Toast.makeText(startupContext, startupContext.getString(tv.own.owntv.mobile.R.string.update_latest, updateManager.currentVersion), Toast.LENGTH_LONG).show()
         }
     }
+    tv.own.owntv.mobile.ui.screens.settings.SubscriptionExpiryHost(enabled = !fullscreen && !updateSheetOpen)
     // Not over the player, and not over setup: both own the whole screen for a reason.
     if (updateSheetOpen && !fullscreen) {
         UpdateSheet(

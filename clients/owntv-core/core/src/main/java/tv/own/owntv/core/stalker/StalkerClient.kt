@@ -677,9 +677,10 @@ open class StalkerClient(okHttpClient: OkHttpClient) {
         // show/movie row only needs the scalar metadata; episodes are fetched lazily on open.
         val f = readScalarFields(reader)
         val id = f["id"]?.takeIf { it.isNotBlank() } ?: return null
+        val title = f["name"] ?: f["o_name"]
         return VodItem(
             id = id,
-            name = f["name"] ?: f["o_name"] ?: id,
+            name = title ?: id,
             cmd = f["cmd"]?.takeIf { it.isNotBlank() },
             poster = absoluteArt(f["screenshot_uri"] ?: f["poster"] ?: f["cover"], apiBase),
             year = parseYear(f["year"]),
@@ -687,7 +688,8 @@ open class StalkerClient(okHttpClient: OkHttpClient) {
             rating = (f["rating_imdb"] ?: f["rating"])?.trim()?.toDoubleOrNull()?.takeIf { it > 0 },
             categoryId = (f["category_id"] ?: f["category"])?.takeIf { it.isNotBlank() && it != "*" },
             addedAt = parseAddedAt(f["added"]),
-            isSeries = isFlagSet(f["is_series"]),
+            // Some portals never set `is_series` and instead name each season row "Title [S01]".
+            isSeries = isFlagSet(f["is_series"]) || SEASON_TAG.containsMatchIn(title.orEmpty()),
         )
     }
 
@@ -1220,6 +1222,8 @@ open class StalkerClient(okHttpClient: OkHttpClient) {
             header?.trim()?.toLongOrNull()?.takeIf { it >= 0 }?.let { it * 1_000L }
 
         /** A portal flag: `1`, `"1"` or `true`. */
+        private val SEASON_TAG = Regex("""\[S\d{1,3}]\s*$""")
+
         internal fun isFlagSet(raw: String?): Boolean = raw?.trim()?.let { it == "1" || it.equals("true", ignoreCase = true) } == true
 
         /** Ministra's bare-text refusal, `Authorization failed.`, as opposed to any other non-JSON body. */
