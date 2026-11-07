@@ -3,6 +3,7 @@ package tv.own.owntv.features.live
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
@@ -42,6 +43,10 @@ internal fun CatchupJumpRows(
     // First row: back to the start of the programme on air, focused when the list opens. Its offset is
     // taken when pressed. Null hides it.
     programmeStart: tv.own.owntv.core.live.CatchupProgrammeStart? = null,
+    // Already-aired programmes from the guide, newest first. When present they replace the clock-time
+    // rows: the viewer picks "the news on Thursday" by name, grouped under its day.
+    programmes: List<tv.own.owntv.core.database.entity.EpgProgrammeEntity> = emptyList(),
+    onPickProgramme: (tv.own.owntv.core.database.entity.EpgProgrammeEntity) -> Unit = {},
 ) {
     // One "now" for the whole list: recomputing per row would let the clock tick between rows and
     // print two different times for the same offset.
@@ -49,6 +54,12 @@ internal fun CatchupJumpRows(
     val zone = remember { java.util.TimeZone.getDefault() }
     val timeOnly = rememberBestDateFormatter("Hm")
     val withDay = rememberBestDateFormatter("EEEHm")
+    val dayTitle = rememberBestDateFormatter("EEEdMMM")
+    val orderedProgrammes = remember(programmes) { programmes.sortedByDescending { it.startMs } }
+    val programmesByDay = remember(orderedProgrammes) {
+        orderedProgrammes.groupBy { (it.startMs + zone.getOffset(it.startMs)) / 86_400_000L }
+    }
+    val firstProgrammeId = if (programmeStart == null) orderedProgrammes.firstOrNull()?.id else null
     LazyColumn(modifier, verticalArrangement = Arrangement.spacedBy(2.mpx)) {
         if (programmeStart != null) item(key = "programme-start") {
             tv.own.owntv.ui.stage.StagePopupOption(
@@ -60,7 +71,27 @@ internal fun CatchupJumpRows(
                 leading = { tv.own.owntv.ui.stage.StagePopupIcon(tv.own.owntv.ui.components.OwnTVIcon.SKIP_PREVIOUS) },
             )
         }
-        items(offsetsSec, key = { it }) { offset ->
+        if (orderedProgrammes.isNotEmpty()) {
+            programmesByDay.values.forEach { dayList ->
+                item(key = "day-${dayList.first().id}") {
+                    androidx.tv.material3.Text(
+                        text = dayTitle(dayList.first().startMs),
+                        style = tv.own.owntv.ui.theme.stageText(17, 700),
+                        color = tv.own.owntv.ui.theme.StageColors.Muted,
+                        modifier = Modifier.padding(start = 8.mpx, top = 12.mpx, bottom = 4.mpx),
+                    )
+                }
+                items(dayList, key = { "prog-${it.id}" }) { p ->
+                    tv.own.owntv.ui.stage.StagePopupOption(
+                        title = p.title,
+                        subtitle = timeOnly(p.startMs) + " – " + timeOnly(p.stopMs),
+                        onClick = { onPickProgramme(p) },
+                        modifier = if (p.id == firstProgrammeId) Modifier.focusRequester(firstFocus) else Modifier,
+                        leading = { tv.own.owntv.ui.stage.StagePopupIcon(tv.own.owntv.ui.components.OwnTVIcon.CATCHUP) },
+                    )
+                }
+            }
+        } else items(offsetsSec, key = { it }) { offset ->
             val at = CatchupJumps.instantFor(offset, nowMs)
             tv.own.owntv.ui.stage.StagePopupOption(
                 title = if (CatchupJumps.crossesDay(offset, nowMs, zone)) withDay(at) else timeOnly(at),
@@ -87,6 +118,8 @@ internal fun CatchupJumpDialog(
     onPick: (Int) -> Unit,
     onDismiss: () -> Unit,
     programmeStart: tv.own.owntv.core.live.CatchupProgrammeStart? = null,
+    programmes: List<tv.own.owntv.core.database.entity.EpgProgrammeEntity> = emptyList(),
+    onPickProgramme: (tv.own.owntv.core.database.entity.EpgProgrammeEntity) -> Unit = {},
 ) {
     val firstFocus = remember { FocusRequester() }
     var manual by remember { mutableStateOf(false) }
@@ -115,6 +148,8 @@ internal fun CatchupJumpDialog(
             modifier = Modifier.fillMaxWidth().weight(1f, fill = false),
             onChooseExact = { manual = true },
             programmeStart = programmeStart,
+            programmes = programmes,
+            onPickProgramme = onPickProgramme,
         )
     }
 }

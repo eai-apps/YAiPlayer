@@ -332,7 +332,7 @@ internal fun LiveStagePane(
                 }
             }
             val next = nowNext?.next
-            val later = nowNext?.upcoming.orEmpty().take(3)
+            val later = nowNext?.upcoming.orEmpty().take(5)
             if (next != null) {
                 Column(
                     Modifier

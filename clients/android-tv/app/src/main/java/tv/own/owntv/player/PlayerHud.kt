@@ -107,7 +107,10 @@ class HudSources(
 )
 
 /** The guide's answer for "Go back to…"'s first row; held in a box so "answered: no row" differs from "not answered yet". */
-private class Lookup(val start: tv.own.owntv.core.live.CatchupProgrammeStart?)
+private class Lookup(
+    val start: tv.own.owntv.core.live.CatchupProgrammeStart?,
+    val programmes: List<tv.own.owntv.core.database.entity.EpgProgrammeEntity> = emptyList(),
+)
 
 /** What the top-left channel OSD shows for direct tune: the digits being typed, the channel a number
  *  resolved to, or a failure message. All three render as the same card as the channel OSD. */
@@ -167,6 +170,9 @@ fun PlayerHud(
     // The start of the programme on air, from the guide, offered first in "Go back to…". Looked up as
     // the list opens; null (or a null answer) = no such row.
     jumpBackProgrammeStart: (suspend () -> tv.own.owntv.core.live.CatchupProgrammeStart?)? = null,
+    // Already-aired programmes of the channel (newest first), listed by day in "Go back to…". Null or
+    // empty = the clock-time rows are shown instead.
+    jumpBackProgrammes: (suspend () -> List<tv.own.owntv.core.database.entity.EpgProgrammeEntity>)? = null,
     // Read as a lambda, not a value: the offset ticks once a second, and taking it as a plain Int?
     // made the shell (the caller) recompose on every tick just to hand it over. Invoked below, so the
     // per-second read lands in the HUD's own scope, which already recomposes with the position clock.
@@ -988,17 +994,25 @@ fun PlayerHud(
             // The list waits for the guide's answer (bounded in core), so the first focus lands on the
             // "Start of …" row when there is one instead of moving there after the user has started to scroll.
             val programmeStart by produceState<Lookup?>(null) {
-                value = Lookup(jumpBackProgrammeStart?.invoke())
+                value = Lookup(
+                    jumpBackProgrammeStart?.invoke(),
+                    runCatching { jumpBackProgrammes?.invoke().orEmpty() }.getOrDefault(emptyList()),
+                )
             }
             val start = programmeStart?.start
             when {
                 programmeStart == null -> Unit // still waiting for the guide
-                options.isEmpty() && start == null -> dialog = HudDialog.NONE
+                options.isEmpty() && start == null && programmeStart?.programmes.isNullOrEmpty() -> dialog = HudDialog.NONE
                 else -> tv.own.owntv.features.live.CatchupJumpDialog(
                     title = stringResource(R.string.content_catchup_jump),
                     offsetsSec = options,
                     windowSec = windowSec,
                     programmeStart = start,
+                    programmes = programmeStart?.programmes.orEmpty(),
+                    onPickProgramme = { p ->
+                        dialog = HudDialog.NONE
+                        onJumpBack?.invoke(((System.currentTimeMillis() - p.startMs) / 1000L).toInt().coerceAtLeast(0))
+                    },
                     onPick = { dialog = HudDialog.NONE; onJumpBack?.invoke(it) },
                     onDismiss = { dialog = HudDialog.NONE },
                 )

@@ -1744,6 +1744,7 @@ fun OwnTVShell(
                     onPreviousChannel = if (isTunedLive && previousLiveChannel != null) liveVm::previousChannel else null,
                     jumpBackWindowSec = if (isTunedLive && previewChannel?.catchup == true) liveVm::currentCatchupWindowSec else null,
                     jumpBackProgrammeStart = if (isTunedLive && previewChannel?.catchup == true) liveVm::currentProgrammeStart else null,
+                    jumpBackProgrammes = if (isTunedLive && previewChannel?.catchup == true) liveVm::currentCatchupProgrammes else null,
                     // Non-null only while an archive is on screen, so movies, episodes and live TV get
                     // the single real clock and catch-up gets the pair.
                     watchingWallMs = { watchingWallState.value },

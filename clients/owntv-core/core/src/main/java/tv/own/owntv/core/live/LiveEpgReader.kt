@@ -384,7 +384,7 @@ class LiveEpgReader(
         epgSourceStore.priority().resolve(epgDao.programmesForChannel(epgKey, at - windowMs, at + 60 * 60 * 1000))
             .filter { it.startMs <= at }           // already started → catch-up applies
             .sortedByDescending { it.startMs }      // most recent first
-            .take(80)
+            .take(400)
             .map { EpgShift.apply(it, shift) }
     }
 

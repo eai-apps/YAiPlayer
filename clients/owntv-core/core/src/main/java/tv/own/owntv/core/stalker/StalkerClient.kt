@@ -412,7 +412,10 @@ open class StalkerClient(okHttpClient: OkHttpClient) {
     open suspend fun downloadEpgInfo(
         apiBase: String, mac: String, token: String, userAgent: String?, periodDays: Int, dest: File,
     ): Long {
-        val url = "$apiBase?type=itv&action=get_epg_info&period=$periodDays&JsHttpRequest=1-xml"
+        // Stalker/Ministra take `period` in HOURS, not days. Sending 7 therefore asked for seven hours —
+        // a real portal answered with ~7 programmes per channel, i.e. only "now" and "next". Days are
+        // converted here so callers keep thinking in days.
+        val url = "$apiBase?type=itv&action=get_epg_info&period=${periodDays * 24}&JsHttpRequest=1-xml"
         return requestToFile(url, mac, token, userAgent, dest)
     }
 

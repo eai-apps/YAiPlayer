@@ -1932,6 +1932,12 @@ class LiveViewModel(
         return tv.own.owntv.core.live.CatchupProgrammeStart.lookUp(epgReader, ch, custom.value, epgOffset.value, catchupWindowOf(ch))
     }
 
+    /** Already-aired programmes of the channel on screen, newest first — the player's archive list by day. */
+    suspend fun currentCatchupProgrammes(): List<tv.own.owntv.core.database.entity.EpgProgrammeEntity> {
+        val ch = _previewChannel.value ?: return emptyList()
+        return catchupProgrammes(ch)
+    }
+
     /** Jump the channel already on screen to [offsetSec] behind live. */
     fun jumpBackTo(offsetSec: Int) {
         val ch = _previewChannel.value ?: return
