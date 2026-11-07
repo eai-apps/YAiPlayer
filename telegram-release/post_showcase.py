@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import argparse
 import glob
+import html
 import json
 import os
 import sys
@@ -64,18 +65,31 @@ def to_rich_html(text: str, n_slides: int) -> str:
     return "".join(out)
 
 
-def send_rich(bot_token: str, chat_id: str, paths: list[str], html: str, buttons: list) -> bool:
+def buttons_html(buttons: list) -> str:
+    """Строки URL-кнопок -> <tg-button-row> внутри текста поста (Bot API 10.3)."""
+    rows = []
+    for i, row in enumerate(buttons):
+        cells = "".join(
+            f'<tg-button type="url"{' style="primary"' if i == 0 else ''} data="{html.escape(b["url"], quote=True)}">{html.escape(b["text"])}</tg-button>'
+            for b in row
+        )
+        rows.append(f'<tg-button-row align="center">{cells}</tg-button-row>')
+    return "".join(rows)
+
+
+def send_rich(bot_token: str, chat_id: str, paths: list[str], html_text: str, buttons: list) -> bool:
     """Один пост: скриншоты + текст внутри одного сообщения (Bot API 10.x, sendRichMessage),
     кнопки под ним; под постом остаётся «Прокомментировать». False — Telegram не принял, ничего не опубликовано."""
     boundary = uuid.uuid4().hex
     media = [{"id": f"s{i}", "media": {"type": "photo", "media": f"attach://file{i}"}} for i in range(len(paths))]
-    rich = {"html": html, "media": media}
+    rich = {"html": html_text, "media": media}
 
     def field(k: str, v: str) -> bytes:
         return f'--{boundary}\r\nContent-Disposition: form-data; name="{k}"\r\n\r\n{v}\r\n'.encode()
 
     body = field("chat_id", chat_id) + field("rich_message", json.dumps(rich, ensure_ascii=False))
-    body += field("reply_markup", json.dumps({"inline_keyboard": buttons}, ensure_ascii=False))
+    if buttons:
+        body += field("reply_markup", json.dumps({"inline_keyboard": buttons}, ensure_ascii=False))
     for i, p in enumerate(paths):
         with open(p, "rb") as f:
             data = f.read()
@@ -120,8 +134,13 @@ def main(argv: list[str] | None = None) -> int:
         print("Нет слайдов", file=sys.stderr)
         return 1
     buttons = build_buttons({}, chat)
-    if send_rich(token, chat, paths, to_rich_html(text, len(paths)), buttons):
-        print("Пост опубликован одним сообщением (rich)")
+    page = to_rich_html(text, len(paths))
+    # 1) кнопки внутри текста поста; 2) если Telegram не принял — кнопки под постом.
+    if send_rich(token, chat, paths, page + buttons_html(buttons), []):
+        print("Пост опубликован одним сообщением, кнопки внутри текста")
+        return 0
+    if send_rich(token, chat, paths, page, buttons):
+        print("Пост опубликован одним сообщением, кнопки под ним")
         return 0
     print("Rich не прошёл — публикую альбом и текст отдельно", file=sys.stderr)
     ok = send_album(token, chat, paths, "📱 <b>YAiPlayer для телефона</b> — скриншоты приложения")
