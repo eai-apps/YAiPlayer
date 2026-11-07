@@ -142,6 +142,8 @@ fun ProfileEditorSheet(
     onClearPicture: (() -> Unit)? = null,
     allowDownloads: Boolean? = null,
     onAllowDownloads: (Boolean) -> Unit = {},
+    isHidden: Boolean = false,
+    onUnhide: (() -> Unit)? = null,
 ) {
     var name by remember { mutableStateOf(initial?.name.orEmpty()) }
     var downloads by remember(allowDownloads) { mutableStateOf(allowDownloads ?: true) }
@@ -278,6 +280,7 @@ fun ProfileEditorSheet(
             // Delete is last, under Cancel and away from the fields, where a thumb reaching for the
             // PIN box will not find it.
             destructive = extraAction,
+            unhide = if (isHidden && onUnhide != null) ({ onUnhide(); onDismiss() }) else null,
         )
     }
 }
@@ -303,7 +306,11 @@ private fun SheetButtons(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
     destructive: (() -> Unit)? = null,
+    unhide: (() -> Unit)? = null,
 ) {
+    if (unhide != null) {
+        StageMenuItem(stringResource(R.string.profiles_menu_unhide), onClick = unhide, icon = MobileIcons.Visibility)
+    }
     StageMenuItem(
         confirm,
         onClick = onConfirm,

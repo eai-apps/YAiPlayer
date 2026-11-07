@@ -187,16 +187,17 @@ fun Onboarding(firstRun: Boolean, onDone: (Long?) -> Unit, onCancel: () -> Unit,
                     importOrigin = Step.ADD_SOURCE
                     step = Step.IMPORTING
                 },
-                onStartStalker = { name, portalUrl, mac, serialNumber, deviceId, deviceId2, signature, ua, ref, refresh, _, live, movies, series, login, password ->
+                onStartStalker = { name, portalUrl, mac, serialNumber, deviceId, deviceId2, signature, ua, ref, refresh, _, live, movies, series, login, password, loadLogos, onlyPortalEpg ->
                     importName = name.ifBlank { defaultPortalName }
                     vm.startStalker(
                         importName!!, portalUrl, mac, serialNumber, deviceId,
                         deviceId2, signature, ua, refresh, live, movies, series, httpReferer = ref,
                         login = login, password = password,
+                        loadChannelLogos = loadLogos, useOnlyPortalEpg = onlyPortalEpg,
                     )
-                    importOrigin = Step.ADD_SOURCE
-                    step = Step.IMPORTING
                 },
+                syncStats = vm.syncStats.collectAsStateWithLifecycle().value,
+                onOpenLive = { vm.finish(onDone) },
                 // Submissions from the phone page land here pre-filled (type + fields).
                 remotePayload = vm.remotePayload,
                 onRemotePayloadConsumed = { vm.consumeRemotePayload() },

@@ -49,6 +49,7 @@ internal fun ProfileSettingsRows() {
     val vm: ProfilesViewModel = koinViewModel()
     val gateSession: ProfileGateSessionViewModel = koinViewModel()
     val profiles by vm.profiles.collectAsStateWithLifecycle()
+    val hiddenProfileIds by vm.hiddenProfileIds.collectAsStateWithLifecycle()
     val activeProfileId by vm.activeProfileId.collectAsStateWithLifecycle()
     val defaultProfileName = stringResource(R.string.profiles_default_name)
     var editing by remember { mutableStateOf<ProfileEntity?>(null) }
@@ -89,6 +90,7 @@ internal fun ProfileSettingsRows() {
         val inUseTag = stringResource(R.string.settings_profile_in_use).uppercase()
         val kidsTag = stringResource(R.string.profiles_kids_tag).uppercase()
         val pinTag = stringResource(R.string.profiles_pin).uppercase()
+        val hiddenTag = stringResource(R.string.profiles_hidden_tag).uppercase()
         val accent = stageAccent.accent
         StageSettingRow(
             icon = OwnTVIcon.PERSON,
@@ -99,6 +101,7 @@ internal fun ProfileSettingsRows() {
                     if (inUse) StageTag(inUseTag, tint = accent)
                     if (p.isKids) StageTag(kidsTag)
                     if (p.pinHash != null) StageTag(pinTag)
+                    if (p.id in hiddenProfileIds) StageTag(hiddenTag)
                     if (!inUse) OwnTVIcon(OwnTVIcon.CHEVRON, StageColors.Muted, Modifier.size(20.mpx))
                 }
             },
@@ -141,6 +144,8 @@ internal fun ProfileSettingsRows() {
             onClearPicture = { vm.clearPicture(p.id) },
             allowDownloads = allowDownloads.takeIf { tv.own.owntv.core.download.DownloadsFeature.ENABLED },
             onAllowDownloads = { vm.setDownloadsAllowed(p.id, it) },
+            isHidden = p.id in hiddenProfileIds,
+            onUnhide = { vm.showProfile(p.id) },
         )
     }
     confirmDelete?.let { p ->

@@ -121,7 +121,11 @@ fun AddSourceScreen(
         series: SyncScopeChoice,
         login: String,
         password: String,
+        loadChannelLogos: Boolean,
+        useOnlyPortalEpg: Boolean,
     ) -> Unit)? = null,
+    syncStats: tv.own.owntv.core.setup.SyncProgressStats? = null,
+    onOpenLive: (() -> Unit)? = null,
 ) {
     val editing = initial != null
     var kind by remember {
@@ -151,6 +155,9 @@ fun AddSourceScreen(
     var autoRefresh by remember(initialAutoRefresh) { mutableStateOf(initialAutoRefresh) }
     var isDefault by remember(initialIsDefault) { mutableStateOf(initialIsDefault) }
     var preferHls by remember(initial) { mutableStateOf(initial?.preferHls == true) }
+    var loadChannelLogos by remember { mutableStateOf(true) }
+    var useOnlyPortalEpg by remember { mutableStateOf(true) }
+    val stalkerConnectFocus = remember { FocusRequester() }
     // Edit: On(=Now)/Off from persisted flags. Add: default all Now for Xtream; Stalker defaults
     // Live Now + Movies/Series Later when the kind switches (see LaunchedEffect below).
     var syncLive by remember(initial) {
@@ -460,6 +467,7 @@ fun AddSourceScreen(
                 name, portalUrl, mac.ifBlank { tv.own.owntv.core.stalker.StalkerDeviceDerivation.randomMac().also { mac = it } }, stalkerSerialNumber, stalkerDeviceId, stalkerDeviceId2,
                 stalkerSignature, userAgent, referer, autoRefresh, isDefault, syncLive, syncMovies, syncSeries,
                 username, password,
+                loadChannelLogos, useOnlyPortalEpg,
             )
         }
     }
@@ -471,7 +479,12 @@ fun AddSourceScreen(
     val submitLabel = stringResource(if (editing) R.string.setup_update_source_save else R.string.setup_start_import)
     // The panel's button: only while the form can be sent, so ▶ never lands on a dead control.
     val submitButton: @Composable () -> Unit = {
-        if (canStart) StageActionColumn(listOf(StageAction(OwnTVIcon.DOWNLOADS, submitLabel, { submit() })), back = null, first = startImportFocus)
+        val stats = syncStats
+        if (stats != null && (stats.isRunning || stats.isSuccess || stats.isFailed)) {
+            SyncProgressPanel(stats = stats, onOpenLive = onOpenLive)
+        } else if (canStart) {
+            StageActionColumn(listOf(StageAction(OwnTVIcon.DOWNLOADS, submitLabel, { submit() })), back = null, first = startImportFocus)
+        }
     }
     val toSubmit = Modifier.focusProperties { right = startImportFocus }
     // ▶ reaches the panel's button from any row; said in the keys while the button is there.
@@ -492,12 +505,14 @@ fun AddSourceScreen(
         keyboardType: KeyboardType = KeyboardType.Text,
         about: String? = null,
         modifier: Modifier = Modifier,
+        required: Boolean = false,
     ) = StageFieldRow(
         icon = OwnTVIcon.PENCIL,
         label = label,
+        badge = if (required) stringResource(R.string.setup_badge_required) else null,
         value = value,
         onValueChange = onChange,
-        help = SettingHelp(label, listOfNotNull(about, fieldHelp).joinToString(" "), extra = submitButton),
+        help = SettingHelp(label, listOfNotNull(if (required) stringResource(R.string.setup_badge_required) else null, about, fieldHelp).joinToString(" "), extra = submitButton),
         placeholder = placeholder,
         password = password,
         keyboardType = keyboardType,
@@ -514,6 +529,12 @@ fun AddSourceScreen(
         onBack = onBack,
         rowsFocus = firstFocus,
         settingsRoot = false,
+        panelTop = {
+            val stats = syncStats
+            if (stats != null && (stats.isRunning || stats.isSuccess || stats.isFailed)) {
+                SyncProgressPanel(stats = stats, onOpenLive = onOpenLive)
+            }
+        },
     ) {
         // Type: locked while editing (a source can't change its type).
         val kinds = listOfNotNull(SourceKind.XTREAM, SourceKind.M3U, SourceKind.STALKER.takeIf { onStartStalker != null })
@@ -579,11 +600,32 @@ fun AddSourceScreen(
                 )
             }
             SourceKind.STALKER -> {
-                field(stringResource(R.string.setup_portal_url), portalUrl, { portalUrl = it }, placeholder = stringResource(R.string.setup_portal_example), keyboardType = KeyboardType.Uri)
                 field(
-                    stringResource(R.string.setup_mac_address), mac, { mac = it },
+                    stringResource(R.string.setup_portal_url),
+                    portalUrl,
+                    { portalUrl = it },
+                    placeholder = stringResource(R.string.setup_portal_example),
+                    keyboardType = KeyboardType.Uri,
+                    required = true,
+                )
+                field(
+                    stringResource(R.string.setup_mac_address),
+                    mac,
+                    { mac = it },
                     placeholder = stringResource(R.string.setup_mac_example),
                     about = if (mac.isNotBlank() && !macValid) stringResource(R.string.setup_mac_invalid) else null,
+                )
+                val reliableTitle = stringResource(R.string.setup_mac_generate_reliable)
+                StageSettingRow(
+                    icon = OwnTVIcon.PENCIL,
+                    title = reliableTitle,
+                    desc = stringResource(R.string.setup_mac_optional_note),
+                    value = SettingValue.Custom {
+                        tv.own.owntv.ui.stage.StageTag(stringResource(R.string.setup_badge_required).uppercase(), tint = tv.own.owntv.ui.theme.stageAccent.accent)
+                    },
+                    onClick = { mac = tv.own.owntv.core.stalker.StalkerDeviceDerivation.reliableMac() },
+                    modifier = toSubmit,
+                    help = help(reliableTitle, stringResource(R.string.setup_mac_optional_note), openKeys),
                 )
                 val genTitle = stringResource(R.string.setup_mac_generate)
                 StageSettingRow(
@@ -595,25 +637,28 @@ fun AddSourceScreen(
                     modifier = toSubmit,
                     help = help(genTitle, stringResource(R.string.setup_mac_optional_note), openKeys),
                 )
-                val reliableTitle = stringResource(R.string.setup_mac_generate_reliable)
-                StageSettingRow(
-                    icon = OwnTVIcon.PENCIL,
-                    title = reliableTitle,
-                    desc = stringResource(R.string.setup_mac_optional_note),
-                    value = SettingValue.Opens(null),
-                    onClick = { mac = tv.own.owntv.core.stalker.StalkerDeviceDerivation.reliableMac() },
-                    help = help(reliableTitle, stringResource(R.string.setup_mac_optional_note), openKeys),
+                field(
+                    stringResource(R.string.setup_username),
+                    username,
+                    { username = it },
+                    required = true,
                 )
-                // Only for portals that ask for a login on top of the MAC; most do not.
-                field(stringResource(R.string.settings_username_optional), username, { username = it })
-                field(stringResource(R.string.settings_password_optional), password, { password = it }, password = true)
+                field(
+                    stringResource(R.string.setup_password),
+                    password,
+                    { password = it },
+                    password = true,
+                    required = true,
+                )
                 StageSettingsHeading(stringResource(R.string.setup_stalker_advanced_identity), 5)
                 val fillTitle = stringResource(R.string.setup_stalker_identity_fill)
                 StageSettingRow(
                     icon = OwnTVIcon.PHONE,
                     title = fillTitle,
                     desc = null,
-                    value = SettingValue.Opens(null),
+                    value = SettingValue.Custom {
+                        tv.own.owntv.ui.stage.StageTag(stringResource(R.string.setup_badge_required).uppercase(), tint = tv.own.owntv.ui.theme.stageAccent.accent)
+                    },
                     onClick = {
                         val canon = tv.own.owntv.core.stalker.StalkerClient.canonicalizeMac(mac)
                             ?: tv.own.owntv.core.stalker.StalkerDeviceDerivation.randomMac().also { mac = it }
@@ -638,6 +683,43 @@ fun AddSourceScreen(
                     onClick = { showUaPresetPicker = true },
                     modifier = toSubmit,
                     help = help(presetTitle, stringResource(R.string.setup_device_model_preset_title), openKeys),
+                )
+
+                // Requirement 1: Main button immediately after the last identity field
+                androidx.compose.foundation.layout.Spacer(Modifier.height(14.mpx))
+                val stalkerBtnLabel = stringResource(R.string.setup_stalker_btn_connect)
+                tv.own.owntv.ui.stage.StageButton(
+                    text = stalkerBtnLabel,
+                    onClick = { if (canStart) submit() },
+                    tinted = true,
+                    icon = OwnTVIcon.PLAY,
+                    height = 68.mpx,
+                    textSize = 22,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(stalkerConnectFocus)
+                        .then(toSubmit),
+                )
+                androidx.compose.foundation.layout.Spacer(Modifier.height(8.mpx))
+
+                // Requirement 3: Two checkboxes under the button
+                StageSettingRow(
+                    icon = OwnTVIcon.IMAGE,
+                    title = stringResource(R.string.setup_checkbox_channel_logos),
+                    desc = null,
+                    value = SettingValue.Switch(loadChannelLogos),
+                    onClick = { loadChannelLogos = !loadChannelLogos },
+                    modifier = toSubmit,
+                    help = help(stringResource(R.string.setup_checkbox_channel_logos), stringResource(R.string.setup_checkbox_channel_logos), switchKeys),
+                )
+                StageSettingRow(
+                    icon = OwnTVIcon.EPG,
+                    title = stringResource(R.string.setup_checkbox_only_portal_epg),
+                    desc = null,
+                    value = SettingValue.Switch(useOnlyPortalEpg),
+                    onClick = { useOnlyPortalEpg = !useOnlyPortalEpg },
+                    modifier = toSubmit,
+                    help = help(stringResource(R.string.setup_checkbox_only_portal_epg), stringResource(R.string.setup_checkbox_only_portal_epg), switchKeys),
                 )
             }
         }
@@ -895,4 +977,62 @@ private fun SyncScopeStageRow(
         modifier = modifier,
         help = help,
     )
+}
+
+@Composable
+private fun SyncProgressPanel(
+    stats: tv.own.owntv.core.setup.SyncProgressStats,
+    onOpenLive: (() -> Unit)?,
+) {
+    val liveFocus = remember { FocusRequester() }
+    LaunchedEffect(stats.isSuccess) {
+        if (stats.isSuccess) {
+            runCatching { liveFocus.requestFocus() }
+        }
+    }
+    androidx.compose.foundation.layout.Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 12.mpx),
+        verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(14.mpx),
+    ) {
+        tv.own.owntv.features.settings.SettingPanelHeading(stringResource(R.string.setup_btn_connect))
+        Text(
+            stringResource(R.string.setup_progress_channels, stats.channels),
+            style = tv.own.owntv.ui.theme.stageText(20, 600),
+            color = tv.own.owntv.ui.theme.StageColors.Text,
+        )
+        Text(
+            stringResource(R.string.setup_progress_movies, stats.movies),
+            style = tv.own.owntv.ui.theme.stageText(20, 600),
+            color = tv.own.owntv.ui.theme.StageColors.Text,
+        )
+        Text(
+            stringResource(R.string.setup_progress_series, stats.series),
+            style = tv.own.owntv.ui.theme.stageText(20, 600),
+            color = tv.own.owntv.ui.theme.StageColors.Text,
+        )
+        val epgStatus = if (stats.isEpgReady) {
+            stringResource(R.string.setup_progress_epg_done)
+        } else {
+            stringResource(R.string.setup_progress_epg_running)
+        }
+        Text(
+            stringResource(R.string.setup_progress_epg, epgStatus),
+            style = tv.own.owntv.ui.theme.stageText(20, 600),
+            color = if (stats.isEpgReady) tv.own.owntv.ui.theme.stageAccent.accent else tv.own.owntv.ui.theme.StageColors.Dim,
+        )
+        if (stats.isSuccess && onOpenLive != null) {
+            androidx.compose.foundation.layout.Spacer(Modifier.height(10.mpx))
+            tv.own.owntv.ui.stage.StageButton(
+                text = stringResource(R.string.setup_btn_open_live),
+                onClick = onOpenLive,
+                tinted = true,
+                icon = OwnTVIcon.LIVE_TV,
+                height = 64.mpx,
+                textSize = 20,
+                modifier = Modifier.fillMaxWidth().focusRequester(liveFocus),
+            )
+        }
+    }
 }

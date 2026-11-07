@@ -40,6 +40,7 @@ internal fun profileSections(
     gateSession: ProfileGateSession = koinViewModel(viewModelStoreOwner = LocalActivity.current as ComponentActivity),
 ): List<SettingSection> {
     val profiles by vm.profiles.collectAsStateWithLifecycle()
+    val hiddenProfileIds by vm.hiddenProfileIds.collectAsStateWithLifecycle()
     val activeId by vm.activeProfileId.collectAsStateWithLifecycle()
     val fallbackName = stringResource(R.string.profiles_default_name)
     val locale = LocalConfiguration.current.locales[0]
@@ -83,6 +84,8 @@ internal fun profileSections(
             extraAction = if (list.size > 1) ({ deleting = profile }) else null,
             allowDownloads = allowDownloads.takeIf { tv.own.owntv.core.download.DownloadsFeature.ENABLED },
             onAllowDownloads = { vm.setDownloadsAllowed(profile.id, it) },
+            isHidden = profile.id in hiddenProfileIds,
+            onUnhide = { vm.showProfile(profile.id) },
         )
     }
     deleting?.let { profile ->
@@ -100,6 +103,7 @@ internal fun profileSections(
     val inUse = stringResource(R.string.settings_profile_in_use)
     val kidsTag = stringResource(R.string.profiles_kids_tag)
     val pinTag = stringResource(R.string.profiles_locked_tag)
+    val hiddenTag = stringResource(R.string.profiles_hidden_tag)
     val rows = list.map { profile ->
         val active = profile.id == activeId
         val lock = stringResource(if (profile.pinHash != null) R.string.settings_profile_pin_lock else R.string.settings_profile_no_lock)
@@ -108,7 +112,11 @@ internal fun profileSections(
             lock,
             inUse.takeIf { active },
         ).joinToString(sep)
-        val tags = listOfNotNull(kidsTag.takeIf { profile.isKids }, pinTag.takeIf { profile.pinHash != null })
+        val tags = listOfNotNull(
+            kidsTag.takeIf { profile.isKids },
+            pinTag.takeIf { profile.pinHash != null },
+            hiddenTag.takeIf { profile.id in hiddenProfileIds },
+        )
         SettingItem(
             key = "profile_${profile.id}",
             icon = MobileIcons.Person,

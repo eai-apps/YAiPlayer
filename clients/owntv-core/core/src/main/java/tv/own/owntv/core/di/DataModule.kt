@@ -235,6 +235,7 @@ val dataModule = module {
             metadataDao = get(),
             epgSourceStore = get(),
             builtinGuide = tv.own.owntv.core.sync.BuiltinGuide(get(), get(), get()),
+            settings = get(),
         )
     }
     // context, channelDao, movieDao, seriesDao, profileDao, favoriteDao, historyDao, progressDao,
@@ -311,7 +312,7 @@ val dataModule = module {
         )
     }
     single { tv.own.owntv.core.epg.ArchiveGuideFiller(get()) }
-    single { tv.own.owntv.core.epg.BuiltinGuideMatcher(get(), get(), get(), get(), get()) }
+    single { tv.own.owntv.core.epg.BuiltinGuideMatcher(get(), get(), get(), get(), get(), get()) }
     // channelDao, categoryDao, sourceDao, profileDao, customize, settings
     single { tv.own.owntv.core.live.ChannelVersions(get(), get(), get(), get(), get(), get()) }
     // seriesDao, sourceDao, xtreamClient, userDataResolver, stalkerClient, stalkerAuthManager

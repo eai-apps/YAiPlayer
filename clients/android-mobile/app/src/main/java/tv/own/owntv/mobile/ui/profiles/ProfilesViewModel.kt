@@ -116,4 +116,19 @@ class ProfilesViewModel(
     fun delete(profile: ProfileEntity) {
         viewModelScope.launch { manager.delete(profile) }
     }
+
+    val hiddenProfileIds: StateFlow<Set<Long>> = settings.hiddenProfileIds
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptySet())
+
+    fun hideProfile(id: Long) {
+        viewModelScope.launch { settings.hideProfile(id) }
+    }
+
+    fun showProfile(id: Long) {
+        viewModelScope.launch { settings.showProfile(id) }
+    }
+
+    fun setProfileHidden(id: Long, hidden: Boolean) {
+        viewModelScope.launch { settings.setProfileHidden(id, hidden) }
+    }
 }

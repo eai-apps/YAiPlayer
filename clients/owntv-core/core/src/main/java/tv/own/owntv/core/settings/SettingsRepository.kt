@@ -340,6 +340,8 @@ class SettingsRepository(private val context: Context, private val localeStore: 
         val ACTIVE_PROFILE = longPreferencesKey("active_profile_id")
         val GUEST_PROFILE = longPreferencesKey("guest_profile_id")
         val GUEST_HOOK_DISMISSED_AT = longPreferencesKey("guest_hook_dismissed_at")
+        val HIDDEN_PROFILE_IDS = stringSetPreferencesKey("hidden_profile_ids")
+        val PORTAL_BUILTIN_EPG_SOURCES = stringSetPreferencesKey("portal_builtin_epg_sources")
         val DEFAULT_SOURCE = longPreferencesKey("default_source_id")
         val DOWNLOAD_ROOT = stringPreferencesKey("download_root")
         val REFRESH_SOURCE_IDS = stringSetPreferencesKey("refresh_source_ids")
@@ -3130,6 +3132,41 @@ class SettingsRepository(private val context: Context, private val localeStore: 
 
     suspend fun setGuestHookDismissedAt(timestamp: Long) {
         context.dataStore.edit { it[Keys.GUEST_HOOK_DISMISSED_AT] = timestamp }
+    }
+
+    /** Profiles hidden from "Who's watching?" launch screen. */
+    val hiddenProfileIds: Flow<Set<Long>> = prefsFlow { prefs ->
+        prefs[Keys.HIDDEN_PROFILE_IDS].orEmpty().mapNotNullTo(LinkedHashSet()) { it.toLongOrNull() }
+    }
+
+    suspend fun hideProfile(id: Long) {
+        context.dataStore.edit { prefs ->
+            val current = prefs[Keys.HIDDEN_PROFILE_IDS].orEmpty()
+            prefs[Keys.HIDDEN_PROFILE_IDS] = current + id.toString()
+        }
+    }
+
+    suspend fun showProfile(id: Long) {
+        context.dataStore.edit { prefs ->
+            val current = prefs[Keys.HIDDEN_PROFILE_IDS].orEmpty()
+            prefs[Keys.HIDDEN_PROFILE_IDS] = current - id.toString()
+        }
+    }
+
+    suspend fun setProfileHidden(id: Long, hidden: Boolean) {
+        if (hidden) hideProfile(id) else showProfile(id)
+    }
+
+    /** Stalker portals allowed to also use the built-in guide. */
+    val portalBuiltinEpgSources: Flow<Set<Long>> = prefsFlow { prefs ->
+        prefs[Keys.PORTAL_BUILTIN_EPG_SOURCES].orEmpty().mapNotNullTo(LinkedHashSet()) { it.toLongOrNull() }
+    }
+
+    suspend fun setPortalBuiltinEpg(sourceId: Long, enabled: Boolean) {
+        context.dataStore.edit { prefs ->
+            val current = prefs[Keys.PORTAL_BUILTIN_EPG_SOURCES].orEmpty()
+            prefs[Keys.PORTAL_BUILTIN_EPG_SOURCES] = if (enabled) current + sourceId.toString() else current - sourceId.toString()
+        }
     }
 
     /** Whether the active profile is the local guest profile. */

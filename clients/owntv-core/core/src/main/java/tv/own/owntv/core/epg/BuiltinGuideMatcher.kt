@@ -24,6 +24,7 @@ class BuiltinGuideMatcher(
     private val customize: CustomizationStore,
     private val db: OwnTVDatabase,
     private val epgRepository: EpgRepository,
+    private val settings: tv.own.owntv.core.settings.SettingsRepository? = null,
 ) {
     data class Result(val applied: Int, val stillWithoutGuide: Int)
 
@@ -66,7 +67,8 @@ class BuiltinGuideMatcher(
 
     suspend fun run(): Result {
         val all = db.sourceDao().getAllOnce()
-        val portalIds = all.filter { it.type == tv.own.owntv.core.model.SourceType.STALKER }.map { it.id }
+        val allowedPortalIds = runCatching { kotlinx.coroutines.flow.firstOrNull(settings?.portalBuiltinEpgSources ?: kotlinx.coroutines.flow.emptyFlow()) }.getOrNull().orEmpty()
+        val portalIds = all.filter { it.type == tv.own.owntv.core.model.SourceType.STALKER && it.id !in allowedPortalIds }.map { it.id }
         runCatching { dropPortalLinks(portalIds, db.profileDao().getAllOnce()) }
         runCatching { syncProfiles() }
         val sourceIds = all.filter { it.id !in portalIds }.map { it.id }

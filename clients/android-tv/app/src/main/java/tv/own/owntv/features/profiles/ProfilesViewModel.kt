@@ -124,6 +124,21 @@ class ProfilesViewModel(
     fun delete(profile: ProfileEntity) {
         viewModelScope.launch { manager.delete(profile) }
     }
+
+    val hiddenProfileIds: StateFlow<Set<Long>> = settings.hiddenProfileIds
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptySet())
+
+    fun hideProfile(id: Long) {
+        viewModelScope.launch { settings.hideProfile(id) }
+    }
+
+    fun showProfile(id: Long) {
+        viewModelScope.launch { settings.showProfile(id) }
+    }
+
+    fun setProfileHidden(id: Long, hidden: Boolean) {
+        viewModelScope.launch { settings.setProfileHidden(id, hidden) }
+    }
 }
 
 /** Room has not emitted yet versus a completed query, including a legitimately empty result. */

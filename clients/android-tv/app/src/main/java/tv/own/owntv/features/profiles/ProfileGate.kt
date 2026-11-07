@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -35,6 +36,11 @@ import tv.own.owntv.R
 import tv.own.owntv.core.database.entity.ProfileEntity
 import tv.own.owntv.ui.components.OwnTVAvatar
 import tv.own.owntv.ui.components.OwnTVIcon
+import tv.own.owntv.ui.stage.StageConfirm
+import tv.own.owntv.ui.stage.StagePopup
+import tv.own.owntv.ui.stage.StagePopupOption
+import tv.own.owntv.ui.theme.StageColors
+import tv.own.owntv.ui.theme.mpx
 
 /**
  * The "Who's watching?" launch gate. Shown when more than one profile exists. Picking a
@@ -45,23 +51,53 @@ import tv.own.owntv.ui.components.OwnTVIcon
 fun ProfileGate(onEnter: (Long) -> Unit, onAddProfile: () -> Unit, modifier: Modifier = Modifier) {
     val vm: ProfilesViewModel = koinViewModel()
     val profiles by vm.profiles.collectAsStateWithLifecycle()
+    val hiddenProfileIds by vm.hiddenProfileIds.collectAsStateWithLifecycle()
 
     val guestId by vm.guestProfileId.collectAsStateWithLifecycle()
     val guestName = stringResource(R.string.profiles_guest_name)
-    var pinFor by remember { mutableStateOf<ProfileEntity?>(null) }
-    var pinError by remember { mutableStateOf(false) }
-    val firstFocus = remember { FocusRequester() }
 
-    LaunchedEffect(profiles.isNotEmpty()) {
-        if (profiles.isNotEmpty()) runCatching { firstFocus.requestFocus() }
+    val visibleProfiles = remember(profiles, hiddenProfileIds, guestId) {
+        profiles.filter { it.id == guestId || it.id !in hiddenProfileIds }
+    }
+
+    var menuProfile by remember { mutableStateOf<ProfileEntity?>(null) }
+    var deleteConfirmProfile by remember { mutableStateOf<ProfileEntity?>(null) }
+    var pinForEnter by remember { mutableStateOf<ProfileEntity?>(null) }
+    var pinForDelete by remember { mutableStateOf<ProfileEntity?>(null) }
+    var pinError by remember { mutableStateOf(false) }
+
+    val profileFocus = remember { mutableMapOf<Long, FocusRequester>() }
+    val addFocus = remember { FocusRequester() }
+    var lastFocusedId by remember { mutableStateOf<Long?>(null) }
+    var returnFocusTrigger by remember { mutableIntStateOf(0) }
+
+    LaunchedEffect(visibleProfiles.isNotEmpty()) {
+        if (visibleProfiles.isNotEmpty()) {
+            val target = lastFocusedId?.let { profileFocus[it] } ?: profileFocus.getOrPut(visibleProfiles.first().id) { FocusRequester() }
+            runCatching { target.requestFocus() }
+        }
+    }
+
+    LaunchedEffect(returnFocusTrigger) {
+        if (returnFocusTrigger > 0) {
+            val target = lastFocusedId?.takeIf { id -> visibleProfiles.any { it.id == id } }?.let { profileFocus[it] }
+                ?: visibleProfiles.firstOrNull()?.let { profileFocus[it.id] }
+                ?: addFocus
+            runCatching { target.requestFocus() }
+        }
     }
 
     fun choose(p: ProfileEntity) {
-        if (p.pinHash != null) {
-            pinError = false
-            pinFor = p
+        lastFocusedId = p.id
+        if (p.id == guestId) {
+            if (p.pinHash != null) {
+                pinError = false
+                pinForEnter = p
+            } else {
+                vm.switchTo(p) { onEnter(p.id) }
+            }
         } else {
-            vm.switchTo(p) { onEnter(p.id) }
+            menuProfile = p
         }
     }
 
@@ -72,38 +108,128 @@ fun ProfileGate(onEnter: (Long) -> Unit, onAddProfile: () -> Unit, modifier: Mod
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             tv.own.owntv.ui.components.BrandLockup(markSize = 48)
             Spacer(Modifier.height(24.dp))
-            Text(stringResource(R.string.profiles_gate_title), style = tv.own.owntv.ui.theme.stageText(54, 700), color = tv.own.owntv.ui.theme.StageColors.Text)
+            Text(stringResource(R.string.profiles_gate_title), style = tv.own.owntv.ui.theme.stageText(54, 700), color = StageColors.Text)
             Spacer(Modifier.height(36.dp))
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(28.dp),
                 modifier = Modifier.focusGroup().padding(horizontal = 48.dp),
             ) {
-                items(profiles, key = { it.id }) { p ->
+                items(visibleProfiles, key = { it.id }) { p ->
+                    val requester = profileFocus.getOrPut(p.id) { FocusRequester() }
                     ProfileTile(
                         profile = p,
                         isGuest = p.id == guestId,
-                        modifier = if (p.id == profiles.first().id) Modifier.focusRequester(firstFocus) else Modifier,
+                        modifier = Modifier.focusRequester(requester),
                         onClick = { choose(p) },
                     )
                 }
-                item { AddTile(onClick = onAddProfile) }
+                item { AddTile(onClick = onAddProfile, modifier = Modifier.focusRequester(addFocus)) }
                 // "No registration, no profile": shown until the guest profile exists (then it is a tile above).
-                if (profiles.none { it.id == guestId }) {
+                if (visibleProfiles.none { it.id == guestId }) {
                     item { AddTile(onClick = { vm.enterGuest(guestName, onEnter) }, label = guestName, icon = OwnTVIcon.PERSON) }
                 }
             }
         }
     }
 
-    pinFor?.let { p ->
+    menuProfile?.let { p ->
+        StagePopup(
+            onDismiss = {
+                menuProfile = null
+                returnFocusTrigger++
+            },
+            title = p.name,
+            eyebrow = stringResource(R.string.profiles_gate_title),
+            width = 560.mpx,
+        ) {
+            StagePopupOption(
+                title = stringResource(R.string.profiles_menu_enter),
+                leading = { OwnTVIcon(OwnTVIcon.PLAY, tint = StageColors.Text, modifier = Modifier.size(20.mpx)) },
+                onClick = {
+                    menuProfile = null
+                    if (p.pinHash != null) {
+                        pinError = false
+                        pinForEnter = p
+                    } else {
+                        vm.switchTo(p) { onEnter(p.id) }
+                    }
+                },
+            )
+            StagePopupOption(
+                title = stringResource(R.string.profiles_menu_hide),
+                leading = { OwnTVIcon(OwnTVIcon.EYE_OFF, tint = StageColors.Text, modifier = Modifier.size(20.mpx)) },
+                onClick = {
+                    menuProfile = null
+                    vm.hideProfile(p.id)
+                    returnFocusTrigger++
+                },
+            )
+            StagePopupOption(
+                title = stringResource(R.string.common_delete),
+                danger = true,
+                leading = { OwnTVIcon(OwnTVIcon.TRASH, tint = StageColors.Danger, modifier = Modifier.size(20.mpx)) },
+                onClick = {
+                    menuProfile = null
+                    deleteConfirmProfile = p
+                },
+            )
+        }
+    }
+
+    deleteConfirmProfile?.let { p ->
+        StageConfirm(
+            title = stringResource(R.string.profiles_delete_confirm_title, p.name),
+            body = stringResource(R.string.profiles_delete_confirm_message),
+            confirm = stringResource(R.string.common_delete),
+            cancel = stringResource(R.string.common_cancel),
+            focusCancel = true,
+            onConfirm = {
+                deleteConfirmProfile = null
+                if (p.pinHash != null) {
+                    pinError = false
+                    pinForDelete = p
+                } else {
+                    vm.delete(p)
+                    returnFocusTrigger++
+                }
+            },
+            onCancel = {
+                deleteConfirmProfile = null
+                returnFocusTrigger++
+            },
+        )
+    }
+
+    pinForEnter?.let { p ->
         PinDialog(
             title = if (pinError) stringResource(R.string.profiles_wrong_pin) else stringResource(R.string.profiles_enter_pin, p.name),
             onSubmit = { pin ->
                 if (vm.verifyPin(p, pin)) {
+                    pinForEnter = null
                     vm.switchTo(p) { onEnter(p.id) }
                 } else pinError = true
             },
-            onDismiss = { pinFor = null },
+            onDismiss = {
+                pinForEnter = null
+                returnFocusTrigger++
+            },
+        )
+    }
+
+    pinForDelete?.let { p ->
+        PinDialog(
+            title = if (pinError) stringResource(R.string.profiles_wrong_pin) else stringResource(R.string.profiles_enter_pin, p.name),
+            onSubmit = { pin ->
+                if (vm.verifyPin(p, pin)) {
+                    pinForDelete = null
+                    vm.delete(p)
+                    returnFocusTrigger++
+                } else pinError = true
+            },
+            onDismiss = {
+                pinForDelete = null
+                returnFocusTrigger++
+            },
         )
     }
 }
@@ -144,12 +270,12 @@ private fun ProfileTile(profile: ProfileEntity, isGuest: Boolean = false, modifi
 }
 
 @Composable
-private fun AddTile(onClick: () -> Unit, label: String = stringResource(R.string.profiles_add), icon: OwnTVIcon = OwnTVIcon.ADD) {
+private fun AddTile(onClick: () -> Unit, label: String = stringResource(R.string.profiles_add), icon: OwnTVIcon = OwnTVIcon.ADD, modifier: Modifier = Modifier) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         tv.own.owntv.ui.stage.StageSurface(
             onClick = onClick,
             radius = 24.dp,
-            modifier = Modifier.size(132.dp),
+            modifier = modifier.size(132.dp),
             focusStyle = tv.own.owntv.ui.stage.StageFocus.FX,
             contentAlignment = Alignment.Center,
         ) { _ ->

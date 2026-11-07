@@ -121,6 +121,8 @@ internal fun ProfileEditorDialog(
     onClearPicture: (() -> Unit)? = null,
     allowDownloads: Boolean? = null,
     onAllowDownloads: (Boolean) -> Unit = {},
+    isHidden: Boolean = false,
+    onUnhide: (() -> Unit)? = null,
 ) {
     var name by remember { mutableStateOf(initial?.name ?: "") }
     var downloads by remember(allowDownloads) { mutableStateOf(allowDownloads ?: true) }
@@ -193,6 +195,16 @@ internal fun ProfileEditorDialog(
         ToggleRow(label = stringResource(R.string.profiles_kids), desc = stringResource(R.string.profiles_kids_description), checked = isKids) { isKids = it }
         if (allowDownloads != null) {
             ToggleRow(label = stringResource(R.string.profiles_allow_downloads), desc = stringResource(R.string.profiles_allow_downloads_description), checked = downloads) { downloads = it }
+        }
+        if (isHidden && onUnhide != null) {
+            tv.own.owntv.ui.stage.StagePopupOption(
+                title = stringResource(R.string.profiles_menu_unhide),
+                onClick = {
+                    onUnhide()
+                    onDismiss()
+                },
+                leading = { tv.own.owntv.ui.stage.StagePopupIcon(tv.own.owntv.ui.components.OwnTVIcon.PERSON) },
+            )
         }
         if (initial?.pinHash != null) {
             ToggleRow(label = stringResource(R.string.profiles_remove_pin), desc = stringResource(R.string.profiles_no_pin), checked = removePin) { removePin = it }

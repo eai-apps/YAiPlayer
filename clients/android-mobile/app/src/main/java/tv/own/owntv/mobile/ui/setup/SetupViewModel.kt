@@ -14,6 +14,12 @@ import tv.own.owntv.core.settings.SettingsRepository
 import tv.own.owntv.core.database.entity.SourceEntity
 import tv.own.owntv.core.setup.SourceImporter
 import tv.own.owntv.core.sync.SyncScopeChoice
+import tv.own.owntv.core.setup.SyncProgressStats
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import tv.own.owntv.mobile.R
 import java.io.File
 
@@ -50,6 +56,43 @@ class SetupViewModel(
 
     val state = importer.state
     val progress = importer.progress
+
+    val syncStats: StateFlow<SyncProgressStats> = combine(
+        importer.state,
+        importer.progress,
+    ) { state, progress ->
+        when (state) {
+            is SourceImporter.ImportState.Running -> {
+                val p = progress
+                SyncProgressStats(
+                    channels = p?.liveProcessed ?: 0,
+                    movies = p?.moviesProcessed ?: 0,
+                    series = p?.seriesProcessed ?: 0,
+                    isEpgInProgress = true,
+                    isRunning = true,
+                )
+            }
+            is SourceImporter.ImportState.Success -> {
+                val c = state.counts
+                SyncProgressStats(
+                    channels = c?.channels ?: progress?.liveProcessed ?: 0,
+                    movies = c?.movies ?: progress?.moviesProcessed ?: 0,
+                    series = c?.series ?: progress?.seriesProcessed ?: 0,
+                    isEpgReady = true,
+                    isSuccess = true,
+                )
+            }
+            is SourceImporter.ImportState.Failed -> {
+                SyncProgressStats(
+                    channels = progress?.liveProcessed ?: 0,
+                    movies = progress?.moviesProcessed ?: 0,
+                    series = progress?.seriesProcessed ?: 0,
+                    isFailed = true,
+                )
+            }
+            else -> SyncProgressStats()
+        }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SyncProgressStats())
 
     private var importJob: Job? = null
 
@@ -94,12 +137,15 @@ class SetupViewModel(
         series: SyncScopeChoice,
         login: String = "",
         password: String = "",
+        loadChannelLogos: Boolean = true,
+        useOnlyPortalEpg: Boolean = true,
     ) = runImport {
         importer.stalker(
             name = name, portalUrl = portalUrl, mac = mac, serialNumber = serialNumber,
             deviceId = deviceId, deviceId2 = deviceId2, signature = signature, userAgent = userAgent,
             httpReferer = httpReferer, autoRefresh = autoRefresh, live = live, movies = movies, series = series,
             login = login, password = password,
+            loadChannelLogos = loadChannelLogos, useOnlyPortalEpg = useOnlyPortalEpg,
         )
     }
 

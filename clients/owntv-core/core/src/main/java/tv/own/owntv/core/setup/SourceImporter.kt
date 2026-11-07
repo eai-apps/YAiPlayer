@@ -201,6 +201,8 @@ class SourceImporter(
         /** The optional portal login on top of the MAC; blank for the usual MAC-only portal. */
         login: String = "",
         password: String = "",
+        loadChannelLogos: Boolean = true,
+        useOnlyPortalEpg: Boolean = true,
     ) {
         val canonicalMac = StalkerClient.canonicalizeMac(mac)
         val portalLogin = login.trim().takeIf { it.isNotBlank() }
@@ -231,7 +233,7 @@ class SourceImporter(
                     password = portalPassword,
                 ),
             )
-            sourceRepository.addStalkerSource(
+            val added = sourceRepository.addStalkerSource(
                 profileId, uniqueName(name), portalUrl.trim(), canonicalMac,
                 serialNumber.trim().takeIf { it.isNotBlank() },
                 deviceId.trim().takeIf { it.isNotBlank() },
@@ -242,6 +244,9 @@ class SourceImporter(
                 httpReferer = httpReferer.trim().takeIf { it.isNotBlank() },
                 login = portalLogin, password = portalPassword,
             )
+            if (loadChannelLogos) settings.setGuideLogos(added.id, true)
+            if (!useOnlyPortalEpg) settings.setPortalBuiltinEpg(added.id, true)
+            added
         }
     }
 

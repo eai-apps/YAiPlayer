@@ -47,7 +47,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import tv.own.owntv.core.database.entity.ProfileEntity
 import tv.own.owntv.mobile.R
+import tv.own.owntv.mobile.ui.components.MobileBottomSheet
 import tv.own.owntv.mobile.ui.components.MobileIcons
+import tv.own.owntv.mobile.ui.screens.settings.StageConfirmSheet
+import tv.own.owntv.mobile.ui.stage.StageMenuItem
+import tv.own.owntv.mobile.ui.stage.StageSheetHeader
 
 private val AVATAR_SIZE = 104.dp
 
@@ -67,6 +71,9 @@ fun ProfileGate(
     vm: ProfilesViewModel,
 ) {
     var pinFor by remember { mutableStateOf<ProfileEntity?>(null) }
+    var menuFor by remember { mutableStateOf<ProfileEntity?>(null) }
+    var confirmDelete by remember { mutableStateOf<ProfileEntity?>(null) }
+    var pinForDelete by remember { mutableStateOf<ProfileEntity?>(null) }
     var addProfile by remember { mutableStateOf(false) }
     val fallbackName = stringResource(R.string.profiles_default_name)
 
@@ -76,6 +83,13 @@ fun ProfileGate(
     // current profile ringed — and the outlined Add profile, on the Stage background.
     val palette = LocalStagePalette.current
     val activeProfileId by vm.activeProfileId.collectAsStateWithLifecycle()
+    val hiddenProfileIds by vm.hiddenProfileIds.collectAsStateWithLifecycle()
+    val guestId by vm.guestProfileId.collectAsStateWithLifecycle()
+
+    val visibleProfiles = remember(profiles, hiddenProfileIds, guestId) {
+        profiles.filter { it.id == guestId || it.id !in hiddenProfileIds }
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -107,9 +121,8 @@ fun ProfileGate(
             modifier = Modifier.padding(top = 4.dp, bottom = 82.dp),
         )
         // The guest ("no registration, no profile") is a tile of its own until its profile exists.
-        val guestId by vm.guestProfileId.collectAsStateWithLifecycle()
-        val guestMissing = profiles.none { it.id == guestId }
-        val tiles: List<Any> = profiles + "add" + (if (guestMissing) listOf("guest") else emptyList())
+        val guestMissing = visibleProfiles.none { it.id == guestId }
+        val tiles: List<Any> = visibleProfiles + "add" + (if (guestMissing) listOf("guest") else emptyList())
         tiles.chunked(2).forEach { pair ->
             Row(Modifier.fillMaxWidth().padding(bottom = 26.dp), horizontalArrangement = Arrangement.spacedBy(20.dp)) {
                 pair.forEach { tile ->
@@ -128,7 +141,13 @@ fun ProfileGate(
                                 profile = profile,
                                 current = profile.id == activeProfileId,
                                 isGuest = profile.id == guestId,
-                                onClick = { if (profile.pinHash == null) enter(profile) else pinFor = profile },
+                                onClick = {
+                                    if (profile.id == guestId) {
+                                        if (profile.pinHash == null) enter(profile) else pinFor = profile
+                                    } else {
+                                        menuFor = profile
+                                    }
+                                },
                             )
                         }
                     }
@@ -136,6 +155,74 @@ fun ProfileGate(
                 if (pair.size == 1) Spacer(Modifier.weight(1f))
             }
         }
+    }
+
+    menuFor?.let { p ->
+        MobileBottomSheet(onDismissRequest = { menuFor = null }) {
+            StageSheetHeader(title = p.name)
+            StageMenuItem(
+                label = stringResource(R.string.profiles_menu_enter),
+                onClick = {
+                    val target = p
+                    menuFor = null
+                    if (target.pinHash == null) enter(target) else pinFor = target
+                },
+                icon = MobileIcons.PlayArrow,
+            )
+            StageMenuItem(
+                label = stringResource(R.string.profiles_menu_hide),
+                onClick = {
+                    val targetId = p.id
+                    menuFor = null
+                    vm.hideProfile(targetId)
+                },
+                icon = MobileIcons.VisibilityOff,
+            )
+            StageMenuItem(
+                label = stringResource(R.string.common_delete),
+                onClick = {
+                    val target = p
+                    menuFor = null
+                    confirmDelete = target
+                },
+                icon = MobileIcons.Delete,
+                danger = true,
+            )
+        }
+    }
+
+    confirmDelete?.let { p ->
+        StageConfirmSheet(
+            title = stringResource(R.string.profiles_delete_confirm_title, p.name),
+            text = stringResource(R.string.profiles_delete_confirm_message),
+            confirm = stringResource(R.string.common_delete),
+            confirmIcon = MobileIcons.Delete,
+            danger = true,
+            onConfirm = {
+                val target = p
+                confirmDelete = null
+                if (target.pinHash != null) {
+                    pinForDelete = target
+                } else {
+                    vm.delete(target)
+                }
+            },
+            onDismiss = { confirmDelete = null },
+        )
+    }
+
+    pinForDelete?.let { locked ->
+        ProfilePinSheet(
+            profileName = locked.name,
+            onSubmit = { pin ->
+                if (vm.verifyPin(locked, pin)) {
+                    pinForDelete = null
+                    vm.delete(locked)
+                    true
+                } else false
+            },
+            onDismiss = { pinForDelete = null },
+        )
     }
 
     pinFor?.let { locked ->

@@ -913,6 +913,7 @@ fun StageFieldRow(
     backLabel: String? = null,
     /** "▶ Start Import" on a form whose button sits in the panel; a password row's ▶ shows the text instead. */
     submitHint: Pair<String, String>? = null,
+    badge: String? = null,
 ) {
     val a = stageAccent
     val panel = LocalSettingsPanel.current
@@ -974,7 +975,15 @@ fun StageFieldRow(
         ) {
             OwnTVIcon(icon, StageColors.Muted, Modifier.size(24.mpx))
             Column(Modifier.weight(1f)) {
-                Text(label, style = stageText(21, 700), color = StageColors.Text, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.mpx),
+                ) {
+                    Text(label, style = stageText(21, 700), color = StageColors.Text, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    if (badge != null) {
+                        tv.own.owntv.ui.stage.StageTag(badge.uppercase(), tint = a.accent)
+                    }
+                }
                 Box(Modifier.padding(top = 3.mpx)) {
                     if (value.isEmpty() && !editing) {
                         Text(placeholder, style = stageText(15.5f, 500), color = StageColors.Dim, maxLines = 1, overflow = TextOverflow.Ellipsis)

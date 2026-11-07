@@ -31,12 +31,14 @@ class ImportFinalizer(
     private val metadataDao: tv.own.owntv.core.database.dao.MetadataDao,
     private val epgSourceStore: tv.own.owntv.core.epg.EpgSourceStore,
     private val builtinGuide: BuiltinGuide? = null,
+    private val settings: tv.own.owntv.core.settings.SettingsRepository? = null,
 ) {
     suspend fun finalize(source: SourceEntity, deferIndexes: Boolean = false): SyncCounts {
         val counts = contentCounts(source.id)
         registerPortalGuide(source)
-        // A portal that brings its own guide does not need the built-in one forced on it.
-        val ownGuide = source.type == tv.own.owntv.core.model.SourceType.STALKER && source.importPortalEpg
+        // A portal that brings its own guide does not need the built-in one forced on it unless opted in.
+        val allowedPortalIds = runCatching { kotlinx.coroutines.flow.firstOrNull(settings?.portalBuiltinEpgSources ?: kotlinx.coroutines.flow.emptyFlow()) }.getOrNull().orEmpty()
+        val ownGuide = source.type == tv.own.owntv.core.model.SourceType.STALKER && source.importPortalEpg && (source.id !in allowedPortalIds)
         if (!ownGuide) runCatching { builtinGuide?.onPlaylistImported() }
         // Bounded TTL eviction of the TMDB caches — they grow without limit as the user
         // browses. Piggy-backed here (the operation that changes data), never on cold start.

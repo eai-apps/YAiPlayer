@@ -24,8 +24,13 @@ import tv.own.owntv.core.settings.PlaylistRefresh
 import tv.own.owntv.core.setup.MAG_USER_AGENTS
 import tv.own.owntv.core.stalker.StalkerClient
 import tv.own.owntv.core.stalker.StalkerDeviceDerivation
+import tv.own.owntv.core.setup.SyncProgressStats
 import tv.own.owntv.core.sync.SyncScopeChoice
 import tv.own.owntv.mobile.R
+import tv.own.owntv.mobile.ui.stage.StageTag
+import tv.own.owntv.mobile.ui.stage.StageTagTone
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.ui.unit.dp
@@ -98,12 +103,15 @@ fun AddSourceForm(
         name: String, portalUrl: String, mac: String, serialNumber: String, deviceId: String,
         deviceId2: String, signature: String, userAgent: String, httpReferer: String, autoRefresh: PlaylistRefresh,
         live: SyncScopeChoice, movies: SyncScopeChoice, series: SyncScopeChoice, login: String, password: String,
+        loadChannelLogos: Boolean, useOnlyPortalEpg: Boolean,
     ) -> Unit,
     modifier: Modifier = Modifier,
     initial: SourceFormValues? = null,
     onSave: ((SourceFormValues) -> Unit)? = null,
     // Called with everything typed when the user starts an import, so a failed import can reopen the form filled.
     onSubmitted: ((SourceFormValues) -> Unit)? = null,
+    syncStats: SyncProgressStats? = null,
+    onOpenLive: (() -> Unit)? = null,
 ) {
     val editing = onSave != null
     val settings: tv.own.owntv.core.settings.SettingsRepository = org.koin.compose.koinInject()
@@ -143,6 +151,8 @@ fun AddSourceForm(
     var syncSeries by rememberSaveable { mutableStateOf(initial?.series ?: SyncScopeChoice.Now) }
     var showRefreshSheet by remember { mutableStateOf(false) }
     var showDeviceSheet by remember { mutableStateOf(false) }
+    var loadChannelLogos by rememberSaveable { mutableStateOf(true) }
+    var useOnlyPortalEpg by rememberSaveable { mutableStateOf(true) }
 
     val context = LocalContext.current
     val clipboard = androidx.compose.ui.platform.LocalClipboardManager.current
@@ -267,6 +277,9 @@ fun AddSourceForm(
                     StageTextRow(
                         MobileIcons.Translate, stringResource(R.string.setup_portal_url), portalUrl, { portalUrl = it },
                         placeholder = stringResource(R.string.setup_portal_example), keyboardType = KeyboardType.Uri,
+                        trailing = {
+                            StageTag(stringResource(R.string.setup_badge_required).uppercase(), tone = StageTagTone.ACCENT)
+                        },
                     )
                 }
                 item(key = "mac") {
@@ -284,6 +297,9 @@ fun AddSourceForm(
                         icon = MobileIcons.Edit,
                         title = stringResource(R.string.setup_mac_generate_reliable),
                         onClick = { mac = StalkerDeviceDerivation.reliableMac() },
+                        trailing = {
+                            StageTag(stringResource(R.string.setup_badge_required).uppercase(), tone = StageTagTone.ACCENT)
+                        },
                     ) { }
                 }
                 if (mac.isNotBlank()) {
@@ -301,12 +317,22 @@ fun AddSourceForm(
                         Text(stringResource(R.string.setup_mac_invalid), style = stageText(11.5f, 600), color = palette.danger, modifier = Modifier.padding(horizontal = 12.dp))
                     }
                 }
-                // Only for portals that ask for a login on top of the MAC; most do not.
-                item(key = "portal-user") { StageTextRow(MobileIcons.Person, stringResource(R.string.settings_username_optional), username, { username = it }) }
+                // Username & Password
+                item(key = "portal-user") {
+                    StageTextRow(
+                        MobileIcons.Person, stringResource(R.string.setup_username), username, { username = it },
+                        trailing = {
+                            StageTag(stringResource(R.string.setup_badge_required).uppercase(), tone = StageTagTone.ACCENT)
+                        },
+                    )
+                }
                 item(key = "portal-pass") {
                     StageTextRow(
-                        MobileIcons.Lock, stringResource(if (editing) R.string.setup_password_keep else R.string.settings_password_optional),
+                        MobileIcons.Lock, stringResource(if (editing) R.string.setup_password_keep else R.string.setup_password),
                         password, { password = it }, password = true,
+                        trailing = {
+                            StageTag(stringResource(R.string.setup_badge_required).uppercase(), tone = StageTagTone.ACCENT)
+                        },
                     )
                 }
                 item(key = "identity") { StageSectionHead(stringResource(R.string.setup_stalker_advanced_identity)) }
@@ -322,6 +348,9 @@ fun AddSourceForm(
                             deviceId = id.deviceId.orEmpty()
                             deviceId2 = id.deviceId2.orEmpty()
                         },
+                        trailing = {
+                            StageTag(stringResource(R.string.setup_badge_required).uppercase(), tone = StageTagTone.ACCENT)
+                        },
                     ) { }
                 }
                 item(key = "serial") { StageTextRow(MobileIcons.Edit, stringResource(R.string.setup_stalker_serial_number_optional), serialNumber, { serialNumber = it }) }
@@ -334,6 +363,57 @@ fun AddSourceForm(
                         title = stringResource(R.string.setup_device_model_preset),
                         onClick = { showDeviceSheet = true },
                     ) { StageRowValue(stringResource(MAG_USER_AGENTS.firstOrNull { it.userAgent == userAgent }?.labelRes ?: MAG_USER_AGENTS.first().labelRes), StageChevron.DOWN) }
+                }
+
+                // Requirement 1: Primary connect button immediately after last identity parameter
+                item(key = "stalker-connect-btn") {
+                    StageButton(
+                        onClick = {
+                            if (tv.own.owntv.core.profile.GuestPolicy.isLimitReached(isGuest, sources, tv.own.owntv.core.model.SourceType.STALKER)) {
+                                showLimitSheet = true
+                                return@StageButton
+                            }
+                            if (mac.isBlank()) mac = StalkerDeviceDerivation.randomMac()
+                            onSubmitted?.invoke(values())
+                            onStartStalker(
+                                name, portalUrl, mac, serialNumber, deviceId, deviceId2, signature,
+                                userAgent, httpReferer, autoRefresh, syncLive, syncMovies, syncSeries, username, password,
+                                loadChannelLogos, useOnlyPortalEpg,
+                            )
+                        },
+                        text = stringResource(R.string.setup_stalker_btn_connect),
+                        icon = MobileIcons.PlayArrow,
+                        style = StageButtonStyle.PRIMARY,
+                        enabled = canStart,
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 12.dp),
+                    )
+                }
+                // Requirement 3: Two checkboxes under the button
+                item(key = "stalker-checkbox-logos") {
+                    StageSettingRow(
+                        icon = MobileIcons.Image,
+                        title = stringResource(R.string.setup_checkbox_channel_logos),
+                        role = Role.Switch,
+                        onClick = { loadChannelLogos = !loadChannelLogos },
+                    ) { StageSwitch(loadChannelLogos) }
+                }
+                item(key = "stalker-checkbox-epg") {
+                    StageSettingRow(
+                        icon = MobileIcons.Guide,
+                        title = stringResource(R.string.setup_checkbox_only_portal_epg),
+                        role = Role.Switch,
+                        onClick = { useOnlyPortalEpg = !useOnlyPortalEpg },
+                    ) { StageSwitch(useOnlyPortalEpg) }
+                }
+                // Requirement 4: In-place sync progress card
+                if (syncStats != null && (syncStats.isRunning || syncStats.isSuccess || syncStats.isFailed)) {
+                    item(key = "stalker-sync-progress") {
+                        SyncProgressCard(
+                            stats = syncStats,
+                            onOpenLive = onOpenLive,
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 8.dp),
+                        )
+                    }
                 }
             }
         }
@@ -367,41 +447,44 @@ fun AddSourceForm(
             item(key = "sync-movies") { ScopeRow(MobileIcons.Movie, stringResource(R.string.setup_movies), stringResource(R.string.setup_vod_movie_catalog), syncMovies) { syncMovies = it } }
             item(key = "sync-series") { ScopeRow(MobileIcons.Series, stringResource(R.string.setup_series), stringResource(R.string.setup_tv_series_catalog), syncSeries) { syncSeries = it } }
         }
-        item(key = "start") {
-            StageButton(
-                onClick = {
-                    onSave?.let { save -> save(values()); return@StageButton }
-                    val targetType = when (kind) {
-                        SourceKind.XTREAM -> tv.own.owntv.core.model.SourceType.XTREAM
-                        SourceKind.M3U -> tv.own.owntv.core.model.SourceType.M3U
-                        SourceKind.STALKER -> tv.own.owntv.core.model.SourceType.STALKER
-                    }
-                    if (tv.own.owntv.core.profile.GuestPolicy.isLimitReached(isGuest, sources, targetType)) {
-                        showLimitSheet = true
-                        return@StageButton
-                    }
-                    // A blank MAC is fine for a login-only portal: make one now and keep it, so a retry
-                    // after a failure presents the same device (some portals bind the login to the first MAC).
-                    if (kind == SourceKind.STALKER && mac.isBlank()) mac = StalkerDeviceDerivation.randomMac()
-                    onSubmitted?.invoke(values())
-                    when (kind) {
-                        SourceKind.XTREAM -> onStartXtream(
-                            name, server, username, password, userAgent, httpReferer, autoRefresh,
-                            syncLive, syncMovies, syncSeries, preferHls,
-                        )
-                        SourceKind.M3U -> onStartM3u(name, m3uUrl, userAgent, httpReferer, autoRefresh)
-                        SourceKind.STALKER -> onStartStalker(
-                            name, portalUrl, mac, serialNumber, deviceId, deviceId2, signature,
-                            userAgent, httpReferer, autoRefresh, syncLive, syncMovies, syncSeries, username, password,
-                        )
-                    }
-                },
-                text = stringResource(if (editing) R.string.common_save else R.string.setup_start_import),
-                icon = if (editing) MobileIcons.Check else MobileIcons.Download,
-                style = StageButtonStyle.PRIMARY,
-                enabled = canStart,
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 16.dp),
-            )
+        if (kind != SourceKind.STALKER || editing) {
+            item(key = "start") {
+                StageButton(
+                    onClick = {
+                        onSave?.let { save -> save(values()); return@StageButton }
+                        val targetType = when (kind) {
+                            SourceKind.XTREAM -> tv.own.owntv.core.model.SourceType.XTREAM
+                            SourceKind.M3U -> tv.own.owntv.core.model.SourceType.M3U
+                            SourceKind.STALKER -> tv.own.owntv.core.model.SourceType.STALKER
+                        }
+                        if (tv.own.owntv.core.profile.GuestPolicy.isLimitReached(isGuest, sources, targetType)) {
+                            showLimitSheet = true
+                            return@StageButton
+                        }
+                        // A blank MAC is fine for a login-only portal: make one now and keep it, so a retry
+                        // after a failure presents the same device (some portals bind the login to the first MAC).
+                        if (kind == SourceKind.STALKER && mac.isBlank()) mac = StalkerDeviceDerivation.randomMac()
+                        onSubmitted?.invoke(values())
+                        when (kind) {
+                            SourceKind.XTREAM -> onStartXtream(
+                                name, server, username, password, userAgent, httpReferer, autoRefresh,
+                                syncLive, syncMovies, syncSeries, preferHls,
+                            )
+                            SourceKind.M3U -> onStartM3u(name, m3uUrl, userAgent, httpReferer, autoRefresh)
+                            SourceKind.STALKER -> onStartStalker(
+                                name, portalUrl, mac, serialNumber, deviceId, deviceId2, signature,
+                                userAgent, httpReferer, autoRefresh, syncLive, syncMovies, syncSeries, username, password,
+                                loadChannelLogos, useOnlyPortalEpg,
+                            )
+                        }
+                    },
+                    text = stringResource(if (editing) R.string.common_save else R.string.setup_start_import),
+                    icon = if (editing) MobileIcons.Check else MobileIcons.Download,
+                    style = StageButtonStyle.PRIMARY,
+                    enabled = canStart,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 16.dp),
+                )
+            }
         }
     }
 
@@ -427,6 +510,68 @@ fun AddSourceForm(
             onDismiss = { showDeviceSheet = false },
         )
     }
+@Composable
+private fun SyncProgressCard(
+    stats: SyncProgressStats,
+    onOpenLive: (() -> Unit)?,
+    modifier: Modifier = Modifier,
+) {
+    val palette = LocalStagePalette.current
+    val accent = stageAccent.accent
+    androidx.compose.foundation.layout.Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(StageRadii.Row))
+            .androidx.compose.foundation.background(palette.ink.copy(alpha = 0.08f))
+            .padding(16.dp),
+    ) {
+        androidx.compose.foundation.layout.Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(10.dp),
+        ) {
+            Text(
+                text = stringResource(R.string.setup_btn_connect),
+                style = stageText(16f, 700),
+                color = palette.text,
+            )
+            Text(
+                text = stringResource(R.string.setup_progress_channels, stats.channels),
+                style = stageText(14f, 600),
+                color = palette.text,
+            )
+            Text(
+                text = stringResource(R.string.setup_progress_movies, stats.movies),
+                style = stageText(14f, 600),
+                color = palette.text,
+            )
+            Text(
+                text = stringResource(R.string.setup_progress_series, stats.series),
+                style = stageText(14f, 600),
+                color = palette.text,
+            )
+            val epgStatus = if (stats.isEpgReady) {
+                stringResource(R.string.setup_progress_epg_done)
+            } else {
+                stringResource(R.string.setup_progress_epg_running)
+            }
+            Text(
+                text = stringResource(R.string.setup_progress_epg, epgStatus),
+                style = stageText(14f, 600),
+                color = if (stats.isEpgReady) accent else palette.dim,
+            )
+            if (stats.isSuccess && onOpenLive != null) {
+                androidx.compose.foundation.layout.Spacer(Modifier.height(6.dp))
+                StageButton(
+                    text = stringResource(R.string.setup_btn_open_live),
+                    onClick = onOpenLive,
+                    icon = MobileIcons.LiveTv,
+                    style = StageButtonStyle.PRIMARY,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+        }
+    }
+}
+
     if (showLimitSheet) {
         tv.own.owntv.mobile.ui.components.MobileBottomSheet(
             onDismissRequest = { showLimitSheet = false },

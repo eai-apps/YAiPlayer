@@ -235,13 +235,16 @@ fun ManageSourcesScreen(
                             vm.addXtream(n.ifBlank { defaultIptvName }, server, u, p, ua, epg, autoRefresh, live, movies, series, isDefault, preferHls, httpReferer = ref)
                         },
                         onStartM3u = { n, url, ua, ref, epg, autoRefresh, isDefault -> vm.addM3u(n.ifBlank { defaultPlaylistName }, url, ua, epg, autoRefresh, isDefault, httpReferer = ref) },
-                        onStartStalker = { n, url, mac, serialNumber, deviceId, deviceId2, signature, ua, ref, autoRefresh, isDefault, live, movies, series, login, password ->
+                        onStartStalker = { n, url, mac, serialNumber, deviceId, deviceId2, signature, ua, ref, autoRefresh, isDefault, live, movies, series, login, password, loadLogos, onlyPortalEpg ->
                             vm.addStalker(
                                 n.ifBlank { defaultPortalName }, url, mac, serialNumber, deviceId,
                                 deviceId2, signature, ua, autoRefresh, isDefault, live, movies, series, httpReferer = ref,
                                 login = login, password = password,
+                                loadChannelLogos = loadLogos, useOnlyPortalEpg = onlyPortalEpg,
                             )
                         },
+                        syncStats = vm.syncStats.collectAsStateWithLifecycle().value,
+                        onOpenLive = { showAdd = false; addMode = null },
                         // Submissions from the Remote screen land here pre-filled (type + fields).
                         remotePayload = vm.remotePayload,
                         onRemotePayloadConsumed = { vm.consumeRemotePayload() },

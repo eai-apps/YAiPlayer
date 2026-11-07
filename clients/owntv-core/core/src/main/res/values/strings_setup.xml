@@ -561,4 +561,26 @@
     <string name="guest_hook_title">Register — playlists sync across devices</string>
     <string name="guest_hook_action">Register</string>
     <string name="guest_hook_dismiss">Dismiss</string>
+
+    <!-- Profiles Gate Menu -->
+    <string name="profiles_menu_enter">Enter</string>
+    <string name="profiles_menu_hide">Hide from home</string>
+    <string name="profiles_menu_unhide">Show on home</string>
+    <string name="profiles_hidden_tag">Hidden</string>
+    <string name="profiles_delete_confirm_title">Delete profile “<xliff:g id="name">%1$s</xliff:g>”?</string>
+    <string name="profiles_delete_confirm_message">This cannot be undone</string>
+
+    <!-- Stalker & Source Setup Enhancements -->
+    <string name="setup_stalker_btn_connect">Sign in to portal &amp; sync</string>
+    <string name="setup_btn_connect">Connect &amp; sync</string>
+    <string name="setup_badge_required">Required</string>
+    <string name="setup_checkbox_channel_logos">Download channel icons</string>
+    <string name="setup_checkbox_only_portal_epg">Use portal TV guide only</string>
+    <string name="setup_progress_channels">Channels: <xliff:g id="count">%1$d</xliff:g></string>
+    <string name="setup_progress_movies">Movies: <xliff:g id="count">%1$d</xliff:g></string>
+    <string name="setup_progress_series">Series: <xliff:g id="count">%1$d</xliff:g></string>
+    <string name="setup_progress_epg">TV guide: <xliff:g id="status">%1$s</xliff:g></string>
+    <string name="setup_progress_epg_running">in progress</string>
+    <string name="setup_progress_epg_done">done</string>
+    <string name="setup_btn_open_live">Done, open Live TV</string>
 </resources>

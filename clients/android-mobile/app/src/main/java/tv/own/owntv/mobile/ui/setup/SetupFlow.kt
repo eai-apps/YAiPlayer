@@ -260,11 +260,15 @@ fun SetupFlow(
                         vm.startM3u(importName!!, url, ua, referer, refresh)
                         step = Step.IMPORTING
                     },
-                    onStartStalker = { name, portal, mac, serial, dev1, dev2, sig, ua, referer, refresh, live, movies, series, login, password ->
+                    onStartStalker = { name, portal, mac, serial, dev1, dev2, sig, ua, referer, refresh, live, movies, series, login, password, loadLogos, onlyPortalEpg ->
                         importName = name.ifBlank { defaultPortalName }
-                        vm.startStalker(importName!!, portal, mac, serial, dev1, dev2, sig, ua, referer, refresh, live, movies, series, login, password)
-                        step = Step.IMPORTING
+                        vm.startStalker(
+                            importName!!, portal, mac, serial, dev1, dev2, sig, ua, referer, refresh, live, movies, series, login, password,
+                            loadChannelLogos = loadLogos, useOnlyPortalEpg = onlyPortalEpg,
+                        )
                     },
+                    syncStats = vm.syncStats.collectAsStateWithLifecycle().value,
+                    onOpenLive = { vm.finish(onDone) },
                 )
             }
             Step.IMPORTING -> ImportProgress(

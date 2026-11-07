@@ -118,6 +118,7 @@ class ProfileManager(
         openSubtitlesAccounts.eraseFor(profile.id)
         // …and its picture, which nothing else would ever clean up.
         avatars.clear(profile.id)
+        settings.showProfile(profile.id)
         settings.setStartupChannel(profile.id, null)
         profileDao.delete(profile)
         if (activeProfileId == profile.id) settings.setActiveProfile(remainingProfileId ?: -1L)

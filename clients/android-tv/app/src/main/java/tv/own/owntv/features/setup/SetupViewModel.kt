@@ -14,6 +14,10 @@ import tv.own.owntv.core.backup.BackupManager
 import tv.own.owntv.core.setup.SourceImporter
 import tv.own.owntv.core.settings.PlaylistRefresh
 import tv.own.owntv.core.sync.SyncScopeChoice
+import tv.own.owntv.core.setup.SyncProgressStats
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.SharingStarted
 import java.io.File
 
 /**
@@ -60,6 +64,43 @@ class SetupViewModel(
 
     val state: StateFlow<SourceImporter.ImportState> = importer.state
     val progress = importer.progress
+
+    val syncStats: StateFlow<SyncProgressStats> = combine(
+        importer.state,
+        importer.progress,
+    ) { state, progress ->
+        when (state) {
+            is SourceImporter.ImportState.Running -> {
+                val p = progress
+                SyncProgressStats(
+                    channels = p?.liveProcessed ?: 0,
+                    movies = p?.moviesProcessed ?: 0,
+                    series = p?.seriesProcessed ?: 0,
+                    isEpgInProgress = true,
+                    isRunning = true,
+                )
+            }
+            is SourceImporter.ImportState.Success -> {
+                val c = state.counts
+                SyncProgressStats(
+                    channels = c?.channels ?: progress?.liveProcessed ?: 0,
+                    movies = c?.movies ?: progress?.moviesProcessed ?: 0,
+                    series = c?.series ?: progress?.seriesProcessed ?: 0,
+                    isEpgReady = true,
+                    isSuccess = true,
+                )
+            }
+            is SourceImporter.ImportState.Failed -> {
+                SyncProgressStats(
+                    channels = progress?.liveProcessed ?: 0,
+                    movies = progress?.moviesProcessed ?: 0,
+                    series = progress?.seriesProcessed ?: 0,
+                    isFailed = true,
+                )
+            }
+            else -> SyncProgressStats()
+        }
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, SyncProgressStats())
 
     // Semi-auto EPG: after the first playlist imports, offer a one-tap guide sync (with a live count) if it
     // has a guide feed.
@@ -142,10 +183,13 @@ class SetupViewModel(
         httpReferer: String = "",
         login: String = "",
         password: String = "",
+        loadChannelLogos: Boolean = true,
+        useOnlyPortalEpg: Boolean = true,
     ) = runImport {
         importer.stalker(
             name, portalUrl, mac, serialNumber, deviceId, deviceId2, signature, userAgent,
             autoRefresh, live, movies, series, httpReferer = httpReferer, login = login, password = password,
+            loadChannelLogos = loadChannelLogos, useOnlyPortalEpg = useOnlyPortalEpg,
         )
     }
 

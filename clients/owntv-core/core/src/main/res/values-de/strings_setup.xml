@@ -288,4 +288,32 @@
     <string name="guest_hook_title">Registrieren — Wiedergabelisten werden geräteübergreifend synchronisiert</string>
     <string name="guest_hook_action">Registrieren</string>
     <string name="guest_hook_dismiss">Ausblenden</string>
+
+    <string name="setup_mac_generate">MAC-Adresse generieren</string>
+    <string name="setup_mac_generate_reliable">Zuverlässige MAC-Adresse generieren</string>
+    <string name="setup_mac_optional_note">Die MAC-Adresse ist optional: leer lassen, um automatisch eine zu erstellen. Bei Wiederholung bleibt dieselbe MAC erhalten.</string>
+    <string name="setup_stalker_identity_fill">Seriennummer und Geräte-IDs anhand der MAC ausfüllen</string>
+    <string name="setup_mac_copy">MAC-Adresse kopieren</string>
+
+    <!-- Profiles Gate Menu -->
+    <string name="profiles_menu_enter">Anmelden</string>
+    <string name="profiles_menu_hide">Vom Startbildschirm ausblenden</string>
+    <string name="profiles_menu_unhide">Auf Startbildschirm anzeigen</string>
+    <string name="profiles_hidden_tag">Ausgeblendet</string>
+    <string name="profiles_delete_confirm_title">Profil „<xliff:g id="name">%1$s</xliff:g>“ löschen?</string>
+    <string name="profiles_delete_confirm_message">Dies kann nicht rückgängig gemacht werden</string>
+
+    <!-- Stalker & Source Setup Enhancements -->
+    <string name="setup_stalker_btn_connect">Beim Portal anmelden &amp; synchronisieren</string>
+    <string name="setup_btn_connect">Verbinden &amp; synchronisieren</string>
+    <string name="setup_badge_required">Erforderlich</string>
+    <string name="setup_checkbox_channel_logos">Kanalsymbole herunterladen</string>
+    <string name="setup_checkbox_only_portal_epg">Nur Portal-TV-Programm verwenden</string>
+    <string name="setup_progress_channels">Kanäle: <xliff:g id="count">%1$d</xliff:g></string>
+    <string name="setup_progress_movies">Filme: <xliff:g id="count">%1$d</xliff:g></string>
+    <string name="setup_progress_series">Serien: <xliff:g id="count">%1$d</xliff:g></string>
+    <string name="setup_progress_epg">TV-Programm: <xliff:g id="status">%1$s</xliff:g></string>
+    <string name="setup_progress_epg_running">läuft</string>
+    <string name="setup_progress_epg_done">bereit</string>
+    <string name="setup_btn_open_live">Fertig, Live-TV öffnen</string>
 </resources>

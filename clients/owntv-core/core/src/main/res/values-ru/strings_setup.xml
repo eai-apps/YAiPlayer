@@ -301,4 +301,26 @@
     <string name="guest_hook_title">Зарегистрируйтесь — плейлисты синхронизируются между устройствами</string>
     <string name="guest_hook_action">Зарегистрироваться</string>
     <string name="guest_hook_dismiss">Скрыть</string>
+
+    <!-- Profiles Gate Menu -->
+    <string name="profiles_menu_enter">Войти</string>
+    <string name="profiles_menu_hide">Скрыть с главной</string>
+    <string name="profiles_menu_unhide">Показать на главной</string>
+    <string name="profiles_hidden_tag">Скрыт</string>
+    <string name="profiles_delete_confirm_title">Удалить профиль «<xliff:g id="name">%1$s</xliff:g>»?</string>
+    <string name="profiles_delete_confirm_message">Это нельзя отменить</string>
+
+    <!-- Stalker & Source Setup Enhancements -->
+    <string name="setup_stalker_btn_connect">Войти в портал и синхронизировать</string>
+    <string name="setup_btn_connect">Подключить и синхронизировать</string>
+    <string name="setup_badge_required">Нужно</string>
+    <string name="setup_checkbox_channel_logos">Загружать значки каналов</string>
+    <string name="setup_checkbox_only_portal_epg">Использовать только телепрограмму портала</string>
+    <string name="setup_progress_channels">Каналов: <xliff:g id="count">%1$d</xliff:g></string>
+    <string name="setup_progress_movies">Фильмов: <xliff:g id="count">%1$d</xliff:g></string>
+    <string name="setup_progress_series">Сериалов: <xliff:g id="count">%1$d</xliff:g></string>
+    <string name="setup_progress_epg">Телепрограмма: <xliff:g id="status">%1$s</xliff:g></string>
+    <string name="setup_progress_epg_running">идёт</string>
+    <string name="setup_progress_epg_done">готово</string>
+    <string name="setup_btn_open_live">Готово, открыть Прямой эфир</string>
 </resources>

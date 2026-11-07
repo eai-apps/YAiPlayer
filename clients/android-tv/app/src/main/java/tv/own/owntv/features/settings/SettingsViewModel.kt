@@ -50,6 +50,8 @@ import tv.own.owntv.core.settings.PanelSection
 import tv.own.owntv.core.settings.PanelShares
 import tv.own.owntv.core.settings.GuideWidthShares
 import tv.own.owntv.core.settings.PlaylistRefresh
+import tv.own.owntv.core.setup.SyncProgressStats
+import kotlinx.coroutines.flow.combine
 import tv.own.owntv.core.settings.SettingsRepository
 import tv.own.owntv.core.settings.SubtitleStyle
 import tv.own.owntv.core.theme.AccentColor
@@ -1183,6 +1185,43 @@ class SettingsViewModel(
 
     val progress: StateFlow<ImportStage?> = importer.progress
 
+    val syncStats: StateFlow<SyncProgressStats> = combine(
+        importer.state,
+        importer.progress,
+    ) { state, progress ->
+        when (state) {
+            is SourceImporter.ImportState.Running -> {
+                val p = progress
+                SyncProgressStats(
+                    channels = p?.liveProcessed ?: 0,
+                    movies = p?.moviesProcessed ?: 0,
+                    series = p?.seriesProcessed ?: 0,
+                    isEpgInProgress = true,
+                    isRunning = true,
+                )
+            }
+            is SourceImporter.ImportState.Success -> {
+                val c = state.counts
+                SyncProgressStats(
+                    channels = c?.channels ?: progress?.liveProcessed ?: 0,
+                    movies = c?.movies ?: progress?.moviesProcessed ?: 0,
+                    series = c?.series ?: progress?.seriesProcessed ?: 0,
+                    isEpgReady = true,
+                    isSuccess = true,
+                )
+            }
+            is SourceImporter.ImportState.Failed -> {
+                SyncProgressStats(
+                    channels = progress?.liveProcessed ?: 0,
+                    movies = progress?.moviesProcessed ?: 0,
+                    series = progress?.seriesProcessed ?: 0,
+                    isFailed = true,
+                )
+            }
+            else -> SyncProgressStats()
+        }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SyncProgressStats())
+
     /**
      * Pre-fills the Add form after a failed add, so a typo does not mean re-typing a portal URL on a
      * remote control.
@@ -1342,6 +1381,8 @@ class SettingsViewModel(
         httpReferer: String = "",
         login: String = "",
         password: String = "",
+        loadChannelLogos: Boolean = true,
+        useOnlyPortalEpg: Boolean = true,
     ) = runImport {
         importer.stalker(
             name = name, portalUrl = portalUrl, mac = mac,
@@ -1349,6 +1390,7 @@ class SettingsViewModel(
             signature = signature, userAgent = userAgent, autoRefresh = autoRefresh,
             live = live, movies = movies, series = series, makeDefault = isDefault,
             httpReferer = httpReferer, login = login, password = password,
+            loadChannelLogos = loadChannelLogos, useOnlyPortalEpg = useOnlyPortalEpg,
         )
     }
 
