@@ -48,6 +48,7 @@ class SeriesRepository(
     private val userData: tv.own.owntv.core.backup.UserDataResolver,
     private val stalkerClient: StalkerClient,
     private val stalkerAuth: StalkerAuthManager,
+    private val categoryDao: tv.own.owntv.core.database.dao.CategoryDao,
 ) {
     /**
      * Returns true if episodes are available (cached or freshly fetched). Xtream + Stalker.
@@ -154,13 +155,35 @@ class SeriesRepository(
                         categoryId = null, movieId = remoteId, page = page, type = type,
                     )
                 }
-                seasons += p.items
+                // A portal that ignores `movie_id` on type=vod answers with the whole catalogue (twenty
+                // pages of unrelated titles, which used to become "Season 85"). Only rows that belong to
+                // this show count; none on the first page means the portal did not understand the question.
+                val mine = if (type == "vod") p.items.filter { it.id == remoteId || it.id.startsWith("$remoteId:") } else p.items
+                if (type == "vod" && page == 1 && mine.isEmpty()) break
+                seasons += mine
                 val maxPer = p.maxPageItems.takeIf { it > 0 } ?: p.items.size
                 val pages = if (maxPer > 0) (p.totalItems + maxPer - 1) / maxPer else 1
                 if (p.items.isEmpty() || page >= pages) break
                 page++
             }
             return seasons
+        }
+        // The portal's own search, the way the STB menu finds a season record: its title, in its category.
+        suspend fun seasonsFromSearch(): List<StalkerClient.SeasonItem> {
+            val catRemote = series.categoryId?.let { categoryDao.getById(it)?.remoteId } ?: return emptyList()
+            val found = ArrayList<StalkerClient.SeasonItem>()
+            var page = 1
+            while (page <= MAX_SEARCH_PAGES) {
+                val p = stalkerAuth.withAuthRetry(creds) { session ->
+                    stalkerClient.searchSeasonRows(session.apiBase, mac, session.token, creds.userAgent, catRemote, series.name, page)
+                }
+                found += p.items.filter { it.id == remoteId }
+                val maxPer = p.maxPageItems.takeIf { it > 0 } ?: p.items.size
+                val pages = if (maxPer > 0) (p.totalItems + maxPer - 1) / maxPer else 1
+                if (found.isNotEmpty() || p.items.isEmpty() || page >= pages) break
+                page++
+            }
+            return found
         }
         // A portal with no series section files its shows in the film catalogue, and lists their
         // seasons there too; the series listing is asked first, as it always was.
@@ -179,6 +202,15 @@ class SeriesRepository(
                 throw c
             } catch (e: Exception) {
                 filmListingFailure = e
+                emptyList()
+            }
+        }.ifEmpty {
+            try {
+                seasonsFromSearch()
+            } catch (c: kotlinx.coroutines.CancellationException) {
+                throw c
+            } catch (e: Exception) {
+                android.util.Log.i(TAG, "stalker season search failed remoteId=$remoteId (${e.message})")
                 emptyList()
             }
         }
@@ -308,6 +340,9 @@ class SeriesRepository(
 
         /** Safety cap on season paging (a show never has hundreds of season pages). */
         const val MAX_SEASON_PAGES = 20
+
+        /** Pages of search results read to find a show's own row. */
+        const val MAX_SEARCH_PAGES = 5
 
         /** Write batch size for the episode merge. */
         const val CHUNK = 500
