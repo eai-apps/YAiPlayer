@@ -157,6 +157,7 @@ fun OwnTVShell(
     var focusedLayer by remember { mutableStateOf(ShellLayer.SIDEBAR) }
     var showExit by remember { mutableStateOf(false) }
     var showAvatarPicker by remember { mutableStateOf(false) }
+    var showResync by remember { mutableStateOf(false) }
     var showAvatarChooser by remember { mutableStateOf(false) }
     var showPlaylistPicker by remember { mutableStateOf(false) }
     // Held by the Activity-scoped ShellViewModel, so a recreation (a script-family language switch)
@@ -939,6 +940,7 @@ fun OwnTVShell(
     BackHandler {
         when {
             playerMode == PlayerMode.FULLSCREEN -> exitPlayer()
+            showResync -> showResync = false
             showAvatarPicker -> showAvatarPicker = false
             showPlaylistPicker -> showPlaylistPicker = false
             showExit -> showExit = false
@@ -1486,6 +1488,7 @@ fun OwnTVShell(
                 onFocused = { focusedLayer = ShellLayer.SIDEBAR },
                 nowPlaying = nowPlayingRail,
                 onNowPlaying = enterNowPlaying,
+                onResync = { showResync = true },
             )
           }
         }
@@ -1745,6 +1748,7 @@ fun OwnTVShell(
                     jumpBackWindowSec = if (isTunedLive && previewChannel?.catchup == true) liveVm::currentCatchupWindowSec else null,
                     jumpBackProgrammeStart = if (isTunedLive && previewChannel?.catchup == true) liveVm::currentProgrammeStart else null,
                     jumpBackProgrammes = if (isTunedLive && previewChannel?.catchup == true) liveVm::currentCatchupProgrammes else null,
+                    onPlayProgramme = if (isTunedLive && previewChannel?.catchup == true) liveVm::playCurrentCatchupProgramme else null,
                     // Non-null only while an archive is on screen, so movies, episodes and live TV get
                     // the single real clock and catch-up gets the pair.
                     watchingWallMs = { watchingWallState.value },
@@ -1987,6 +1991,21 @@ fun OwnTVShell(
 
     if (showExit) {
         ExitDialog(onConfirm = onExitApp, onDismiss = { showExit = false })
+    }
+    if (showResync) {
+        tv.own.owntv.ui.stage.StageConfirm(
+            title = stringResource(R.string.shell_resync_title),
+            body = stringResource(R.string.shell_resync_body),
+            confirm = stringResource(R.string.shell_resync_confirm),
+            onConfirm = {
+                showResync = false
+                shellVm.resync(playlists.filter { it.id == activePlaylistId }.ifEmpty { playlists })
+            },
+            onCancel = { showResync = false },
+            focusCancel = true,
+            eyebrow = null,
+            width = 560.mpx,
+        )
     }
     if (showAvatarPicker) {
         AvatarPickerDialog(

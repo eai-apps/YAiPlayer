@@ -154,6 +154,8 @@ fun StageRail(
     onFocused: () -> Unit,
     nowPlaying: NowPlayingRail?,
     onNowPlaying: () -> Unit,
+    /** The "Resync portal" button under the profile; null hides it. */
+    onResync: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
     val open = (state == RailState.OPEN || state == RailState.PINNED) && size != NavSize.COMPACT
@@ -317,6 +319,18 @@ fun StageRail(
             if (full) Spacer(Modifier.weight(1f))
             RailSeparator(shown)
             RailProfile(shown, namesAlpha, profileName, profileLine.takeIf { counts }, avatarId, avatarPath, onSwitchProfile, onPickAvatar)
+            if (onResync != null) {
+                RailItem(
+                    icon = OwnTVIcon.REFRESH,
+                    label = stringResource(R.string.shell_resync_label),
+                    trailing = null,
+                    detail = null,
+                    open = shown,
+                    namesAlpha = namesAlpha,
+                    active = false,
+                    onClick = onResync,
+                )
+            }
         }
     }
 }

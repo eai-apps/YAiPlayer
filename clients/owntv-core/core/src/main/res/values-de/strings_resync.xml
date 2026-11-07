@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="shell_resync_label">Portal neu synchronisieren</string>
+    <string name="shell_resync_title">Portal neu synchronisieren?</string>
+    <string name="shell_resync_body">Sender, Filme, Serien und der Programmführer werden neu geladen. Favoriten und Verlauf bleiben erhalten. Das kann einige Minuten dauern.</string>
+    <string name="shell_resync_confirm">Synchronisieren</string>
+    <string name="shell_resync_started">Synchronisierung gestartet</string>
+</resources>

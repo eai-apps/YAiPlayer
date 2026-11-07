@@ -81,6 +81,7 @@ import tv.own.owntv.core.database.entity.ChannelEntity
 import tv.own.owntv.core.database.entity.MovieEntity
 import tv.own.owntv.core.database.entity.SeriesEntity
 import tv.own.owntv.core.database.entity.MetadataCacheEntity
+import tv.own.owntv.core.epg.displayLogoUrl
 import tv.own.owntv.core.home.HeroItem
 import tv.own.owntv.core.home.TrendingHomeItem
 import tv.own.owntv.core.launcher.LauncherContinuationItem
@@ -641,7 +642,8 @@ fun HomeScreen(
                                         title = rail.title,
                                         mode = HomeLiveRowMode.CARDS,
                                         channels = rail.channels,
-                                        guide = GuideSliceState(),
+                                        guide = state.railGuide,
+                                        withGuide = true,
                                         onChannelClick = onPlayChannel,
                                         onFocus = onNonHeroFocused,
                                         // Only the first rail takes the row's entry focus; one requester per node.
@@ -656,7 +658,8 @@ fun HomeScreen(
                                 title = row.displayTitle(),
                                 mode = HomeLiveRowMode.CARDS,
                                 channels = state.allChannels,
-                                guide = GuideSliceState(),
+                                guide = state.railGuide,
+                                withGuide = true,
                                 onChannelClick = onPlayChannel,
                                 onFocus = onNonHeroFocused,
                                 firstItemFocusRequester = firstItemFocusRequester,
@@ -1264,7 +1267,7 @@ private fun KeepWatchingRow(
                 val still = when (item) {
                     is HeroItem.MovieHero -> homeStill(meta?.backdropUrl, item.movie.backdropUrl, item.movie.posterUrl, null)
                     is HeroItem.SeriesHero -> homeStill(meta?.backdropUrl, item.series.backdropUrl, item.series.posterUrl, null)
-                    is HeroItem.LiveHero -> homeStill(null, null, null, item.channel.logoUrl)
+                    is HeroItem.LiveHero -> homeStill(null, null, null, item.channel.displayLogoUrl)
                 }
                 StageStill(
                     title = when (item) {

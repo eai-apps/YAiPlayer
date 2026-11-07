@@ -172,14 +172,14 @@ fun LiveScreen(
     // this screen, and stopping here would abort the stream that was just started. Playback is
     // stopped on fullscreen exit (shell BackHandler) instead.
 
-    // In-pane preview: play the focused channel after the focus settles (700ms). Disabled while the
+    // In-pane preview: play the focused channel after the focus settles (400ms; was 700). Disabled while the
     // fullscreen/mini player owns the surface (previewEnabled=false) to avoid two surfaces fighting.
     LaunchedEffect(previewChannel?.id, effectivePreview, previewArmed) {
         // previewArmed gates the case where the last channel was restored on startup — we don't auto-preview
         // it until the user actually focuses a channel (then it plays normally).
         if (!effectivePreview || !previewArmed) return@LaunchedEffect
         val ch = previewChannel ?: return@LaunchedEffect
-        delay(700)
+        delay(400)
         vm.playPreview(ch)
     }
 

@@ -173,6 +173,7 @@ fun PlayerHud(
     // Already-aired programmes of the channel (newest first), listed by day in "Go back to…". Null or
     // empty = the clock-time rows are shown instead.
     jumpBackProgrammes: (suspend () -> List<tv.own.owntv.core.database.entity.EpgProgrammeEntity>)? = null,
+    onPlayProgramme: ((tv.own.owntv.core.database.entity.EpgProgrammeEntity) -> Unit)? = null,
     // Read as a lambda, not a value: the offset ticks once a second, and taking it as a plain Int?
     // made the shell (the caller) recompose on every tick just to hand it over. Invoked below, so the
     // per-second read lands in the HUD's own scope, which already recomposes with the position clock.
@@ -1011,7 +1012,10 @@ fun PlayerHud(
                     programmes = programmeStart?.programmes.orEmpty(),
                     onPickProgramme = { p ->
                         dialog = HudDialog.NONE
-                        onJumpBack?.invoke(((System.currentTimeMillis() - p.startMs) / 1000L).toInt().coerceAtLeast(0))
+                        // A picked programme is played as that programme (the portal looks it up in its own
+                        // guide); the offset route is only the fallback when no such hook is wired.
+                        if (onPlayProgramme != null) onPlayProgramme(p)
+                        else onJumpBack?.invoke(((System.currentTimeMillis() - p.startMs) / 1000L).toInt().coerceAtLeast(0))
                     },
                     onPick = { dialog = HudDialog.NONE; onJumpBack?.invoke(it) },
                     onDismiss = { dialog = HudDialog.NONE },

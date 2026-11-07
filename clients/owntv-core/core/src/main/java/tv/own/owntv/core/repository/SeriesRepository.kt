@@ -183,9 +183,10 @@ class SeriesRepository(
             }
         }
         val episodes = ArrayList<EpisodeEntity>()
+        val seasonNumbers = plausibleSeasonNumbers(series.name, seasons.map { it.seasonNumber })
         seasons.forEachIndexed { index, season ->
             val cmd = season.cmd ?: return@forEachIndexed
-            val seasonNo = season.seasonNumber ?: (index + 1)
+            val seasonNo = seasonNumbers[index]
             season.episodes.forEach { epNo ->
                 episodes.add(
                     EpisodeEntity(
@@ -287,6 +288,23 @@ class SeriesRepository(
 
     private companion object {
         const val TAG = "SeriesRepository"
+
+        private val SEASON_TAG = Regex("""\[S(\d{1,3})]""")
+
+        /**
+         * Season numbers for a portal's season rows. A row's own number is trusted while it looks like
+         * one; a portal that fills it with something else (ids such as 28, 57, 85 on one show) would
+         * otherwise print "Season 85" and merge nothing. In that case the rows are numbered by position,
+         * and a lone row of a show named "Title [S07]" is that season.
+         */
+        internal fun plausibleSeasonNumbers(showName: String?, parsed: List<Int?>): List<Int> {
+            val own = parsed.mapIndexed { i, n -> n ?: (i + 1) }
+            val tagged = showName?.let { SEASON_TAG.find(it)?.groupValues?.get(1)?.toIntOrNull() }
+            if (parsed.size == 1 && tagged != null) return listOf(tagged)
+            val sane = own.distinct().size == own.size && own.all { it in 0..maxOf(30, parsed.size) }
+            return if (sane) own else own.indices.map { it + 1 }
+        }
+
 
         /** Safety cap on season paging (a show never has hundreds of season pages). */
         const val MAX_SEASON_PAGES = 20

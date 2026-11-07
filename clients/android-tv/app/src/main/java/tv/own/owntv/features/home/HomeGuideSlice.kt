@@ -63,6 +63,8 @@ fun HomeLiveRow(
     start: Dp,
     track: (FocusRequester) -> Unit,
     modifier: Modifier = Modifier,
+    /** Draw [channels] (not the guide's own list) but still say what is on now, from [guide]. */
+    withGuide: Boolean = false,
 ) {
     val onNow = mode == HomeLiveRowMode.ON_NOW
     val shown = if (onNow) guide.channels else channels
@@ -77,7 +79,7 @@ fun HomeLiveRow(
             itemsIndexed(shown, key = { _, c -> c.id }) { index, channel ->
                 OnNowCard(
                     channel = channel,
-                    programme = if (onNow) currentProgramme(guide.programmes[channel.id].orEmpty(), guide.now) else null,
+                    programme = if (onNow || withGuide) currentProgramme(guide.programmes[channel.id].orEmpty(), guide.now) else null,
                     now = guide.now,
                     onClick = { onChannelClick(channel.id, shown) },
                     modifier = Modifier

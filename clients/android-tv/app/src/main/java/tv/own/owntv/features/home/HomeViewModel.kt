@@ -101,6 +101,7 @@ data class HomeUiState(
     val favoriteGuide: GuideSliceState = GuideSliceState(),
     val liveCategoryRails: List<tv.own.owntv.core.home.ChannelRail> = emptyList(),
     val allChannels: List<ChannelEntity> = emptyList(),
+    val railGuide: GuideSliceState = GuideSliceState(),
     val recentMovies: List<MovieEntity> = emptyList(),
     /**
      * True until the first [HomeViewModel.loadHomeData] completes. Home's queries are profile-scoped and
@@ -434,6 +435,7 @@ class HomeViewModel(
             favoriteGuide = data.favoriteGuide,
             liveCategoryRails = data.liveCategoryRails,
             allChannels = data.allChannels,
+            railGuide = data.railGuide,
             recentMovies = data.recentMovies,
             isLoading = false,
         )

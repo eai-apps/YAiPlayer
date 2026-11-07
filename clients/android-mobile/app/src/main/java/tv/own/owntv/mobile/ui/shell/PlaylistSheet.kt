@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -13,6 +14,7 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import tv.own.owntv.core.database.dao.ChannelDao
 import tv.own.owntv.core.database.entity.SourceEntity
@@ -49,6 +51,38 @@ fun PlaylistSheet(
     val locale = LocalConfiguration.current.locales[0]
     val compact = remember(locale) { CompactDecimalFormat.getInstance(locale, CompactDecimalFormat.CompactStyle.SHORT) }
     val title = stringResource(R.string.content_playlist_picker_title)
+    val scheduler: tv.own.owntv.core.sync.work.CatalogSyncScheduler = koinInject()
+    val finalizer: tv.own.owntv.core.sync.ImportFinalizer = koinInject()
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
+    var askResync by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+    if (askResync) {
+        // Which playlists: the chosen one, or all of them when "All playlists" is on.
+        val targets = playlists.filter { it.id == activeId }.ifEmpty { playlists }
+        val ask = stringResource(R.string.shell_resync_title)
+        MobileBottomSheet(onDismissRequest = { askResync = false }, title = ask) {
+            StageSheetHeader(title = ask, subtitle = stringResource(R.string.shell_resync_body))
+            tv.own.owntv.mobile.ui.components.StageConfirmItems(
+                confirm = stringResource(R.string.shell_resync_confirm),
+                confirmEnabled = true,
+                onConfirm = {
+                    scope.launch {
+                        targets.forEach { source ->
+                            val counts = finalizer.contentCounts(source.id)
+                            scheduler.enqueueSync(
+                                source.id,
+                                reason = "manual_resync",
+                                contentTypes = tv.own.owntv.core.sync.SyncContentTypes.enabledOf(source),
+                                baseItemCount = counts.channels + counts.movies + counts.series,
+                                policy = androidx.work.ExistingWorkPolicy.KEEP,
+                            )
+                        }
+                    }
+                },
+                onDismiss = { askResync = false; onDismiss() },
+            )
+        }
+        return
+    }
 
     fun pick(id: Long) {
         onSelect(id)
@@ -78,6 +112,11 @@ fun PlaylistSheet(
                 } else null,
             )
         }
+        StageMenuItem(
+            label = stringResource(R.string.shell_resync_label),
+            onClick = { askResync = true },
+            icon = MobileIcons.Refresh,
+        )
         Text(
             stringResource(R.string.content_playlist_marks_note),
             style = stageText(11.5f, 500),

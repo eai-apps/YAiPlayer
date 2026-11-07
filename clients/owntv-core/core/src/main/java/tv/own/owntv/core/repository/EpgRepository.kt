@@ -987,10 +987,10 @@ class EpgRepository(
         fun stalkerSourceIdOf(url: String): Long? =
             url.takeIf { it.startsWith(STALKER_GUIDE_SCHEME) }?.removePrefix(STALKER_GUIDE_SCHEME)?.trim()?.toLongOrNull()
 
-        // Keep up to ~7 days of just-aired programmes so the Guide can browse a long catch-up archive
+        // Keep up to ~14 days of just-aired programmes so the Guide can browse a long catch-up archive
         // (still bounded, and ultimately limited by how much past data the EPG feed actually provides —
         // many xmltv.php feeds only return 1–2 days of past programmes, so storage rarely reaches 7 days).
-        private const val WINDOW_BACK_MS = 7L * 24 * 60 * 60 * 1000
+        private const val WINDOW_BACK_MS = 14L * 24 * 60 * 60 * 1000
 
         /**
          * How much finished guide a channel that cannot replay it keeps.

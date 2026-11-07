@@ -28,7 +28,7 @@ const val MAX_CATCHUP_DAYS = 31
 // days) and matches the Guide's own cap, so the same channel offers the same archive from either
 // screen — this used to be 48h, left over from when only ~2 days of guide were retained, which meant
 // a programme the Guide happily replayed was not even listed in Live TV.
-private const val CATCHUP_LOOKBACK_CAP_MS = 7L * 24 * 60 * 60 * 1000
+private const val CATCHUP_LOOKBACK_CAP_MS = 14L * 24 * 60 * 60 * 1000
 
 // How far past a finished catch-up programme to look for the next one. Beyond this the guide has a
 // gap rather than a next programme, and auto-play stops instead of leaping hours ahead.

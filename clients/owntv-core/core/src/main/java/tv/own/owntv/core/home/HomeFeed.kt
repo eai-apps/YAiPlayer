@@ -166,6 +166,8 @@ data class HomeFeed(
     val favoriteGuide: GuideSliceState = GuideSliceState(),
     val liveCategoryRails: List<ChannelRail> = emptyList(),
     val allChannels: List<ChannelEntity> = emptyList(),
+    /** The guide for the category rails and the "All channels" rail together: what is on now on each card. */
+    val railGuide: GuideSliceState = GuideSliceState(),
     val recentMovies: List<MovieEntity> = emptyList(),
 )
 
@@ -305,6 +307,14 @@ class HomeFeedReader(
                 }
             }
 
+            // One guide read for every channel the block rails draw, so their cards say what is on now.
+            val categoryRails = categoryRailsAsync.await()
+            val allChannelsList = allChannelsAsync.await()
+            val railGuide = run {
+                val drawn = (categoryRails.flatMap { it.channels } + allChannelsList).distinctBy { it.id }
+                if (drawn.isEmpty()) GuideSliceState() else liveGuide(profileId, liveIds, drawn)
+            }
+
             // Customize renames go on last: every key and guide lookup above ran on the provider's name,
             // which is what a channel without a provider id is keyed by.
             val names = Names(hidden.live, hidden.movie, hidden.series)
@@ -322,8 +332,9 @@ class HomeFeedReader(
                 config = config,
                 recentGuide = recentGuideAsync.await().let { it.copy(channels = it.channels.map { ch -> names.of(ch) }) },
                 favoriteGuide = favoriteGuideAsync.await().let { it.copy(channels = it.channels.map { ch -> names.of(ch) }) },
-                liveCategoryRails = categoryRailsAsync.await().map { r -> r.copy(channels = r.channels.map { names.of(it) }) },
-                allChannels = allChannelsAsync.await().map { names.of(it) },
+                liveCategoryRails = categoryRails.map { r -> r.copy(channels = r.channels.map { names.of(it) }) },
+                allChannels = allChannelsList.map { names.of(it) },
+                railGuide = railGuide,
                 recentMovies = recentMoviesAsync.await().map { names.of(it) },
             )
         }

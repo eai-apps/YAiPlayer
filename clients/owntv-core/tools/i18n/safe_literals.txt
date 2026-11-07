@@ -3055,6 +3055,7 @@
 1	log	core/src/main/java/tv/own/owntv/core/repository/SeriesRepository.kt	${source.type} episode load failed seriesId=${series.id}
 1	technical	core/src/main/java/tv/own/owntv/core/repository/SeriesRepository.kt	HTTP ${e.code}
 1	log	core/src/main/java/tv/own/owntv/core/repository/SeriesRepository.kt	SeriesRepository
+1	technical	core/src/main/java/tv/own/owntv/core/repository/SeriesRepository.kt	\\[S(\\d{1,3})]
 1	log	core/src/main/java/tv/own/owntv/core/repository/SeriesRepository.kt	episodes seriesId=$seriesId fetched=${fetched.size} new=${plan.inserts.size}
 1	technical	core/src/main/java/tv/own/owntv/core/repository/SeriesRepository.kt	series
 1	log	core/src/main/java/tv/own/owntv/core/repository/SeriesRepository.kt	stalker episodes seriesId=${series.id} remoteId=$remoteId seasons=${seasons.size} episodes=${episodes.size}

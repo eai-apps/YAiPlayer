@@ -415,6 +415,8 @@ fun LiveScreen(
                 windowSec = tuner.archiveWindowSec(),
                 onPick = tuner::jumpBackTo,
                 programmeStart = tuner::currentProgrammeStart,
+                programmes = tuner::catchupProgrammes,
+                onPickProgramme = { tuner.playCatchup(it) },
             ),
             onDismiss = { jumpBackOpen = false },
         )

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="shell_resync_label">Resync portal</string>
+    <string name="shell_resync_title">Resync the portal?</string>
+    <string name="shell_resync_body">Channels, films, series and the guide are downloaded again. Favourites and history are kept. This can take a few minutes.</string>
+    <string name="shell_resync_confirm">Resync</string>
+    <string name="shell_resync_started">Resync started</string>
+</resources>

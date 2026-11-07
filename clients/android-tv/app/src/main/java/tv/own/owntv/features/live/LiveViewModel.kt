@@ -1938,6 +1938,12 @@ class LiveViewModel(
         return catchupProgrammes(ch)
     }
 
+    /** Play a programme picked from the player's archive list on the channel already on screen. */
+    fun playCurrentCatchupProgramme(programme: tv.own.owntv.core.database.entity.EpgProgrammeEntity) {
+        val ch = _previewChannel.value ?: return
+        playCatchupProgramme(ch, programme)
+    }
+
     /** Jump the channel already on screen to [offsetSec] behind live. */
     fun jumpBackTo(offsetSec: Int) {
         val ch = _previewChannel.value ?: return

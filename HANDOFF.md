@@ -128,3 +128,12 @@ Android — открытая лицензия GPL-3.0 (основа OwnTV), чт
 ## Stalker EPG `period` is in HOURS (found 2026-11-07)
 `get_epg_info&period=N` — N is hours, not days. The app used to send 7 and got ~7 hours (now/next only). `StalkerClient.downloadEpgInfo` now sends days*24. Past programmes (for catch-up lists) are NOT confirmed to come from this call; waiting for the provider's access.log from an STB emulator opening the guide/archive to see the exact calls (probably `type=epg`/`get_all_program_for_ch`/`tv_archive`).
 Adult protection: `AdultProtectChoice` (form → import) → `SettingsRepository.adultProtectRequests` → `AdultProtection.applyIfRequested` in `ImportFinalizer` locks adult-named categories behind the profile's Customize PIN.
+
+## v3.0.6 (в работе): архив, ресинк, главная
+- Выбор программы в архивном списке плеера ТВ идёт через `LiveViewModel.playCurrentCatchupProgramme` -> `playCatchupProgramme` (portal create_link по `get_simple_data_table`), а не через смещение (`jumpBackTo`): смещение для Stalker давало тёмный экран.
+- Телефон: `CatchupOptions.programmes/onPickProgramme` (PlayerCatchupSheet), список по дням.
+- Окно архива 14 дней: `EpgRepository.WINDOW_BACK_MS`, `LiveEpgReader.CATCHUP_LOOKBACK_CAP_MS`.
+- Ресинк: ТВ `StageRail(onResync)` + `StageConfirm` в OwnTVShell -> `ShellViewModel.resync`; телефон строка в `PlaylistSheet`.
+- Главная ТВ: `HomeFeed.railGuide` (один срез телегида для рядов категорий и «Все каналы»), `HomeLiveRow(withGuide = true)`.
+- Сезоны Stalker: `SeriesRepository.plausibleSeasonNumbers` (временная эвристика; точный разбор после логов `type=vod&action=get_ordered_list&movie_id=...`).
+- Отложено: список порталов/плейлистов с удалением прямо из меню; пересинхронизация по понедельникам (сейчас по расписанию автообновления).

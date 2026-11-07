@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Text
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
@@ -25,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import tv.own.owntv.core.database.entity.EpgProgrammeEntity
 import tv.own.owntv.core.live.CatchupJumps
 import tv.own.owntv.core.live.CatchupProgrammeStart
 import tv.own.owntv.mobile.R
@@ -32,9 +34,11 @@ import tv.own.owntv.mobile.ui.components.MobileBottomSheet
 import tv.own.owntv.mobile.ui.components.MobileIcons
 import tv.own.owntv.mobile.ui.components.StageConfirmItems
 import tv.own.owntv.mobile.ui.components.sheetListHeight
+import tv.own.owntv.mobile.ui.stage.LocalStagePalette
 import tv.own.owntv.mobile.ui.stage.StageMenuItem
 import tv.own.owntv.mobile.ui.stage.StageSheetHeader
 import tv.own.owntv.mobile.ui.stage.StageTool
+import tv.own.owntv.mobile.ui.stage.stageText
 import java.text.SimpleDateFormat
 import java.util.TimeZone
 
@@ -47,6 +51,10 @@ data class CatchupOptions(
     val onPick: (Int) -> Unit,
     /** The programme on air, offered first as "Start of …"; asked as the sheet opens. */
     val programmeStart: (suspend () -> CatchupProgrammeStart?)? = null,
+    /** The programmes the archive still holds, newest first; when present they are listed by day. */
+    val programmes: (suspend () -> List<EpgProgrammeEntity>)? = null,
+    /** Plays a picked programme as that programme (the portal finds it in its own guide). */
+    val onPickProgramme: ((EpgProgrammeEntity) -> Unit)? = null,
 )
 
 /**
@@ -76,6 +84,11 @@ fun CatchupSheet(options: CatchupOptions, onDismiss: () -> Unit) {
     val withDay = rememberTimeFormat("EEEHm")
     // Shown when the guide answers; the times below are usable meanwhile, so nothing waits for it.
     val programmeStart by produceState<CatchupProgrammeStart?>(null) { value = options.programmeStart?.invoke() }
+    // The archive by day, the way the TV player lists it. Empty (no guide) falls back to the times below.
+    val programmes by produceState<List<EpgProgrammeEntity>>(emptyList()) {
+        value = runCatching { options.programmes?.invoke().orEmpty() }.getOrDefault(emptyList())
+    }
+    val dayHeader = rememberTimeFormat("EEEdMMM")
 
     val title = stringResource(R.string.content_catchup_jump)
     MobileBottomSheet(onDismissRequest = onDismiss, title = title) {
@@ -93,7 +106,31 @@ fun CatchupSheet(options: CatchupOptions, onDismiss: () -> Unit) {
                     )
                 }
             }
-            items(options.offsetsSec, key = { it }) { offset ->
+            if (programmes.isNotEmpty() && options.onPickProgramme != null) {
+                var lastDay = ""
+                programmes.forEach { p ->
+                    val day = dayHeader.format(p.startMs)
+                    if (day != lastDay) {
+                        lastDay = day
+                        item(key = "day-$day") {
+                            Text(
+                                text = day,
+                                style = stageText(13f, 600),
+                                color = LocalStagePalette.current.muted,
+                                modifier = Modifier.padding(start = 12.dp, top = 10.dp, bottom = 2.dp),
+                            )
+                        }
+                    }
+                    item(key = "prog-${p.id}") {
+                        StageMenuItem(
+                            p.title,
+                            onClick = { options.onPickProgramme.invoke(p); onDismiss() },
+                            icon = MobileIcons.History,
+                            value = timeOnly.format(p.startMs) + " – " + timeOnly.format(p.stopMs),
+                        )
+                    }
+                }
+            } else items(options.offsetsSec, key = { it }) { offset ->
                 val at = CatchupJumps.instantFor(offset, nowMs)
                 val format = if (CatchupJumps.crossesDay(offset, nowMs, zone)) withDay else timeOnly
                 StageMenuItem(
