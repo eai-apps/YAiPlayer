@@ -575,6 +575,18 @@ internal fun ErrorLogPage(setEntry: (() -> Boolean) -> Unit, onCountChanged: () 
         Text(stringResource(R.string.settings_playback_error_description_full), style = stageText(17, 500), color = StageColors.Muted, modifier = Modifier.padding(top = 10.mpx))
         exportPath?.let { Text(stringResource(R.string.settings_backup_saved_to, it), style = stageText(16, 500), color = stageAccent.accent, modifier = Modifier.padding(top = 8.mpx)) }
         if (exportFailed) Text(stringResource(R.string.settings_backup_export_error), style = stageText(16, 500), color = StageColors.Danger, modifier = Modifier.padding(top = 8.mpx))
+        // The player's own trace of what it just did (pauses, cache stalls, decode path), shown right here so
+        // it can be read off the screen without taking the exported file off the device.
+        val trace = remember(refresh, entries) {
+            tv.own.owntv.player.LiveDiagnosticsLog.snapshot().lines().filter { it.isNotBlank() }.takeLast(12)
+        }
+        if (trace.isNotEmpty()) {
+            Column(Modifier.padding(top = 12.mpx)) {
+                trace.forEach { line ->
+                    Text(line.take(150), style = stageText(13, 500), color = StageColors.Dim, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                }
+            }
+        }
         val list = entries
         when {
             list == null -> Unit

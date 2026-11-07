@@ -3027,6 +3027,7 @@ class OwnTVPlayer(
             // one open in four and took mpv's core lock with it, so nothing could reset or retry; the
             // copy path never hands the decoder the surface. Archives are ≤1080p, where the copy is cheap.
             val wantCopy = isArchive && !wantSoftware && !glUnsupported && hwDecoding
+            LiveDiagnosticsLog.event("load: live=$isLive archive=$isArchive start=${startPositionMs}ms software=$wantSoftware copy=$wantCopy surfaceAttached=$surfaceAttached")
             val needReconfig = item.forceSoftwareThisLoad != wantSoftware || item.ccSoftwareOverride ||
                 item.forceCopyThisLoad != wantCopy
             // THE reset. Everything a new item must not inherit is in [ItemState]; the values that are not
@@ -4905,8 +4906,8 @@ class OwnTVPlayer(
     override fun eventProperty(property: String, value: Boolean) {
         if (exoActive) return
         when (property) {
-            "pause" -> _isPlaying.value = !value
-            "paused-for-cache" -> { mpvPausedForCache = value; _buffering.value = value }
+            "pause" -> { LiveDiagnosticsLog.event("mpv pause=$value pos=${_position.value}ms"); _isPlaying.value = !value }
+            "paused-for-cache" -> { LiveDiagnosticsLog.event("mpv paused-for-cache=$value pos=${_position.value}ms"); mpvPausedForCache = value; _buffering.value = value }
         }
     }
 
@@ -4914,6 +4915,7 @@ class OwnTVPlayer(
         when (property) {
             "hwdec-current" -> {
                 android.util.Log.i(TAG, "hwdec-current='$value' (height=${load.currentHeightPx}px, setting=${if (hwDecoding) "on" else "off"})")
+                LiveDiagnosticsLog.event("mpv hwdec-current='$value' height=${load.currentHeightPx}px vo=${runCatching { getPropertyString("vo") }.getOrNull()} direct=${_directRender.value} archive=${item.archiveThisItem} copy=${item.forceCopyThisLoad} soft=${item.forceSoftwareThisLoad}")
                 load.currentHwdec = value
                 enforceDecodeGuard()
             }
