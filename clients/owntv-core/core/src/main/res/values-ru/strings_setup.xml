@@ -326,4 +326,6 @@
     <string name="setup_checkbox_protect_adult">Защитить взрослые каналы PIN-кодом</string>
     <string name="setup_checkbox_protect_adult_help">После загрузки категории 18+ закроются вашим PIN-кодом. Если PIN ещё не задан, введите его здесь.</string>
     <string name="setup_protect_pin">PIN-код (от 4 цифр, нужен, если ещё не задан)</string>
+    <string name="setup_progress_connecting">Подключаюсь к порталу и загружаю список каналов… Это может занять несколько минут, подождите.</string>
+    <string name="setup_btn_syncing">Идёт синхронизация…</string>
 </resources>

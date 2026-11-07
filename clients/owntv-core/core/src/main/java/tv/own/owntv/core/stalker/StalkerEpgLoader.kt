@@ -91,14 +91,17 @@ class StalkerEpgLoader(
                 if (programmes > 0) {
                     sink.flush()
                     Log.i(TAG, "portal guide sourceId=${source.id} bulk period=$period channels=${sink.channels} programmes=${sink.kept}")
+                    tv.own.owntv.core.util.GuideTrace.add("guide ok: bulk period=$period channels=${sink.channels} programmes=${sink.kept}")
                     return Outcome(Method.BULK, period, sink.channels, sink.kept)
                 }
                 Log.w(TAG, "portal guide sourceId=${source.id} period=$period returned nothing usable")
+                tv.own.owntv.core.util.GuideTrace.add("guide: period=$period returned nothing usable")
             } catch (c: CancellationException) {
                 throw c
             } catch (e: Exception) {
                 lastError = e
                 Log.w(TAG, "portal guide sourceId=${source.id} period=$period failed: ${e.message}")
+                tv.own.owntv.core.util.GuideTrace.add("guide: period=$period failed (${e.javaClass.simpleName})")
             }
         }
 
@@ -107,6 +110,7 @@ class StalkerEpgLoader(
         sink.flush()
         if (programmes == 0) throw lastError ?: PortalHasNoGuideException()
         Log.i(TAG, "portal guide sourceId=${source.id} per-channel channels=${sink.channels} programmes=${sink.kept}")
+        tv.own.owntv.core.util.GuideTrace.add("guide: only the short per-channel route worked, channels=${sink.channels} programmes=${sink.kept}")
         return Outcome(Method.PER_CHANNEL, 0, sink.channels, sink.kept)
     }
 

@@ -578,7 +578,8 @@ internal fun ErrorLogPage(setEntry: (() -> Boolean) -> Unit, onCountChanged: () 
         // The player's own trace of what it just did (pauses, cache stalls, decode path), shown right here so
         // it can be read off the screen without taking the exported file off the device.
         val trace = remember(refresh, entries) {
-            tv.own.owntv.player.LiveDiagnosticsLog.snapshot().lines().filter { it.isNotBlank() }.takeLast(12)
+            tv.own.owntv.player.LiveDiagnosticsLog.snapshot().lines().filter { it.isNotBlank() }.takeLast(8) +
+                tv.own.owntv.core.util.GuideTrace.snapshot().takeLast(5)
         }
         if (trace.isNotEmpty()) {
             Column(Modifier.padding(top = 12.mpx)) {

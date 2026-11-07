@@ -460,6 +460,9 @@ fun AddSourceScreen(
     // Every field is a row (label + value or placeholder, OK = keyboard); Start import sits in the
     // panel, reached with ▶ from any row.
     val submit = submit@{
+        // One import at a time: every press cancels and restarts the running one (the portal login and the
+        // first catalogue request start over), which looked like "nothing happens" for minutes.
+        if (syncStats?.isRunning == true) return@submit
         if (!editing) {
             val targetType = when (kind) {
                 SourceKind.XTREAM -> tv.own.owntv.core.model.SourceType.XTREAM
@@ -716,10 +719,11 @@ fun AddSourceScreen(
 
                 // Requirement 1: Main button immediately after the last identity field
                 androidx.compose.foundation.layout.Spacer(Modifier.height(14.mpx))
-                val stalkerBtnLabel = stringResource(R.string.setup_stalker_btn_connect)
+                val stalkerRunning = syncStats?.isRunning == true
+                val stalkerBtnLabel = stringResource(if (stalkerRunning) R.string.setup_btn_syncing else R.string.setup_stalker_btn_connect)
                 tv.own.owntv.ui.stage.StageButton(
                     text = stalkerBtnLabel,
-                    onClick = { if (canStart) submit() },
+                    onClick = { if (canStart && !stalkerRunning) submit() },
                     tinted = true,
                     icon = OwnTVIcon.PLAY,
                     height = 68.mpx,
@@ -1042,6 +1046,19 @@ private fun SyncProgressPanel(
         verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(14.mpx),
     ) {
         tv.own.owntv.features.settings.SettingPanelHeading(stringResource(R.string.setup_btn_connect))
+        if (stats.isRunning) {
+            androidx.compose.foundation.layout.Row(
+                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(12.mpx),
+            ) {
+                tv.own.owntv.ui.components.OwnTVSpinner(sizeDp = 28)
+                Text(
+                    stringResource(R.string.setup_progress_connecting),
+                    style = tv.own.owntv.ui.theme.stageText(18, 500),
+                    color = tv.own.owntv.ui.theme.StageColors.Muted,
+                )
+            }
+        }
         Text(
             stringResource(R.string.setup_progress_channels, stats.channels),
             style = tv.own.owntv.ui.theme.stageText(20, 600),
