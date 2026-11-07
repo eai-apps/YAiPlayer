@@ -70,7 +70,7 @@ def buttons_html(buttons: list) -> str:
     rows = []
     for i, row in enumerate(buttons):
         cells = "".join(
-            f'<tg-button type="url"{' style="primary"' if i == 0 else ''} data="{html.escape(b["url"], quote=True)}">{html.escape(b["text"])}</tg-button>'
+            f'<tg-button type="url"{' style="primary"' if i == 0 else ''} url="{html.escape(b["url"], quote=True)}">{html.escape(b["text"])}</tg-button>'
             for b in row
         )
         rows.append(f'<tg-button-row align="center">{cells}</tg-button-row>')
