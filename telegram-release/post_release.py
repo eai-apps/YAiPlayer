@@ -58,7 +58,7 @@ def decorate(text: str) -> str:
 def build_buttons(release_data: dict, chat_id: str = "") -> list[list[dict]]:
     """Кнопки под постом: получить ссылку (через бота), подписаться, чат обсуждения.
     Прямых ссылок на скачивание в постах нет — ссылку выдаёт бот после подписки на канал."""
-    rows: list[list[dict]] = [[{"text": "📥 Получить ссылку", "url": BOT_URL}]]
+    rows: list[list[dict]] = [[{"text": "📥 Получить ссылку на приложение для Android-телефона и приставки", "url": BOT_URL}]]
     last: list[dict] = []
     if chat_id.startswith("@"):
         last.append({"text": "🔔 Подписаться", "url": f"https://t.me/{chat_id[1:]}"})
@@ -372,7 +372,7 @@ def main(argv: list[str] | None = None) -> int:
         ]
         rows = [row]
         if args.with_downloads:
-            rows = [[{"text": "📥 Получить ссылку", "url": BOT_URL}]] + rows
+            rows = [[{"text": "📥 Получить ссылку на приложение для Android-телефона и приставки", "url": BOT_URL}]] + rows
         return 0 if send_release_post(bot_token, chat_id, text, args.image or None, rows) else 1
 
     if not args.release_json:
