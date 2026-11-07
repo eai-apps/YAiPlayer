@@ -26,6 +26,13 @@ jobs:
             name: Mobile
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+      - name: Compute version (3.0.N, N counts releases of the 3.0 line)
+        run: |
+          n=$(( $(git tag --list 'v3.0.*' | wc -l) + 1 ))
+          echo "VN=3.0.$n" >> "$GITHUB_ENV"
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -41,7 +48,7 @@ jobs:
         working-directory: clients/${{ matrix.app }}
         env:
           VERSION_CODE: ${{ github.run_number }}
-          VERSION_NAME: 2.0.${{ github.run_number }}
+          VERSION_NAME: ${{ env.VN }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
@@ -72,6 +79,10 @@ jobs:
         with:
           fetch-depth: 0
           fetch-tags: true
+      - name: Compute version (3.0.N, N counts releases of the 3.0 line)
+        run: |
+          n=$(( $(git tag --list 'v3.0.*' | wc -l) + 1 ))
+          echo "VN=3.0.$n" >> "$GITHUB_ENV"
       - uses: actions/download-artifact@v4
         with:
           path: dist
@@ -82,7 +93,7 @@ jobs:
           notes="$(grep -v '^<!--' docs/WHATS_NEW.md | sed '/^[[:space:]]*$/d' || true)"
           # Never repeat what the previous release already announced: a stale bullet left in the file
           # (reset commit not landed yet, or a merge that brought it back) is dropped here.
-          prev="$(git tag --list 'v2.0.*' --sort=-v:refname | head -n 1 || true)"
+          prev="$(git tag --list 'v[23].*' --sort=-v:refname | head -n 1 || true)"
           if [ -n "$prev" ]; then
             git show "$prev:docs/WHATS_NEW.md" 2>/dev/null | grep -v '^<!--' | sed '/^[[:space:]]*$/d' > prev_notes.txt || true
             notes="$(printf '%s\n' "$notes" | grep -vxFf prev_notes.txt || true)"
@@ -95,9 +106,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           ls -l dist
-          gh release create "v2.0.${{ github.run_number }}" dist/*.apk \
+          gh release create "v$VN" dist/*.apk \
             --repo "${{ github.repository }}" \
-            --title "YAiPlayer 2.0.${{ github.run_number }}" \
+            --title "YAiPlayer $VN" \
             --notes-file notes.md \
             --latest
       - name: Post to Telegram channel
@@ -107,7 +118,7 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          gh api "repos/${{ github.repository }}/releases/tags/v2.0.${{ github.run_number }}" > release.json
+          gh api "repos/${{ github.repository }}/releases/tags/v$VN" > release.json
           pip install --quiet pillow || true
           python3 tools/brand/make_assets.py --card release-card.png release.json || true
           python3 telegram-release/post_release.py --release-json release.json --image release-card.png
@@ -119,6 +130,6 @@ jobs:
           git config user.email "github-actions@users.noreply.github.com"
           git add docs/WHATS_NEW.md
           git diff --cached --quiet || {
-            git commit -m "Release notes: reset after v2.0.${{ github.run_number }} [skip ci]"
+            git commit -m "Release notes: reset after v$VN [skip ci]"
             git pull --rebase origin main && git push origin HEAD:main
           }
