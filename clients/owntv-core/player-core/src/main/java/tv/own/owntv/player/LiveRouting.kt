@@ -41,8 +41,10 @@ object LiveRouting {
         pin: Boolean?,
         drmProtected: Boolean,
         panelRefusesSegments: Boolean,
+        /** ExoPlayer already ran out of rungs on this channel in this session: do not pay for that again. */
+        exoFailedEarlier: Boolean = false,
     ): Route {
-        val refusing = pin == null && setting.allowsHandover && panelRefusesSegments
+        val refusing = pin == null && setting.allowsHandover && (panelRefusesSegments || exoFailedEarlier)
         val onMpv = !drmProtected && (pin ?: (refusing || setting.startsOnMpv))
         val preference = when {
             drmProtected -> EnginePreference.EXO_ONLY
@@ -54,6 +56,7 @@ object LiveRouting {
         val why = when {
             drmProtected -> "exoplayer (drm)"
             pin != null -> "$engine (pinned)"
+            refusing && exoFailedEarlier && !panelRefusesSegments -> "mpv (exoplayer failed this channel earlier)"
             refusing -> "mpv (panel refuses segments)"
             else -> "$engine (setting)"
         }

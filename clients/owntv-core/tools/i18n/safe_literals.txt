@@ -4385,7 +4385,6 @@
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	$root/portal.php
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	$root/server/load.php
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	$root/stalker_portal/server/load.php
-1	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	${channelId.trim()}.png
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	${portalRoot(url.substringBefore('?'))}/c/
 1	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	&
 2	url	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	&JsHttpRequest=1-xml
@@ -4768,7 +4767,7 @@
 1	log	core/src/main/java/tv/own/owntv/core/sync/ImportFinalizer.kt	ensureContentIndexes end ms=${SystemClock.elapsedRealtime() - startedAt}
 1	log	core/src/main/java/tv/own/owntv/core/sync/ImportFinalizer.kt	ensureContentIndexes failed ms=${SystemClock.elapsedRealtime() - startedAt}
 1	log	core/src/main/java/tv/own/owntv/core/sync/ImportFinalizer.kt	ensureContentIndexes start
-1	log	core/src/main/java/tv/own/owntv/core/sync/ImportFinalizer.kt	guide: queued=${timeStale || thin} stale=$timeStale thin=$thin
+1	log	core/src/main/java/tv/own/owntv/core/sync/ImportFinalizer.kt	guide: queued=${timeStale || thin || refreshGuide} stale=$timeStale thin=$thin manual=$refreshGuide
 2	technical	core/src/main/java/tv/own/owntv/core/sync/ImportFinalizer.kt	movies
 1	technical	core/src/main/java/tv/own/owntv/core/sync/ImportFinalizer.kt	portal
 2	technical	core/src/main/java/tv/own/owntv/core/sync/ImportFinalizer.kt	series
@@ -5109,6 +5108,7 @@
 1	preference-key	core/src/main/java/tv/own/owntv/core/sync/work/CatalogSyncWorker.kt	live
 1	preference-key	core/src/main/java/tv/own/owntv/core/sync/work/CatalogSyncWorker.kt	liveActive
 1	preference-key	core/src/main/java/tv/own/owntv/core/sync/work/CatalogSyncWorker.kt	liveProcessed
+1	technical	core/src/main/java/tv/own/owntv/core/sync/work/CatalogSyncWorker.kt	manual
 1	preference-key	core/src/main/java/tv/own/owntv/core/sync/work/CatalogSyncWorker.kt	movies
 1	log	core/src/main/java/tv/own/owntv/core/sync/work/CatalogSyncWorker.kt	movies=${stage.moviesProcessed} series=${stage.seriesProcessed}
 1	preference-key	core/src/main/java/tv/own/owntv/core/sync/work/CatalogSyncWorker.kt	moviesActive
@@ -6094,6 +6094,7 @@
 1	technical	player-core/src/main/java/tv/own/owntv/player/LiveRouting.kt	exoplayer
 1	log	player-core/src/main/java/tv/own/owntv/player/LiveRouting.kt	exoplayer (drm)
 1	technical	player-core/src/main/java/tv/own/owntv/player/LiveRouting.kt	mpv
+1	log	player-core/src/main/java/tv/own/owntv/player/LiveRouting.kt	mpv (exoplayer failed this channel earlier)
 1	log	player-core/src/main/java/tv/own/owntv/player/LiveRouting.kt	mpv (panel refuses segments)
 1	empty	player-core/src/main/java/tv/own/owntv/player/LiveStreamQuirks.kt	\0
 1	protocol	player-core/src/main/java/tv/own/owntv/player/LiveStreamQuirks.kt	$rewritten?$query

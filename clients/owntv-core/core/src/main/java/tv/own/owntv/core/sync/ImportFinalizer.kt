@@ -35,9 +35,9 @@ class ImportFinalizer(
     private val settings: tv.own.owntv.core.settings.SettingsRepository? = null,
     private val adultProtection: AdultProtection? = null,
 ) {
-    suspend fun finalize(source: SourceEntity, deferIndexes: Boolean = false): SyncCounts {
+    suspend fun finalize(source: SourceEntity, deferIndexes: Boolean = false, refreshGuide: Boolean = false): SyncCounts {
         val counts = contentCounts(source.id)
-        registerPortalGuide(source)
+        registerPortalGuide(source, refreshGuide)
         runCatching { adultProtection?.applyIfRequested(source.id) }
         // A portal that brings its own guide does not need the built-in one forced on it unless opted in.
         val allowedPortalIds = runCatching { settings?.portalBuiltinEpgSources?.firstOrNull() }.getOrNull().orEmpty()
@@ -76,7 +76,7 @@ class ImportFinalizer(
      * ruled out. A portal that advertises an XMLTV feed keeps using it (it is the better guide, with
      * real channel names) — this is only for the portals that offer nothing else.
      */
-    private suspend fun registerPortalGuide(source: SourceEntity) {
+    private suspend fun registerPortalGuide(source: SourceEntity, refreshGuide: Boolean) {
         if (source.type != tv.own.owntv.core.model.SourceType.STALKER) return
         if (!source.epgUrl.isNullOrBlank()) return
         // The user can switch a portal's own guide off per playlist; respect it, and do not put the
@@ -95,13 +95,13 @@ class ImportFinalizer(
             val timeStale = guide.lastSyncAt?.let { System.currentTimeMillis() - it > PORTAL_GUIDE_STALE_MS } ?: true
             // A guide that holds only a programme or two per channel is the short per-channel one (or
             // a crawl that stopped half way): fetch it whole, however recent it is.
-            val thin = !timeStale && runCatching {
+            val thin = !timeStale && !refreshGuide && runCatching {
                 val koin = org.koin.core.context.GlobalContext.get()
                 val have = koin.get<tv.own.owntv.core.database.dao.EpgDao>().countForSources(listOf(guide.id))
                 have < channelDao.countForSourceOnce(source.id) * THIN_GUIDE_PER_CHANNEL
             }.getOrDefault(false)
-            tv.own.owntv.core.util.GuideTrace.add("guide: queued=${timeStale || thin} stale=$timeStale thin=$thin")
-            if (timeStale || thin) {
+            tv.own.owntv.core.util.GuideTrace.add("guide: queued=${timeStale || thin || refreshGuide} stale=$timeStale thin=$thin manual=$refreshGuide")
+            if (timeStale || thin || refreshGuide) {
                 org.koin.core.context.GlobalContext.get().get<tv.own.owntv.core.sync.work.EpgSyncScheduler>()
                     .enqueueSync(guide.id, "portal", 0, androidx.work.ExistingWorkPolicy.KEEP)
             }

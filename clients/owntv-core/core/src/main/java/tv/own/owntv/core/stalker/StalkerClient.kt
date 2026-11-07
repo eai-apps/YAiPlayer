@@ -1049,14 +1049,6 @@ open class StalkerClient(okHttpClient: OkHttpClient) {
          * Portals list a channel logo as a bare file name ("212.png"), which lives in the portal's logo
          * folder, not as an address. Make it a full address; leave an address that is already one alone.
          */
-        /**
-         * The logo a portal keeps for a channel when its channel list names none: most Stalker
-         * portals store it as `<channel id>.png` in the same folder the listed ones live in. A
-         * channel without such a file just keeps its placeholder.
-         */
-        fun guessedLogoUrl(portalUrl: String, channelId: String): String? =
-            absoluteLogoUrl(portalUrl, "${channelId.trim()}.png").takeIf { channelId.isNotBlank() }
-
         fun absoluteLogoUrl(portalUrl: String, logo: String?): String? {
             val raw = logo?.trim()?.takeIf { it.isNotEmpty() } ?: return null
             if (raw.startsWith("http", ignoreCase = true) || raw.startsWith("//")) return raw

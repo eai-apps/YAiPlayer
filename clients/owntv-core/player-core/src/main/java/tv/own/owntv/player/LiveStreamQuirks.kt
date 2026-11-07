@@ -132,6 +132,7 @@ object LiveStreamQuirks {
     private val tolerantDemuxStreams = urlLessonSet()
     private val prerollDefeatedStreams = urlLessonSet()
     private val nonIdrStreams = urlLessonSet()
+    private val exoFailedChannels = urlLessonSet()
     private val softwareArchiveHosts = ConcurrentHashMap.newKeySet<String>()
     private val uaBlockingHosts = ConcurrentHashMap.newKeySet<String>()
     private val providerMessages = ConcurrentHashMap<String, Pair<Int, String>>()
@@ -345,6 +346,11 @@ object LiveStreamQuirks {
 
     fun needsNonIdrKeyframes(key: String): Boolean = key in nonIdrStreams
 
+    /** ExoPlayer tried every format it has on this channel and failed; mpv took it. Session only. */
+    fun rememberExoFailedChannel(channelId: Long) { exoFailedChannels += channelId.toString() }
+
+    fun exoFailedChannel(channelId: Long): Boolean = channelId.toString() in exoFailedChannels
+
     fun defeatsPreroll(url: String): Boolean = url in prerollDefeatedStreams
 
     /**
@@ -407,7 +413,7 @@ object LiveStreamQuirks {
     internal fun clearForTest() {
         hlsRedirectHosts.clear(); mixedHlsHosts.clear(); segmentRefusingHosts.clear(); singleSessionHosts.clear()
         brokenTimestampStreams.clear(); softwareArchiveHosts.clear()
-        noHlsVariantStreams.clear(); noHlsVariantMpvStreams.clear(); prerollDefeatedStreams.clear(); nonIdrStreams.clear()
+        noHlsVariantStreams.clear(); noHlsVariantMpvStreams.clear(); prerollDefeatedStreams.clear(); nonIdrStreams.clear(); exoFailedChannels.clear()
         tolerantDemuxStreams.clear()
         uaBlockingHosts.clear(); providerMessages.clear()
     }
