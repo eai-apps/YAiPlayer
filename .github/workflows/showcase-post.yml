@@ -1,0 +1,23 @@
+name: Weekly phone showcase to Telegram
+# Раз в неделю (суббота 10:00 по Берлину) — альбом постерных скриншотов мобильного приложения + текст.
+# Скриншоты: docs/showcase/raw (+ список в tools/brand/make_showcase.py). Текст: docs/showcase/post.html.
+# Есть новое в приложении — обновите скриншоты и текст. Остановить: отключите этот workflow во вкладке Actions.
+on:
+  schedule:
+    - cron: "0 9 * * 6"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Draw the posters and post them
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          pip install --quiet pillow
+          python3 tools/brand/make_showcase.py showcase-out
+          python3 telegram-release/post_showcase.py --images showcase-out --text docs/showcase/post.html
