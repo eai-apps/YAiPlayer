@@ -162,6 +162,14 @@ fun AddSourceScreen(
     var preferHls by remember(initial) { mutableStateOf(initial?.preferHls == true) }
     var loadChannelLogos by remember { mutableStateOf(true) }
     var useOnlyPortalEpg by remember { mutableStateOf(true) }
+    // "Protect adult channels with a PIN": handed to the import through AdultProtectChoice.
+    remember { tv.own.owntv.core.setup.AdultProtectChoice.reset() }
+    var protectAdult by remember { mutableStateOf(false) }
+    var protectPin by remember { mutableStateOf("") }
+    LaunchedEffect(protectAdult, protectPin) {
+        tv.own.owntv.core.setup.AdultProtectChoice.enabled = protectAdult
+        tv.own.owntv.core.setup.AdultProtectChoice.pin = protectPin
+    }
     val stalkerConnectFocus = remember { FocusRequester() }
     // Edit: On(=Now)/Off from persisted flags. Add: default all Now for Xtream; Stalker defaults
     // Live Now + Movies/Series Later when the kind switches (see LaunchedEffect below).
@@ -603,6 +611,22 @@ fun AddSourceScreen(
                     modifier = toSubmit,
                     help = help(fileTitle, stringResource(R.string.setup_local_file_choose), openKeys),
                 )
+                StageSettingRow(
+                    icon = OwnTVIcon.LOCK,
+                    title = stringResource(R.string.setup_checkbox_protect_adult),
+                    desc = null,
+                    value = SettingValue.Switch(protectAdult),
+                    onClick = { protectAdult = !protectAdult },
+                    modifier = toSubmit,
+                    help = help(stringResource(R.string.setup_checkbox_protect_adult), stringResource(R.string.setup_checkbox_protect_adult_help), switchKeys),
+                )
+                if (protectAdult) {
+                    field(
+                        stringResource(R.string.setup_protect_pin), protectPin,
+                        { protectPin = it.filter { c -> c.isDigit() }.take(8) },
+                        keyboardType = KeyboardType.NumberPassword, password = true,
+                    )
+                }
             }
             SourceKind.STALKER -> {
                 field(
@@ -726,6 +750,22 @@ fun AddSourceScreen(
                     modifier = toSubmit,
                     help = help(stringResource(R.string.setup_checkbox_only_portal_epg), stringResource(R.string.setup_checkbox_only_portal_epg), switchKeys),
                 )
+                StageSettingRow(
+                    icon = OwnTVIcon.LOCK,
+                    title = stringResource(R.string.setup_checkbox_protect_adult),
+                    desc = null,
+                    value = SettingValue.Switch(protectAdult),
+                    onClick = { protectAdult = !protectAdult },
+                    modifier = toSubmit,
+                    help = help(stringResource(R.string.setup_checkbox_protect_adult), stringResource(R.string.setup_checkbox_protect_adult_help), switchKeys),
+                )
+                if (protectAdult) {
+                    field(
+                        stringResource(R.string.setup_protect_pin), protectPin,
+                        { protectPin = it.filter { c -> c.isDigit() }.take(8) },
+                        keyboardType = KeyboardType.NumberPassword, password = true,
+                    )
+                }
             }
         }
 

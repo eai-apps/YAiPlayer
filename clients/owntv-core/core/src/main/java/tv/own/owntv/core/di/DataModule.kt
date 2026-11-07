@@ -236,6 +236,7 @@ val dataModule = module {
             epgSourceStore = get(),
             builtinGuide = tv.own.owntv.core.sync.BuiltinGuide(get(), get(), get()),
             settings = get(),
+            adultProtection = tv.own.owntv.core.sync.AdultProtection(get(), get(), get()),
         )
     }
     // context, channelDao, movieDao, seriesDao, profileDao, favoriteDao, historyDao, progressDao,

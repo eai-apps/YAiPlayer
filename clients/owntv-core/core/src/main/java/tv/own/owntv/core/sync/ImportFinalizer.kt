@@ -33,10 +33,12 @@ class ImportFinalizer(
     private val epgSourceStore: tv.own.owntv.core.epg.EpgSourceStore,
     private val builtinGuide: BuiltinGuide? = null,
     private val settings: tv.own.owntv.core.settings.SettingsRepository? = null,
+    private val adultProtection: AdultProtection? = null,
 ) {
     suspend fun finalize(source: SourceEntity, deferIndexes: Boolean = false): SyncCounts {
         val counts = contentCounts(source.id)
         registerPortalGuide(source)
+        runCatching { adultProtection?.applyIfRequested(source.id) }
         // A portal that brings its own guide does not need the built-in one forced on it unless opted in.
         val allowedPortalIds = runCatching { settings?.portalBuiltinEpgSources?.firstOrNull() }.getOrNull().orEmpty()
         val ownGuide = source.type == tv.own.owntv.core.model.SourceType.STALKER && source.importPortalEpg && (source.id !in allowedPortalIds)

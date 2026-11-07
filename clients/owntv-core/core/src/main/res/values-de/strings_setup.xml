@@ -316,4 +316,7 @@
     <string name="setup_progress_epg_running">läuft</string>
     <string name="setup_progress_epg_done">bereit</string>
     <string name="setup_btn_open_live">Fertig, Live-TV öffnen</string>
+    <string name="setup_checkbox_protect_adult">Erwachsenenkanäle mit PIN schützen</string>
+    <string name="setup_checkbox_protect_adult_help">Sperrt Kategorien ab 18 nach dem Laden mit Ihrer PIN. Falls noch keine PIN existiert, geben Sie hier eine ein.</string>
+    <string name="setup_protect_pin">PIN (mind. 4 Ziffern, nur nötig, falls noch keine gesetzt ist)</string>
 </resources>

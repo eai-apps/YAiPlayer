@@ -156,6 +156,14 @@ fun AddSourceForm(
     var showDeviceSheet by remember { mutableStateOf(false) }
     var loadChannelLogos by rememberSaveable { mutableStateOf(true) }
     var useOnlyPortalEpg by rememberSaveable { mutableStateOf(true) }
+    // "Protect adult channels with a PIN": handed to the import through AdultProtectChoice.
+    remember { tv.own.owntv.core.setup.AdultProtectChoice.reset() }
+    var protectAdult by rememberSaveable { mutableStateOf(false) }
+    var protectPin by rememberSaveable { mutableStateOf("") }
+    androidx.compose.runtime.LaunchedEffect(protectAdult, protectPin) {
+        tv.own.owntv.core.setup.AdultProtectChoice.enabled = protectAdult
+        tv.own.owntv.core.setup.AdultProtectChoice.pin = protectPin
+    }
 
     val context = LocalContext.current
     val clipboard = androidx.compose.ui.platform.LocalClipboardManager.current
@@ -273,6 +281,23 @@ fun AddSourceForm(
                         subtitleColor = palette.dim,
                         onClick = { pickPlaylist() },
                     ) { StageIcon(MobileIcons.KeyboardArrowRight, 14.dp, palette.muted) }
+                }
+                item(key = "m3u-protect-adult") {
+                    StageSettingRow(
+                        icon = MobileIcons.Lock,
+                        title = stringResource(R.string.setup_checkbox_protect_adult),
+                        role = Role.Switch,
+                        onClick = { protectAdult = !protectAdult },
+                    ) { StageSwitch(protectAdult) }
+                }
+                if (protectAdult) {
+                    item(key = "m3u-protect-pin") {
+                        StageTextRow(
+                            MobileIcons.Lock, stringResource(R.string.setup_protect_pin), protectPin,
+                            { protectPin = it.filter { c -> c.isDigit() }.take(8) },
+                            password = true, keyboardType = KeyboardType.NumberPassword,
+                        )
+                    }
                 }
             }
             SourceKind.STALKER -> {
@@ -407,6 +432,23 @@ fun AddSourceForm(
                         role = Role.Switch,
                         onClick = { useOnlyPortalEpg = !useOnlyPortalEpg },
                     ) { StageSwitch(useOnlyPortalEpg) }
+                }
+                item(key = "stalker-protect-adult") {
+                    StageSettingRow(
+                        icon = MobileIcons.Lock,
+                        title = stringResource(R.string.setup_checkbox_protect_adult),
+                        role = Role.Switch,
+                        onClick = { protectAdult = !protectAdult },
+                    ) { StageSwitch(protectAdult) }
+                }
+                if (protectAdult) {
+                    item(key = "stalker-protect-pin") {
+                        StageTextRow(
+                            MobileIcons.Lock, stringResource(R.string.setup_protect_pin), protectPin,
+                            { protectPin = it.filter { c -> c.isDigit() }.take(8) },
+                            password = true, keyboardType = KeyboardType.NumberPassword,
+                        )
+                    }
                 }
                 // Requirement 4: In-place sync progress card
                 if (syncStats != null && (syncStats.isRunning || syncStats.isSuccess || syncStats.isFailed)) {

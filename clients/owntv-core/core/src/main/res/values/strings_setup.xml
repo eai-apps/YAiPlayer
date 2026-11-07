@@ -583,4 +583,7 @@
     <string name="setup_progress_epg_running">in progress</string>
     <string name="setup_progress_epg_done">done</string>
     <string name="setup_btn_open_live">Done, open Live TV</string>
+    <string name="setup_checkbox_protect_adult">Protect adult channels with a PIN</string>
+    <string name="setup_checkbox_protect_adult_help">Locks categories marked 18+ behind your PIN after the list loads. If you have no PIN yet, enter one here.</string>
+    <string name="setup_protect_pin">PIN (4+ digits, needed only if none is set yet)</string>
 </resources>

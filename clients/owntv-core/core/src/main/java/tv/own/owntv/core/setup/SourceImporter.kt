@@ -165,7 +165,7 @@ class SourceImporter(
             autoRefresh, priority, enabledScope = enabled, enqueueRemainder = true,
             requiresNetwork = true, makeDefault = makeDefault,
         ) { profileId ->
-            sourceRepository.addXtreamSource(
+            val added = sourceRepository.addXtreamSource(
                 profileId = profileId,
                 name = uniqueName(name),
                 serverUrl = server.trim(),
@@ -177,7 +177,25 @@ class SourceImporter(
                 preferHls = preferHls,
                 httpReferer = httpReferer.trim().takeIf { it.isNotBlank() },
             )
+            requestAdultProtection(profileId, added.id)
+            added
         }
+    }
+
+    /**
+     * "Protect adult channels with a PIN", as ticked in the add-playlist form (see [AdultProtectChoice]). Locks need the profile's Customize PIN, so a PIN typed in the
+     * form is saved first when the profile has none; without either, nothing can be locked and the
+     * request is dropped. The locks themselves are applied after the import (see AdultProtection).
+     */
+    private suspend fun requestAdultProtection(profileId: Long, sourceId: Long) {
+        val (enabled, pin) = AdultProtectChoice.take()
+        if (!enabled) return
+        if (settings.customizePin(profileId).first() == null) {
+            val clean = pin.trim()
+            if (clean.length < 4) return
+            settings.setCustomizePin(profileId, clean)
+        }
+        settings.requestAdultProtect(sourceId, profileId)
     }
 
     /** Stalker/MAC portal: the handshake is verified BEFORE the source is saved, so a typo'd portal
@@ -246,6 +264,7 @@ class SourceImporter(
             )
             if (loadChannelLogos) settings.setGuideLogos(added.id, true)
             if (!useOnlyPortalEpg) settings.setPortalBuiltinEpg(added.id, true)
+            requestAdultProtection(profileId, added.id)
             added
         }
     }
@@ -285,7 +304,7 @@ class SourceImporter(
         }
         val playlistUrl = XtreamM3uLink.clean(url)
         runImport(autoRefresh, requiresNetwork = !playlistUrl.isLocalPlaylistPath(), makeDefault = makeDefault) { profileId ->
-            sourceRepository.addM3uSource(
+            val added = sourceRepository.addM3uSource(
                 profileId = profileId,
                 name = uniqueName(name),
                 url = playlistUrl,
@@ -293,6 +312,8 @@ class SourceImporter(
                 epgUrl = epgUrl.trim().takeIf { it.isNotBlank() },
                 httpReferer = httpReferer.trim().takeIf { it.isNotBlank() },
             )
+            requestAdultProtection(profileId, added.id)
+            added
         }
     }
 

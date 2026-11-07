@@ -1004,6 +1004,7 @@
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/CategoryDao.kt	JOIN sources ON sources.id = categories.sourceId
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/CategoryDao.kt	ORDER BY sources.createdAt ASC, categories.sortOrder ASC, categories.name ASC
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/CategoryDao.kt	SELECT * FROM categories WHERE id = :id
+1	sql	core/src/main/java/tv/own/owntv/core/database/dao/CategoryDao.kt	SELECT * FROM categories WHERE sourceId = :sourceId
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/CategoryDao.kt	SELECT * FROM categories WHERE sourceId = :sourceId AND mediaType = :type AND remoteId IN (:remoteIds)
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/CategoryDao.kt	SELECT COUNT(*) FROM categories WHERE sourceId IN (:sourceIds) AND mediaType = :type
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/CategoryDao.kt	SELECT categories.* FROM categories
@@ -3104,6 +3105,7 @@
 36	empty	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	\0
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	$DOWNLOADS_ALLOWED_PREFIX$profileId
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	$SPORTS_CONFIG_PREFIX$profileId
+1	technical	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	$sourceId:$profileId
 2	log	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	${mode.name}$SEPARATOR$manualDays
 4	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	,
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	ALL
@@ -3121,6 +3123,8 @@
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	accent_color
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	accent_custom
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	active_profile_id
+1	technical	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	adult_protect_applied
+1	technical	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	adult_protect_requests
 1	technical	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	afr_match_resolution
 1	technical	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	afr_pause_secs
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	ambient_glow_enabled
@@ -3379,6 +3383,7 @@
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	weather_location
 2	technical	core/src/main/java/tv/own/owntv/core/settings/SourceOverrides.kt	Referer
 1	technical	core/src/main/java/tv/own/owntv/core/settings/SourceOverrides.kt	catchup
+2	empty	core/src/main/java/tv/own/owntv/core/setup/AdultProtectChoice.kt	\0
 1	empty	core/src/main/java/tv/own/owntv/core/setup/SetupText.kt	\0
 1	protocol	core/src/main/java/tv/own/owntv/core/setup/SetupText.kt	Mozilla/5.0 (QtEmbedded; U; Linux; C) AppleWebKit/533.3 (KHTML, like Gecko) MAG250 stbapp ver: 2 rev: 250 Safari/533.3
 1	protocol	core/src/main/java/tv/own/owntv/core/setup/SetupText.kt	Mozilla/5.0 (QtEmbedded; U; Linux; C) AppleWebKit/533.3 (KHTML, like Gecko) MAG254 stbapp ver: 2 rev: 250 Safari/533.3
@@ -4359,7 +4364,7 @@
 1	uri	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	$apiBase?type=${enc(type)}&action=get_ordered_list$cat&movie_id=${enc(movieId)}&p=$page&JsHttpRequest=1-xml
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	$apiBase?type=account_info&action=get_main_info&JsHttpRequest=1-xml
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	$apiBase?type=itv&action=get_all_channels&JsHttpRequest=1-xml
-1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	$apiBase?type=itv&action=get_epg_info&period=$periodDays&JsHttpRequest=1-xml
+1	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	$apiBase?type=itv&action=get_epg_info&period=${periodDays * 24}&JsHttpRequest=1-xml
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	$apiBase?type=itv&action=get_genres&JsHttpRequest=1-xml
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	$apiBase?type=itv&action=get_ordered_list&genre=${enc(genreId)}&p=$page&JsHttpRequest=1-xml
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	$apiBase?type=itv&action=get_short_epg&ch_id=${enc(channelId)}&size=$size&JsHttpRequest=1-xml
@@ -4721,6 +4726,7 @@
 1	protocol	core/src/main/java/tv/own/owntv/core/subtitles/SubtitleTrackLabel.kt	OS
 1	protocol	core/src/main/java/tv/own/owntv/core/subtitles/SubtitleTrackLabel.kt	·
 1	protocol	core/src/main/java/tv/own/owntv/core/subtitles/SubtitleTrackLabel.kt	…
+1	technical	core/src/main/java/tv/own/owntv/core/sync/AdultProtection.kt	$request:$key
 1	log	core/src/main/java/tv/own/owntv/core/sync/AutoRefresh.kt	OwnTVHome
 1	technical	core/src/main/java/tv/own/owntv/core/sync/AutoRefresh.kt	auto_refresh
 1	log	core/src/main/java/tv/own/owntv/core/sync/AutoRefresh.kt	checkAutoRefresh epg sourceId=${src.id} mode=$mode — enqueuing

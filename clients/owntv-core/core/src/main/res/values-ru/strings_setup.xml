@@ -323,4 +323,7 @@
     <string name="setup_progress_epg_running">идёт</string>
     <string name="setup_progress_epg_done">готово</string>
     <string name="setup_btn_open_live">Готово, открыть Прямой эфир</string>
+    <string name="setup_checkbox_protect_adult">Защитить взрослые каналы PIN-кодом</string>
+    <string name="setup_checkbox_protect_adult_help">После загрузки категории 18+ закроются вашим PIN-кодом. Если PIN ещё не задан, введите его здесь.</string>
+    <string name="setup_protect_pin">PIN-код (от 4 цифр, нужен, если ещё не задан)</string>
 </resources>

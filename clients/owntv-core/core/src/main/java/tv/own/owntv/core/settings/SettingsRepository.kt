@@ -342,6 +342,8 @@ class SettingsRepository(private val context: Context, private val localeStore: 
         val GUEST_HOOK_DISMISSED_AT = longPreferencesKey("guest_hook_dismissed_at")
         val HIDDEN_PROFILE_IDS = stringSetPreferencesKey("hidden_profile_ids")
         val PORTAL_BUILTIN_EPG_SOURCES = stringSetPreferencesKey("portal_builtin_epg_sources")
+        val ADULT_PROTECT_REQUESTS = stringSetPreferencesKey("adult_protect_requests")
+        val ADULT_PROTECT_APPLIED = stringSetPreferencesKey("adult_protect_applied")
         val DEFAULT_SOURCE = longPreferencesKey("default_source_id")
         val DOWNLOAD_ROOT = stringPreferencesKey("download_root")
         val REFRESH_SOURCE_IDS = stringSetPreferencesKey("refresh_source_ids")
@@ -3166,6 +3168,24 @@ class SettingsRepository(private val context: Context, private val localeStore: 
         context.dataStore.edit { prefs ->
             val current = prefs[Keys.PORTAL_BUILTIN_EPG_SOURCES].orEmpty()
             prefs[Keys.PORTAL_BUILTIN_EPG_SOURCES] = if (enabled) current + sourceId.toString() else current - sourceId.toString()
+        }
+    }
+
+    /** "sourceId:profileId" pairs for which adult categories must be locked once the playlist's categories exist. */
+    val adultProtectRequests: Flow<Set<String>> = prefsFlow { prefs -> prefs[Keys.ADULT_PROTECT_REQUESTS].orEmpty() }
+
+    /** "sourceId:profileId:categoryKey" locks already applied, so a lock the user removes later stays removed. */
+    val adultProtectApplied: Flow<Set<String>> = prefsFlow { prefs -> prefs[Keys.ADULT_PROTECT_APPLIED].orEmpty() }
+
+    suspend fun requestAdultProtect(sourceId: Long, profileId: Long) {
+        context.dataStore.edit { prefs ->
+            prefs[Keys.ADULT_PROTECT_REQUESTS] = prefs[Keys.ADULT_PROTECT_REQUESTS].orEmpty() + "$sourceId:$profileId"
+        }
+    }
+
+    suspend fun markAdultProtectApplied(marks: Collection<String>) {
+        context.dataStore.edit { prefs ->
+            prefs[Keys.ADULT_PROTECT_APPLIED] = prefs[Keys.ADULT_PROTECT_APPLIED].orEmpty() + marks
         }
     }
 

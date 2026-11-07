@@ -31,6 +31,9 @@ interface CategoryDao {
     )
     fun observe(sourceIds: List<Long>, type: MediaType): Flow<List<CategoryEntity>>
 
+    @Query("SELECT * FROM categories WHERE sourceId = :sourceId")
+    suspend fun forSource(sourceId: Long): List<CategoryEntity>
+
     @Query("SELECT * FROM categories WHERE id = :id")
     suspend fun getById(id: Long): CategoryEntity?
 
