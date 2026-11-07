@@ -339,6 +339,7 @@ class SettingsRepository(private val context: Context, private val localeStore: 
         val FOCUS_HIGHLIGHT_WIDTH = intPreferencesKey("focus_highlight_width")
         val ACTIVE_PROFILE = longPreferencesKey("active_profile_id")
         val GUEST_PROFILE = longPreferencesKey("guest_profile_id")
+        val GUEST_HOOK_DISMISSED_AT = longPreferencesKey("guest_hook_dismissed_at")
         val DEFAULT_SOURCE = longPreferencesKey("default_source_id")
         val DOWNLOAD_ROOT = stringPreferencesKey("download_root")
         val REFRESH_SOURCE_IDS = stringSetPreferencesKey("refresh_source_ids")
@@ -3122,6 +3123,18 @@ class SettingsRepository(private val context: Context, private val localeStore: 
 
     suspend fun setGuestProfileId(id: Long) {
         context.dataStore.edit { it[Keys.GUEST_PROFILE] = id }
+    }
+
+    /** Last time the guest hook card on Home was dismissed; 0 = never dismissed. */
+    val guestHookDismissedAt: Flow<Long> = prefsFlow { it[Keys.GUEST_HOOK_DISMISSED_AT] ?: 0L }
+
+    suspend fun setGuestHookDismissedAt(timestamp: Long) {
+        context.dataStore.edit { it[Keys.GUEST_HOOK_DISMISSED_AT] = timestamp }
+    }
+
+    /** Whether the active profile is the local guest profile. */
+    val isGuestActive: Flow<Boolean> = kotlinx.coroutines.flow.combine(activeProfileId, guestProfileId) { active, guest ->
+        active >= 0L && active == guest
     }
 
     // --- Global proxy (Approach 1 — one app-wide HTTP proxy) ---

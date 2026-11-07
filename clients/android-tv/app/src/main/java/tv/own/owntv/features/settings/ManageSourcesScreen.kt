@@ -83,6 +83,9 @@ fun ManageSourcesScreen(
     val defaultIptvName = stringResource(R.string.setup_default_iptv)
     val defaultPlaylistName = stringResource(R.string.setup_name_default_playlist)
     val defaultPortalName = stringResource(R.string.setup_default_portal)
+    val settings: tv.own.owntv.core.settings.SettingsRepository = org.koin.compose.koinInject()
+    val isGuest by settings.isGuestActive.androidx.lifecycle.compose.collectAsStateWithLifecycle(initialValue = false)
+    var showLimitPopup by remember { mutableStateOf(false) }
 
     var showAdd by remember { mutableStateOf(startOnAdd) }
     // Within "Add source": null = the Remote|Manual chooser, else the chosen path.
@@ -311,12 +314,24 @@ fun ManageSourcesScreen(
                 handleBack = false,
                 toolbar = {
                     tv.own.owntv.ui.stage.StageTool(
-                        stringResource(R.string.settings_sources_add), onClick = { showAdd = true },
+                        stringResource(R.string.settings_sources_add), onClick = {
+                            if (!tv.own.owntv.core.profile.GuestPolicy.canAddAnySource(isGuest, sources)) {
+                                showLimitPopup = true
+                            } else {
+                                showAdd = true
+                            }
+                        },
                         icon = tv.own.owntv.ui.components.OwnTVIcon.ADD, boxed = true,
                         modifier = Modifier.focusRequester(addFocus),
                     )
                     tv.own.owntv.ui.stage.StageTool(
-                        stringResource(R.string.settings_sources_use_other_profiles), onClick = { vm.useOtherProfilesPlaylists() },
+                        stringResource(R.string.settings_sources_use_other_profiles), onClick = {
+                            if (!tv.own.owntv.core.profile.GuestPolicy.canAddAnySource(isGuest, sources)) {
+                                showLimitPopup = true
+                            } else {
+                                vm.useOtherProfilesPlaylists()
+                            }
+                        },
                         icon = tv.own.owntv.ui.components.OwnTVIcon.REFRESH, boxed = true,
                     )
                 },
@@ -401,6 +416,20 @@ fun ManageSourcesScreen(
                 message = stringResource(R.string.settings_sources_delete_message),
                 onConfirm = { vm.delete(src); confirmDelete = null },
                 onDismiss = { confirmDelete = null },
+            )
+        }
+        if (showLimitPopup) {
+            tv.own.owntv.ui.stage.StagePopup(
+                onDismiss = { showLimitPopup = false },
+                title = stringResource(R.string.guest_mode_title),
+                body = stringResource(R.string.guest_limit_message),
+                buttons = {
+                    tv.own.owntv.ui.stage.StagePopupButton(
+                        text = stringResource(R.string.common_ok),
+                        onClick = { showLimitPopup = false },
+                        primary = true,
+                    )
+                },
             )
         }
     }

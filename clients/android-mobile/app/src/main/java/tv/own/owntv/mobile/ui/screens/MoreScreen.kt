@@ -92,6 +92,8 @@ fun MoreScreen(
     val playlists by shell.playlists.collectAsStateWithLifecycle()
     val activePlaylistId by shell.activePlaylistId.collectAsStateWithLifecycle()
     val profile = profiles.orEmpty().firstOrNull { it.id == activeId }
+    val guestProfileId by profilesVm.guestProfileId.collectAsStateWithLifecycle()
+    val isGuest = profile != null && profile.id >= 0L && profile.id == guestProfileId
 
     // The log is a file, not a flow: read again whenever More comes back (an export or a clear on its page).
     val context = LocalContext.current
@@ -112,6 +114,7 @@ fun MoreScreen(
                 ?: stringResource(R.string.content_all_playlists)
             ProfileCard(
                 name = profile?.name.orEmpty(),
+                isGuest = isGuest,
                 line = playlistLabel + stringResource(R.string.content_epg_bits_separator) +
                     pluralStringResource(R.plurals.more_playlist_count, playlists.size, playlists.size),
                 avatar = { ShellAvatar(profile, onClick = null, diameter = 44.dp) },
@@ -157,6 +160,19 @@ fun MoreScreen(
                 }
             }
         }
+        item {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 28.dp, bottom = 12.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                tv.own.owntv.mobile.ui.components.BrandMark(tv.own.owntv.mobile.ui.components.rememberAppliedIcon(), 28.dp)
+                Spacer(Modifier.width(10.dp))
+                tv.own.owntv.mobile.ui.components.Wordmark(90.dp)
+            }
+        }
     }
 }
 
@@ -171,7 +187,7 @@ private fun MoreItem(labelRes: Int, icon: androidx.compose.ui.graphics.vector.Im
  * 3 playlists" (11.5 muted) and **Switch**. A tap on the card opens the profile manager.
  */
 @Composable
-private fun ProfileCard(name: String, line: String, avatar: @Composable () -> Unit, onOpen: () -> Unit, onSwitch: () -> Unit) {
+private fun ProfileCard(name: String, isGuest: Boolean, line: String, avatar: @Composable () -> Unit, onOpen: () -> Unit, onSwitch: () -> Unit) {
     val palette = LocalStagePalette.current
     val shape = RoundedCornerShape(20.dp)
     val interaction = remember { MutableInteractionSource() }
@@ -187,7 +203,22 @@ private fun ProfileCard(name: String, line: String, avatar: @Composable () -> Un
     ) {
         avatar()
         Column(Modifier.weight(1f)) {
-            Text(name, style = stageText(16f, 800), color = palette.text, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                Text(name, style = stageText(16f, 800), color = palette.text, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                if (isGuest) {
+                    Text(
+                        stringResource(R.string.profiles_guest_name),
+                        style = stageText(10.5f, 700),
+                        color = Color(0xFFF59E0B),
+                        modifier = Modifier
+                            .background(Color(0xFFF59E0B).copy(alpha = 0.18f), RoundedCornerShape(4.dp))
+                            .padding(horizontal = 6.dp, vertical = 2.dp),
+                    )
+                }
+            }
             Text(line, style = stageText(11.5f, 500), color = palette.muted, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
         StageButton(onClick = onSwitch, text = stringResource(R.string.more_profile_switch), icon = MobileIcons.Person, small = true)

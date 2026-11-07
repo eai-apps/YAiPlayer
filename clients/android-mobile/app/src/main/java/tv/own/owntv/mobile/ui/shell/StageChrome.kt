@@ -543,18 +543,28 @@ data class ClusterPlaylist(val label: String, val mark: PlaylistMark?, val switc
  */
 @Composable
 internal fun ShellAvatar(profile: ProfileEntity?, onClick: (() -> Unit)?, diameter: androidx.compose.ui.unit.Dp = 32.dp) {
+    val settings: tv.own.owntv.core.settings.SettingsRepository = org.koin.compose.koinInject()
+    val guestId by settings.guestProfileId.collectAsStateWithLifecycle(initialValue = -1L)
+    val isGuest = profile != null && profile.id >= 0L && profile.id == guestId
+    val amber = Color(0xFFF59E0B)
     val interaction = remember { MutableInteractionSource() }
     val more = stringResource(R.string.common_nav_more)
-    val modifier = Modifier
+    val baseModifier = Modifier
         .size(diameter)
         .clip(CircleShape)
+        .then(if (isGuest) androidx.compose.foundation.border(1.5.dp, amber, CircleShape) else Modifier)
         .then(if (onClick != null) Modifier.stageClickable(interaction, onClick, null).semantics { contentDescription = more } else Modifier)
     if (profile != null && (profile.avatarId >= 0 || !profile.avatarPath.isNullOrBlank())) {
-        ProfileAvatar(profile.avatarId, modifier, profile.avatarPath.orEmpty())
+        ProfileAvatar(profile.avatarId, baseModifier, profile.avatarPath.orEmpty())
     } else {
+        val gradientColors = if (isGuest) {
+            listOf(Color(0xFFF59E0B), Color(0xFFD97706))
+        } else {
+            listOf(Color(0xFFFFB35C), Color(0xFFFF5F7A))
+        }
         Box(
-            modifier.drawBehind {
-                drawRect(Brush.linearGradient(listOf(Color(0xFFFFB35C), Color(0xFFFF5F7A)), Offset.Zero, Offset(size.width, size.height)))
+            baseModifier.drawBehind {
+                drawRect(Brush.linearGradient(gradientColors, Offset.Zero, Offset(size.width, size.height)))
             },
             contentAlignment = Alignment.Center,
         ) {

@@ -1,12 +1,10 @@
 package tv.own.owntv.ui.components
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -15,15 +13,23 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.text.withStyle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.koinInject
 import tv.own.owntv.R
@@ -31,6 +37,7 @@ import tv.own.owntv.core.brand.AppIcon
 import tv.own.owntv.core.brand.AppIconSwitcher
 import tv.own.owntv.core.brand.PixelMark as CorePixelMark
 import tv.own.owntv.core.settings.SettingsRepository
+import tv.own.owntv.ui.theme.StageColors
 import tv.own.owntv.ui.theme.stageAccent
 
 /**
@@ -52,35 +59,61 @@ private fun accentTriangle(): Color? {
 }
 
 /**
- * The icon's flat mark (no shadow, no next card); at 32 dp and below the simpler small drawing. Pixel
- * above 32 dp is its dot matrix ([PixelMark]). With Accent-colored logo on, the play triangle takes the
- * accent: on a card a white triangle is drawn over the card's own and tinted (Pixel has none).
- * [followAccent] false draws the icon as the launcher shows it (the icon pickers).
+ * The canonical YAiPlayer mark (rounded squircle tile, play triangle, signal dot).
+ * With Accent-colored logo on, the play triangle takes the accent.
+ * [followAccent] false draws the icon in its launcher colours.
  */
 @Composable
 fun BrandMark(icon: AppIcon, size: Dp, modifier: Modifier = Modifier, followAccent: Boolean = true) {
     val small = size <= 32.dp
     val accent = accentTriangle().takeIf { followAccent }
-    if (icon == AppIcon.PIXEL && !small) {
-        PixelMark(modifier.size(size), triangle = accent ?: Color(icon.accent))
-        return
-    }
-    Box(modifier.size(size)) {
-        Image(painterResource(if (small) icon.markSmall else icon.mark), contentDescription = null, modifier = Modifier.fillMaxSize())
-        if (accent != null && icon.isCard(small)) {
-            Image(
-                painterResource(if (small) R.drawable.owntv_mark_play_small else R.drawable.owntv_mark_play),
-                contentDescription = null,
-                modifier = Modifier.fillMaxSize(),
-                colorFilter = ColorFilter.tint(accent),
-            )
+
+    val (bg, defaultTri, dot) = iconColors(icon)
+    val triColor = accent ?: defaultTri
+
+    Canvas(modifier.size(size)) {
+        val u = this.size.minDimension / 56f
+        drawRoundRect(
+            color = bg,
+            cornerRadius = CornerRadius(13.5f * u, 13.5f * u),
+            size = this.size,
+        )
+        val tri = Path().apply {
+            moveTo(22.7f * u, 20f * u)
+            lineTo(40.2f * u, 30f * u)
+            lineTo(22.7f * u, 40f * u)
+            close()
+        }
+        drawPath(tri, triColor)
+        drawPath(
+            path = tri,
+            color = triColor,
+            style = Stroke(
+                width = 2.5f * u,
+                join = StrokeJoin.Round,
+                cap = StrokeCap.Round,
+            ),
+        )
+        if (!small) {
+            drawCircle(dot, radius = 3.6f * u, center = Offset(41f * u, 17f * u))
         }
     }
 }
 
+private fun iconColors(icon: AppIcon): Triple<Color, Color, Color> = when (icon) {
+    AppIcon.EGGSHELL -> Triple(Color(0xFF5B3FD6), Color.White, Color(0xFF22D3EE))
+    AppIcon.PETROL -> Triple(Color(0xFF0E7C86), Color.White, Color(0xFFFDE68A))
+    AppIcon.SUNFLOWER -> Triple(Color(0xFFE5A50A), Color.White, Color(0xFF5B3FD6))
+    AppIcon.COBALT -> Triple(Color(0xFF3E63D2), Color.White, Color(0xFF22D3EE))
+    AppIcon.TOMATO -> Triple(Color(0xFFD8523C), Color.White, Color(0xFFFDE68A))
+    AppIcon.BOARD -> Triple(Color(0xFF171A24), Color.White, Color(0xFF22D3EE))
+    AppIcon.OLIVE -> Triple(Color(0xFF2F8F5B), Color.White, Color(0xFFFDE68A))
+    AppIcon.OLIVE_CREAM -> Triple(Color(0xFFE8E2FF), Color(0xFF5B3FD6), Color(0xFF0E7C86))
+    AppIcon.PIXEL -> Triple(Color(0xFF0F172A), Color.White, Color(0xFF22D3EE))
+}
+
 /**
- * "Pixel": the dot-matrix TV set (core's [CorePixelMark], the same grid as `owntv_mark_pixel`), the dots
- * of the play triangle in [triangle].
+ * "Pixel": retained for compatibility if called explicitly; [BrandMark] draws the canonical mark.
  */
 @Composable
 fun PixelMark(modifier: Modifier = Modifier, triangle: Color = stageAccent.accent) {
@@ -103,22 +136,20 @@ private val PixelSide = Color(CorePixelMark.SIDE)
 private val PixelPower = Color(CorePixelMark.POWER)
 
 /**
- * The wordmark: lowercase "own" in cream, "tv" in [tv] (the accent), drawn from
- * core's two vectors at [width]; its height follows the 988 × 182 drawing.
+ * The wordmark: "YAi" in [own] and the rest in [tv] (the accent).
  */
 @Composable
 fun Wordmark(width: Dp, modifier: Modifier = Modifier, tv: Color = stageAccent.accent, own: Color = WordmarkCream) {
-    // YAiPlayer: the app name as text, "YAi" in [own] and the rest in [tv] (the accent).
-    val name = androidx.compose.ui.res.stringResource(R.string.app_name)
-    val text = androidx.compose.ui.text.buildAnnotatedString {
-        withStyle(androidx.compose.ui.text.SpanStyle(color = own)) { append(name.take(3)) }
-        withStyle(androidx.compose.ui.text.SpanStyle(color = tv)) { append(name.drop(3)) }
+    val name = stringResource(R.string.app_name)
+    val text = buildAnnotatedString {
+        withStyle(SpanStyle(color = own)) { append(name.take(3)) }
+        withStyle(SpanStyle(color = tv)) { append(name.drop(3)) }
     }
-    Box(modifier.width(width).height(width * 182f / 988f * 1.6f), contentAlignment = androidx.compose.ui.Alignment.CenterStart) {
+    Box(modifier.width(width).height(width * 182f / 988f * 1.6f), contentAlignment = Alignment.CenterStart) {
         androidx.compose.foundation.text.BasicText(
             text, maxLines = 1, softWrap = false,
-            style = androidx.compose.ui.text.TextStyle(
-                fontSize = (width.value * 0.19f).sp, fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
+            style = TextStyle(
+                fontSize = (width.value * 0.19f).sp, fontWeight = FontWeight.ExtraBold,
             ),
         )
     }
@@ -141,7 +172,7 @@ fun BrandLockup(
     val parts = @Composable {
         BrandMark(icon, markSize.dp)
         // On a light theme "own" takes the text colour; the cream is for dark surfaces.
-        Wordmark((markSize * 2.75f).dp, own = if (tv.own.owntv.ui.theme.LocalStagePalette.current.isLight) tv.own.owntv.ui.theme.StageColors.Text else WordmarkCream)
+        Wordmark((markSize * 2.75f).dp, own = if (tv.own.owntv.ui.theme.LocalStagePalette.current.isLight) StageColors.Text else WordmarkCream)
     }
     if (stacked) {
         Column(

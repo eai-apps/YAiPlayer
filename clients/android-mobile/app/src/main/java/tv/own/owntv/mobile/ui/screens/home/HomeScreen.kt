@@ -220,6 +220,10 @@ fun HomeScreen(
         return
     }
 
+    val isGuest by vm.isGuest.collectAsStateWithLifecycle()
+    val showGuestHook by vm.showGuestHook.collectAsStateWithLifecycle()
+    var showLimitSheet by remember { mutableStateOf(false) }
+
     val trending = state.trendingItems
     val trendingFirst = rows.firstOrNull() == HomeRow.TRENDING
     val fullBleed = trendingFirst && state.config.trendingStyle == HomeTrendingStyle.HERO
@@ -290,6 +294,13 @@ fun HomeScreen(
             tv.own.owntv.mobile.ui.YaiBadge(Modifier.padding(horizontal = 16.dp))
         }
         loadingNote?.let { note -> item("library-loading") { note() } }
+        if (showGuestHook) item("guest_hook") {
+            GuestHookCard(
+                onClick = { showLimitSheet = true },
+                onDismiss = { vm.dismissGuestHook() },
+                modifier = Modifier.padding(horizontal = 16.dp),
+            )
+        }
         rows.forEach { row ->
             // Channel categories are one rail per category, each its own list item.
             if (row == HomeRow.LIVE_CATEGORIES) {
@@ -427,6 +438,25 @@ fun HomeScreen(
                 }
             }
         }
+        if (isGuest) item("guest_footnote") {
+            val footnoteInteraction = remember { MutableInteractionSource() }
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp, bottom = 16.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = stringResource(R.string.guest_mode_footnote),
+                    style = stageText(12f, 500),
+                    color = LocalStagePalette.current.muted,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .stageClickable(footnoteInteraction, { showLimitSheet = true }, null)
+                        .padding(horizontal = 12.dp, vertical = 6.dp),
+                )
+            }
+        }
     }
 
     trendingMenu?.let { item ->
@@ -469,6 +499,76 @@ fun HomeScreen(
         )
     }
     bulkDownload?.let { tv.own.owntv.mobile.ui.components.BulkDownloadConfirm(it) { bulkDownload = null } }
+
+    if (showLimitSheet) {
+        GuestLimitSheet(onDismiss = { showLimitSheet = false })
+    }
+}
+
+@Composable
+private fun GuestLimitSheet(onDismiss: () -> Unit) {
+    MobileBottomSheet(onDismissRequest = onDismiss, title = stringResource(R.string.guest_mode_title)) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 12.dp),
+        ) {
+            Text(
+                text = stringResource(R.string.guest_limit_message),
+                style = stageText(15f, 500, lineHeight = 1.4f),
+                color = LocalStagePalette.current.text,
+            )
+            Spacer(Modifier.height(20.dp))
+            StageButton(
+                onClick = onDismiss,
+                text = stringResource(R.string.common_ok),
+                style = StageButtonStyle.PRIMARY,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+    }
+}
+
+@Composable
+private fun GuestHookCard(
+    onClick: () -> Unit,
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val palette = LocalStagePalette.current
+    val shape = RoundedCornerShape(16.dp)
+    val interaction = remember { MutableInteractionSource() }
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .stageGlass(shape)
+            .clip(shape)
+            .stageClickable(interaction, onClick, null)
+            .padding(14.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Box(
+            modifier = Modifier
+                .size(36.dp)
+                .clip(androidx.compose.foundation.shape.CircleShape)
+                .background(Color(0xFFF59E0B).copy(alpha = 0.15f)),
+            contentAlignment = Alignment.Center,
+        ) {
+            StageIcon(MobileIcons.Phone, 20.dp, Color(0xFFF59E0B))
+        }
+        Text(
+            text = stringResource(R.string.guest_hook_title),
+            style = stageText(13.5f, 600, lineHeight = 1.35f),
+            color = palette.text,
+            modifier = Modifier.weight(1f),
+        )
+        StagePill(
+            onClick = onDismiss,
+            icon = MobileIcons.Close,
+            contentDescription = stringResource(R.string.guest_hook_dismiss),
+        )
+    }
 }
 
 /** A row with nothing in it is not drawn at all — an empty heading is worse than one row fewer. */

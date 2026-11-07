@@ -555,4 +555,10 @@
     <string name="profiles_guest_name">Guest</string>
     <string name="setup_continue_as_guest">Continue as guest</string>
     <string name="setup_continue_as_guest_description">No sign-up and no profile to create: add your own playlist, Stalker portal or guide and watch. Nothing is erased when you leave; there is no sync between devices.</string>
+    <string name="guest_mode_title">Guest mode</string>
+    <string name="guest_limit_message">Register to add more</string>
+    <string name="guest_mode_footnote">Guest mode · limits</string>
+    <string name="guest_hook_title">Register — playlists sync across devices</string>
+    <string name="guest_hook_action">Register</string>
+    <string name="guest_hook_dismiss">Dismiss</string>
 </resources>

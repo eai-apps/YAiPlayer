@@ -412,7 +412,12 @@ open class MainActivity : ComponentActivity() {
                         Box(modifier = Modifier.fillMaxSize()) {
                         val profile = activeProfileId
                         when {
-                            profile == null || !profilesLoaded -> Unit // active id / Room list loading
+                            profile == null || !profilesLoaded -> Box(
+                                modifier = Modifier.fillMaxSize().background(tv.own.owntv.ui.theme.LocalStagePalette.current.page),
+                                contentAlignment = androidx.compose.ui.Alignment.Center,
+                            ) {
+                                tv.own.owntv.ui.components.BrandLockup(markSize = 72)
+                            }
                             // Adding a profile from the gate → onboard the new profile.
                             addingProfile -> Onboarding(
                                 firstRun = false,

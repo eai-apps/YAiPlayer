@@ -282,4 +282,10 @@
     <string name="profiles_guest_name">Gast</string>
     <string name="setup_continue_as_guest">Als Gast fortfahren</string>
     <string name="setup_continue_as_guest_description">Ohne Registrierung und ohne Profil: eigene Playlist, Stalker-Portal oder Programmführer hinzufügen und schauen. Beim Verlassen wird nichts gelöscht; keine Synchronisierung zwischen Geräten.</string>
+    <string name="guest_mode_title">Gastmodus</string>
+    <string name="guest_limit_message">Registrieren Sie sich, um mehr hinzuzufügen</string>
+    <string name="guest_mode_footnote">Gastmodus · Einschränkungen</string>
+    <string name="guest_hook_title">Registrieren — Wiedergabelisten werden geräteübergreifend synchronisiert</string>
+    <string name="guest_hook_action">Registrieren</string>
+    <string name="guest_hook_dismiss">Ausblenden</string>
 </resources>

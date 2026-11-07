@@ -69,6 +69,8 @@ fun ProfileGate(onEnter: (Long) -> Unit, onAddProfile: () -> Unit, modifier: Mod
         contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            tv.own.owntv.ui.components.BrandLockup(markSize = 48)
+            Spacer(Modifier.height(24.dp))
             Text(stringResource(R.string.profiles_gate_title), style = tv.own.owntv.ui.theme.stageText(54, 700), color = tv.own.owntv.ui.theme.StageColors.Text)
             Spacer(Modifier.height(36.dp))
             LazyRow(
@@ -78,6 +80,7 @@ fun ProfileGate(onEnter: (Long) -> Unit, onAddProfile: () -> Unit, modifier: Mod
                 items(profiles, key = { it.id }) { p ->
                     ProfileTile(
                         profile = p,
+                        isGuest = p.id == guestId,
                         modifier = if (p.id == profiles.first().id) Modifier.focusRequester(firstFocus) else Modifier,
                         onClick = { choose(p) },
                     )
@@ -105,7 +108,8 @@ fun ProfileGate(onEnter: (Long) -> Unit, onAddProfile: () -> Unit, modifier: Mod
 }
 
 @Composable
-private fun ProfileTile(profile: ProfileEntity, modifier: Modifier = Modifier, onClick: () -> Unit) {
+private fun ProfileTile(profile: ProfileEntity, isGuest: Boolean = false, modifier: Modifier = Modifier, onClick: () -> Unit) {
+    val amber = androidx.compose.ui.graphics.Color(0xFFF59E0B)
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         tv.own.owntv.ui.stage.StageSurface(
             onClick = onClick,
@@ -115,7 +119,12 @@ private fun ProfileTile(profile: ProfileEntity, modifier: Modifier = Modifier, o
             contentAlignment = Alignment.Center,
         ) { _ ->
             Box(contentAlignment = Alignment.TopEnd) {
-                OwnTVAvatar(avatarId = profile.avatarId, imagePath = profile.avatarPath.orEmpty(), modifier = Modifier.size(104.dp))
+                val avatarModifier = if (isGuest) {
+                    Modifier.size(104.dp).clip(CircleShape).androidx.compose.foundation.border(2.5.dp, amber, CircleShape)
+                } else {
+                    Modifier.size(104.dp)
+                }
+                OwnTVAvatar(avatarId = profile.avatarId, imagePath = profile.avatarPath.orEmpty(), modifier = avatarModifier)
                 if (profile.pinHash != null) {
                     Box(Modifier.size(26.dp).clip(CircleShape).background(tv.own.owntv.ui.theme.StageColors.Ink.copy(alpha = 0.12f)), contentAlignment = Alignment.Center) {
                         OwnTVIcon(OwnTVIcon.SETTINGS, tint = tv.own.owntv.ui.theme.StageColors.Text, modifier = Modifier.size(14.dp))
@@ -125,7 +134,9 @@ private fun ProfileTile(profile: ProfileEntity, modifier: Modifier = Modifier, o
         }
         Spacer(Modifier.height(10.dp))
         Text(profile.name, style = tv.own.owntv.ui.theme.stageText(32, 600), color = tv.own.owntv.ui.theme.StageColors.Text, textAlign = TextAlign.Center)
-        if (profile.isKids) {
+        if (isGuest) {
+            Text(stringResource(R.string.profiles_guest_name), style = tv.own.owntv.ui.theme.stageText(20, 600), color = amber)
+        } else if (profile.isKids) {
             Text(stringResource(R.string.profiles_kids_badge), style = tv.own.owntv.ui.theme.stageText(20, 500), color = tv.own.owntv.ui.theme.stageAccent.accent)
         }
     }

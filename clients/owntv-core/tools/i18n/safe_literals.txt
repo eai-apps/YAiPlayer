@@ -3185,6 +3185,7 @@
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	gesture_sensitivity_pct
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	glass_alpha
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	glass_scope
+1	technical	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	guest_hook_dismissed_at
 1	technical	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	guest_profile_id
 1	log	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	guide_days_to_keep
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	guide_density_pct
@@ -5008,8 +5009,8 @@
 1	json	core/src/main/java/tv/own/owntv/core/sync/local/LocalSyncDiscovery.kt	id
 1	protocol	core/src/main/java/tv/own/owntv/core/sync/local/LocalSyncManager.kt	${Build.MANUFACTURER} ${Build.MODEL}
 1	protocol	core/src/main/java/tv/own/owntv/core/sync/local/LocalSyncManager.kt	LocalSyncManager
-1	protocol	core/src/main/java/tv/own/owntv/core/sync/local/LocalSyncManager.kt	OwnTV
 1	protocol	core/src/main/java/tv/own/owntv/core/sync/local/LocalSyncManager.kt	Pairing failed on the host side
+1	protocol	core/src/main/java/tv/own/owntv/core/sync/local/LocalSyncManager.kt	YAiPlayer
 1	protocol	core/src/main/java/tv/own/owntv/core/sync/local/LocalSyncManager.kt	app
 1	json	core/src/main/java/tv/own/owntv/core/sync/local/LocalSyncManager.kt	device
 1	protocol	core/src/main/java/tv/own/owntv/core/sync/local/LocalSyncManager.kt	incoming-${System.currentTimeMillis()}.own
@@ -6588,7 +6589,6 @@
 1	protocol	player-core/src/main/java/tv/own/owntv/player/PlaybackErrorLog.kt	Hardware video decoder is busy or can't handle this stream
 1	compiler	player-core/src/main/java/tv/own/owntv/player/PlaybackErrorLog.kt	InlinedApi
 1	protocol	player-core/src/main/java/tv/own/owntv/player/PlaybackErrorLog.kt	Network problem reaching the provider
-1	technical	player-core/src/main/java/tv/own/owntv/player/PlaybackErrorLog.kt	OwnTV playback report
 1	log	player-core/src/main/java/tv/own/owntv/player/PlaybackErrorLog.kt	PlaybackErrorLog
 1	protocol	player-core/src/main/java/tv/own/owntv/player/PlaybackErrorLog.kt	Provider blocked the connection — too many streams at once (HTTP 509)
 1	protocol	player-core/src/main/java/tv/own/owntv/player/PlaybackErrorLog.kt	Provider denied access (HTTP 403) — credentials, subscription, or IP block
@@ -6598,6 +6598,7 @@
 1	protocol	player-core/src/main/java/tv/own/owntv/player/PlaybackErrorLog.kt	Stream format not recognized (bad or partial stream)
 1	protocol	player-core/src/main/java/tv/own/owntv/player/PlaybackErrorLog.kt	Stream not found on the provider (HTTP 404)
 1	protocol	player-core/src/main/java/tv/own/owntv/player/PlaybackErrorLog.kt	This device's decoder doesn't support this video format/profile (e.g. HEVC 10-bit)
+1	technical	player-core/src/main/java/tv/own/owntv/player/PlaybackErrorLog.kt	YAiPlayer playback report
 1	technical	player-core/src/main/java/tv/own/owntv/player/PlaybackErrorLog.kt	[${stamp.format(java.util.Date(e.atMs))}] ${e.kind} · ${e.engine} · ${if (e.live) "live" else "vod"}
 2	json	player-core/src/main/java/tv/own/owntv/player/PlaybackErrorLog.kt	android
 2	json	player-core/src/main/java/tv/own/owntv/player/PlaybackErrorLog.kt	atMs

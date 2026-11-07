@@ -496,4 +496,25 @@ class HomeViewModel(
         return if (preferred >= 0) profileDao.resolveExistingProfileId(preferred) else null
     }
 
+    val isGuest: StateFlow<Boolean> = settings.isGuestActive
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
+
+    val showGuestHook: StateFlow<Boolean> = combine(
+        settings.isGuestActive,
+        settings.guestHookDismissedAt,
+    ) { isGuest, dismissedAt ->
+        tv.own.owntv.core.profile.GuestPolicy.shouldShowHook(isGuest, dismissedAt)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
+
+    fun dismissGuestHook() {
+        viewModelScope.launch {
+            settings.setGuestHookDismissedAt(System.currentTimeMillis())
+        }
+    }
+
+    val sources: StateFlow<List<tv.own.owntv.core.database.entity.SourceEntity>> = profileId
+        .flatMapLatest { pid ->
+            if (pid < 0) flowOf(emptyList()) else sourceDao.observeForProfile(pid)
+        }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 }
