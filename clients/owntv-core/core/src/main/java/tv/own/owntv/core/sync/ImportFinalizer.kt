@@ -92,8 +92,16 @@ class ImportFinalizer(
             // touches portals), and it was only ever fetched per channel as each was opened — so a channel
             // lost its programme the moment another one took the screen. Pull the whole guide in one go
             // (a single bulk request) when it has never been loaded or is stale.
-            val stale = guide.lastSyncAt?.let { System.currentTimeMillis() - it > PORTAL_GUIDE_STALE_MS } ?: true
-            if (stale) {
+            val timeStale = guide.lastSyncAt?.let { System.currentTimeMillis() - it > PORTAL_GUIDE_STALE_MS } ?: true
+            // A guide that holds only a programme or two per channel is the short per-channel one (or
+            // a crawl that stopped half way): fetch it whole, however recent it is.
+            val thin = !timeStale && runCatching {
+                val koin = org.koin.core.context.GlobalContext.get()
+                val have = koin.get<tv.own.owntv.core.database.dao.EpgDao>().countForSources(listOf(guide.id))
+                have < channelDao.countForSourceOnce(source.id) * THIN_GUIDE_PER_CHANNEL
+            }.getOrDefault(false)
+            tv.own.owntv.core.util.GuideTrace.add("guide: queued=${timeStale || thin} stale=$timeStale thin=$thin")
+            if (timeStale || thin) {
                 org.koin.core.context.GlobalContext.get().get<tv.own.owntv.core.sync.work.EpgSyncScheduler>()
                     .enqueueSync(guide.id, "portal", 0, androidx.work.ExistingWorkPolicy.KEEP)
             }
@@ -147,6 +155,9 @@ class ImportFinalizer(
 
         /** A portal's own guide older than this is fetched again whenever the portal's catalogue syncs. */
         private const val PORTAL_GUIDE_STALE_MS = 6L * 60 * 60 * 1000
+
+        /** Fewer stored programmes per channel than this and the portal guide counts as incomplete. */
+        private const val THIN_GUIDE_PER_CHANNEL = 4
 
         /** TMDB cache TTL: entries untouched for this long are evicted after a sync.
          *  90 days ≫ the repository's own refresh window, so this only drops long-abandoned rows. */
