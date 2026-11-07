@@ -1,5 +1,6 @@
 package tv.own.owntv.features.profiles
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
@@ -120,7 +121,7 @@ private fun ProfileTile(profile: ProfileEntity, isGuest: Boolean = false, modifi
         ) { _ ->
             Box(contentAlignment = Alignment.TopEnd) {
                 val avatarModifier = if (isGuest) {
-                    Modifier.size(104.dp).clip(CircleShape).androidx.compose.foundation.border(2.5.dp, amber, CircleShape)
+                    Modifier.size(104.dp).clip(CircleShape).border(2.5.dp, amber, CircleShape)
                 } else {
                     Modifier.size(104.dp)
                 }

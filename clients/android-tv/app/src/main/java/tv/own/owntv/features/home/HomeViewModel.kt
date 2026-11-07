@@ -512,7 +512,7 @@ class HomeViewModel(
         }
     }
 
-    val sources: StateFlow<List<tv.own.owntv.core.database.entity.SourceEntity>> = profileId
+    val sources: StateFlow<List<tv.own.owntv.core.database.entity.SourceEntity>> = settings.activeProfileId
         .flatMapLatest { pid ->
             if (pid < 0) flowOf(emptyList()) else sourceDao.observeForProfile(pid)
         }

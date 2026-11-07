@@ -1,5 +1,7 @@
 package tv.own.owntv.mobile.ui.setup
 
+import androidx.compose.foundation.layout.height
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.foundation.layout.fillMaxSize
@@ -106,9 +108,9 @@ fun AddSourceForm(
     val editing = onSave != null
     val settings: tv.own.owntv.core.settings.SettingsRepository = org.koin.compose.koinInject()
     val sourceDao: tv.own.owntv.core.database.dao.SourceDao = org.koin.compose.koinInject()
-    val isGuest by settings.isGuestActive.androidx.lifecycle.compose.collectAsStateWithLifecycle(initialValue = false)
-    val activeProfileId by settings.activeProfileId.androidx.lifecycle.compose.collectAsStateWithLifecycle(initialValue = -1L)
-    val sources by sourceDao.observeForProfile(activeProfileId).androidx.lifecycle.compose.collectAsStateWithLifecycle(initialValue = emptyList())
+    val isGuest by settings.isGuestActive.collectAsStateWithLifecycle(initialValue = false)
+    val activeProfileId by settings.activeProfileId.collectAsStateWithLifecycle(initialValue = -1L)
+    val sources by sourceDao.observeForProfile(activeProfileId).collectAsStateWithLifecycle(initialValue = emptyList())
     var showLimitSheet by remember { mutableStateOf(false) }
     var kind by rememberSaveable { mutableStateOf(initial?.kind ?: SourceKind.XTREAM) }
     var name by rememberSaveable { mutableStateOf(initial?.name.orEmpty()) }
