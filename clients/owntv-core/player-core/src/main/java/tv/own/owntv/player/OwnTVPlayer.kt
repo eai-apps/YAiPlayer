@@ -1909,6 +1909,11 @@ class OwnTVPlayer(
         return true
     }
 
+    private val copyPathForArchives: Boolean by lazy {
+        val maker = "${android.os.Build.MANUFACTURER} ${android.os.Build.BRAND}".lowercase(java.util.Locale.ROOT)
+        maker.contains("tcl")
+    }
+
     /**
      * Step down the decode ladder one rung and reload the same item: copy rescue → software → nothing.
      * Returns true when a rung was taken (the caller must not also surface an error).
@@ -3026,7 +3031,10 @@ class OwnTVPlayer(
             // of the direct surface. On the TCL the direct decoder froze on an archive's first frame in about
             // one open in four and took mpv's core lock with it, so nothing could reset or retry; the
             // copy path never hands the decoder the surface. Archives are ≤1080p, where the copy is cheap.
-            val wantCopy = isArchive && !wantSoftware && !glUnsupported && hwDecoding
+            // Only on the panel family it was written for. On a VS KM6 (Android 10) the copy path decodes
+            // 25 fps with no drops yet paints nothing — sound, black picture — so everywhere else an archive
+            // opens like any other video and falls to the copy rung only if no frame appears.
+            val wantCopy = isArchive && !wantSoftware && !glUnsupported && hwDecoding && copyPathForArchives
             LiveDiagnosticsLog.event("load: live=$isLive archive=$isArchive start=${startPositionMs}ms software=$wantSoftware copy=$wantCopy surfaceAttached=$surfaceAttached")
             val needReconfig = item.forceSoftwareThisLoad != wantSoftware || item.ccSoftwareOverride ||
                 item.forceCopyThisLoad != wantCopy
