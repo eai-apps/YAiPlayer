@@ -159,11 +159,24 @@ object EpgMatcher {
         if (a.isEmpty() || b.isEmpty()) return 0.0
         if (a == b) return 1.0
         var score = maxOf(jaroWinkler(a, b), tokenDice(a, b))
+        if (score > EXTRA_WORD_CAP && isWordSuperset(a, b)) score = EXTRA_WORD_CAP
         if (da != db) {
             val cap = if (da.isNotEmpty() && db.isNotEmpty()) DIGIT_MISMATCH_CAP else DIGIT_MISSING_CAP
             score = minOf(score, cap)
         }
         return score
+    }
+
+    /** One name is the other plus an extra word ("5 канал" vs "5 канал таганрог"): a different, regional channel. */
+    private const val EXTRA_WORD_CAP = 0.85
+
+    /** True when one token set strictly contains the other and the surplus has a real word (not only digits). */
+    private fun isWordSuperset(a: String, b: String): Boolean {
+        val ta = a.split(' ').toSet()
+        val tb = b.split(' ').toSet()
+        val (small, big) = if (ta.size <= tb.size) ta to tb else tb to ta
+        if (small.size == big.size || !big.containsAll(small)) return false
+        return (big - small).any { t -> t.any { it.isLetter() } }
     }
 
     /** Sørensen–Dice over the two token sets — order-insensitive word overlap. */

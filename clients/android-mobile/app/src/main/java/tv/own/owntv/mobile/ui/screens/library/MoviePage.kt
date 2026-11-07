@@ -166,7 +166,8 @@ internal fun MoviePage(
                 modifier = Modifier.fillMaxWidth(0.85f).height(84.dp),
             )
         } else {
-            Text(title, style = stageText(36f, 800, (-1f / 36f).em, lineHeight = 1.02f), color = palette.text, maxLines = 3, overflow = TextOverflow.Ellipsis)
+            val titleSize = headlineSizeFor(title)
+            Text(title, style = stageText(titleSize, 800, (-1f / titleSize).em, lineHeight = 1.12f), color = palette.text, maxLines = 2, overflow = TextOverflow.Ellipsis)
         }
         Spacer(Modifier.height(8.dp))
         // "Movies · Disney+ Kids Movies" (`.crumb`): where it sits, the category in the accent.
@@ -321,3 +322,10 @@ private const val MORE_COLUMNS = 4
 
 /** The rating's gold, `#ffcc4d`. */
 private val RatingGold = Color(0xFFFFCC4D)
+
+/** Headline size that shrinks with the title's length so long names stay on two clean lines. */
+internal fun headlineSizeFor(title: String): Float = when {
+    title.length <= 16 -> 30f
+    title.length <= 32 -> 26f
+    else -> 22f
+}

@@ -432,11 +432,13 @@ private fun SeriesHeader(series: SeriesEntity, page: DetailViewModel.TitlePage, 
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
     )
+    val headline = HeadlineTitle.of(series.name)
+    val headlineSize = headlineSizeFor(headline)
     Text(
-        HeadlineTitle.of(series.name),
-        style = stageText(36f, 800, (-1f / 36f).em, lineHeight = 1.02f),
+        headline,
+        style = stageText(headlineSize, 800, (-1f / headlineSize).em, lineHeight = 1.12f),
         color = palette.text,
-        maxLines = 3,
+        maxLines = 2,
         overflow = TextOverflow.Ellipsis,
         modifier = Modifier.padding(top = 6.dp),
     )

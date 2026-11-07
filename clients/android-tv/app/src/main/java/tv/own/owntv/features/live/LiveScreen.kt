@@ -883,7 +883,10 @@ fun LiveScreen(
                 onBackToList = { focusCurrentRow() },
                 modifier = Modifier
                     .padding(start = screenW - margin - stageW, top = 120.mpx)
-                    .width(stageW),
+                    .width(stageW)
+                    // Stops above the key hints (bottom right) so the text never runs under them.
+                    .fillMaxHeight()
+                    .padding(bottom = 100.mpx),
             )
         }
 

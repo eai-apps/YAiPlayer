@@ -232,4 +232,13 @@ class EpgMatcherTest {
         assertTrue(EpgMatcher.matchesSearch("HD", "Sky Sports HD", "sky.sports.uk"))
         assertFalse(EpgMatcher.matchesSearch("HD", "BBC One", "bbc.one.uk"))
     }
+
+    @Test
+    fun regionalVariantNeverAutoMatches() {
+        val score = EpgMatcher.scoreNormalized(
+            EpgMatcher.normalizeForEpg("5 Канал"),
+            EpgMatcher.normalizeForEpg("5 Канал Таганрог"),
+        )
+        assertTrue("regional channel must stay below auto-apply", score < EpgMatcher.AUTO_THRESHOLD)
+    }
 }
