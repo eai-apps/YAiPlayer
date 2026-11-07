@@ -55,10 +55,13 @@ def send_album(bot_token: str, chat_id: str, paths: list[str], caption: str) -> 
 def to_rich_html(text: str, n_slides: int) -> str:
     """Текст поста -> HTML для rich-сообщения: слайдшоу из скриншотов сверху, заголовок, абзацы."""
     blocks = [b.strip() for b in text.split("\n\n") if b.strip()]
-    out = ["<tg-slideshow>" + "".join(f'<img src="tg://photo?id=s{i}"/>' for i in range(n_slides)) + "</tg-slideshow>"]
+    if n_slides == 1:
+        out = ['<img src="tg://photo?id=s0"/>']
+    else:
+        out = ["<tg-slideshow>" + "".join(f'<img src="tg://photo?id=s{i}"/>' for i in range(n_slides)) + "</tg-slideshow>"]
     for i, b in enumerate(blocks):
         body = b.replace("\n", "<br/>")
-        if i == 0 and body.startswith("📱") and "<b>" in body:
+        if i == 0 and body[:1] in ("📱", "🚀") and "<b>" in body:
             out.append("<h2>" + body.replace("<b>", "").replace("</b>", "") + "</h2>")
         else:
             out.append("<p>" + body + "</p>")
@@ -94,7 +97,7 @@ def send_rich(bot_token: str, chat_id: str, paths: list[str], html_text: str, bu
         with open(p, "rb") as f:
             data = f.read()
         body += (f'--{boundary}\r\nContent-Disposition: form-data; name="file{i}"; filename="{os.path.basename(p)}"\r\n'
-                 "Content-Type: image/jpeg\r\n\r\n").encode() + data + b"\r\n"
+                 f"Content-Type: {'image/png' if p.lower().endswith('.png') else 'image/jpeg'}\r\n\r\n").encode() + data + b"\r\n"
     body += f"--{boundary}--\r\n".encode()
     req = urllib.request.Request(
         f"https://api.telegram.org/bot{bot_token}/sendRichMessage", data=body,

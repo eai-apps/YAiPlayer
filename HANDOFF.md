@@ -107,3 +107,6 @@ Android — открытая лицензия GPL-3.0 (основа OwnTV), чт
 - `core/subscription/SubscriptionExpiry.kt`: при запуске (через 8 с) проверяет все Xtream/Stalker-источники, находит срок окончания (Stalker — текст портала `parseExpiryText`, Xtream — миллисекунды), если осталось ≤7 дней — окно с текстом оператора и числом дней (склонения ru). Раз в сутки на источник. Окна: TV `features/update/SubscriptionExpiryHost.kt`, телефон `ui/screens/settings/SubscriptionExpiryHost.kt`.
 - Сериалы Stalker с названиями «Название [S01]» считаются сериалами (`StalkerClient.SEASON_TAG`). Разбивка по эпизодам внутри сезона и выбор серии в плеере — ещё НЕ сделаны (нужен сырой пример `get_ordered_list`).
 - Копия «SlyNet IPTV Player» (репозиторий tenyls/slynet-player, отдельный вход/сайт, цвета и иконки SlyNet Radio, небольшой раздел Radio, сайты ссылаются друг на друга) — НЕ ЗАБЫВАТЬ, пока не начата.
+
+### Release-посты тоже через rich (07.11.2026)
+`telegram-release/post_release.py::send_release_post` теперь сначала шлёт rich-сообщение (`post_showcase.send_rich`): картинка + текст + кнопки ВНУТРИ поста (`<tg-button-row>`), под постом остаётся «Прокомментировать». Классический sendPhoto + кнопки снизу — только запасной путь, если Telegram отклонит rich. НЕ возвращать старое оформление.

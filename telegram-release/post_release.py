@@ -313,6 +313,26 @@ def send_telegram_photo(bot_token: str, chat_id: str, image_path: str, caption: 
 
 
 def send_release_post(bot_token: str, chat_id: str, text: str, image_path: str | None, buttons: list | None = None) -> bool:
+    """Rich-сообщение (Bot API 10.x): картинка + текст + кнопки внутри поста, под ним «Прокомментировать».
+    Если Telegram не принял — запасной вариант: картинка с подписью и кнопками под ней."""
+    if _send_rich_release(bot_token, chat_id, text, image_path, buttons):
+        return True
+    print("Rich не прошёл — запасной вариант", file=sys.stderr)
+    return _send_classic_release(bot_token, chat_id, text, image_path, buttons)
+
+
+def _send_rich_release(bot_token: str, chat_id: str, text: str, image_path: str | None, buttons: list | None) -> bool:
+    import post_showcase as ps  # поздний импорт: post_showcase сам импортирует этот модуль
+    paths = [image_path] if image_path and os.path.exists(image_path) else []
+    page = ps.to_rich_html(text, len(paths)) if paths else "".join(
+        "<p>" + b.strip().replace("\n", "<br/>") + "</p>" for b in text.split("\n\n") if b.strip())
+    if buttons and ps.send_rich(bot_token, chat_id, paths, page + ps.buttons_html(buttons), []):
+        print("Пост опубликован, кнопки внутри текста")
+        return True
+    return ps.send_rich(bot_token, chat_id, paths, page, buttons or [])
+
+
+def _send_classic_release(bot_token: str, chat_id: str, text: str, image_path: str | None, buttons: list | None = None) -> bool:
     """Картинка + текст. Влезает в подпись — одним сообщением; иначе подпись = заголовок, текст следом."""
     if image_path and os.path.exists(image_path):
         if len(text) <= CAPTION_LIMIT:

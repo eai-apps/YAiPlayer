@@ -337,6 +337,12 @@ class TestPostReleaseCLIAndLogic(unittest.TestCase):
 class TestPostWithImage(unittest.TestCase):
     """Картинка идёт в начале поста; без неё или при её отказе уходит обычный текст."""
 
+    def setUp(self):
+        # Эти тесты про запасной (классический) путь; rich проверяется отдельно ниже.
+        p = patch("post_release._send_rich_release", return_value=False)
+        p.start()
+        self.addCleanup(p.stop)
+
     def _ok(self):
         resp = MagicMock()
         resp.read.return_value = json.dumps({"ok": True}).encode("utf-8")
@@ -391,6 +397,21 @@ class TestPostWithImage(unittest.TestCase):
             self.assertTrue(send_release_post("secret_tok", "@c", "<b>x</b>", self._image()))
         self.assertEqual(calls, ["sendPhoto", "sendMessage"])
         self.assertNotIn("secret_tok", err.getvalue())
+
+
+class TestRichRelease(unittest.TestCase):
+    def test_rich_used_first_with_buttons_inside(self):
+        import post_showcase as ps
+        sent = []
+        def fake_rich(token, chat, paths, html_text, buttons):
+            sent.append((len(paths), html_text, buttons))
+            return True
+        with patch.object(ps, "send_rich", side_effect=fake_rich), patch("sys.stdout", io.StringIO()):
+            ok = send_release_post("tok", "@c", "🚀 <b>YAiPlayer v1</b>\n\n• a", None, [[{"text": "x", "url": "https://t.me/b"}]])
+        self.assertTrue(ok)
+        self.assertEqual(len(sent), 1)
+        self.assertIn("<tg-button-row", sent[0][1])
+        self.assertEqual(sent[0][2], [])
 
 
 if __name__ == "__main__":
