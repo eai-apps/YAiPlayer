@@ -202,6 +202,7 @@ class LiveTuneController(
             pin = host.enginePin(channel),
             drmProtected = channel.drmConfig != null,
             panelRefusesSegments = panelRefusesSegments(channel, source),
+            exoFailedEarlier = LiveStreamQuirks.exoFailedChannel(channel.id),
         )
         engineLog("tune '${channel.name}' -> ${route.why} [${route.preference.name}]")
         openTimeshift(channel, source, resolved)
@@ -847,6 +848,8 @@ class LiveTuneController(
             return
         }
         val label = ladder.label(next)
+        // ExoPlayer has spent both of its formats here: open this channel on mpv straight away next time.
+        if (_liveOnExo.value && next.onMpv && aboutFormat) LiveStreamQuirks.rememberExoFailedChannel(channel.id)
         engineLog("'${channel.name}' falling back to $label ($reason)")
         // Before the switch, so the record still names the engine that failed.
         host.recordLadderEvent(_liveOnExo.value, PlayerFailureReason.LIVE_FALLBACK, "'${channel.name}': $label — $reason")

@@ -100,7 +100,7 @@ class CatalogSyncWorker(
                 }
                 val finalizeStartedAt = SystemClock.elapsedRealtime()
                 val deferIndexes = source.lastSyncAt == null
-                runCatching { importFinalizer.finalize(source, deferIndexes = deferIndexes) }
+                runCatching { importFinalizer.finalize(source, deferIndexes = deferIndexes, refreshGuide = reason.startsWith("manual")) }
                     .onSuccess { Log.i(TAG, "Import finalizer sourceId=${source.id} counts=$it ms=${SystemClock.elapsedRealtime() - finalizeStartedAt}") }
                     .onFailure { Log.w(TAG, "Import finalizer failed sourceId=${source.id} ms=${SystemClock.elapsedRealtime() - finalizeStartedAt}", it) }
                 if (deferIndexes) {
