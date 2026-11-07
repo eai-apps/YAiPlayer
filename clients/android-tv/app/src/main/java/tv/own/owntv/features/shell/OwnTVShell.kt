@@ -2077,6 +2077,7 @@ fun OwnTVShell(
             }
         }
         tv.own.owntv.features.update.SubscriptionExpiryHost(enabled = selectedSection != MainSection.SETTINGS && playerMode == PlayerMode.NONE)
+        tv.own.owntv.features.update.VersionGateHost()
         if (showChangelog) {
             // Full "What's New" changelog (same dialog the manual Settings check uses), shown when
             // the startup card's "What's New" is pressed. No re-check — the release is already loaded.

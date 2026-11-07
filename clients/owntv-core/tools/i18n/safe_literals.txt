@@ -2100,6 +2100,15 @@
 1	log	core/src/main/java/tv/own/owntv/core/epg/GuideCandidates.kt	namedLimitHit=${named.size >= limit} programmeLimitHit=${withProgrammes.size >= limit}
 1	log	core/src/main/java/tv/own/owntv/core/epg/GuideCandidates.kt	queryMs=${queriedAt - startedAt} totalMs=${SystemClock.elapsedRealtime() - startedAt}
 1	log	core/src/main/java/tv/own/owntv/core/epg/GuideCandidates.kt	rankMs=${SystemClock.elapsedRealtime() - startedAt}
+1	technical	core/src/main/java/tv/own/owntv/core/gate/VersionGate.kt	UTC
+1	technical	core/src/main/java/tv/own/owntv/core/gate/VersionGate.kt	block_at
+1	technical	core/src/main/java/tv/own/owntv/core/gate/VersionGate.kt	enforce
+1	technical	core/src/main/java/tv/own/owntv/core/gate/VersionGate.kt	https://raw.githubusercontent.com/${CoreBuildInfo.releaseRepo}/main/app-config.json
+1	technical	core/src/main/java/tv/own/owntv/core/gate/VersionGate.kt	https://yai-iptv-player.pages.dev
+1	technical	core/src/main/java/tv/own/owntv/core/gate/VersionGate.kt	min_version
+1	technical	core/src/main/java/tv/own/owntv/core/gate/VersionGate.kt	update_url
+1	technical	core/src/main/java/tv/own/owntv/core/gate/VersionGate.kt	version_gate
+2	technical	core/src/main/java/tv/own/owntv/core/gate/VersionGate.kt	warned_stage
 1	protocol	core/src/main/java/tv/own/owntv/core/home/HomeFeed.kt	${snapshot.mediaType.name}:${snapshot.tmdbId}
 1	protocol	core/src/main/java/tv/own/owntv/core/home/HomeFeed.kt	1080p FHD
 1	protocol	core/src/main/java/tv/own/owntv/core/home/HomeFeed.kt	4K

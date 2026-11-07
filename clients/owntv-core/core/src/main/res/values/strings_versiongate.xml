@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="version_gate_block_title">Update the app</string>
+    <string name="version_gate_block_body">This version is out of date and no longer works. Install the current version to continue.</string>
+    <string name="version_gate_warn_title">This version will stop working soon</string>
+    <plurals name="version_gate_warn_body">
+        <item quantity="one">This version will stop working in %1$d day. Update the app to the current version.</item>
+        <item quantity="other">This version will stop working in %1$d days. Update the app to the current version.</item>
+    </plurals>
+    <string name="version_gate_update_now">Update now</string>
+    <string name="version_gate_check_again">Check again</string>
+    <string name="version_gate_open_site">Open the download page</string>
+    <string name="version_gate_later">Later</string>
+    <string name="version_gate_downloading">Downloading: %1$d%%</string>
+</resources>
