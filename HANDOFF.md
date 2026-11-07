@@ -124,3 +124,7 @@ Android — открытая лицензия GPL-3.0 (основа OwnTV), чт
 
 ### Нумерация версий (07.11.2026)
 С 07.11.2026 релизы называются **3.0.N** (первый — 3.0.1, затем 3.0.2…): N = число уже выпущенных тегов `v3.0.*` + 1, считается в `release.yml` (шаг «Compute version»). `versionCode` по-прежнему = номер запуска workflow (растёт всегда). Последний релиз старой линии — v2.0.47 (первая версия с Version gate). Для блокировки старых версий ставить `min_version` = первая 3.0.x, но только когда она уже опубликована.
+
+## Stalker EPG `period` is in HOURS (found 2026-11-07)
+`get_epg_info&period=N` — N is hours, not days. The app used to send 7 and got ~7 hours (now/next only). `StalkerClient.downloadEpgInfo` now sends days*24. Past programmes (for catch-up lists) are NOT confirmed to come from this call; waiting for the provider's access.log from an STB emulator opening the guide/archive to see the exact calls (probably `type=epg`/`get_all_program_for_ch`/`tv_archive`).
+Adult protection: `AdultProtectChoice` (form → import) → `SettingsRepository.adultProtectRequests` → `AdultProtection.applyIfRequested` in `ImportFinalizer` locks adult-named categories behind the profile's Customize PIN.
