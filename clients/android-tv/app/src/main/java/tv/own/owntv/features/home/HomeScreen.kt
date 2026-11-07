@@ -778,7 +778,7 @@ fun HomeScreen(
             body = stringResource(R.string.guest_limit_message),
             buttons = {
                 tv.own.owntv.ui.stage.StagePopupButton(
-                    text = stringResource(R.string.common_ok),
+                    label = stringResource(R.string.common_ok),
                     onClick = { showLimitPopup = false },
                     primary = true,
                 )
@@ -826,7 +826,7 @@ private fun GuestHookCard(
                 text = stringResource(R.string.guest_hook_dismiss),
                 onClick = onDismiss,
                 icon = OwnTVIcon.CLOSE,
-                compact = true,
+                height = 44.mpx,
                 tinted = false,
             )
         }

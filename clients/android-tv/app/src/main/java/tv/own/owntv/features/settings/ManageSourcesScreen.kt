@@ -84,7 +84,7 @@ fun ManageSourcesScreen(
     val defaultPlaylistName = stringResource(R.string.setup_name_default_playlist)
     val defaultPortalName = stringResource(R.string.setup_default_portal)
     val settings: tv.own.owntv.core.settings.SettingsRepository = org.koin.compose.koinInject()
-    val isGuest by settings.isGuestActive.androidx.lifecycle.compose.collectAsStateWithLifecycle(initialValue = false)
+    val isGuest by settings.isGuestActive.collectAsStateWithLifecycle(initialValue = false)
     var showLimitPopup by remember { mutableStateOf(false) }
 
     var showAdd by remember { mutableStateOf(startOnAdd) }
@@ -425,7 +425,7 @@ fun ManageSourcesScreen(
                 body = stringResource(R.string.guest_limit_message),
                 buttons = {
                     tv.own.owntv.ui.stage.StagePopupButton(
-                        text = stringResource(R.string.common_ok),
+                        label = stringResource(R.string.common_ok),
                         onClick = { showLimitPopup = false },
                         primary = true,
                     )

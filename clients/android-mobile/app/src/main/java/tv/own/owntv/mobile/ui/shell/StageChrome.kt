@@ -1,5 +1,7 @@
 package tv.own.owntv.mobile.ui.shell
 
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.foundation.border
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
@@ -552,7 +554,7 @@ internal fun ShellAvatar(profile: ProfileEntity?, onClick: (() -> Unit)?, diamet
     val baseModifier = Modifier
         .size(diameter)
         .clip(CircleShape)
-        .then(if (isGuest) androidx.compose.foundation.border(1.5.dp, amber, CircleShape) else Modifier)
+        .then(if (isGuest) Modifier.border(1.5.dp, amber, CircleShape) else Modifier)
         .then(if (onClick != null) Modifier.stageClickable(interaction, onClick, null).semantics { contentDescription = more } else Modifier)
     if (profile != null && (profile.avatarId >= 0 || !profile.avatarPath.isNullOrBlank())) {
         ProfileAvatar(profile.avatarId, baseModifier, profile.avatarPath.orEmpty())

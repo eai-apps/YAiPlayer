@@ -197,7 +197,6 @@ fun AddSourceScreen(
     // duplicating the plumbing — it's one short request that stores nothing unless the source exists.
     val xtreamClient: XtreamClient = koinInject()
     val channelDao: ChannelDao = koinInject()
-    val sourceDao: SourceDao = koinInject()
     var hlsTest by remember { mutableStateOf<HlsTestUi>(HlsTestUi.Idle) }
     // A tested verdict outranks whatever the last sync recorded, so the note under the toggle updates
     // right away — including while ADDING, where there is no row to write to yet.
@@ -440,7 +439,7 @@ fun AddSourceScreen(
 
     // Every field is a row (label + value or placeholder, OK = keyboard); Start import sits in the
     // panel, reached with ▶ from any row.
-    val submit = {
+    val submit = submit@{
         if (!editing) {
             val targetType = when (kind) {
                 SourceKind.XTREAM -> tv.own.owntv.core.model.SourceType.XTREAM
@@ -816,7 +815,7 @@ fun AddSourceScreen(
               body = stringResource(R.string.guest_limit_message),
               buttons = {
                   tv.own.owntv.ui.stage.StagePopupButton(
-                      text = stringResource(R.string.common_ok),
+                      label = stringResource(R.string.common_ok),
                       onClick = { showLimitPopup = false },
                       primary = true,
                   )

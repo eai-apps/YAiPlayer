@@ -1,5 +1,9 @@
 package tv.own.owntv.mobile.ui.screens
 
+import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.Spacer
 import android.text.format.DateUtils
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement

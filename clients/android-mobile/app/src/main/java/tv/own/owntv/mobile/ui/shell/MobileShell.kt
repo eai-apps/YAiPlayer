@@ -1,5 +1,6 @@
 package tv.own.owntv.mobile.ui.shell
 
+import androidx.compose.foundation.layout.Spacer
 import tv.own.owntv.mobile.ui.screens.MoreLeaf
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.Dialog
@@ -151,7 +152,9 @@ fun MobileShell(
      *  - Only then "Who is watching?", and only when the gate is genuinely required: more than one
      *    profile, or a single one with a PIN.
      */
-    if (profiles == null || activeProfileId == null) {
+    val profilesNow = profiles
+    val activeNow = activeProfileId
+    if (profilesNow == null || activeNow == null) {
         Box(
             modifier = modifier.fillMaxSize().background(tv.own.owntv.mobile.ui.stage.LocalStagePalette.current.page),
             contentAlignment = Alignment.Center,
@@ -166,8 +169,8 @@ fun MobileShell(
         }
         return
     }
-    val loadedProfiles = profiles
-    val activeId = activeProfileId
+    val loadedProfiles = profilesNow
+    val activeId = activeNow
     if (activeId < 0L || loadedProfiles.none { it.id == activeId }) {
         // The wizard reports the profile it activated, and that is the unlock — the same handover the
         // television does. Without it the shell would have a valid active profile and no session for
@@ -691,7 +694,7 @@ fun MobileShell(
     if (showGuestLimitSheet) {
         tv.own.owntv.mobile.ui.components.MobileBottomSheet(
             onDismissRequest = { showGuestLimitSheet = false },
-            title = stringResource(R.string.guest_mode_title),
+            title = stringResource(tv.own.owntv.mobile.R.string.guest_mode_title),
         ) {
             Column(
                 modifier = Modifier
@@ -699,14 +702,14 @@ fun MobileShell(
                     .padding(horizontal = 20.dp, vertical = 12.dp),
             ) {
                 androidx.compose.material3.Text(
-                    text = stringResource(R.string.guest_limit_message),
+                    text = stringResource(tv.own.owntv.mobile.R.string.guest_limit_message),
                     style = tv.own.owntv.mobile.ui.stage.stageText(15f, 500),
                     color = tv.own.owntv.mobile.ui.stage.LocalStagePalette.current.text,
                 )
                 Spacer(Modifier.height(20.dp))
                 tv.own.owntv.mobile.ui.stage.StageButton(
                     onClick = { showGuestLimitSheet = false },
-                    text = stringResource(R.string.common_ok),
+                    text = stringResource(tv.own.owntv.mobile.R.string.common_ok),
                     style = tv.own.owntv.mobile.ui.stage.StageButtonStyle.PRIMARY,
                     modifier = Modifier.fillMaxWidth(),
                 )

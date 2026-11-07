@@ -1,5 +1,8 @@
 package tv.own.owntv.features.shell.components
 
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.foundation.border
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.animation.core.Animatable
@@ -527,7 +530,7 @@ internal fun RailAvatar(initial: String, size: Int = 46, textSize: Int = 20, ava
     val baseModifier = Modifier
         .size(size.mpx)
         .clip(CircleShape)
-        .then(if (isGuest) androidx.compose.foundation.border(1.5.dp, amber, CircleShape) else Modifier)
+        .then(if (isGuest) Modifier.border(1.5.dp, amber, CircleShape) else Modifier)
     if (avatarId != -1 || imagePath.isNotBlank()) {
         tv.own.owntv.ui.components.OwnTVAvatar(avatarId = avatarId, imagePath = imagePath, modifier = baseModifier)
         return
