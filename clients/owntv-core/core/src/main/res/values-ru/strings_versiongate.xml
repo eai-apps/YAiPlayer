@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="version_gate_block_title">Обновите приложение</string>
+    <string name="version_gate_block_body">Эта версия устарела и больше не работает. Установите актуальную версию, чтобы продолжить.</string>
+    <string name="version_gate_warn_title">Эта версия скоро перестанет работать</string>
+    <plurals name="version_gate_warn_body">
+        <item quantity="one">Эта версия перестанет работать через %1$d день. Обновите приложение до актуальной версии.</item>
+        <item quantity="few">Эта версия перестанет работать через %1$d дня. Обновите приложение до актуальной версии.</item>
+        <item quantity="many">Эта версия перестанет работать через %1$d дней. Обновите приложение до актуальной версии.</item>
+        <item quantity="other">Эта версия перестанет работать через %1$d дня. Обновите приложение до актуальной версии.</item>
+    </plurals>
+    <string name="version_gate_update_now">Обновить сейчас</string>
+    <string name="version_gate_check_again">Проверить снова</string>
+    <string name="version_gate_open_site">Открыть страницу загрузки</string>
+    <string name="version_gate_later">Позже</string>
+    <string name="version_gate_downloading">Загрузка: %1$d%%</string>
+</resources>

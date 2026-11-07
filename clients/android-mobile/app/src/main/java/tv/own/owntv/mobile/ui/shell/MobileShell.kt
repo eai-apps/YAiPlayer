@@ -399,6 +399,7 @@ fun MobileShell(
         }
     }
     tv.own.owntv.mobile.ui.screens.settings.SubscriptionExpiryHost(enabled = !fullscreen && !updateSheetOpen)
+    tv.own.owntv.mobile.ui.screens.settings.VersionGateHost()
     // Not over the player, and not over setup: both own the whole screen for a reason.
     if (updateSheetOpen && !fullscreen) {
         UpdateSheet(

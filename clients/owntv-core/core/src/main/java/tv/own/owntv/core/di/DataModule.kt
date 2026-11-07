@@ -122,6 +122,7 @@ val dataModule = module {
     // http, xtreamClient, stalkerAuth — the Test button behind each saved playlist row.
     single { tv.own.owntv.core.repository.SourceTester(get(), get(), get()) }
     single { tv.own.owntv.core.subscription.SubscriptionExpiryChecker(androidContext(), get(), get()) }
+    single { tv.own.owntv.core.gate.VersionGate(androidContext(), get()) }
     // Measuring how many streams a provider really allows, for the ones that never say.
     single { tv.own.owntv.core.live.ConnectionProbe(get()) }
     single { tv.own.owntv.core.live.ProbeChannelSource(get(), get(), get(), get(), get()) }
