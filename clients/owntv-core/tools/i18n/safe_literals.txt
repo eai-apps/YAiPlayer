@@ -4385,6 +4385,7 @@
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	$root/portal.php
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	$root/server/load.php
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	$root/stalker_portal/server/load.php
+1	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	${channelId.trim()}.png
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	${portalRoot(url.substringBefore('?'))}/c/
 1	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	&
 2	url	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	&JsHttpRequest=1-xml
@@ -4407,6 +4408,7 @@
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	(\\d+)\\s*$
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	(\\d{4})-(\\d{2})-(\\d{2})(?:[ T](\\d{2}):(\\d{2})(?::(\\d{2}))?)?
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	*
+1	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	,
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	.
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	.php
 4	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	/
@@ -4491,6 +4493,7 @@
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	ffrt
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	ffrt2
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	ffrt3
+1	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	fields
 1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	get_profile device conflict — retrying once with stb_type=$model
 1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	guide download url=$safeUrl bytes=$written ms=${SystemClock.elapsedRealtime() - startedAt}
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	handshake candidate failed apiBase=$apiBase message=${e.message}
@@ -4765,6 +4768,7 @@
 1	log	core/src/main/java/tv/own/owntv/core/sync/ImportFinalizer.kt	ensureContentIndexes end ms=${SystemClock.elapsedRealtime() - startedAt}
 1	log	core/src/main/java/tv/own/owntv/core/sync/ImportFinalizer.kt	ensureContentIndexes failed ms=${SystemClock.elapsedRealtime() - startedAt}
 1	log	core/src/main/java/tv/own/owntv/core/sync/ImportFinalizer.kt	ensureContentIndexes start
+1	log	core/src/main/java/tv/own/owntv/core/sync/ImportFinalizer.kt	guide: queued=${timeStale || thin} stale=$timeStale thin=$thin
 2	technical	core/src/main/java/tv/own/owntv/core/sync/ImportFinalizer.kt	movies
 1	technical	core/src/main/java/tv/own/owntv/core/sync/ImportFinalizer.kt	portal
 2	technical	core/src/main/java/tv/own/owntv/core/sync/ImportFinalizer.kt	series
@@ -5148,11 +5152,15 @@
 1	log	core/src/main/java/tv/own/owntv/core/sync/work/EpgSyncWorker.kt	built-in auto-match failed: ${it.message}
 1	technical	core/src/main/java/tv/own/owntv/core/sync/work/EpgSyncWorker.kt	builtin_next
 1	preference-key	core/src/main/java/tv/own/owntv/core/sync/work/EpgSyncWorker.kt	channels
+1	log	core/src/main/java/tv/own/owntv/core/sync/work/EpgSyncWorker.kt	guide: failed (${e.javaClass.simpleName})
+1	log	core/src/main/java/tv/own/owntv/core/sync/work/EpgSyncWorker.kt	guide: started ($reason)
+1	log	core/src/main/java/tv/own/owntv/core/sync/work/EpgSyncWorker.kt	guide: stored $programmes programmes
 1	technical	core/src/main/java/tv/own/owntv/core/sync/work/EpgSyncWorker.kt	manual_feed
 1	preference-key	core/src/main/java/tv/own/owntv/core/sync/work/EpgSyncWorker.kt	programmes
 1	preference-key	core/src/main/java/tv/own/owntv/core/sync/work/EpgSyncWorker.kt	reason
 1	log	core/src/main/java/tv/own/owntv/core/sync/work/EpgSyncWorker.kt	series rules not applied after EPG sync: ${it.message}
 1	preference-key	core/src/main/java/tv/own/owntv/core/sync/work/EpgSyncWorker.kt	sourceId
+3	technical	core/src/main/java/tv/own/owntv/core/sync/work/EpgSyncWorker.kt	stalker://
 1	technical	core/src/main/java/tv/own/owntv/core/sync/work/EpgSyncWorker.kt	unknown
 1	log	core/src/main/java/tv/own/owntv/core/sync/work/TrendingRefreshWorker.kt	Finished sourceId=$sourceId outcome=${outcome.diagnosticName()}
 1	log	core/src/main/java/tv/own/owntv/core/sync/work/TrendingRefreshWorker.kt	TrendingRefreshWorker

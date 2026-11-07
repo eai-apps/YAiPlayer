@@ -63,6 +63,7 @@ class EpgSyncWorker(
         }
         val startedAt = SystemClock.elapsedRealtime()
         Log.i(TAG, "Starting EPG sync sourceId=${source.id} reason=$reason")
+        if (source.url.startsWith("stalker://")) tv.own.owntv.core.util.GuideTrace.add("guide: started ($reason)")
         activityTracker.started(source.id, source.name)
         // Best effort, always: Android 12 and later refuse a foreground service started from the
         // background in some states, and a guide that syncs the old way is what shipped until now.
@@ -82,6 +83,7 @@ class EpgSyncWorker(
                 0
             }
             progress.flush()
+            if (source.url.startsWith("stalker://")) tv.own.owntv.core.util.GuideTrace.add("guide: stored $programmes programmes")
             store.setSynced(source.id, System.currentTimeMillis(), null)
             if (source.builtin) continueBuiltinChain(source.id, chain = reason != "manual_feed")
             // A series rule is a standing instruction about programmes that do not exist in the
@@ -104,6 +106,7 @@ class EpgSyncWorker(
             // storing a translated sentence would freeze the language active during the background run.
             // The English comparison needles remain in ErrorMessages.kt and are stable protocol keys.
             val rawMessage = e.message
+            if (source.url.startsWith("stalker://")) tv.own.owntv.core.util.GuideTrace.add("guide: failed (${e.javaClass.simpleName})")
             // Record the failure WITHOUT updating lastSyncAt — staleness-based auto-refresh treats
             // lastSyncAt as the last *successful* sync, so a failed attempt must leave it untouched
             // (otherwise a flaky network would falsely reset the threshold and stop retries).
