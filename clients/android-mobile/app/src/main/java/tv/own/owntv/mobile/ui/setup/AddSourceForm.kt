@@ -6,6 +6,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import tv.own.owntv.mobile.ui.stage.StageRadii
+import tv.own.owntv.mobile.ui.stage.stageAccent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
@@ -300,7 +303,7 @@ fun AddSourceForm(
                         trailing = {
                             StageTag(stringResource(R.string.setup_badge_required).uppercase(), tone = StageTagTone.ACCENT)
                         },
-                    ) { }
+                    )
                 }
                 if (mac.isNotBlank()) {
                     item(key = "mac-copy") {
@@ -351,7 +354,7 @@ fun AddSourceForm(
                         trailing = {
                             StageTag(stringResource(R.string.setup_badge_required).uppercase(), tone = StageTagTone.ACCENT)
                         },
-                    ) { }
+                    )
                 }
                 item(key = "serial") { StageTextRow(MobileIcons.Edit, stringResource(R.string.setup_stalker_serial_number_optional), serialNumber, { serialNumber = it }) }
                 item(key = "dev1") { StageTextRow(MobileIcons.Edit, stringResource(R.string.setup_stalker_device_id_optional), deviceId, { deviceId = it }) }
@@ -510,68 +513,6 @@ fun AddSourceForm(
             onDismiss = { showDeviceSheet = false },
         )
     }
-@Composable
-private fun SyncProgressCard(
-    stats: SyncProgressStats,
-    onOpenLive: (() -> Unit)?,
-    modifier: Modifier = Modifier,
-) {
-    val palette = LocalStagePalette.current
-    val accent = stageAccent.accent
-    androidx.compose.foundation.layout.Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(StageRadii.Row))
-            .androidx.compose.foundation.background(palette.ink.copy(alpha = 0.08f))
-            .padding(16.dp),
-    ) {
-        androidx.compose.foundation.layout.Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(10.dp),
-        ) {
-            Text(
-                text = stringResource(R.string.setup_btn_connect),
-                style = stageText(16f, 700),
-                color = palette.text,
-            )
-            Text(
-                text = stringResource(R.string.setup_progress_channels, stats.channels),
-                style = stageText(14f, 600),
-                color = palette.text,
-            )
-            Text(
-                text = stringResource(R.string.setup_progress_movies, stats.movies),
-                style = stageText(14f, 600),
-                color = palette.text,
-            )
-            Text(
-                text = stringResource(R.string.setup_progress_series, stats.series),
-                style = stageText(14f, 600),
-                color = palette.text,
-            )
-            val epgStatus = if (stats.isEpgReady) {
-                stringResource(R.string.setup_progress_epg_done)
-            } else {
-                stringResource(R.string.setup_progress_epg_running)
-            }
-            Text(
-                text = stringResource(R.string.setup_progress_epg, epgStatus),
-                style = stageText(14f, 600),
-                color = if (stats.isEpgReady) accent else palette.dim,
-            )
-            if (stats.isSuccess && onOpenLive != null) {
-                androidx.compose.foundation.layout.Spacer(Modifier.height(6.dp))
-                StageButton(
-                    text = stringResource(R.string.setup_btn_open_live),
-                    onClick = onOpenLive,
-                    icon = MobileIcons.LiveTv,
-                    style = StageButtonStyle.PRIMARY,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-            }
-        }
-    }
-}
-
     if (showLimitSheet) {
         tv.own.owntv.mobile.ui.components.MobileBottomSheet(
             onDismissRequest = { showLimitSheet = false },
@@ -627,3 +568,65 @@ internal fun PlaylistAutoRefresh.labelRes(): Int = when (this) {
 
 /** Where a playlist picked from the phone's storage is kept. */
 private const val PLAYLIST_DIR = "playlists"
+
+@Composable
+private fun SyncProgressCard(
+    stats: SyncProgressStats,
+    onOpenLive: (() -> Unit)?,
+    modifier: Modifier = Modifier,
+) {
+    val palette = LocalStagePalette.current
+    val accent = stageAccent.accent
+    androidx.compose.foundation.layout.Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(StageRadii.Row))
+            .background(palette.ink.copy(alpha = 0.08f))
+            .padding(16.dp),
+    ) {
+        androidx.compose.foundation.layout.Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(10.dp),
+        ) {
+            Text(
+                text = stringResource(R.string.setup_btn_connect),
+                style = stageText(16f, 700),
+                color = palette.text,
+            )
+            Text(
+                text = stringResource(R.string.setup_progress_channels, stats.channels),
+                style = stageText(14f, 600),
+                color = palette.text,
+            )
+            Text(
+                text = stringResource(R.string.setup_progress_movies, stats.movies),
+                style = stageText(14f, 600),
+                color = palette.text,
+            )
+            Text(
+                text = stringResource(R.string.setup_progress_series, stats.series),
+                style = stageText(14f, 600),
+                color = palette.text,
+            )
+            val epgStatus = if (stats.isEpgReady) {
+                stringResource(R.string.setup_progress_epg_done)
+            } else {
+                stringResource(R.string.setup_progress_epg_running)
+            }
+            Text(
+                text = stringResource(R.string.setup_progress_epg, epgStatus),
+                style = stageText(14f, 600),
+                color = if (stats.isEpgReady) accent else palette.dim,
+            )
+            if (stats.isSuccess && onOpenLive != null) {
+                androidx.compose.foundation.layout.Spacer(Modifier.height(6.dp))
+                StageButton(
+                    text = stringResource(R.string.setup_btn_open_live),
+                    onClick = onOpenLive,
+                    icon = MobileIcons.LiveTv,
+                    style = StageButtonStyle.PRIMARY,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+        }
+    }
+}

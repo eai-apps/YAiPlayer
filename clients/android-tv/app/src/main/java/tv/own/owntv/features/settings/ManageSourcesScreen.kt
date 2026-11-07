@@ -194,7 +194,7 @@ fun ManageSourcesScreen(
                     editingSource = null
                 },
                 onStartM3u = { n, url, ua, ref, epg, autoRefresh, isDefault -> vm.updateSource(src.id, n, url, "", "", ua, epg, autoRefresh, isDefault, httpReferer = ref); editingSource = null },
-                onStartStalker = { n, url, mac, serialNumber, deviceId, deviceId2, signature, ua, ref, autoRefresh, isDefault, live, movies, series, login, password ->
+                onStartStalker = { n, url, mac, serialNumber, deviceId, deviceId2, signature, ua, ref, autoRefresh, isDefault, live, movies, series, login, password, _, _ ->
                     vm.updateSource(
                         src.id, n, url, login, password, ua, "", autoRefresh, isDefault, mac = mac, httpReferer = ref,
                         stalkerSerialNumber = serialNumber, stalkerDeviceId = deviceId,
