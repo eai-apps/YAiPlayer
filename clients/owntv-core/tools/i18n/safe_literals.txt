@@ -3051,6 +3051,7 @@
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	windowBackH=${WINDOW_BACK_MS / 3_600_000} windowAheadH=${aheadMs / 3_600_000}
 1	technical	core/src/main/java/tv/own/owntv/core/repository/EpisodeMerge.kt	s${seasonNumber}e$episodeNumber
 1	technical	core/src/main/java/tv/own/owntv/core/repository/SeriesRepository.kt	\0
+1	technical	core/src/main/java/tv/own/owntv/core/repository/SeriesRepository.kt	$remoteId:
 1	technical	core/src/main/java/tv/own/owntv/core/repository/SeriesRepository.kt	${season.id}:$epNo
 1	log	core/src/main/java/tv/own/owntv/core/repository/SeriesRepository.kt	${source.type} episode load failed seriesId=${series.id}
 1	technical	core/src/main/java/tv/own/owntv/core/repository/SeriesRepository.kt	HTTP ${e.code}
@@ -3059,11 +3060,12 @@
 1	log	core/src/main/java/tv/own/owntv/core/repository/SeriesRepository.kt	episodes seriesId=$seriesId fetched=${fetched.size} new=${plan.inserts.size}
 1	technical	core/src/main/java/tv/own/owntv/core/repository/SeriesRepository.kt	series
 1	log	core/src/main/java/tv/own/owntv/core/repository/SeriesRepository.kt	stalker episodes seriesId=${series.id} remoteId=$remoteId seasons=${seasons.size} episodes=${episodes.size}
+1	technical	core/src/main/java/tv/own/owntv/core/repository/SeriesRepository.kt	stalker season search failed remoteId=$remoteId (${e.message})
 1	log	core/src/main/java/tv/own/owntv/core/repository/SeriesRepository.kt	stalker seasons via type=series failed remoteId=$remoteId (${e.message})
 1	log	core/src/main/java/tv/own/owntv/core/repository/SeriesRepository.kt	stalker vod tree episodes seriesId=${series.id} remoteId=$remoteId seasons=${seasons.size} episodes=${episodes.size}
 1	log	core/src/main/java/tv/own/owntv/core/repository/SeriesRepository.kt	stalker vod tree failed remoteId=$remoteId (${e.message})
 1	log	core/src/main/java/tv/own/owntv/core/repository/SeriesRepository.kt	updated=${plan.updates.size} removed=${plan.deleteIds.size}
-1	technical	core/src/main/java/tv/own/owntv/core/repository/SeriesRepository.kt	vod
+3	technical	core/src/main/java/tv/own/owntv/core/repository/SeriesRepository.kt	vod
 1	log	core/src/main/java/tv/own/owntv/core/repository/SourceEditor.kt	playlist_edit
 1	technical	core/src/main/java/tv/own/owntv/core/repository/SourceRepository.kt	Cancelled
 1	technical	core/src/main/java/tv/own/owntv/core/repository/SourceRepository.kt	Failed
@@ -4365,7 +4367,7 @@
 1	uri	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	$apiBase?type=${enc(type)}&action=get_ordered_list$cat&movie_id=${enc(movieId)}&p=$page&JsHttpRequest=1-xml
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	$apiBase?type=account_info&action=get_main_info&JsHttpRequest=1-xml
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	$apiBase?type=itv&action=get_all_channels&JsHttpRequest=1-xml
-1	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	$apiBase?type=itv&action=get_epg_info&period=${periodDays * 24}&JsHttpRequest=1-xml
+1	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	$apiBase?type=itv&action=get_epg_info&period=$periodDays&JsHttpRequest=1-xml
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	$apiBase?type=itv&action=get_genres&JsHttpRequest=1-xml
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	$apiBase?type=itv&action=get_ordered_list&genre=${enc(genreId)}&p=$page&JsHttpRequest=1-xml
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	$apiBase?type=itv&action=get_short_epg&ch_id=${enc(channelId)}&size=$size&JsHttpRequest=1-xml
@@ -4373,6 +4375,7 @@
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	$apiBase?type=series&action=get_ordered_list&category=${enc(categoryId)}&sortby=added&p=$page&JsHttpRequest=1-xml
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	$apiBase?type=stb&action=handshake&token=&JsHttpRequest=1-xml
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	$apiBase?type=vod&action=get_categories&JsHttpRequest=1-xml
+1	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	$apiBase?type=vod&action=get_ordered_list&category=${enc(categoryId)}&fav=0&sortby=added&hd=0
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	$apiBase?type=vod&action=get_ordered_list&category=${enc(categoryId)}&sortby=added&p=$page&JsHttpRequest=1-xml
 1	url	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	$apiBase?type=vod&action=get_ordered_list&movie_id=${enc(movieId)}&season_id=${enc(seasonId)}&episode_id=${enc(episodeId)}&p=1&JsHttpRequest=1-xml
 1	url	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	$apiBase?type=vod&action=get_ordered_list&movie_id=${enc(movieId)}&season_id=${enc(seasonId)}&episode_id=0&p=$page&JsHttpRequest=1-xml
@@ -4393,6 +4396,7 @@
 1	url	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	&device_id=${URLEncoder.encode(it, "UTF-8")}
 1	uri	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	&login=${URLEncoder.encode(login, "UTF-8")}
 1	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	&nbsp;
+1	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	&not_ended=0&p=$page&JsHttpRequest=1-xml&abc=*&genre=*&years=*&search=${enc(search)}
 1	uri	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	&password=${URLEncoder.encode(password, "UTF-8")}
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	&series=$it
 1	url	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	&signature=${URLEncoder.encode(it, "UTF-8")}

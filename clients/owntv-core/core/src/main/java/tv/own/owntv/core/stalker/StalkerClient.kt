@@ -412,10 +412,10 @@ open class StalkerClient(okHttpClient: OkHttpClient) {
     open suspend fun downloadEpgInfo(
         apiBase: String, mac: String, token: String, userAgent: String?, periodDays: Int, dest: File,
     ): Long {
-        // Stalker/Ministra take `period` in HOURS, not days. Sending 7 therefore asked for seven hours —
-        // a real portal answered with ~7 programmes per channel, i.e. only "now" and "next". Days are
-        // converted here so callers keep thinking in days.
-        val url = "$apiBase?type=itv&action=get_epg_info&period=${periodDays * 24}&JsHttpRequest=1-xml"
+        // The unit of `period` depends on the portal. One real portal (miptv, measured from its access
+        // log) answers period=7 with 32 MB of guide that includes yesterday and earlier, i.e. days;
+        // multiplying by 24 would ask it for 168 days. So the value goes out as given, as it always did.
+        val url = "$apiBase?type=itv&action=get_epg_info&period=$periodDays&JsHttpRequest=1-xml"
         return requestToFile(url, mac, token, userAgent, dest)
     }
 
@@ -494,6 +494,20 @@ open class StalkerClient(okHttpClient: OkHttpClient) {
     ): Page<VodItem> {
         val url = "$apiBase?type=series&action=get_ordered_list&category=${enc(categoryId)}&sortby=added&p=$page&JsHttpRequest=1-xml"
         return request(url, mac, token, userAgent) { readVodPage(it, apiBase) }
+    }
+
+    /**
+     * `?type=vod&action=get_ordered_list&category=<cat>&search=<title>&p=<page>` → the film-catalogue rows
+     * whose title matches, with the nested `series` episode array. For portals that ignore `movie_id` on
+     * `type=vod` and answer it with the whole catalogue (miptv): the row itself carries its episodes, so
+     * the show is found by searching its own title in its own category, as the STB menu does.
+     */
+    suspend fun searchSeasonRows(
+        apiBase: String, mac: String, token: String, userAgent: String?, categoryId: String, search: String, page: Int,
+    ): Page<SeasonItem> {
+        val url = "$apiBase?type=vod&action=get_ordered_list&category=${enc(categoryId)}&fav=0&sortby=added&hd=0" +
+            "&not_ended=0&p=$page&JsHttpRequest=1-xml&abc=*&genre=*&years=*&search=${enc(search)}"
+        return request(url, mac, token, userAgent) { readSeasonPage(it) }
     }
 
     /**

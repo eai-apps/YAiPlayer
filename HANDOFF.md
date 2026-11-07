@@ -125,9 +125,13 @@ Android — открытая лицензия GPL-3.0 (основа OwnTV), чт
 ### Нумерация версий (07.11.2026)
 С 07.11.2026 релизы называются **3.0.N** (первый — 3.0.1, затем 3.0.2…): N = число уже выпущенных тегов `v3.0.*` + 1, считается в `release.yml` (шаг «Compute version»). `versionCode` по-прежнему = номер запуска workflow (растёт всегда). Последний релиз старой линии — v2.0.47 (первая версия с Version gate). Для блокировки старых версий ставить `min_version` = первая 3.0.x, но только когда она уже опубликована.
 
-## Stalker EPG `period` is in HOURS (found 2026-11-07)
-`get_epg_info&period=N` — N is hours, not days. The app used to send 7 and got ~7 hours (now/next only). `StalkerClient.downloadEpgInfo` now sends days*24. Past programmes (for catch-up lists) are NOT confirmed to come from this call; waiting for the provider's access.log from an STB emulator opening the guide/archive to see the exact calls (probably `type=epg`/`get_all_program_for_ch`/`tv_archive`).
-Adult protection: `AdultProtectChoice` (form → import) → `SettingsRepository.adultProtectRequests` → `AdultProtection.applyIfRequested` in `ImportFinalizer` locks adult-named categories behind the profile's Customize PIN.
+## Stalker EPG `period`: unit depends on the portal (corrected 2026-11-07, v3.0.7)
+`get_epg_info&period=N`. The miptv portal (access.log, `NewLogVideoteka/vod_epg_1.log`) answers period=7 with 32 MB that includes past days, so it is DAYS there; another portal measured earlier behaved like hours. The v3.0.5 change to days*24 (168 on miptv!) was WRONG and is reverted: `downloadEpgInfo` sends `period=$periodDays` as before. Past programmes for the archive come from this call.
+
+## Stalker series on miptv (log-confirmed, v3.0.7)
+- The portal has no series section (`type=series` answers 121 B). Each SEASON is a film-catalogue row "Title [S05]" with its own nested `series` array (1..12) and cmd `/media/<id>.mpg`; the episode is played with `create_link&cmd=/media/<id>.mpg&series=<n>`.
+- `type=vod&action=get_ordered_list&movie_id=<id>` is IGNORED: it returns the whole catalogue (20 pages of ~60 KB), which used to be parsed as seasons ("Season 85"). Now `SeriesRepository.fetchStalkerEpisodes` keeps only rows with `id == remoteId` (or `id:` prefix) and stops after page 1 when none match; then `seasonsFromSearch` finds the row via `category=<remote cat>&search=<title>` (`StalkerClient.searchSeasonRows`), exactly as the STB menu does.
+- TODO: group all "[S01..S13]" records of one show into a single show with seasons (sync-time grouping). Not done.
 
 ## v3.0.6 (в работе): архив, ресинк, главная
 - Выбор программы в архивном списке плеера ТВ идёт через `LiveViewModel.playCurrentCatchupProgramme` -> `playCatchupProgramme` (portal create_link по `get_simple_data_table`), а не через смещение (`jumpBackTo`): смещение для Stalker давало тёмный экран.
