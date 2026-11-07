@@ -19,7 +19,7 @@ MAX_ITEMS_COUNT = 12
 MAX_POST_LENGTH = 4000
 MORE_TEXT = "… полный список по ссылке"
 CHAT_URL = "https://t.me/YAiPlayer_Chat"
-BOT_URL = "https://t.me/YAiPlayer_bot?start=dl"
+BOT_URL = "https://t.me/YAiPlayer_App_bot?start=dl"
 
 # Эмодзи вместо «•»: подбираем по смыслу пункта, по умолчанию — искра.
 EMOJI_RULES = [
