@@ -219,7 +219,7 @@ internal class StalkerSyncer(
                     if (fieldDiffSample.size < FIELD_DIFF_SAMPLE) fieldDiffSample.add(entity)
                     traceEmitted++
                     if (entity.logoUrl != null) traceWithLogo++
-                    if (traceEmitted % 500 == 0) tv.own.owntv.core.util.GuideTrace.add("channels: $traceEmitted loaded, $traceWithLogo with a logo")
+                    if (traceEmitted % 500 == 0) tv.own.owntv.core.util.GuideTrace.put("channels", "$traceEmitted loaded, $traceWithLogo with a logo")
                     add(entity)
                 }
 

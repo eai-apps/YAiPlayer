@@ -579,7 +579,7 @@ internal fun ErrorLogPage(setEntry: (() -> Boolean) -> Unit, onCountChanged: () 
         // it can be read off the screen without taking the exported file off the device.
         val trace = remember(refresh, entries) {
             tv.own.owntv.player.LiveDiagnosticsLog.snapshot().lines().filter { it.isNotBlank() }.takeLast(8) +
-                tv.own.owntv.core.util.GuideTrace.snapshot().takeLast(5)
+                tv.own.owntv.core.util.GuideTrace.snapshot().takeLast(6)
         }
         if (trace.isNotEmpty()) {
             Column(Modifier.padding(top = 12.mpx)) {
