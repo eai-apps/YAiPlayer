@@ -19,5 +19,14 @@ object GuideTrace {
         }
     }
 
+    /** Replace the line of the same [key] (a running counter) instead of piling up one line per update. */
+    fun put(key: String, message: String) {
+        synchronized(lock) {
+            lines.removeIf { it.startsWith("$key:") }
+            lines.addLast("$key: $message")
+            while (lines.size > MAX) lines.pollFirst()
+        }
+    }
+
     fun snapshot(): List<String> = synchronized(lock) { lines.toList() }
 }
