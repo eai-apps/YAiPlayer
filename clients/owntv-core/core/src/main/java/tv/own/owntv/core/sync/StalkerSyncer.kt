@@ -188,6 +188,8 @@ internal class StalkerSyncer(
         // fingerprints can be compared across two consecutive syncs — see [logFieldFingerprints].
         val fieldDiffSample = ArrayList<ChannelEntity>(FIELD_DIFF_SAMPLE)
         var order = 0
+        var traceEmitted = 0
+        var traceWithLogo = 0
         // Small flush chunk (vs Xtream's 10k fresh) so the count appears quickly instead of the UI
         // sitting on "Connecting to source…" until the first big insert — Stalker catalogs are small
         // (tens of thousands), so the extra inserts cost nothing.
@@ -215,6 +217,9 @@ internal class StalkerSyncer(
                             catchupDays = ch.archiveDuration,
                     ))
                     if (fieldDiffSample.size < FIELD_DIFF_SAMPLE) fieldDiffSample.add(entity)
+                    traceEmitted++
+                    if (entity.logoUrl != null) traceWithLogo++
+                    if (traceEmitted % 500 == 0) tv.own.owntv.core.util.GuideTrace.add("channels: $traceEmitted loaded, $traceWithLogo with a logo")
                     add(entity)
                 }
 

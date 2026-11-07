@@ -409,10 +409,11 @@ fun AddSourceForm(
                                 loadChannelLogos, useOnlyPortalEpg,
                             )
                         },
-                        text = stringResource(R.string.setup_stalker_btn_connect),
+                        text = stringResource(if (syncStats?.isRunning == true) R.string.setup_btn_syncing else R.string.setup_stalker_btn_connect),
                         icon = MobileIcons.PlayArrow,
                         style = StageButtonStyle.PRIMARY,
-                        enabled = canStart,
+                        // One import at a time: a second press restarts the running one from the login.
+                        enabled = canStart && syncStats?.isRunning != true,
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 12.dp),
                     )
                 }
@@ -634,6 +635,13 @@ private fun SyncProgressCard(
                 style = stageText(16f, 700),
                 color = palette.text,
             )
+            if (stats.isRunning) {
+                Text(
+                    text = stringResource(R.string.setup_progress_connecting),
+                    style = stageText(13f, 500),
+                    color = palette.text.copy(alpha = 0.7f),
+                )
+            }
             Text(
                 text = stringResource(R.string.setup_progress_channels, stats.channels),
                 style = stageText(14f, 600),

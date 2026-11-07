@@ -4550,6 +4550,10 @@
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerEpgLoader.kt	Stalker source ${source.id} has no valid MAC
 1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerEpgLoader.kt	StalkerEpg
 1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerEpgLoader.kt	guide download attempt $attempt failed (${e.message}) — retrying
+1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerEpgLoader.kt	guide ok: bulk period=$period channels=${sink.channels} programmes=${sink.kept}
+1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerEpgLoader.kt	guide: only the short per-channel route worked, channels=${sink.channels} programmes=${sink.kept}
+1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerEpgLoader.kt	guide: period=$period failed (${e.javaClass.simpleName})
+1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerEpgLoader.kt	guide: period=$period returned nothing usable
 1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerEpgLoader.kt	per-channel guide abandoned after $failures failures: ${e.message}
 1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerEpgLoader.kt	per-channel guide abandoned: $asked channels answered with nothing
 1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerEpgLoader.kt	portal guide sourceId=${source.id} bulk period=$period channels=${sink.channels} programmes=${sink.kept}
@@ -4871,6 +4875,7 @@
 1	log	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	catchupSource=${c.catchupSource.hashCode()} sortOrder=${c.sortOrder}
 1	log	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	categoryId=${c.categoryId} name=${c.name.hashCode()} logoUrl=${c.logoUrl.hashCode()}
 3	technical	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	channels
+1	log	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	channels: $traceEmitted loaded, $traceWithLogo with a logo
 1	technical	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	channels_fts
 1	technical	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	epg_url
 1	log	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	failedCategories=$failures rewalked=$rewalked paused=$paused stored=$stored
