@@ -1911,6 +1911,7 @@
 1	log	core/src/main/java/tv/own/owntv/core/epg/EpgAutoMatcher.kt	totalMs=${SystemClock.elapsedRealtime() - startedAt}
 1	empty	core/src/main/java/tv/own/owntv/core/epg/EpgDedupe.kt	\0
 1	regex	core/src/main/java/tv/own/owntv/core/epg/EpgDedupe.kt	\\s+
+1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgLogoStore.kt	5 канал
 12	technical	core/src/main/java/tv/own/owntv/core/epg/EpgMatcher.kt	\0
 1	regex	core/src/main/java/tv/own/owntv/core/epg/EpgMatcher.kt	(?<![\\p{L}\\p{N}])\\+(\\d{1,2})(?![\\p{L}\\p{N}])
 1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgMatcher.kt	+
