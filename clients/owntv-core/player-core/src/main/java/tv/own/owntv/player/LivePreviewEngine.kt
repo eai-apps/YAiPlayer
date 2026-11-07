@@ -1042,6 +1042,7 @@ class LivePreviewEngine(
                         rebuildDecoderAndRetry("rebuilt decoder never started, video=false")
                         return
                     }
+                    if (!_audioOnly.value && retryWithNonIdrKeyframes(url)) return
                     failLoad("buffered but never started playing ($detail)")
                     return
                 }
@@ -3087,6 +3088,8 @@ class LivePreviewEngine(
     private var cachedHttpDataSource: OkHttpDataSource.Factory? = null
     private var cachedDefaultFactory: DefaultMediaSourceFactory? = null
     private var cachedHlsCcFactory: HlsMediaSource.Factory? = null
+    private var cachedDefaultFactoryNonIdr: DefaultMediaSourceFactory? = null
+    private var cachedHlsFactoryNonIdr: HlsMediaSource.Factory? = null
     /** Debug-build HTTP probe for provider-side failures. It persists redacted metadata, a
      *  media-signature classification, and — for FAILED responses only — a short scrubbed text prefix of
      *  the error body, which is usually the panel telling us exactly why it refused ("token expired",
@@ -3303,38 +3306,77 @@ class LivePreviewEngine(
             // No FLAG_DETECT_ACCESS_UNITS: it makes the H.264 reader split pictures itself, which hands
             // the decoder frames with repeated timestamps; MediaTek (c2.mtk.avc) and V4L2 (c2.v4l2.avc)
             // decoders then show a few frames and freeze while the sound plays on. HEVC is not affected.
-            // Not FLAG_ALLOW_NON_IDR_KEYFRAMES either: a feed with no IDR never renders a first frame, and
-            // that case already ends on mpv, which plays it.
-            val tsFlags = 0
-            val cc1 = androidx.media3.common.Format.Builder()
-                .setSampleMimeType(androidx.media3.common.MimeTypes.APPLICATION_CEA608)
-                .setAccessibilityChannel(1) // CC1 — the standard primary caption channel
-                .build()
-            cachedDefaultFactory = DefaultMediaSourceFactory(
-                cachedHttpDataSource!!,
-                androidx.media3.extractor.DefaultExtractorsFactory()
-                    .setTsExtractorFlags(
-                        androidx.media3.extractor.ts.DefaultTsPayloadReaderFactory.FLAG_OVERRIDE_CAPTION_DESCRIPTORS or tsFlags,
-                    )
-                    .setTsSubtitleFormats(listOf(cc1)),
-            ).setLoadErrorHandlingPolicy(playedLivePolicy)
-                .setDrmSessionManagerProvider(tv.own.owntv.core.drm.InlineClearKeyDrmProvider)
-            cachedHlsCcFactory = HlsMediaSource.Factory(cachedHttpDataSource!!)
-                .setDrmSessionManagerProvider(tv.own.owntv.core.drm.InlineClearKeyDrmProvider)
-                // Read per playlist load, so the setting needs no cache reset.
-                .setPlaylistParserFactory(SdrVariants.ParserFactory { preferSdr })
-                .setExtractorFactory(DefaultHlsExtractorFactory(tsFlags, true))
-                // Media3 defaults this to zero, which it documents as an *infinite* timeout: a rendition
-                // whose chunk can't be timestamp-aligned with the primary one parks its loading thread in
-                // an unbounded wait(), so that track never produces a sample and the player sits in
-                // BUFFERING forever with no error to react to. Bound it — a TimeoutException surfaces as a
-                // normal load error, which the retry ladder (TS retry, then mpv) can actually act on.
-                .setTimestampAdjusterInitializationTimeoutMs(HLS_TIMESTAMP_ALIGN_TIMEOUT_MS)
-                .setLoadErrorHandlingPolicy(edgeRefusalPolicy)
+            // Not FLAG_ALLOW_NON_IDR_KEYFRAMES by default either, for the same reason it is not a blanket
+            // setting: it is only used for a channel whose first open stalled with no video renderer
+            // (see [retryWithNonIdrKeyframes]), before that channel is handed to mpv.
+            cachedDefaultFactoryNonIdr = null
+            cachedHlsFactoryNonIdr = null
+            cachedDefaultFactory = buildDefaultFactory(0)
+            cachedHlsCcFactory = buildHlsFactory(0)
             dataSourceForUa = ua
             dataSourceForHeaders = currentHeaders
         }
         return cachedHttpDataSource!!
+    }
+
+
+    /** Raw TS / DASH / progressive factory. [tsFlags] is 0 normally; see [nonIdrKey] for the other value. */
+    private fun buildDefaultFactory(tsFlags: Int): DefaultMediaSourceFactory {
+        val cc1 = androidx.media3.common.Format.Builder()
+            .setSampleMimeType(androidx.media3.common.MimeTypes.APPLICATION_CEA608)
+            .setAccessibilityChannel(1) // CC1 — the standard primary caption channel
+            .build()
+        return DefaultMediaSourceFactory(
+            cachedHttpDataSource!!,
+            androidx.media3.extractor.DefaultExtractorsFactory()
+                .setTsExtractorFlags(
+                    androidx.media3.extractor.ts.DefaultTsPayloadReaderFactory.FLAG_OVERRIDE_CAPTION_DESCRIPTORS or tsFlags,
+                )
+                .setTsSubtitleFormats(listOf(cc1)),
+        ).setLoadErrorHandlingPolicy(playedLivePolicy)
+            .setDrmSessionManagerProvider(tv.own.owntv.core.drm.InlineClearKeyDrmProvider)
+    }
+
+    private fun buildHlsFactory(tsFlags: Int): HlsMediaSource.Factory =
+        HlsMediaSource.Factory(cachedHttpDataSource!!)
+            .setDrmSessionManagerProvider(tv.own.owntv.core.drm.InlineClearKeyDrmProvider)
+            // Read per playlist load, so the setting needs no cache reset.
+            .setPlaylistParserFactory(SdrVariants.ParserFactory { preferSdr })
+            .setExtractorFactory(DefaultHlsExtractorFactory(tsFlags, true))
+            // Media3 defaults this to zero, which it documents as an *infinite* timeout: a rendition
+            // whose chunk can't be timestamp-aligned with the primary one parks its loading thread in
+            // an unbounded wait(), so that track never produces a sample and the player sits in
+            // BUFFERING forever with no error to react to. Bound it — a TimeoutException surfaces as a
+            // normal load error, which the retry ladder (TS retry, then mpv) can actually act on.
+            .setTimestampAdjusterInitializationTimeoutMs(HLS_TIMESTAMP_ALIGN_TIMEOUT_MS)
+            .setLoadErrorHandlingPolicy(edgeRefusalPolicy)
+
+    /** The key a non-IDR lesson is filed under: the channel, not its per-tune stream URL. */
+    private fun nonIdrKey(url: String): String = _currentMeta.value.contentKey ?: url
+
+    private fun defaultFactoryFor(url: String): DefaultMediaSourceFactory =
+        if (LiveStreamQuirks.needsNonIdrKeyframes(nonIdrKey(url))) {
+            cachedDefaultFactoryNonIdr ?: buildDefaultFactory(NON_IDR_TS_FLAGS).also { cachedDefaultFactoryNonIdr = it }
+        } else cachedDefaultFactory!!
+
+    private fun hlsFactoryFor(url: String): HlsMediaSource.Factory =
+        if (LiveStreamQuirks.needsNonIdrKeyframes(nonIdrKey(url))) {
+            cachedHlsFactoryNonIdr ?: buildHlsFactory(NON_IDR_TS_FLAGS).also { cachedHlsFactoryNonIdr = it }
+        } else cachedHlsCcFactory!!
+
+    /**
+     * First open buffered and no video renderer ever got ready: try the TS reader that accepts pictures
+     * without an IDR, once per channel, before giving the channel to mpv. Returns whether it reopened.
+     */
+    private fun retryWithNonIdrKeyframes(url: String): Boolean {
+        val key = nonIdrKey(url)
+        if (LiveStreamQuirks.needsNonIdrKeyframes(key) || videoRendererReady() == true) return false
+        LiveStreamQuirks.rememberNeedsNonIdrKeyframes(key)
+        LiveDiagnosticsLog.event("open stalled with no video renderer — reopening with keyframes without IDR allowed")
+        tune.prerollRetunePending = true
+        mainHandler.removeCallbacks(openWatchdog)
+        mainHandler.post { if (currentUrl == url) rebuildForSettingChange() else tune.prerollRetunePending = false }
+        return true
     }
 
     /** HLS → caption-aware factory; everything else (raw MPEG-TS, etc.) → default. */
@@ -3377,7 +3419,7 @@ class LivePreviewEngine(
         }.build()
         val uri = item.localConfiguration?.uri ?: run {
             activeRoute = StreamRoute.PROGRESSIVE
-            return cachedDefaultFactory!!.createMediaSource(item)
+            return defaultFactoryFor(url).createMediaSource(item)
         }
         // A panel already caught redirecting `.ts` → manifest goes straight to the HLS factory: without
         // this every channel on it repeats the container-unsupported failure + retry before recovering.
@@ -3401,13 +3443,13 @@ class LivePreviewEngine(
                 "url=${HttpClient.redactUrl(url)}",
         )
         return when (route) {
-            StreamRoute.HLS -> cachedHlsCcFactory!!.createMediaSource(item)
+            StreamRoute.HLS -> hlsFactoryFor(url).createMediaSource(item)
             // DASH has no bespoke factory: DefaultMediaSourceFactory builds a DashMediaSource itself
             // once the item names the MPD mime type, and takes the DRM configuration set above with it.
-            StreamRoute.DASH -> cachedDefaultFactory!!.createMediaSource(
+            StreamRoute.DASH -> defaultFactoryFor(url).createMediaSource(
                 item.buildUpon().setMimeType(androidx.media3.common.MimeTypes.APPLICATION_MPD).build(),
             )
-            StreamRoute.PROGRESSIVE -> cachedDefaultFactory!!.createMediaSource(item)
+            StreamRoute.PROGRESSIVE -> defaultFactoryFor(url).createMediaSource(item)
         }
     }
 
@@ -3784,6 +3826,8 @@ class LivePreviewEngine(
          *  engine rather than across two. If the measured value there ever moves, this should follow. */
         private const val DECODER_REBUILD_DELAY_MS = 500L
 
+        /** DefaultTsPayloadReaderFactory.FLAG_ALLOW_NON_IDR_KEYFRAMES. */
+        private const val NON_IDR_TS_FLAGS = androidx.media3.extractor.ts.DefaultTsPayloadReaderFactory.FLAG_ALLOW_NON_IDR_KEYFRAMES
         private const val STALL_MS = 12_000L        // buffering this long after playing == a dropped feed
         private const val PROGRESS_CHECK_MS = 2_500L // poll interval for the silent-freeze watchdog
         private const val FROZEN_LIMIT = 3          // picture frozen this many polls (~7.5s) == a dropped feed

@@ -131,6 +131,7 @@ object LiveStreamQuirks {
     private val noHlsVariantMpvStreams = urlLessonSet()
     private val tolerantDemuxStreams = urlLessonSet()
     private val prerollDefeatedStreams = urlLessonSet()
+    private val nonIdrStreams = urlLessonSet()
     private val softwareArchiveHosts = ConcurrentHashMap.newKeySet<String>()
     private val uaBlockingHosts = ConcurrentHashMap.newKeySet<String>()
     private val providerMessages = ConcurrentHashMap<String, Pair<Int, String>>()
@@ -334,6 +335,16 @@ object LiveStreamQuirks {
      */
     fun rememberPrerollDefeated(url: String) { prerollDefeatedStreams += url }
 
+    /**
+     * A feed whose pictures never start on an IDR frame (gradual decoder refresh, an I-slice with a
+     * recovery point): ExoPlayer's stock TS reader waits for an IDR that never comes, buffers for ever
+     * and shows nothing, while mpv and other players start on the first recovery point. [key] is the
+     * channel's own key (its stream URL changes with every tune on a portal).
+     */
+    fun rememberNeedsNonIdrKeyframes(key: String) { nonIdrStreams += key }
+
+    fun needsNonIdrKeyframes(key: String): Boolean = key in nonIdrStreams
+
     fun defeatsPreroll(url: String): Boolean = url in prerollDefeatedStreams
 
     /**
@@ -396,7 +407,7 @@ object LiveStreamQuirks {
     internal fun clearForTest() {
         hlsRedirectHosts.clear(); mixedHlsHosts.clear(); segmentRefusingHosts.clear(); singleSessionHosts.clear()
         brokenTimestampStreams.clear(); softwareArchiveHosts.clear()
-        noHlsVariantStreams.clear(); noHlsVariantMpvStreams.clear(); prerollDefeatedStreams.clear()
+        noHlsVariantStreams.clear(); noHlsVariantMpvStreams.clear(); prerollDefeatedStreams.clear(); nonIdrStreams.clear()
         tolerantDemuxStreams.clear()
         uaBlockingHosts.clear(); providerMessages.clear()
     }
