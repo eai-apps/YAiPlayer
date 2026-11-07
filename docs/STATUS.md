@@ -5,7 +5,7 @@
 - Built-in hidden guide (3 feeds, weekly), guide icons per playlist (opt-in), Stalker: guide loaded in bulk, categories in the device language, no stream source shown in stream info, reliable MAC (`59:41:49:xx:xx:xx`).
 - Profiles: new profile is clean, opt-in "playlists of other profiles"; new splash/intro.
 - Telegram: channel @YAiPlayer, chat @YAiPlayer_Chat (comments under posts), promo post every 3 days 09:00 (poster + text), release posts. Posts now carry «Получить ссылку» → bot, no direct APK links.
-- Bot @YAiPlayer_bot (Cloudflare Worker `yaiplayer-bot`, code in `telegram-bot/`, auto-deployed from GitHub): channel-subscription gate → download buttons; button-driven admin panel (menu tree, welcome text, required extra channels, broadcast, stats); Stars donations; support = channel direct messages.
+- Bot @YAiPlayer_App_bot — download gate (posts to the channel go through the separate poster bot @YAiPlayer_bot) (Cloudflare Worker `yaiplayer-bot`, code in `telegram-bot/`, auto-deployed from GitHub): channel-subscription gate → download buttons; button-driven admin panel (menu tree, welcome text, required extra channels, broadcast, stats); Stars donations; support = channel direct messages.
 
 ## Next (ordered)
 1. Stalker series: one card per show → seasons → episodes + episode picker in the player. BLOCKED: needs a raw `get_ordered_list` sample of a "Title [S01]" row.

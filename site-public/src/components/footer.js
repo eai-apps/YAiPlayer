@@ -52,7 +52,7 @@ export function renderFooter() {
               </li>
               <li>
                 <a href="${brand.links.telegramBot}" target="_blank" rel="noopener noreferrer">
-                  Telegram: ${t('common.bot')} @YAiPlayer_bot
+                  Telegram: ${t('common.bot')} @YAiPlayer_App_bot
                 </a>
               </li>
               <li>
