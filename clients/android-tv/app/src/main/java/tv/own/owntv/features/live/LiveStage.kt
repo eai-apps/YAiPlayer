@@ -332,15 +332,13 @@ internal fun LiveStagePane(
                 }
             }
             val next = nowNext?.next
-            val later = nowNext?.upcoming?.firstOrNull()
+            val later = nowNext?.upcoming.orEmpty().take(3)
             if (next != null) {
-                Row(
+                Column(
                     Modifier
-                        .padding(top = 22.mpx)
+                        .padding(top = 18.mpx)
                         .offset(x = (-12).mpx)
                         .focusGroup(),
-                    // 30 between the two, less the 12 + 12 each entry pads itself with for its focus fill.
-                    horizontalArrangement = Arrangement.spacedBy(6.mpx),
                 ) {
                     // ◀ from next goes back to the channel it belongs to, not to whatever lies to the left.
                     LiveScheduleItem(
@@ -349,7 +347,15 @@ internal fun LiveStagePane(
                             if (e.type == KeyEventType.KeyDown && e.key == Key.DirectionLeft) { onBackToList(); true } else false
                         },
                     )
-                    if (later != null) LiveScheduleItem(later, accentTime = false, onClick = { onOpenProgramme(later) })
+                    // Up to three more lines of the guide: the pane has room for what is coming after "next".
+                    later.forEach { p ->
+                        LiveScheduleItem(
+                            p, accentTime = false, onClick = { onOpenProgramme(p) },
+                            modifier = Modifier.onPreviewKeyEvent { e ->
+                                if (e.type == KeyEventType.KeyDown && e.key == Key.DirectionLeft) { onBackToList(); true } else false
+                            },
+                        )
+                    }
                 }
             }
         }

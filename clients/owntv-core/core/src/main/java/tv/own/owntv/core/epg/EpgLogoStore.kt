@@ -34,6 +34,9 @@ import tv.own.owntv.core.settings.SettingsRepository
  * screen. Nothing is loaded while no feed has it on — cold start stays free of EPG queries.
  */
 object EpgLogoStore {
+    /** Normalized names that exist both as a national and a regional channel in the feeds. */
+    private val AMBIGUOUS_NAMES = setOf("5 канал")
+
 
     /** Normalized EPG channel id → feed icon URL. Empty when no EPG source has logos enabled. */
     var icons by mutableStateOf<Map<String, String>>(emptyMap())
@@ -105,19 +108,16 @@ object EpgLogoStore {
 
     private fun buildNameIcons(rows: List<tv.own.owntv.core.database.entity.EpgChannelNameIcon>): Map<String, String> {
         val out = HashMap<String, String>(rows.size * 2)
-        // Names that two guide channels share with different logos ("5 Канал" of one country and of a
-        // regional station) are ambiguous: no logo is better than the wrong one.
-        val ambiguous = HashSet<String>()
         for (r in rows) {
             for (alias in r.displayName.split(tv.own.owntv.core.parser.XmltvParser.NAME_JOIN)) {
                 val key = EpgMatcher.normalizeForEpg(alias)
                 // Short or numeric-only names are too ambiguous to trust ("1", "tv").
                 if (key.length < 3 || key.none { it.isLetter() }) continue
-                val have = out.putIfAbsent(key, r.iconUrl)
-                if (have != null && have != r.iconUrl) ambiguous.add(key)
+                out.putIfAbsent(key, r.iconUrl)
             }
         }
-        ambiguous.forEach(out::remove)
+        // Names that the feed shares between a national channel and a regional one: no icon beats the wrong one.
+        AMBIGUOUS_NAMES.forEach(out::remove)
         return out
     }
 
