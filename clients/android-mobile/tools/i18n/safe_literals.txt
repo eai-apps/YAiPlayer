@@ -194,6 +194,8 @@
 1	log	app/src/main/java/tv/own/owntv/mobile/ui/screens/guide/GuideViewModel.kt	sources=${ids.size} cachedRows=${synchronized(rowCache) { rowCache.size }}
 1	log	app/src/main/java/tv/own/owntv/mobile/ui/screens/guide/GuideViewModel.kt	totalMs=${android.os.SystemClock.elapsedRealtime() - startedAt}
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/home/HomeScreen.kt	brand-badge
+1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/home/HomeScreen.kt	guest_footnote
+1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/home/HomeScreen.kt	guest_hook
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/home/HomeScreen.kt	home
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/home/HomeScreen.kt	library-loading
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/home/HomeText.kt	%1$d

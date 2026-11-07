@@ -126,6 +126,7 @@ fun ProfileGate(
                             ProfileTile(
                                 profile = profile,
                                 current = profile.id == activeProfileId,
+                                isGuest = profile.id == guestId,
                                 onClick = { if (profile.pinHash == null) enter(profile) else pinFor = profile },
                             )
                         }
@@ -159,18 +160,20 @@ fun ProfileGate(
 
 /** One person's tile: the 104 dp avatar (ringed when it is the current profile), the name, KIDS or 🔒 PIN. */
 @Composable
-private fun ProfileTile(profile: ProfileEntity, current: Boolean, onClick: () -> Unit) {
+private fun ProfileTile(profile: ProfileEntity, current: Boolean, isGuest: Boolean = false, onClick: () -> Unit) {
     val palette = LocalStagePalette.current
     val accent = stageAccent
     val interaction = remember { MutableInteractionSource() }
+    val amber = androidx.compose.ui.graphics.Color(0xFFF59E0B)
     Column(Modifier.stageClickable(interaction, onClick, null), horizontalAlignment = Alignment.CenterHorizontally) {
         Box(
             Modifier.then(
                 if (current) {
                     Modifier.drawBehind {
                         val r = size.minDimension / 2
-                        drawCircle(accent.accent.copy(alpha = 0.3f), r + 7.dp.toPx())
-                        drawCircle(accent.focus, r + 3.dp.toPx())
+                        val ringColor = if (isGuest) amber else accent.accent
+                        drawCircle(ringColor.copy(alpha = 0.3f), r + 7.dp.toPx())
+                        drawCircle(if (isGuest) amber else accent.focus, r + 3.dp.toPx())
                     }
                 } else Modifier,
             ),
@@ -187,6 +190,7 @@ private fun ProfileTile(profile: ProfileEntity, current: Boolean, onClick: () ->
             modifier = Modifier.padding(top = 10.dp),
         )
         when {
+            isGuest -> StageTag(stringResource(R.string.profiles_guest_name), Modifier.padding(top = 4.dp), tone = StageTagTone.WARN)
             profile.isKids -> StageTag(stringResource(R.string.profiles_kids_badge), Modifier.padding(top = 4.dp))
             profile.pinHash != null -> StageTag(stringResource(R.string.profiles_pin), Modifier.padding(top = 4.dp), icon = MobileIcons.Lock)
         }

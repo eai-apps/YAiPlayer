@@ -104,6 +104,12 @@ fun AddSourceForm(
     onSubmitted: ((SourceFormValues) -> Unit)? = null,
 ) {
     val editing = onSave != null
+    val settings: tv.own.owntv.core.settings.SettingsRepository = org.koin.compose.koinInject()
+    val sourceDao: tv.own.owntv.core.database.dao.SourceDao = org.koin.compose.koinInject()
+    val isGuest by settings.isGuestActive.androidx.lifecycle.compose.collectAsStateWithLifecycle(initialValue = false)
+    val activeProfileId by settings.activeProfileId.androidx.lifecycle.compose.collectAsStateWithLifecycle(initialValue = -1L)
+    val sources by sourceDao.observeForProfile(activeProfileId).androidx.lifecycle.compose.collectAsStateWithLifecycle(initialValue = emptyList())
+    var showLimitSheet by remember { mutableStateOf(false) }
     var kind by rememberSaveable { mutableStateOf(initial?.kind ?: SourceKind.XTREAM) }
     var name by rememberSaveable { mutableStateOf(initial?.name.orEmpty()) }
     var server by rememberSaveable {
@@ -363,6 +369,15 @@ fun AddSourceForm(
             StageButton(
                 onClick = {
                     onSave?.let { save -> save(values()); return@StageButton }
+                    val targetType = when (kind) {
+                        SourceKind.XTREAM -> tv.own.owntv.core.model.SourceType.XTREAM
+                        SourceKind.M3U -> tv.own.owntv.core.model.SourceType.M3U
+                        SourceKind.STALKER -> tv.own.owntv.core.model.SourceType.STALKER
+                    }
+                    if (tv.own.owntv.core.profile.GuestPolicy.isLimitReached(isGuest, sources, targetType)) {
+                        showLimitSheet = true
+                        return@StageButton
+                    }
                     // A blank MAC is fine for a login-only portal: make one now and keep it, so a retry
                     // after a failure presents the same device (some portals bind the login to the first MAC).
                     if (kind == SourceKind.STALKER && mac.isBlank()) mac = StalkerDeviceDerivation.randomMac()
@@ -409,6 +424,31 @@ fun AddSourceForm(
             onSelect = { userAgent = it },
             onDismiss = { showDeviceSheet = false },
         )
+    }
+    if (showLimitSheet) {
+        tv.own.owntv.mobile.ui.components.MobileBottomSheet(
+            onDismissRequest = { showLimitSheet = false },
+            title = stringResource(R.string.guest_mode_title),
+        ) {
+            androidx.compose.foundation.layout.Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp, vertical = 12.dp),
+            ) {
+                Text(
+                    text = stringResource(R.string.guest_limit_message),
+                    style = stageText(15f, 500, lineHeight = 1.4f),
+                    color = LocalStagePalette.current.text,
+                )
+                androidx.compose.foundation.layout.Spacer(Modifier.height(20.dp))
+                StageButton(
+                    onClick = { showLimitSheet = false },
+                    text = stringResource(R.string.common_ok),
+                    style = StageButtonStyle.PRIMARY,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+        }
     }
 }
 

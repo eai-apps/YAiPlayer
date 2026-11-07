@@ -406,7 +406,7 @@ class LocalSyncManager(
 
         /** The backup schema this build writes; the far side reports its own in `/sync/hello`. */
         const val PAYLOAD_VERSION = 21
-        const val UNKNOWN_DEVICE_NAME = "OwnTV"
+        const val UNKNOWN_DEVICE_NAME = "YAiPlayer"
 
         /** Not a real HTTP answer — [SyncFailure.BadPayload] is what the screen has to say. */
         const val HTTP_BAD_PAYLOAD = 422

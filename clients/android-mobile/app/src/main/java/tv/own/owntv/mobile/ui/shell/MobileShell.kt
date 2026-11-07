@@ -151,8 +151,23 @@ fun MobileShell(
      *  - Only then "Who is watching?", and only when the gate is genuinely required: more than one
      *    profile, or a single one with a PIN.
      */
-    val loadedProfiles = profiles ?: return
-    val activeId = activeProfileId ?: return
+    if (profiles == null || activeProfileId == null) {
+        Box(
+            modifier = modifier.fillMaxSize().background(tv.own.owntv.mobile.ui.stage.LocalStagePalette.current.page),
+            contentAlignment = Alignment.Center,
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                tv.own.owntv.mobile.ui.components.BrandMark(tv.own.owntv.mobile.ui.components.rememberAppliedIcon(), 56.dp)
+                tv.own.owntv.mobile.ui.components.Wordmark(120.dp)
+            }
+        }
+        return
+    }
+    val loadedProfiles = profiles
+    val activeId = activeProfileId
     if (activeId < 0L || loadedProfiles.none { it.id == activeId }) {
         // The wizard reports the profile it activated, and that is the unlock — the same handover the
         // television does. Without it the shell would have a valid active profile and no session for
@@ -323,6 +338,8 @@ fun MobileShell(
     val playlists by shellViewModel.playlists.collectAsStateWithLifecycle()
     val activePlaylistId by shellViewModel.activePlaylistId.collectAsStateWithLifecycle()
     var playlistSheet by remember { mutableStateOf(false) }
+    val isGuest by settings.isGuestActive.collectAsStateWithLifecycle(initialValue = false)
+    var showGuestLimitSheet by remember { mutableStateOf(false) }
 
     val chrome = remember { ShellChromeState() }
     val homeChrome = remember { HomeChrome() }
@@ -538,7 +555,11 @@ fun MobileShell(
                         onSearch = { navController.navigate(SEARCH_ROUTE) { launchSingleTop = true } },
                         onAvatar = { navController.navigate(MobileDestination.MORE.route) { launchSingleTop = true } },
                         onSources = if (onHome) ({
-                            navController.navigate(setupRoute(SetupEntry.FORM)) { launchSingleTop = true }
+                            if (!tv.own.owntv.core.profile.GuestPolicy.canAddAnySource(isGuest, playlists)) {
+                                showGuestLimitSheet = true
+                            } else {
+                                navController.navigate(setupRoute(SetupEntry.FORM)) { launchSingleTop = true }
+                            }
                         }) else null,
                         extra = {
                             // Home's Resume pill, while its hero is in view (the scrolled heading has
@@ -666,6 +687,31 @@ fun MobileShell(
             programmeEndMs = nowNext?.now?.stopMs,
             onDismiss = { sleepSheet = false },
         )
+    }
+    if (showGuestLimitSheet) {
+        tv.own.owntv.mobile.ui.components.MobileBottomSheet(
+            onDismissRequest = { showGuestLimitSheet = false },
+            title = stringResource(R.string.guest_mode_title),
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp, vertical = 12.dp),
+            ) {
+                androidx.compose.material3.Text(
+                    text = stringResource(R.string.guest_limit_message),
+                    style = tv.own.owntv.mobile.ui.stage.stageText(15f, 500),
+                    color = tv.own.owntv.mobile.ui.stage.LocalStagePalette.current.text,
+                )
+                Spacer(Modifier.height(20.dp))
+                tv.own.owntv.mobile.ui.stage.StageButton(
+                    onClick = { showGuestLimitSheet = false },
+                    text = stringResource(R.string.common_ok),
+                    style = tv.own.owntv.mobile.ui.stage.StageButtonStyle.PRIMARY,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+        }
     }
     if (playlistSheet) {
         PlaylistSheet(

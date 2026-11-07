@@ -176,6 +176,11 @@ fun AddSourceScreen(
     // setup wizard may still be profile-less; the value defaults to off there).
     val settings: SettingsRepository = koinInject()
     val profileDao: ProfileDao = koinInject()
+    val sourceDao: tv.own.owntv.core.database.dao.SourceDao = koinInject()
+    val isGuest by settings.isGuestActive.collectAsStateWithLifecycle(initialValue = false)
+    val activeProfileId by settings.activeProfileId.collectAsStateWithLifecycle(initialValue = -1L)
+    val sources by sourceDao.observeForProfile(activeProfileId).collectAsStateWithLifecycle(initialValue = emptyList())
+    var showLimitPopup by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     var hideNewCatsProfile by remember { mutableStateOf(-1L) }
     LaunchedEffect(Unit) {
@@ -436,6 +441,17 @@ fun AddSourceScreen(
     // Every field is a row (label + value or placeholder, OK = keyboard); Start import sits in the
     // panel, reached with ▶ from any row.
     val submit = {
+        if (!editing) {
+            val targetType = when (kind) {
+                SourceKind.XTREAM -> tv.own.owntv.core.model.SourceType.XTREAM
+                SourceKind.M3U -> tv.own.owntv.core.model.SourceType.M3U
+                SourceKind.STALKER -> tv.own.owntv.core.model.SourceType.STALKER
+            }
+            if (tv.own.owntv.core.profile.GuestPolicy.isLimitReached(isGuest, sources, targetType)) {
+                showLimitPopup = true
+                return@submit
+            }
+        }
         when (kind) {
             SourceKind.XTREAM -> onStartXtream(name, server, username, password, userAgent, referer, epgUrl, autoRefresh, syncLive, syncMovies, syncSeries, isDefault, preferHls)
             SourceKind.M3U -> onStartM3u(name, m3uUrl, userAgent, referer, epgUrl, autoRefresh, isDefault)
@@ -791,6 +807,20 @@ fun AddSourceScreen(
               // Editing only: an unsaved playlist has nowhere to keep the answer.
               onRetest = if (initial != null) { { confirmMeasure = true } } else null,
               onSkip = { measureJob?.cancel(); measureJob = null; sourceTest = null },
+          )
+      }
+      if (showLimitPopup) {
+          tv.own.owntv.ui.stage.StagePopup(
+              onDismiss = { showLimitPopup = false },
+              title = stringResource(R.string.guest_mode_title),
+              body = stringResource(R.string.guest_limit_message),
+              buttons = {
+                  tv.own.owntv.ui.stage.StagePopupButton(
+                      text = stringResource(R.string.common_ok),
+                      onClick = { showLimitPopup = false },
+                      primary = true,
+                  )
+              },
           )
       }
     }

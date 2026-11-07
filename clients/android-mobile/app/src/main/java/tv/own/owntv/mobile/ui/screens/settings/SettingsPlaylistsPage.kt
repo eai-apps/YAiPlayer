@@ -80,6 +80,8 @@ fun SettingsPlaylistsPage(
     val test by vm.sourceTest.collectAsStateWithLifecycle()
     val playlistRefresh = vm.settings.playlistAutoRefresh.pref(emptyMap())
     val nav = LocalSettingsNav.current
+    val isGuest by vm.settings.isGuestActive.collectAsStateWithLifecycle(initialValue = false)
+    var showLimitSheet by remember { mutableStateOf(false) }
 
     var menuSource by remember { mutableStateOf<SourceEntity?>(null) }
     var editSource by remember { mutableStateOf<SourceEntity?>(null) }
@@ -93,8 +95,20 @@ fun SettingsPlaylistsPage(
     SettingsStagePage(modifier) {
         item(key = "add") {
             androidx.compose.foundation.layout.Row(Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                StageButton(onClick = { nav(SettingsLeaf.ADD_SOURCE.route) }, text = stringResource(R.string.settings_sources_add), icon = MobileIcons.Add, small = true)
-                StageButton(onClick = vm::useOtherProfilesPlaylists, text = stringResource(R.string.settings_sources_use_other_profiles), icon = MobileIcons.Refresh, small = true)
+                StageButton(onClick = {
+                    if (!tv.own.owntv.core.profile.GuestPolicy.canAddAnySource(isGuest, sources)) {
+                        showLimitSheet = true
+                    } else {
+                        nav(SettingsLeaf.ADD_SOURCE.route)
+                    }
+                }, text = stringResource(R.string.settings_sources_add), icon = MobileIcons.Add, small = true)
+                StageButton(onClick = {
+                    if (!tv.own.owntv.core.profile.GuestPolicy.canAddAnySource(isGuest, sources)) {
+                        showLimitSheet = true
+                    } else {
+                        vm.useOtherProfilesPlaylists()
+                    }
+                }, text = stringResource(R.string.settings_sources_use_other_profiles), icon = MobileIcons.Refresh, small = true)
             }
         }
         if (sources.isEmpty()) item(key = "empty") { PageNote(stringResource(R.string.settings_sources_empty)) }
@@ -274,6 +288,32 @@ fun SettingsPlaylistsPage(
             onConfirm = { vm.retestSource(src) },
             onDismiss = { confirmRetest = null },
         )
+    }
+
+    if (showLimitSheet) {
+        MobileBottomSheet(
+            onDismissRequest = { showLimitSheet = false },
+            title = stringResource(R.string.guest_mode_title),
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp, vertical = 12.dp),
+            ) {
+                Text(
+                    text = stringResource(R.string.guest_limit_message),
+                    style = stageText(15f, 500, lineHeight = 1.4f),
+                    color = LocalStagePalette.current.text,
+                )
+                Spacer(Modifier.height(20.dp))
+                StageButton(
+                    onClick = { showLimitSheet = false },
+                    text = stringResource(R.string.common_ok),
+                    style = StageButtonStyle.PRIMARY,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+        }
     }
 }
 

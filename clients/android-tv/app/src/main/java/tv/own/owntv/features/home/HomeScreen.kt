@@ -166,6 +166,10 @@ fun HomeScreen(
     sportsVm: tv.own.owntv.features.sports.SportsViewModel = org.koin.androidx.compose.koinViewModel(),
 ) {
     val state by vm.uiState.collectAsStateWithLifecycle()
+    val isGuest by vm.isGuest.collectAsStateWithLifecycle()
+    val showGuestHook by vm.showGuestHook.collectAsStateWithLifecycle()
+    val activeSources by vm.sources.collectAsStateWithLifecycle()
+    var showLimitPopup by remember { mutableStateOf(false) }
     // Asked for only while the row is switched on (Layout → Home rows); off costs nothing.
     val sportsCards = if (HomeRow.LIVE_SPORTS in state.config.visibleOrder) {
         sportsVm.homeRow.collectAsStateWithLifecycle().value
@@ -403,6 +407,13 @@ fun HomeScreen(
                 contentPadding = PaddingValues(top = if (fullBleed || posterItem != null) 0.dp else NoHeroTop, bottom = 48.mpx),
                 verticalArrangement = Arrangement.spacedBy(RowGap),
             ) {
+                if (showGuestHook) item(key = "guest_hook") {
+                    GuestHookCard(
+                        onClick = { showLimitPopup = true },
+                        onDismiss = { vm.dismissGuestHook() },
+                        modifier = Modifier.padding(horizontal = 48.mpx, vertical = 8.mpx),
+                    )
+                }
                 itemsIndexed(renderRows, key = { _, row -> row.name }) { index, row ->
                     val firstItemFocusRequester = rowFocusRequester(row)
                     // With no hero above it, the first row is the top of the page: back at it, show the page
@@ -693,6 +704,12 @@ fun HomeScreen(
                     }
                     }
                 }
+                if (isGuest) item(key = "guest_footnote") {
+                    GuestFootnote(
+                        onClick = { showLimitPopup = true },
+                        modifier = Modifier.padding(horizontal = 48.mpx),
+                    )
+                }
             }
         }
         // While a large playlist keeps loading in the background, say so where Now Trending will appear:
@@ -753,6 +770,94 @@ fun HomeScreen(
         })
     }
     InAppToast(trendingToast)
+
+    if (showLimitPopup) {
+        tv.own.owntv.ui.stage.StagePopup(
+            onDismiss = { showLimitPopup = false },
+            title = stringResource(R.string.guest_mode_title),
+            body = stringResource(R.string.guest_limit_message),
+            buttons = {
+                tv.own.owntv.ui.stage.StagePopupButton(
+                    text = stringResource(R.string.common_ok),
+                    onClick = { showLimitPopup = false },
+                    primary = true,
+                )
+            },
+        )
+    }
+}
+
+@Composable
+private fun GuestHookCard(
+    onClick: () -> Unit,
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    tv.own.owntv.ui.stage.StageSurface(
+        onClick = onClick,
+        radius = 20.mpx,
+        modifier = modifier.fillMaxWidth(),
+        focusStyle = tv.own.owntv.ui.stage.StageFocus.FX,
+        contentAlignment = Alignment.CenterStart,
+    ) { focused ->
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.mpx, vertical = 18.mpx),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(18.mpx),
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(44.mpx)
+                    .clip(androidx.compose.foundation.shape.CircleShape)
+                    .background(Color(0xFFF59E0B).copy(alpha = 0.2f)),
+                contentAlignment = Alignment.Center,
+            ) {
+                OwnTVIcon(OwnTVIcon.PHONE, tint = Color(0xFFF59E0B), modifier = Modifier.size(22.mpx))
+            }
+            Text(
+                text = stringResource(R.string.guest_hook_title),
+                style = tv.own.owntv.ui.theme.stageText(18, 600),
+                color = if (focused) tv.own.owntv.ui.theme.stageAccent.onAccent else tv.own.owntv.ui.theme.StageColors.Text,
+                modifier = Modifier.weight(1f),
+            )
+            tv.own.owntv.ui.stage.StageButton(
+                text = stringResource(R.string.guest_hook_dismiss),
+                onClick = onDismiss,
+                icon = OwnTVIcon.CLOSE,
+                compact = true,
+                tinted = false,
+            )
+        }
+    }
+}
+
+@Composable
+private fun GuestFootnote(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 16.mpx),
+        contentAlignment = Alignment.Center,
+    ) {
+        tv.own.owntv.ui.stage.StageSurface(
+            onClick = onClick,
+            radius = 12.mpx,
+            focusStyle = tv.own.owntv.ui.stage.StageFocus.FX,
+            contentAlignment = Alignment.Center,
+        ) { focused ->
+            Text(
+                text = stringResource(R.string.guest_mode_footnote),
+                style = tv.own.owntv.ui.theme.stageText(16, 500),
+                color = if (focused) tv.own.owntv.ui.theme.stageAccent.accent else tv.own.owntv.ui.theme.StageColors.Muted,
+                modifier = Modifier.padding(horizontal = 16.mpx, vertical = 8.mpx),
+            )
+        }
+    }
 }
 
 private fun rowHasData(row: HomeRow, state: HomeUiState, sportsCards: Int): Boolean = when (row) {

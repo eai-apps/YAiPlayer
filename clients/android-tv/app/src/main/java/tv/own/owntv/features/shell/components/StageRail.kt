@@ -471,6 +471,11 @@ private fun RailActiveDot(modifier: Modifier) {
 private fun RailProfile(open: Boolean, namesAlpha: () -> Float, name: String, line: String?, avatarId: Int, avatarPath: String, onSwitchProfile: () -> Unit, onPickAvatar: () -> Unit) {
     val a = stageAccent
     val initial = name.trim().take(1).uppercase().ifEmpty { "?" }
+    val settings: tv.own.owntv.core.settings.SettingsRepository = org.koin.compose.koinInject()
+    val guestId by settings.guestProfileId.collectAsStateWithLifecycle(initialValue = -1L)
+    val activeProfileId by settings.activeProfileId.collectAsStateWithLifecycle(initialValue = -1L)
+    val isGuest = activeProfileId >= 0L && activeProfileId == guestId
+    val amber = Color(0xFFF59E0B)
     StageSurface(
         onClick = onSwitchProfile,
         onLongClick = onPickAvatar,
@@ -481,7 +486,7 @@ private fun RailProfile(open: Boolean, namesAlpha: () -> Float, name: String, li
         contentAlignment = if (open) Alignment.CenterStart else Alignment.Center,
     ) { focused ->
         if (!open) {
-            RailAvatar(initial, avatarId = avatarId, imagePath = avatarPath)
+            RailAvatar(initial, avatarId = avatarId, imagePath = avatarPath, isGuest = isGuest)
             return@StageSurface
         }
         Row(
@@ -489,9 +494,21 @@ private fun RailProfile(open: Boolean, namesAlpha: () -> Float, name: String, li
             horizontalArrangement = Arrangement.spacedBy(14.mpx),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            RailAvatar(initial, avatarId = avatarId, imagePath = avatarPath)
+            RailAvatar(initial, avatarId = avatarId, imagePath = avatarPath, isGuest = isGuest)
             Column(Modifier.graphicsLayer { alpha = namesAlpha() }) {
-                Text(name, style = stageText(19, 700), color = if (focused) a.onAccent else StageColors.Text, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.mpx)) {
+                    Text(name, style = stageText(19, 700), color = if (focused) a.onAccent else StageColors.Text, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    if (isGuest) {
+                        Text(
+                            stringResource(R.string.profiles_guest_name),
+                            style = stageText(12, 700),
+                            color = amber,
+                            modifier = Modifier
+                                .background(amber.copy(alpha = 0.2f), RoundedCornerShape(4.mpx))
+                                .padding(horizontal = 6.mpx, vertical = 2.mpx),
+                        )
+                    }
+                }
                 if (line != null) {
                     Text("$line ›", style = stageText(15, 400), color = if (focused) a.onAccent else StageColors.Muted, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
@@ -505,15 +522,23 @@ private fun RailProfile(open: Boolean, namesAlpha: () -> Float, name: String, li
  * gradient, 20/800 in #2A0D12. More's profile row draws it 58 / 24.
  */
 @Composable
-internal fun RailAvatar(initial: String, size: Int = 46, textSize: Int = 20, avatarId: Int = -1, imagePath: String = "") {
+internal fun RailAvatar(initial: String, size: Int = 46, textSize: Int = 20, avatarId: Int = -1, imagePath: String = "", isGuest: Boolean = false) {
+    val amber = Color(0xFFF59E0B)
+    val baseModifier = Modifier
+        .size(size.mpx)
+        .clip(CircleShape)
+        .then(if (isGuest) androidx.compose.foundation.border(1.5.dp, amber, CircleShape) else Modifier)
     if (avatarId != -1 || imagePath.isNotBlank()) {
-        tv.own.owntv.ui.components.OwnTVAvatar(avatarId = avatarId, imagePath = imagePath, modifier = Modifier.size(size.mpx).clip(CircleShape))
+        tv.own.owntv.ui.components.OwnTVAvatar(avatarId = avatarId, imagePath = imagePath, modifier = baseModifier)
         return
     }
+    val gradientColors = if (isGuest) {
+        listOf(Color(0xFFF59E0B), Color(0xFFD97706))
+    } else {
+        listOf(Color(0xFFFFB35C), Color(0xFFFF5F7A))
+    }
     Box(
-        Modifier
-            .size(size.mpx)
-            .background(Brush.linearGradient(listOf(Color(0xFFFFB35C), Color(0xFFFF5F7A))), CircleShape),
+        baseModifier.background(Brush.linearGradient(gradientColors), CircleShape),
         contentAlignment = Alignment.Center,
     ) {
         Text(initial, style = stageText(textSize, 800), color = Color(0xFF2A0D12), maxLines = 1, overflow = TextOverflow.Ellipsis)

@@ -295,4 +295,10 @@
     <string name="profiles_guest_name">Гость</string>
     <string name="setup_continue_as_guest">Продолжить как гость</string>
     <string name="setup_continue_as_guest_description">Без регистрации и создания профиля: добавьте свой плейлист, Stalker-портал или телегид и смотрите. При выходе ничего не стирается; синхронизации между устройствами нет.</string>
+    <string name="guest_mode_title">Гостевой режим</string>
+    <string name="guest_limit_message">Зарегистрируйтесь, чтобы добавлять больше</string>
+    <string name="guest_mode_footnote">Гостевой режим · ограничения</string>
+    <string name="guest_hook_title">Зарегистрируйтесь — плейлисты синхронизируются между устройствами</string>
+    <string name="guest_hook_action">Зарегистрироваться</string>
+    <string name="guest_hook_dismiss">Скрыть</string>
 </resources>
