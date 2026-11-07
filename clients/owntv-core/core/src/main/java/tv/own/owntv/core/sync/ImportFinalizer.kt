@@ -12,6 +12,7 @@ import tv.own.owntv.core.database.dao.ChannelDao
 import tv.own.owntv.core.database.dao.MovieDao
 import tv.own.owntv.core.database.dao.SeriesDao
 import tv.own.owntv.core.database.entity.SourceEntity
+import kotlinx.coroutines.flow.firstOrNull
 
 /** Per-type counts after a playlist import, for the success breakdown. */
 data class SyncCounts(val channels: Int, val movies: Int, val series: Int, val epg: Int = 0)
@@ -37,7 +38,7 @@ class ImportFinalizer(
         val counts = contentCounts(source.id)
         registerPortalGuide(source)
         // A portal that brings its own guide does not need the built-in one forced on it unless opted in.
-        val allowedPortalIds = runCatching { kotlinx.coroutines.flow.firstOrNull(settings?.portalBuiltinEpgSources ?: kotlinx.coroutines.flow.emptyFlow()) }.getOrNull().orEmpty()
+        val allowedPortalIds = runCatching { settings?.portalBuiltinEpgSources?.firstOrNull() }.getOrNull().orEmpty()
         val ownGuide = source.type == tv.own.owntv.core.model.SourceType.STALKER && source.importPortalEpg && (source.id !in allowedPortalIds)
         if (!ownGuide) runCatching { builtinGuide?.onPlaylistImported() }
         // Bounded TTL eviction of the TMDB caches — they grow without limit as the user

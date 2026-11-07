@@ -8,6 +8,7 @@ import tv.own.owntv.core.database.dao.ChannelDao
 import tv.own.owntv.core.database.dao.EpgDao
 import tv.own.owntv.core.model.MediaType
 import tv.own.owntv.core.repository.EpgRepository
+import kotlinx.coroutines.flow.firstOrNull
 
 /**
  * Links playlist channels to the built-in guide by name, by itself, right after a built-in feed synced.
@@ -67,7 +68,7 @@ class BuiltinGuideMatcher(
 
     suspend fun run(): Result {
         val all = db.sourceDao().getAllOnce()
-        val allowedPortalIds = runCatching { kotlinx.coroutines.flow.firstOrNull(settings?.portalBuiltinEpgSources ?: kotlinx.coroutines.flow.emptyFlow()) }.getOrNull().orEmpty()
+        val allowedPortalIds = runCatching { settings?.portalBuiltinEpgSources?.firstOrNull() }.getOrNull().orEmpty()
         val portalIds = all.filter { it.type == tv.own.owntv.core.model.SourceType.STALKER && it.id !in allowedPortalIds }.map { it.id }
         runCatching { dropPortalLinks(portalIds, db.profileDao().getAllOnce()) }
         runCatching { syncProfiles() }
