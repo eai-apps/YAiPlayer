@@ -4552,13 +4552,14 @@
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerEpgLoader.kt	Stalker source ${source.id} has no valid MAC
 1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerEpgLoader.kt	StalkerEpg
 1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerEpgLoader.kt	guide download attempt $attempt failed (${e.message}) — retrying
-1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerEpgLoader.kt	guide ok: bulk period=$period channels=${sink.channels} programmes=${sink.kept}
+1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerEpgLoader.kt	guide ok: period=$period covers ${spanH}h
 1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerEpgLoader.kt	guide: only the short per-channel route worked, channels=${sink.channels} programmes=${sink.kept}
+1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerEpgLoader.kt	guide: period=$period channels=${attemptSink.channels} programmes=${attemptSink.kept} covers ${spanH}h
 1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerEpgLoader.kt	guide: period=$period failed (${e.javaClass.simpleName})
 1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerEpgLoader.kt	guide: period=$period returned nothing usable
 1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerEpgLoader.kt	per-channel guide abandoned after $failures failures: ${e.message}
 1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerEpgLoader.kt	per-channel guide abandoned: $asked channels answered with nothing
-1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerEpgLoader.kt	portal guide sourceId=${source.id} bulk period=$period channels=${sink.channels} programmes=${sink.kept}
+1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerEpgLoader.kt	portal guide sourceId=${source.id} bulk period=$period channels=${attemptSink.channels} programmes=${attemptSink.kept} spanH=$spanH
 1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerEpgLoader.kt	portal guide sourceId=${source.id} per-channel channels=${sink.channels} programmes=${sink.kept}
 1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerEpgLoader.kt	portal guide sourceId=${source.id} period=$period failed: ${e.message}
 1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerEpgLoader.kt	portal guide sourceId=${source.id} period=$period returned nothing usable
@@ -4865,7 +4866,7 @@
 1	log	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	$what transient $reason — retrying in ${wait}ms (attempt $attempt/${PAGE_ATTEMPTS - 1})
 1	technical	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	${SyncPhase.LIVE.name} genre=$genreId page=$page
 1	log	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	${e.javaClass.simpleName}: ${e.message}
-5	technical	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	*
+6	technical	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	*
 1	log	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	HTTP ${it.code}
 1	log	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	MOVIES backfill skipped sourceId=${s.id} — could not tell whether the films hold the shows
 1	log	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	MOVIES show-only categories removed sourceId=${s.id} count=$it
@@ -4886,6 +4887,9 @@
 1	url	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	http://
 1	url	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	https://
 1	log	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	itemsPerPage=$per estPages=$estPages
+1	log	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	logos: bulk has none, reading $pages pages
+1	log	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	logos: read ${logoById.size} from pages
+1	log	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	logos: the portal sends none, in either list
 1	log	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	maxPageItems=${bulk.maxPageItems} itemsOnPage1=${bulk.items.size}
 5	room-schema	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	movies
 2	room-schema	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	movies_fts

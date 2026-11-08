@@ -80,19 +80,36 @@ class StalkerEpgLoader(
         val mac = source.mac?.let { StalkerClient.canonicalizeMac(it) }
             ?: throw IOException("Stalker source ${source.id} has no valid MAC")
         val creds = source.stalkerCredentials(mac)
+        var bestSpanH = 0L
         val sink = Sink(from, to, onProgress, onBatch)
 
         var lastError: Exception? = null
+        var best: Outcome? = null
         for (period in PERIODS) {
+            // Once a smaller request has answered, only a larger one can improve on it.
+            if (best != null && period <= best.periodDays) break
+            val attemptSink = Sink(from, to, onProgress, onBatch)
             try {
-                val programmes = bulk(creds, mac, period, cacheDir, source.id, sink)
+                val programmes = bulk(creds, mac, period, cacheDir, source.id, attemptSink)
                 // A portal that answers 200 with an empty guide has told us the bulk route is useless
                 // here; fall through to the per-channel one rather than storing nothing.
                 if (programmes > 0) {
-                    sink.flush()
-                    Log.i(TAG, "portal guide sourceId=${source.id} bulk period=$period channels=${sink.channels} programmes=${sink.kept}")
-                    tv.own.owntv.core.util.GuideTrace.add("guide ok: bulk period=$period channels=${sink.channels} programmes=${sink.kept}")
-                    return Outcome(Method.BULK, period, sink.channels, sink.kept)
+                    attemptSink.flush()
+                    val spanH = attemptSink.spanHours()
+                    Log.i(TAG, "portal guide sourceId=${source.id} bulk period=$period channels=${attemptSink.channels} programmes=${attemptSink.kept} spanH=$spanH")
+                    tv.own.owntv.core.util.GuideTrace.add("guide: period=$period channels=${attemptSink.channels} programmes=${attemptSink.kept} covers ${spanH}h")
+                    val outcome = Outcome(Method.BULK, period, attemptSink.channels, attemptSink.kept)
+                    if (best == null || spanH > bestSpanH) { best = outcome; bestSpanH = spanH }
+                    // `period` is DAYS on some portals and HOURS on others. A reply covering far less than
+                    // was asked for says it was read as hours: ask again in hours (the next entries).
+                    if (spanH >= wantedSpanHours(period)) {
+                        tv.own.owntv.core.util.GuideTrace.add("guide ok: period=$period covers ${spanH}h")
+                        return outcome
+                    }
+                    // Far more than `period` hours came back, so the unit is days and the portal simply has
+                    // little guide: asking for 168 of them would be a download for nothing.
+                    if (period <= 14 && spanH > period * 2L) return outcome
+                    continue
                 }
                 Log.w(TAG, "portal guide sourceId=${source.id} period=$period returned nothing usable")
                 tv.own.owntv.core.util.GuideTrace.add("guide: period=$period returned nothing usable")
@@ -104,6 +121,7 @@ class StalkerEpgLoader(
                 tv.own.owntv.core.util.GuideTrace.add("guide: period=$period failed (${e.javaClass.simpleName})")
             }
         }
+        best?.let { return it }
 
         if (channelIds.isEmpty()) throw lastError ?: PortalHasNoGuideException()
         val programmes = perChannel(creds, mac, channelIds, sink)
@@ -200,6 +218,11 @@ class StalkerEpgLoader(
         private val seenChannels = HashSet<String>()
         var kept = 0; private set
         val channels: Int get() = seenChannels.size
+        private var minStart = Long.MAX_VALUE
+        private var maxStop = Long.MIN_VALUE
+
+        /** How many hours the kept programmes cover, first start to last stop. */
+        fun spanHours(): Long = if (kept == 0) 0L else (maxStop - minStart) / 3_600_000L
 
         suspend fun add(channelId: String, entry: StalkerClient.ShortEpgEntry) {
             // The portal keys its guide by the channel's PORTAL id, which is what StalkerSyncer stores
@@ -208,6 +231,8 @@ class StalkerEpgLoader(
             val key = channelId.trim().lowercase()
             if (key.isEmpty() || entry.stopMs <= from || entry.startMs >= to) return
             batch.add(Row(key, entry.title, entry.description, entry.startMs, entry.stopMs))
+            if (entry.startMs < minStart) minStart = entry.startMs
+            if (entry.stopMs > maxStop) maxStop = entry.stopMs
             seenChannels.add(key)
             kept++
             if (batch.size >= BATCH) flush()
@@ -239,7 +264,10 @@ class StalkerEpgLoader(
          * Days of guide to ask for, in order. Seven is what a set-top box asks for and what the app
          * retains anyway; the shorter ones exist for panels that cannot build a week in one go.
          */
-        val PERIODS = listOf(7, 3, 1)
+        val PERIODS = listOf(7, 168, 3, 72, 1, 24)
+
+        /** The hours of guide worth accepting for a request of [period]: half of it, read as days (≤ 14) or hours. */
+        fun wantedSpanHours(period: Int): Long = if (period <= 14) period * 12L else period / 2L
 
         /** Programmes per database write. */
         const val BATCH = 2_000
