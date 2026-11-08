@@ -46,6 +46,7 @@ import tv.own.owntv.mobile.ui.screens.settings.SettingsChoice
 import tv.own.owntv.mobile.ui.screens.settings.StageChoiceSheet
 import tv.own.owntv.mobile.ui.stage.StageTextRow
 import tv.own.owntv.mobile.ui.stage.LocalStagePalette
+import tv.own.owntv.mobile.ui.stage.StagePill
 import tv.own.owntv.mobile.ui.stage.StageButton
 import tv.own.owntv.mobile.ui.stage.StageButtonStyle
 import tv.own.owntv.mobile.ui.stage.StageIcon
@@ -504,22 +505,13 @@ fun AddSourceForm(
                         keyboardType = KeyboardType.Uri,
                         error = if (isInvalid) stringResource(R.string.setup_epg_url_invalid) else null,
                         trailing = {
-                            androidx.compose.foundation.layout.Box(
-                                modifier = Modifier
-                                    .size(36.dp)
-                                    .clip(RoundedCornerShape(StageRadii.MenuItem))
-                                    .background(palette.ink.copy(alpha = 0.05f))
-                                    .stageClickable(role = Role.Button) {
-                                        epgUrls = epgUrls.filterIndexed { i, _ -> i != index }
-                                    },
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                StageIcon(
-                                    icon = MobileIcons.Delete,
-                                    size = 18.dp,
-                                    tint = palette.danger,
-                                )
-                            }
+                            StagePill(
+                                onClick = {
+                                    epgUrls = epgUrls.filterIndexed { i, _ -> i != index }
+                                },
+                                icon = MobileIcons.Delete,
+                                contentDescription = stringResource(R.string.common_delete),
+                            )
                         },
                     )
                 }
