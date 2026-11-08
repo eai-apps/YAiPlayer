@@ -190,6 +190,8 @@ internal class StalkerSyncer(
         var order = 0
         var traceEmitted = 0
         var traceWithLogo = 0
+        // Logos read from the paged list when the bulk dump carries none (see below), by portal channel id.
+        val logoById = HashMap<String, String>()
         // Small flush chunk (vs Xtream's 10k fresh) so the count appears quickly instead of the UI
         // sitting on "Connecting to source…" until the first big insert — Stalker catalogs are small
         // (tens of thousands), so the extra inserts cost nothing.
@@ -203,7 +205,7 @@ internal class StalkerSyncer(
                             // A channel's own tv_genre_id wins; fall back to the genre we asked for.
                             categoryId = ch.genreId?.let { catMap[it] } ?: fallbackGenreId?.let { catMap[it] },
                             name = ch.name,
-                            logoUrl = StalkerClient.absoluteLogoUrl(creds.portalUrl, ch.logo),
+                            logoUrl = StalkerClient.absoluteLogoUrl(creds.portalUrl, ch.logo ?: logoById[ch.id]),
                             streamUrl = ch.cmd, // portal command — resolved to a real URL at play time
                             // The portal's XMLTV id when it publishes one, else its own channel id —
                             // which is the key the portal's guide (`get_epg_info`) is written under,
@@ -243,9 +245,10 @@ internal class StalkerSyncer(
                 // uses at syncPagedCatalog) and only trust the dump when it covers that total. When
                 // the probe itself fails we can't judge, so the dump is accepted as before — the
                 // catalog-shrink guard in SyncSupport still protects the prune.
+                var probePage: StalkerClient.Page<StalkerClient.Channel>? = null
                 val declaredTotal = if (bulk != null && bulk.isNotEmpty()) {
                     try {
-                        fetchPage(creds, "*", 1, budget).totalItems
+                        fetchPage(creds, "*", 1, budget).also { probePage = it }.totalItems
                     } catch (c: kotlinx.coroutines.CancellationException) {
                         throw c
                     } catch (e: Exception) {
@@ -338,6 +341,33 @@ internal class StalkerSyncer(
 
                 if (bulkComplete) {
                     Log.i(TAG, "$label get_all_channels ok count=${bulk.size} declaredTotal=$declaredTotal ms=${SystemClock.elapsedRealtime() - bulkStart}")
+                    // Some accounts get channels WITHOUT their logo from the bulk call while the paged list
+                    // (what a set-top box reads) carries them. Probe page 1 said so: read every page for the
+                    // logos alone, before the channels are written.
+                    val first = probePage
+                    if (bulk.none { !it.logo.isNullOrBlank() } && first != null) {
+                        if (first.items.any { !it.logo.isNullOrBlank() }) {
+                            val maxPer = first.maxPageItems.takeIf { it > 0 } ?: first.items.size
+                            val pages = (if (maxPer > 0) (first.totalItems + maxPer - 1) / maxPer else 1).coerceAtMost(MAX_LOGO_PAGES)
+                            tv.own.owntv.core.util.GuideTrace.add("logos: bulk has none, reading $pages pages")
+                            first.items.forEach { c -> c.logo?.let { logoById[c.id] = it } }
+                            var page = 2
+                            while (page <= pages) {
+                                ctx.ensureActive()
+                                val windowEnd = minOf(page + budget.max - 1, pages)
+                                val window = coroutineScope {
+                                    (page..windowEnd).map { p ->
+                                        async { runCatching { fetchPage(creds, "*", p, budget) }.getOrNull() }
+                                    }.awaitAll()
+                                }
+                                window.forEach { r -> r?.items?.forEach { c -> c.logo?.let { logoById[c.id] = it } } }
+                                page = windowEnd + 1
+                            }
+                            tv.own.owntv.core.util.GuideTrace.add("logos: read ${logoById.size} from pages")
+                        } else {
+                            tv.own.owntv.core.util.GuideTrace.add("logos: the portal sends none, in either list")
+                        }
+                    }
                     bulk.forEach { emit(it, null) }
                     // A complete-looking dump can still be missing whole genres — see
                     // [genresMissingFromBulk]. Ask for those directly; costs nothing when the portal
@@ -1306,6 +1336,7 @@ internal class StalkerSyncer(
             sortBase + (page - 1) * maxPageItems + indexInPage
 
         /** How many channels the field-diff diagnostic fingerprints per sync (see [logFieldFingerprints]). */
+        private const val MAX_LOGO_PAGES = 1_500
         private const val FIELD_DIFF_SAMPLE = 3
 
         /** Total attempts per page for transient 429/5xx errors (1 original + 3 retries). */
