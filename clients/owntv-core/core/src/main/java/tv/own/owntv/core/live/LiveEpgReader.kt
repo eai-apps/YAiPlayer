@@ -9,6 +9,8 @@ import tv.own.owntv.core.database.dao.EpgDao
 import tv.own.owntv.core.database.dao.SourceDao
 import tv.own.owntv.core.database.entity.ChannelEntity
 import tv.own.owntv.core.database.entity.EpgProgrammeEntity
+import tv.own.owntv.core.database.entity.computeContentHash
+import tv.own.owntv.core.epg.ArchiveGuidePlan
 import tv.own.owntv.core.epg.EpgShift
 import tv.own.owntv.core.epg.EpgSourceStore
 import tv.own.owntv.core.model.SourceType
@@ -42,6 +44,11 @@ private const val CACHE_TTL_MS = 5 * 60_000L
 
 /** How many entries the provider's short-EPG endpoint is asked for. Its own practical maximum. */
 private const val SHORT_EPG_LIMIT = 8
+
+/** A Stalker channel's day tables are read again after this long, sooner after a failure. */
+private const val PORTAL_DAYS_REFETCH_MS = 3L * 60 * 60 * 1000
+private const val PORTAL_DAYS_RETRY_MS = 10L * 60 * 1000
+private const val PORTAL_DAYS_TIMEOUT_MS = 12_000L
 
 /**
  * How many stored rows to read for Now/Next/Later. Well over the six those show, because a second
@@ -362,6 +369,57 @@ class LiveEpgReader(
         EpgNowNext(playing?.shifted(), then?.shifted())
     }
 
+
+    /** When each Stalker channel's day tables were last read — memory only, see [ensurePortalDays]. */
+    private val portalDayTries = java.util.concurrent.ConcurrentHashMap<Long, Long>()
+
+    /**
+     * Fill a Stalker channel's guide with the whole days the portal keeps: the archive's past days and
+     * today with tomorrow. The portal's bulk guide carries only a few hours per channel, so without
+     * this the catch-up list ends hours back. One read per channel every few hours, kept under a store
+     * of its own ([ArchiveGuidePlan.storeId]) and written only where the playlist's own guide rows are
+     * not, so the two never list a programme twice. A failure leaves the stored guide as it was.
+     */
+    suspend fun ensurePortalDays(ch: ChannelEntity, epgKey: String) {
+        val remoteId = ch.remoteId?.takeIf { it.isNotBlank() } ?: return
+        val now = System.currentTimeMillis()
+        synchronized(portalDayTries) {
+            val last = portalDayTries[ch.id]
+            if (last != null && now - last < PORTAL_DAYS_REFETCH_MS) return
+            portalDayTries[ch.id] = now
+        }
+        try {
+            val source = sourceDao.getById(ch.sourceId)?.takeIf { it.type == SourceType.STALKER } ?: return
+            val past = if (ch.catchup) (ch.catchupDays.takeIf { it > 0 } ?: DEFAULT_CATCHUP_DAYS).coerceIn(1, 7) else 0
+            val listed = kotlinx.coroutines.withTimeoutOrNull(PORTAL_DAYS_TIMEOUT_MS) {
+                streamUrlResolver.scheduleDays(source, remoteId, (-past..1).toList())
+            } ?: run { portalDayTries[ch.id] = now - PORTAL_DAYS_REFETCH_MS + PORTAL_DAYS_RETRY_MS; return }
+            val rows = listed.filter { it.title.isNotBlank() && it.stopMs > it.startMs }
+            if (rows.isEmpty()) return
+            val store = ArchiveGuidePlan.storeId(ch.sourceId)
+            val existing = epgDao.programmeSummariesForChannel(epgKey, Long.MIN_VALUE / 2, Long.MAX_VALUE)
+            val others = existing.filter { it.sourceId != store }
+            val lo = others.minOfOrNull { it.startMs }
+            val hi = others.maxOfOrNull { it.stopMs }
+            val keep = rows.filter { lo == null || hi == null || it.stopMs <= lo || it.startMs >= hi }
+            epgDao.clearChannelForSources(epgKey, listOf(store))
+            if (keep.isNotEmpty()) {
+                epgDao.upsertProgrammes(keep.map {
+                    EpgProgrammeEntity(
+                        sourceId = store, epgChannelId = epgKey, startMs = it.startMs, stopMs = it.stopMs,
+                        title = it.title, description = it.description,
+                    ).let { p -> p.copy(contentHash = p.computeContentHash()) }
+                })
+            }
+            tv.own.owntv.core.util.GuideTrace.add("portal days: ${keep.size} programmes added for one channel")
+        } catch (c: kotlinx.coroutines.CancellationException) {
+            throw c
+        } catch (e: Exception) {
+            portalDayTries[ch.id] = now - PORTAL_DAYS_REFETCH_MS + PORTAL_DAYS_RETRY_MS
+            tv.own.owntv.core.util.GuideTrace.add("portal days: failed (${e.javaClass.simpleName})")
+        }
+    }
+
     /** Recent (already-aired) programmes for a catch-up channel, newest first — drives the Live TV
      *  catch-up picker. Bounded to the EPG we retain (7 days) and the channel's archive window. */
     suspend fun catchupProgrammes(
@@ -373,6 +431,7 @@ class LiveEpgReader(
         if (!ch.catchup) return@withContext emptyList()
         val epgKey = (cust.epgMatchResolver.epgIdFor(ch) ?: ch.epgChannelId)
             ?.trim()?.lowercase()?.takeIf { it.isNotEmpty() } ?: return@withContext emptyList()
+        ensurePortalDays(ch, epgKey)
         val now = System.currentTimeMillis()
         val days = ch.catchupDays.takeIf { it > 0 } ?: DEFAULT_CATCHUP_DAYS
         val windowMs = (days * 24L * 60 * 60 * 1000).coerceAtMost(CATCHUP_LOOKBACK_CAP_MS)

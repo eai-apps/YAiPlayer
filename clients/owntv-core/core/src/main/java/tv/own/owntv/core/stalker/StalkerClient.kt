@@ -141,7 +141,10 @@ open class StalkerClient(okHttpClient: OkHttpClient) {
      * `tv_archive&action=create_link` expects inside its `cmd` — see [getArchiveDay]. [archived] is
      * the portal's `mark_archive`: its claim that this programme is inside the recorded window.
      */
-    data class ArchiveEntry(val id: String, val startMs: Long, val stopMs: Long, val archived: Boolean)
+    data class ArchiveEntry(
+        val id: String, val startMs: Long, val stopMs: Long, val archived: Boolean,
+        val title: String = "", val description: String? = null,
+    )
 
     /**
      * Probe the API-endpoint candidates for [portalUrl] (`portal.php`, `stalker_portal/server/
@@ -350,7 +353,11 @@ open class StalkerClient(okHttpClient: OkHttpClient) {
             val id = f["id"]?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
             val start = epgTimeMs(f["start_timestamp"], f["time"]) ?: return@mapNotNull null
             val stop = epgTimeMs(f["stop_timestamp"], f["time_to"]) ?: return@mapNotNull null
-            ArchiveEntry(id, start, stop, (f["mark_archive"]?.trim()?.toIntOrNull() ?: 0) > 0)
+            ArchiveEntry(
+                id, start, stop, (f["mark_archive"]?.trim()?.toIntOrNull() ?: 0) > 0,
+                title = f["name"]?.let(::plainTitle).orEmpty(),
+                description = f["descr"]?.takeIf { it.isNotBlank() },
+            )
         }
         return Page(total, maxPer, items)
     }

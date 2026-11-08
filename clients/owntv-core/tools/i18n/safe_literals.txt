@@ -2195,6 +2195,8 @@
 1	log	core/src/main/java/tv/own/owntv/core/live/LiveEpgReader.kt	fromStored=$fromStored fromCache=${result.size - fromStored}
 1	log	core/src/main/java/tv/own/owntv/core/live/LiveEpgReader.kt	keys=${channelKeys.map { it.second }.distinct().size} chunks=$chunks
 1	log	core/src/main/java/tv/own/owntv/core/live/LiveEpgReader.kt	live_nowplaying channels=${channels.size} keyed=${channelKeys.size}
+1	log	core/src/main/java/tv/own/owntv/core/live/LiveEpgReader.kt	portal days: ${keep.size} programmes added for one channel
+1	log	core/src/main/java/tv/own/owntv/core/live/LiveEpgReader.kt	portal days: failed (${e.javaClass.simpleName})
 1	log	core/src/main/java/tv/own/owntv/core/live/LiveEpgReader.kt	totalMs=${android.os.SystemClock.elapsedRealtime() - startedAt}
 2	preference-key	core/src/main/java/tv/own/owntv/core/live/LiveKey.kt	ALL
 2	preference-key	core/src/main/java/tv/own/owntv/core/live/LiveKey.kt	CATCHUP
@@ -4360,7 +4362,7 @@
 1	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerAuthManager.kt	status
 1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerAuthManager.kt	watchdog=${profile["watchdog_timeout"] ?: "?"} ms=${SystemClock.elapsedRealtime() - startedAt}
 2	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerAuthManager.kt	watchdog_timeout
-10	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	\0
+11	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	\0
 2	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	$1=***
 1	url	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	$VOD_EPISODE_SCHEME$movieId/$seasonId/$episodeId
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	$apiBase?type=${enc(type)}&action=create_link&cmd=${enc(cmd)}$seriesParam&forced_storage=0&disable_ad=0&JsHttpRequest=1-xml
@@ -4485,7 +4487,7 @@
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	cover
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	create_link inCmd=${redactForLog(cmd)} rawOut=${redactForLog(raw)} resolved=${redactForLog(resolved)}
 8	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	data
-2	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	descr
+3	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	descr
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	description
 1	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	do_auth answer: ${redactForLog(answer.take(300))}
 1	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	en
@@ -4518,7 +4520,7 @@
 1	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	mac=${URLEncoder.encode(mac, "UTF-8")}; stb_lang=${portalLanguage()}; timezone=${TimeZone.getDefault().id}
 5	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	max_page_items
 2	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	msg
-8	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	name
+9	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	name
 1	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	none
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	number
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	o_name
@@ -4592,13 +4594,15 @@
 1	url	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	://
 2	url	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	?
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	Portal listed no file for episode ${ref.episodeId}
-3	protocol	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	Stalker source ${source.id} has no valid MAC
+4	log	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	Stalker source ${source.id} has no valid MAC
 1	log	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	film create_link failed (${e.javaClass.simpleName}) — playing the stored URL
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	itv
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	resolveCatchup is Stalker-only
+1	technical	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	scheduleDays is Stalker-only
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	shortEpg is Stalker-only
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	tv_archive
 2	protocol	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	vod
+2	locale	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	yyyy-MM-dd
 1	file-path	core/src/main/java/tv/own/owntv/core/storage/MediaFolders.kt	$SERIES/${StorageAccess.sanitize(showName)}/$SEASON_PREFIX $seasonNumber
 1	file-path	core/src/main/java/tv/own/owntv/core/storage/MediaFolders.kt	Movies
 1	file-path	core/src/main/java/tv/own/owntv/core/storage/MediaFolders.kt	Season

@@ -1,5 +1,8 @@
 package tv.own.owntv.core.stalker
 
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.sync.withPermit
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import tv.own.owntv.core.database.entity.SourceEntity
 import tv.own.owntv.core.model.SourceType
@@ -216,8 +219,63 @@ class StreamUrlResolver(
         /** A day of guide is a handful of pages; the cap only stops a portal that miscounts its totals. */
         const val MAX_GUIDE_PAGES = 12
 
+        /** Days of one channel read at the same time. */
+        const val DAY_PARALLEL = 3
+
         /** How far a portal listing may sit from our XMLTV start and still be the same programme. */
         const val MATCH_TOLERANCE_MS = 15 * 60 * 1000L
+    }
+
+
+    /**
+     * The portal's own schedule of one channel for the calendar days [dayOffsets] (0 = today, -1 =
+     * yesterday, 1 = tomorrow), read from the per-day guide table ([StalkerClient.getArchiveDay]).
+     *
+     * The bulk `get_epg_info` only carries a few hours, while the portal keeps whole days (operators
+     * see them from the first of the month), so this is where the past days and the rest of today
+     * come from. Days are read at most [DAY_PARALLEL] at a time; a day that fails is left out rather
+     * than failing the rest. Sorted by start, one row per start time.
+     */
+    suspend fun scheduleDays(
+        source: SourceEntity, channelRemoteId: String, dayOffsets: List<Int>,
+    ): List<StalkerClient.ArchiveEntry> {
+        require(source.type == SourceType.STALKER) { "scheduleDays is Stalker-only" }
+        val mac = source.mac?.let { StalkerClient.canonicalizeMac(it) }
+            ?: throw java.io.IOException("Stalker source ${source.id} has no valid MAC")
+        val creds = source.stalkerCredentials(mac)
+        val fmt = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
+            .apply { timeZone = java.util.TimeZone.getDefault() }
+        val now = System.currentTimeMillis()
+        return stalkerAuth.withAuthRetry(creds) { session ->
+            val gate = kotlinx.coroutines.sync.Semaphore(DAY_PARALLEL)
+            kotlinx.coroutines.coroutineScope {
+                dayOffsets.map { offset ->
+                    async {
+                        gate.withPermit {
+                            val date = fmt.format(java.util.Date(now + offset * 24L * 60 * 60 * 1000))
+                            runCatching { readWholeDay(session.apiBase, mac, session.token, creds.userAgent, channelRemoteId, date) }
+                                .getOrDefault(emptyList())
+                        }
+                    }
+                }.awaitAll().flatten()
+            }.distinctBy { it.startMs }.sortedBy { it.startMs }
+        }
+    }
+
+    private suspend fun readWholeDay(
+        apiBase: String, mac: String, token: String, userAgent: String?, channelRemoteId: String, date: String,
+    ): List<StalkerClient.ArchiveEntry> {
+        val first = stalkerClient.getArchiveDay(apiBase, mac, token, userAgent, channelRemoteId, date, 1)
+        val out = ArrayList(first.items)
+        val perPage = first.maxPageItems.takeIf { it > 0 } ?: first.items.size
+        if (perPage <= 0) return out
+        val pages = ((first.totalItems + perPage - 1) / perPage).coerceAtMost(MAX_GUIDE_PAGES)
+        for (page in 2..pages) {
+            val next = stalkerClient.getArchiveDay(apiBase, mac, token, userAgent, channelRemoteId, date, page)
+            if (next.items.isEmpty()) break
+            out += next.items
+        }
+        return out
     }
 
     /**
