@@ -588,4 +588,12 @@
     <string name="setup_protect_pin">PIN (4+ digits, needed only if none is set yet)</string>
     <string name="setup_progress_connecting">Connecting to the portal and loading the channel list… this can take a few minutes. Please wait.</string>
     <string name="setup_btn_syncing">Syncing…</string>
+    <!-- Multi-EPG Source Setup -->
+    <string name="setup_epg_section_title">EPG (TV Guide) Sources</string>
+    <string name="setup_epg_add_source">Add EPG source</string>
+    <string name="setup_epg_source_label">EPG source <xliff:g id="index">%1$d</xliff:g></string>
+    <string name="setup_epg_source_priority_hint">Top sources have higher priority for overlapping guides</string>
+    <string name="setup_epg_delete_source">Delete</string>
+    <string name="setup_epg_url_invalid">Address must start with http:// or https://</string>
+    <string name="setup_epg_url_placeholder">http://example.com/epg.xml.gz</string>
 </resources>

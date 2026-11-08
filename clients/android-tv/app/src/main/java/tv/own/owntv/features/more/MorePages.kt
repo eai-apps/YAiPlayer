@@ -30,6 +30,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -543,6 +544,7 @@ internal fun ErrorLogPage(setEntry: (() -> Boolean) -> Unit, onCountChanged: () 
     var refresh by remember { mutableIntStateOf(0) }
     var exportPath by remember { mutableStateOf<String?>(null) }
     var exportFailed by remember { mutableStateOf(false) }
+    var showExportDialog by remember { mutableStateOf(false) }
     val entries by produceState<List<PlaybackErrorLog.Entry>?>(initialValue = null, refresh) {
         value = withContext(Dispatchers.IO) { PlaybackErrorLog.read(context) }
     }
@@ -555,12 +557,8 @@ internal fun ErrorLogPage(setEntry: (() -> Boolean) -> Unit, onCountChanged: () 
             Text((entries?.size ?: 0).toString(), style = stageText(22, 700), color = StageColors.Muted)
             Spacer(Modifier.weight(1f))
             // Export also carries the live diagnostics ring, so it stays even when the list is empty.
-            StageTool(stringResource(R.string.settings_export), boxed = true, icon = OwnTVIcon.DOWNLOADS, modifier = Modifier.focusRequester(exportFocus), onClick = {
-                scope.launch {
-                    val path = withContext(Dispatchers.IO) { PlaybackErrorLog.export(context) }
-                    exportPath = path
-                    exportFailed = path == null
-                }
+            StageTool(stringResource(R.string.settings_export_log), boxed = true, icon = OwnTVIcon.DOWNLOADS, modifier = Modifier.focusRequester(exportFocus), onClick = {
+                showExportDialog = true
             })
             if (!entries.isNullOrEmpty()) StageTool(stringResource(R.string.settings_clear_log), icon = OwnTVIcon.TRASH, danger = true, onClick = {
                 PlaybackErrorLog.clear(context)
@@ -587,6 +585,9 @@ internal fun ErrorLogPage(setEntry: (() -> Boolean) -> Unit, onCountChanged: () 
                     Text(line.take(150), style = stageText(13, 500), color = StageColors.Dim, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
             }
+        }
+        if (showExportDialog) {
+            LogExportDialog(onDismiss = { showExportDialog = false })
         }
         val list = entries
         when {
@@ -721,5 +722,91 @@ internal fun AboutPage(vm: MoreCountsViewModel, entry: FocusRequester, onOpenLan
     }
     if (showUpdate) {
         UpdateDialog(onDismiss = { showUpdate = false }, checkOnOpen = true)
+    }
+}
+
+@Composable
+internal fun LogExportDialog(onDismiss: () -> Unit) {
+    val context = LocalContext.current
+    val sourceDao: tv.own.owntv.core.database.dao.SourceDao = org.koin.compose.koinInject()
+    val server = remember { tv.own.owntv.player.diagnostic.LogExportServer() }
+    val state by server.state.collectAsStateWithLifecycle()
+    val stopFocus = remember { FocusRequester() }
+
+    LaunchedEffect(Unit) {
+        withContext(Dispatchers.IO) {
+            val sources = runCatching { sourceDao.all() }.getOrDefault(emptyList())
+            val content = tv.own.owntv.player.diagnostic.DiagnosticLogExporter.buildReport(context, sources)
+            server.start(content)
+        }
+        kotlinx.coroutines.delay(100)
+        runCatching { stopFocus.requestFocus() }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose { server.stop() }
+    }
+
+    val runningState = state as? tv.own.owntv.player.diagnostic.LogExportServer.State.Running
+
+    tv.own.owntv.ui.stage.StagePopup(
+        onDismiss = onDismiss,
+        title = stringResource(R.string.settings_log_export_dialog_title),
+        width = 820.mpx,
+        buttons = {
+            tv.own.owntv.ui.stage.StageButton(
+                stringResource(R.string.settings_log_export_stop),
+                onClick = onDismiss,
+                height = 56.mpx,
+                textSize = 19,
+                modifier = Modifier.focusRequester(stopFocus),
+            )
+        },
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(vertical = 12.mpx),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.mpx),
+        ) {
+            Text(
+                stringResource(R.string.settings_log_export_lan_hint),
+                style = stageText(18, 500),
+                color = StageColors.Muted,
+                modifier = Modifier.fillMaxWidth(),
+            )
+
+            if (runningState?.qrBitmap != null) {
+                androidx.compose.foundation.Image(
+                    bitmap = runningState.qrBitmap.asImageBitmap(),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(220.mpx)
+                        .background(androidx.compose.ui.graphics.Color.White, RoundedCornerShape(14.mpx))
+                        .padding(8.mpx),
+                )
+            }
+
+            if (runningState != null) {
+                Text(
+                    runningState.url,
+                    style = stageText(21, 700),
+                    color = stageAccent.accent,
+                )
+            }
+
+            if (runningState?.downloaded == true) {
+                Text(
+                    stringResource(R.string.settings_log_export_downloaded),
+                    style = stageText(18, 600),
+                    color = StageColors.TagText,
+                )
+            } else {
+                Text(
+                    stringResource(R.string.settings_log_export_expires_in, 5),
+                    style = stageText(15, 500),
+                    color = StageColors.Dim,
+                )
+            }
+        }
     }
 }

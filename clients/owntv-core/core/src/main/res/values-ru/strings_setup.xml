@@ -328,4 +328,12 @@
     <string name="setup_protect_pin">PIN-код (от 4 цифр, нужен, если ещё не задан)</string>
     <string name="setup_progress_connecting">Подключаюсь к порталу и загружаю список каналов… Это может занять несколько минут, подождите.</string>
     <string name="setup_btn_syncing">Идёт синхронизация…</string>
+    <!-- Multi-EPG Source Setup -->
+    <string name="setup_epg_section_title">Источники EPG (телегид)</string>
+    <string name="setup_epg_add_source">Добавить источник EPG</string>
+    <string name="setup_epg_source_label">Адрес EPG <xliff:g id="index">%1$d</xliff:g></string>
+    <string name="setup_epg_source_priority_hint">Источники выше по списку имеют приоритет</string>
+    <string name="setup_epg_delete_source">Удалить</string>
+    <string name="setup_epg_url_invalid">Адрес должен начинаться с http:// или https://</string>
+    <string name="setup_epg_url_placeholder">http://example.com/epg.xml.gz</string>
 </resources>

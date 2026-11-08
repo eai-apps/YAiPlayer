@@ -3022,6 +3022,8 @@
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	Unable to read catch-up channels — keeping all history this run
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	Unable to read channel EPG ids — using unfiltered guide sync
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	Unable to read custom EPG matches — using unfiltered guide sync
+1	technical	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	[
+1	technical	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	]
 1	sql	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	`contentHash`,`categories`,`year`,`rating`,`lengthMin`,`episode`) VALUES (nullif(?, 0),?,?,?,?,?,?,?,?,?,?,?,?)
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	accepted=$processedCount written=$writtenCount ms=${SystemClock.elapsedRealtime() - startedAt}
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	analyzeMs=${totalMs - (parsedAt - startedAt) - pruneMs} totalMs=$totalMs
@@ -3042,14 +3044,15 @@
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	guide gap fill failed sourceId=$sourceId
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	guide gap fill sourceId=$sourceId channelsWithoutProgrammes=${missing.size}
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	guide gap fill sourceId=$sourceId skipped — same gap and same cache as the last empty attempt
-1	url	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	http://
-1	url	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	https://
+2	protocol	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	http://
+2	protocol	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	https://
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	inserted=$inserted updated=$updated skipped=$skipped
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	ms=${SystemClock.elapsedRealtime() - startedAt}
+1	protocol	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	owntv-stalker://
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	parseMs=${parsedAt - startedAt - writeMs} writeMs=$writeMs pruneMs=$pruneMs
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	period=${outcome.periodDays} channels=${channels.size} written=$written
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	removedProgrammes=$removedProgrammes removedChannels=$removedChannels
-1	protocol	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	stalker://
+2	protocol	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	stalker://
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	windowBackH=${WINDOW_BACK_MS / 3_600_000} windowAheadH=${aheadMs / 3_600_000}
 1	technical	core/src/main/java/tv/own/owntv/core/repository/EpisodeMerge.kt	s${seasonNumber}e$episodeNumber
 1	technical	core/src/main/java/tv/own/owntv/core/repository/SeriesRepository.kt	\0
@@ -6867,3 +6870,67 @@
 1	log	player-core/src/main/java/tv/own/owntv/player/VolumeBoost.kt	volume boost failed: ${it.javaClass.simpleName}
 1	log	player-core/src/main/java/tv/own/owntv/player/VolumeBoost.kt	volume boost unavailable: ${it.javaClass.simpleName}
 1	log	player-core/src/main/java/tv/own/owntv/player/ZapTiming.kt	(zap key press to first frame ${it}ms)
+1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	$PREFIX${fmt.format(Date(timestamp))}$EXTENSION
+1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	${match.groupValues[1]}***:***@
+2	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	${match.groupValues[1]}=***
+1	regex	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	(https?://)([^:/\\s]+):([^@/\\s]+)@
+1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	*** (redacted)
+1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	--- Last Crash ---
+1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	--- Live Diagnostics ---
+8	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	----------------------------------------------------------------------
+1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	.txt
+2	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	======================================================================
+1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	Active Sources (${sources.size})
+1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	Address : $REDACTED
+1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	Android : ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})
+1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	App Version : YAiPlayer $appVer ($appCode)
+1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	Device : ${Build.MANUFACTURER} ${Build.MODEL}
+1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	EPG URLs : $REDACTED ($count feed(s) configured)
+1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	Export Time : ${dateFmt.format(Date(timestamp))}
+1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	Guide Trace
+1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	MAC : $REDACTED
+1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	Name : ${s.name}
+1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	No active sources configured.
+1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	No guide trace recorded.
+1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	No playback errors recorded.
+1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	Password : $REDACTED
+1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	Playback Error Log
+1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	PreferHls: ${s.preferHls}
+1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	Recent Errors & Live Diagnostics
+1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	Sync : Live=${s.syncLive}, Movies=${s.syncMovies}, Series=${s.syncSeries}
+1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	Type : ${s.type}
+1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	User : $REDACTED
+1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	YAiPlayer Diagnostic Report
+1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	[$timeStr] ${e.kind} · ${e.engine} · $liveStr
+1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	[Source #${idx + 1}]
+1	file-path	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	backup-share
+1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	live
+1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	raw : ${maskSensitiveText(it)}
+1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	reason: ${maskSensitiveText(it)}
+1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	spec : ${maskSensitiveText(it)}
+1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	unknown
+1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	vod
+1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	yaiplayer-log-
+1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	yyyy-MM-dd HH:mm:ss
+1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	yyyyMMdd-HHmm
+5	empty	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	\0
+1	protocol	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	&
+1	technical	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	-
+1	protocol	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	127.0.0.1
+1	protocol	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	401 Unauthorized - invalid or expired token
+1	protocol	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	=
+1	protocol	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	?
+2	protocol	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	Bad Request
+1	protocol	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	Cache-Control: no-cache, no-store, must-revalidate
+1	protocol	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	Connection: close
+1	protocol	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	Content-Disposition: attachment; filename="$filename"
+1	protocol	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	Content-Length: ${body.size}
+1	protocol	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	Content-Type: $contentType
+1	protocol	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	GET
+1	protocol	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	HTTP/1.1 $code $status
+1	protocol	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	OK
+1	protocol	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	Unauthorized
+1	protocol	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	http://$lanHost:$port/log.txt?token=$token
+1	protocol	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	text/plain
+2	protocol	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	text/plain; charset=utf-8
+1	protocol	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	token

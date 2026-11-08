@@ -180,6 +180,7 @@
 2	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	m3u8
 1	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	ts
 1	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	user_output_formats
+1	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	\0
 1	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	auto_frame_rate_reset_416
 1	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	dns_doh_url
 1	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	dns_enabled
@@ -255,3 +256,6 @@
 1	player-core/src/main/java/tv/own/owntv/player/PlayerDiagnostics.kt	\0
 1	player-core/src/main/java/tv/own/owntv/player/PlayerDiagnostics.kt	429
 1	player-core/src/main/java/tv/own/owntv/player/PlayerDiagnostics.kt	458
+1	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	(?i)(password|pass|passwd|pwd|token|signature|secret|key|api_key)=([^&\\s,;"'<>]+)
+1	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	(?i)(username|user|login)=([^&\\s,;"'<>]+)
+1	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	$h

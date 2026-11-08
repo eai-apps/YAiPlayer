@@ -154,7 +154,9 @@ fun AddSourceScreen(
     var stalkerDeviceId2 by remember(initial) { mutableStateOf(initial?.stalkerDeviceId2 ?: "") }
     var stalkerSignature by remember(initial) { mutableStateOf(initial?.stalkerSignature ?: "") }
     var showUaPresetPicker by remember { mutableStateOf(false) }
-    var epgUrl by remember(initial) { mutableStateOf(initial?.epgUrl ?: "") }
+    var epgUrls by remember(initial) {
+        mutableStateOf(tv.own.owntv.core.repository.splitGuideUrls(initial?.epgUrl))
+    }
     var userAgent by remember(initial) { mutableStateOf(initial?.userAgent ?: "") }
     var referer by remember(initial) { mutableStateOf(initial?.httpReferer ?: "") }
     var autoRefresh by remember(initialAutoRefresh) { mutableStateOf(initialAutoRefresh) }
@@ -367,7 +369,7 @@ fun AddSourceScreen(
                 when (payload.type) {
                     SourceType.M3U -> {
                         m3uUrl = payload.server
-                        epgUrl = payload.epgUrl
+                        epgUrls = tv.own.owntv.core.repository.splitGuideUrls(payload.epgUrl)
                     }
                     SourceType.STALKER -> {
                         portalUrl = payload.portalUrl
@@ -383,7 +385,7 @@ fun AddSourceScreen(
                         server = payload.server
                         username = payload.user
                         password = payload.pass
-                        epgUrl = payload.epgUrl
+                        epgUrls = tv.own.owntv.core.repository.splitGuideUrls(payload.epgUrl)
                     }
                 }
                 onRemotePayloadConsumed()
@@ -392,7 +394,7 @@ fun AddSourceScreen(
             }
             name = payload.name
             userAgent = payload.userAgent
-            epgUrl = payload.epgUrl
+            epgUrls = tv.own.owntv.core.repository.splitGuideUrls(payload.epgUrl)
             isDefault = payload.isDefault
             autoRefresh = PlaylistRefresh.parse(payload.autoRefresh)
             when (payload.type) {
@@ -445,7 +447,8 @@ fun AddSourceScreen(
     val showContentToggles = kind == SourceKind.XTREAM || kind == SourceKind.STALKER
     val hasAnySectionOn = syncLive != SyncScopeChoice.Off || syncMovies != SyncScopeChoice.Off || syncSeries != SyncScopeChoice.Off
     val macValid = tv.own.owntv.core.stalker.StalkerClient.canonicalizeMac(mac) != null
-    val canStart = when (kind) {
+    val hasInvalidEpg = (kind == SourceKind.XTREAM || kind == SourceKind.M3U) && epgUrls.any { it.isNotBlank() && !tv.own.owntv.core.repository.isValidEpgUrl(it) }
+    val canStart = !hasInvalidEpg && when (kind) {
         SourceKind.XTREAM -> server.isNotBlank() && username.isNotBlank() && password.isNotBlank() && hasAnySectionOn
         SourceKind.M3U -> m3uUrl.isNotBlank()
         SourceKind.STALKER -> tv.own.owntv.core.stalker.StalkerClient.isValidPortalUrl(portalUrl) && (mac.isBlank() || macValid) && hasAnySectionOn
@@ -474,9 +477,10 @@ fun AddSourceScreen(
                 return@submit
             }
         }
+        val finalEpgUrl = tv.own.owntv.core.repository.joinGuideUrls(epgUrls)
         when (kind) {
-            SourceKind.XTREAM -> onStartXtream(name, server, username, password, userAgent, referer, epgUrl, autoRefresh, syncLive, syncMovies, syncSeries, isDefault, preferHls)
-            SourceKind.M3U -> onStartM3u(name, m3uUrl, userAgent, referer, epgUrl, autoRefresh, isDefault)
+            SourceKind.XTREAM -> onStartXtream(name, server, username, password, userAgent, referer, finalEpgUrl, autoRefresh, syncLive, syncMovies, syncSeries, isDefault, preferHls)
+            SourceKind.M3U -> onStartM3u(name, m3uUrl, userAgent, referer, finalEpgUrl, autoRefresh, isDefault)
             SourceKind.STALKER -> onStartStalker?.invoke(
                 // A blank MAC is fine for a login-only portal: make one now and keep it, so a retry
                 // after a failure presents the same device.
@@ -522,6 +526,7 @@ fun AddSourceScreen(
         about: String? = null,
         modifier: Modifier = Modifier,
         required: Boolean = false,
+        error: String? = null,
     ) = StageFieldRow(
         icon = OwnTVIcon.PENCIL,
         label = label,
@@ -535,6 +540,7 @@ fun AddSourceScreen(
         backLabel = parent,
         submitHint = submitHint,
         modifier = modifier.then(toSubmit),
+        error = error,
     )
 
     Box(modifier.fillMaxSize()) {
@@ -771,6 +777,69 @@ fun AddSourceScreen(
                     )
                 }
             }
+        }
+
+        if (kind == SourceKind.M3U || kind == SourceKind.XTREAM) {
+            StageSettingsHeading(stringResource(R.string.setup_epg_section_title), null)
+            if (epgUrls.isNotEmpty()) {
+                StageSettingRow(
+                    icon = OwnTVIcon.EPG,
+                    title = stringResource(R.string.setup_epg_source_priority_hint),
+                    desc = null,
+                    value = SettingValue.None,
+                    onClick = {},
+                    modifier = toSubmit,
+                    help = help(stringResource(R.string.setup_epg_section_title), stringResource(R.string.setup_epg_source_priority_hint), listOf(back to parent)),
+                )
+            }
+            epgUrls.forEachIndexed { i, url ->
+                val invalid = url.isNotBlank() && !tv.own.owntv.core.repository.isValidEpgUrl(url)
+                val label = stringResource(R.string.setup_epg_source_label, i + 1)
+                val errorText = if (invalid) stringResource(R.string.setup_epg_url_invalid) else null
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.mpx),
+                    horizontalArrangement = Arrangement.spacedBy(10.mpx),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Box(modifier = Modifier.weight(1f)) {
+                        field(
+                            label = label,
+                            value = url,
+                            onChange = { newText ->
+                                val list = epgUrls.toMutableList()
+                                list[i] = newText
+                                epgUrls = list
+                            },
+                            placeholder = stringResource(R.string.setup_epg_url_placeholder),
+                            keyboardType = KeyboardType.Uri,
+                            about = errorText,
+                            error = errorText,
+                        )
+                    }
+                    StageSurface(
+                        onClick = {
+                            epgUrls = epgUrls.filterIndexed { index, _ -> index != i }
+                        },
+                        radius = StageRadii.Row,
+                        focusStyle = StageFocus.FX,
+                        modifier = Modifier.size(84.mpx).then(toSubmit),
+                    ) { focused ->
+                        Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                            OwnTVIcon(OwnTVIcon.TRASH, tint = if (focused) StageColors.Danger else StageColors.Muted, modifier = Modifier.size(24.mpx))
+                        }
+                    }
+                }
+            }
+            val addEpgTitle = stringResource(R.string.setup_epg_add_source)
+            StageSettingRow(
+                icon = OwnTVIcon.EPG,
+                title = addEpgTitle,
+                desc = null,
+                value = SettingValue.Opens(null),
+                onClick = { epgUrls = epgUrls + "" },
+                modifier = toSubmit,
+                help = help(addEpgTitle, addEpgTitle, openKeys),
+            )
         }
 
         StageSettingsHeading(stringResource(R.string.settings_form_optional), null)

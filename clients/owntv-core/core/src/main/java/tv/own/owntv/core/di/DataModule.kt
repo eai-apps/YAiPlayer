@@ -310,6 +310,7 @@ val dataModule = module {
             bulkInsertHelper = get(),
             sourceDao = get(),
             stalkerEpg = get(),
+            epgSourceStore = get(),
         )
     }
     single { tv.own.owntv.core.epg.ArchiveGuideFiller(get()) }

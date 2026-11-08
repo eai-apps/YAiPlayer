@@ -287,6 +287,7 @@ class SettingsViewModel(
         syncMovies: Boolean = true,
         syncSeries: Boolean = true,
         preferHls: Boolean = false,
+        epgUrl: String = "",
     ) {
         viewModelScope.launch {
             val existing = sourceDao.getById(id) ?: return@launch
@@ -305,6 +306,7 @@ class SettingsViewModel(
                 stalkerSignature = stalkerSignature.trim().takeIf { it.isNotBlank() },
                 userAgent = userAgent.trim().takeIf { it.isNotBlank() },
                 httpReferer = httpReferer.trim().takeIf { it.isNotEmpty() },
+                epgUrl = epgUrl.trim().takeIf { it.isNotBlank() },
                 syncLive = syncLive,
                 syncMovies = syncMovies,
                 syncSeries = syncSeries,

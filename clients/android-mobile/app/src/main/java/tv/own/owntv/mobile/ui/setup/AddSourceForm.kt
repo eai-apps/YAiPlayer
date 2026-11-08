@@ -7,6 +7,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import tv.own.owntv.mobile.ui.stage.StageRadii
+import tv.own.owntv.mobile.ui.stage.stageClickable
+import androidx.compose.ui.Alignment
+import androidx.compose.foundation.layout.size
 import tv.own.owntv.mobile.ui.stage.stageAccent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.imePadding
@@ -80,6 +83,8 @@ data class SourceFormValues(
     val movies: SyncScopeChoice = SyncScopeChoice.Now,
     val series: SyncScopeChoice = SyncScopeChoice.Now,
     val preferHls: Boolean = false,
+    val epgUrl: String = "",
+    val epgUrls: List<String> = emptyList(),
 )
 
 /**
@@ -99,9 +104,9 @@ fun AddSourceForm(
     onStartXtream: (
         name: String, server: String, username: String, password: String, userAgent: String,
         httpReferer: String, autoRefresh: PlaylistRefresh, live: SyncScopeChoice, movies: SyncScopeChoice,
-        series: SyncScopeChoice, preferHls: Boolean,
+        series: SyncScopeChoice, preferHls: Boolean, epgUrl: String,
     ) -> Unit,
-    onStartM3u: (name: String, url: String, userAgent: String, httpReferer: String, autoRefresh: PlaylistRefresh) -> Unit,
+    onStartM3u: (name: String, url: String, userAgent: String, httpReferer: String, autoRefresh: PlaylistRefresh, epgUrl: String) -> Unit,
     onStartStalker: (
         name: String, portalUrl: String, mac: String, serialNumber: String, deviceId: String,
         deviceId2: String, signature: String, userAgent: String, httpReferer: String, autoRefresh: PlaylistRefresh,
@@ -144,6 +149,12 @@ fun AddSourceForm(
     var userAgent by rememberSaveable { mutableStateOf(initial?.userAgent.orEmpty()) }
     var httpReferer by rememberSaveable { mutableStateOf(initial?.httpReferer.orEmpty()) }
     var preferHls by rememberSaveable { mutableStateOf(initial?.preferHls ?: false) }
+    var epgUrls by rememberSaveable {
+        mutableStateOf(
+            initial?.epgUrls?.takeIf { it.isNotEmpty() }
+                ?: tv.own.owntv.core.repository.splitGuideUrls(initial?.epgUrl)
+        )
+    }
     var refreshMode by rememberSaveable { mutableStateOf(initial?.autoRefresh?.mode ?: PlaylistAutoRefresh.OFF) }
     var manualDays by rememberSaveable {
         mutableStateOf((initial?.autoRefresh ?: PlaylistRefresh()).manualDays.toString())
@@ -182,7 +193,9 @@ fun AddSourceForm(
     val hasAnySection = syncLive != SyncScopeChoice.Off ||
         syncMovies != SyncScopeChoice.Off ||
         syncSeries != SyncScopeChoice.Off
-    val canStart = when (kind) {
+    val hasInvalidEpg = (kind == SourceKind.XTREAM || kind == SourceKind.M3U) &&
+        epgUrls.any { it.isNotBlank() && !tv.own.owntv.core.repository.isValidEpgUrl(it.trim()) }
+    val canStart = !hasInvalidEpg && when (kind) {
         SourceKind.XTREAM ->
             // On an edit the password field starts empty and left empty keeps the stored one.
             server.isNotBlank() && username.isNotBlank() && (password.isNotBlank() || editing) && hasAnySection
@@ -211,6 +224,8 @@ fun AddSourceForm(
         movies = syncMovies,
         series = syncSeries,
         preferHls = preferHls,
+        epgUrl = tv.own.owntv.core.repository.joinGuideUrls(epgUrls),
+        epgUrls = epgUrls.filter { it.isNotBlank() },
     )
 
     // The type as a segmented control, the fields as rows (a tap opens the field), OPTIONAL, Start import.
@@ -463,6 +478,64 @@ fun AddSourceForm(
                 }
             }
         }
+        if (kind == SourceKind.XTREAM || kind == SourceKind.M3U) {
+            item(key = "epg-head") {
+                StageSectionHead(stringResource(R.string.setup_epg_section_title))
+            }
+            if (epgUrls.isNotEmpty()) {
+                item(key = "epg-hint") {
+                    PageNote(stringResource(R.string.setup_epg_source_priority_hint))
+                }
+            }
+            epgUrls.forEachIndexed { index, url ->
+                val urlTrimmed = url.trim()
+                val isInvalid = urlTrimmed.isNotBlank() && !tv.own.owntv.core.repository.isValidEpgUrl(urlTrimmed)
+                item(key = "epg-url-$index") {
+                    StageTextRow(
+                        icon = MobileIcons.Guide,
+                        label = stringResource(R.string.setup_epg_source_label, index + 1),
+                        value = url,
+                        onSave = { updatedText ->
+                            val list = epgUrls.toMutableList()
+                            list[index] = updatedText
+                            epgUrls = list
+                        },
+                        placeholder = stringResource(R.string.setup_epg_url_placeholder),
+                        keyboardType = KeyboardType.Uri,
+                        error = if (isInvalid) stringResource(R.string.setup_epg_url_invalid) else null,
+                        trailing = {
+                            androidx.compose.foundation.layout.Box(
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .clip(RoundedCornerShape(StageRadii.MenuItem))
+                                    .background(palette.ink.copy(alpha = 0.05f))
+                                    .stageClickable(role = Role.Button) {
+                                        epgUrls = epgUrls.filterIndexed { i, _ -> i != index }
+                                    },
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                StageIcon(
+                                    icon = MobileIcons.Delete,
+                                    size = 18.dp,
+                                    tint = palette.danger,
+                                )
+                            }
+                        },
+                    )
+                }
+            }
+            item(key = "epg-add") {
+                StageSettingRow(
+                    title = stringResource(R.string.setup_epg_add_source),
+                    icon = MobileIcons.Add,
+                    onClick = {
+                        epgUrls = epgUrls + ""
+                    },
+                ) {
+                    StageIcon(MobileIcons.KeyboardArrowRight, 14.dp, palette.muted)
+                }
+            }
+        }
         item(key = "optional") { StageSectionHead(stringResource(R.string.settings_form_optional)) }
         item(key = "ua") {
             StageTextRow(MobileIcons.Edit, stringResource(R.string.setup_user_agent_optional), userAgent, { userAgent = it }, placeholder = stringResource(R.string.setup_user_agent_example))
@@ -511,12 +584,13 @@ fun AddSourceForm(
                         // after a failure presents the same device (some portals bind the login to the first MAC).
                         if (kind == SourceKind.STALKER && mac.isBlank()) mac = StalkerDeviceDerivation.randomMac()
                         onSubmitted?.invoke(values())
+                        val finalEpgUrl = tv.own.owntv.core.repository.joinGuideUrls(epgUrls)
                         when (kind) {
                             SourceKind.XTREAM -> onStartXtream(
                                 name, server, username, password, userAgent, httpReferer, autoRefresh,
-                                syncLive, syncMovies, syncSeries, preferHls,
+                                syncLive, syncMovies, syncSeries, preferHls, finalEpgUrl,
                             )
-                            SourceKind.M3U -> onStartM3u(name, m3uUrl, userAgent, httpReferer, autoRefresh)
+                            SourceKind.M3U -> onStartM3u(name, m3uUrl, userAgent, httpReferer, autoRefresh, finalEpgUrl)
                             SourceKind.STALKER -> onStartStalker(
                                 name, portalUrl, mac, serialNumber, deviceId, deviceId2, signature,
                                 userAgent, httpReferer, autoRefresh, syncLive, syncMovies, syncSeries, username, password,

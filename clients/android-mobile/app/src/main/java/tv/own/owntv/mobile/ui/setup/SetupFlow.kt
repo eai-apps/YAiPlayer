@@ -250,14 +250,14 @@ fun SetupFlow(
                     // Remote's submission fills the form; the user still presses Start import.
                     initial = lastFormValues ?: remoteInitial,
                     onSubmitted = { lastFormValues = it },
-                    onStartXtream = { name, server, user, pass, ua, referer, refresh, live, movies, series, hls ->
+                    onStartXtream = { name, server, user, pass, ua, referer, refresh, live, movies, series, hls, epgUrl ->
                         importName = name.ifBlank { defaultIptvName }
-                        vm.startXtream(importName!!, server, user, pass, ua, referer, refresh, live, movies, series, hls)
+                        vm.startXtream(importName!!, server, user, pass, ua, referer, refresh, live, movies, series, hls, epgUrl)
                         step = Step.IMPORTING
                     },
-                    onStartM3u = { name, url, ua, referer, refresh ->
+                    onStartM3u = { name, url, ua, referer, refresh, epgUrl ->
                         importName = name.ifBlank { defaultPlaylistName }
-                        vm.startM3u(importName!!, url, ua, referer, refresh)
+                        vm.startM3u(importName!!, url, ua, referer, refresh, epgUrl)
                         step = Step.IMPORTING
                     },
                     onStartStalker = { name, portal, mac, serial, dev1, dev2, sig, ua, referer, refresh, live, movies, series, login, password, loadLogos, onlyPortalEpg ->
@@ -577,6 +577,7 @@ private fun tv.own.owntv.core.companion.CompanionPayload.toFormValues(): SourceF
     live = syncLive,
     movies = syncMovies,
     series = syncSeries,
+    epgUrl = epgUrl,
 )
 
 /**
