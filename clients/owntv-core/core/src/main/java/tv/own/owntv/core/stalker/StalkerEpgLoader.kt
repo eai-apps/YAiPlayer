@@ -218,11 +218,15 @@ class StalkerEpgLoader(
         private val seenChannels = HashSet<String>()
         var kept = 0; private set
         val channels: Int get() = seenChannels.size
-        private var minStart = Long.MAX_VALUE
-        private var maxStop = Long.MIN_VALUE
+        /** Per channel: [first start, last stop]. One channel with a long guide must not speak for all. */
+        private val spans = HashMap<String, LongArray>()
 
-        /** How many hours the kept programmes cover, first start to last stop. */
-        fun spanHours(): Long = if (kept == 0) 0L else (maxStop - minStart) / 3_600_000L
+        /** How many hours a TYPICAL channel's guide covers (the median), first start to last stop. */
+        fun spanHours(): Long {
+            if (spans.isEmpty()) return 0L
+            val hours = spans.values.map { (it[1] - it[0]) / 3_600_000L }.sorted()
+            return hours[hours.size / 2]
+        }
 
         suspend fun add(channelId: String, entry: StalkerClient.ShortEpgEntry) {
             // The portal keys its guide by the channel's PORTAL id, which is what StalkerSyncer stores
@@ -231,8 +235,9 @@ class StalkerEpgLoader(
             val key = channelId.trim().lowercase()
             if (key.isEmpty() || entry.stopMs <= from || entry.startMs >= to) return
             batch.add(Row(key, entry.title, entry.description, entry.startMs, entry.stopMs))
-            if (entry.startMs < minStart) minStart = entry.startMs
-            if (entry.stopMs > maxStop) maxStop = entry.stopMs
+            val span = spans.getOrPut(key) { longArrayOf(entry.startMs, entry.stopMs) }
+            if (entry.startMs < span[0]) span[0] = entry.startMs
+            if (entry.stopMs > span[1]) span[1] = entry.stopMs
             seenChannels.add(key)
             kept++
             if (batch.size >= BATCH) flush()

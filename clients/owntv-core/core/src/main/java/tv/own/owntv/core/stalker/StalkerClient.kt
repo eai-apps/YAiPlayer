@@ -841,6 +841,7 @@ open class StalkerClient(okHttpClient: OkHttpClient) {
         HTML_TAG.replace(raw, "").replace("&nbsp;", " ").replace("&amp;", "&").trim()
 
     @Volatile private var fieldsTraced = false
+    private val logoKeys = listOf("logo", "logo_url", "icon", "icon_url", "logo_big", "img", "image", "screenshot_uri")
 
     private fun readChannel(reader: JsonReader): Channel? {
         if (reader.peek() != JsonToken.BEGIN_OBJECT) { reader.skipValue(); return null }
@@ -850,13 +851,16 @@ open class StalkerClient(okHttpClient: OkHttpClient) {
         if (!fieldsTraced) {
             fieldsTraced = true
             tv.own.owntv.core.util.GuideTrace.put("fields", f.keys.take(40).joinToString(","))
+            // Which logo-like fields exist and whether they are filled (never the values themselves).
+            val seen = f.keys.filter { it in logoKeys }.joinToString(",") { k -> if (f[k].isNullOrBlank()) "$k=empty" else "$k=set" }
+            tv.own.owntv.core.util.GuideTrace.add("logo fields: ${seen.ifEmpty { "none" }}")
         }
         return Channel(
             id = id,
             name = (f["name"] ?: f["title"])?.let(::plainTitle)?.takeIf { it.isNotBlank() } ?: id,
             number = f["number"]?.takeIf { it.isNotBlank() },
             cmd = cmd,
-            logo = f["logo"]?.takeIf { it.isNotBlank() },
+            logo = logoKeys.firstNotNullOfOrNull { k -> f[k]?.takeIf { it.isNotBlank() } },
             xmltvId = f["xmltv_id"]?.takeIf { it.isNotBlank() },
             genreId = f["tv_genre_id"]?.takeIf { it.isNotBlank() },
             archive = hasArchive(f),
