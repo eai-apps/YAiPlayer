@@ -120,7 +120,8 @@ internal fun CircleButton(icon: OwnTVIcon, size: Int, primary: Boolean = false, 
     }
 }
 
-/** A round button with its name under the glyph, so what it does is never a guess. */
+/** A round button with its name under the glyph, so what it does is never a guess. The name may take
+ *  two lines and always stays inside the circle. */
 @Composable
 internal fun LabelledCircleButton(icon: OwnTVIcon, label: String, size: Int, modifier: Modifier = Modifier, onClick: () -> Unit) {
     StageSurface(
@@ -133,11 +134,15 @@ internal fun LabelledCircleButton(icon: OwnTVIcon, label: String, size: Int, mod
         contentAlignment = Alignment.Center,
     ) { focused ->
         val tint = if (focused) hudOnAccent else hudInk
-        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-            OwnTVIcon(icon, tint = tint, filled = true, modifier = Modifier.size((size * 0.34f).dp))
+        Column(
+            Modifier.padding(horizontal = (size * 0.12f).dp),
+            horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center,
+        ) {
+            OwnTVIcon(icon, tint = tint, filled = true, modifier = Modifier.size((size * 0.28f).dp))
             androidx.tv.material3.Text(
-                label, style = tv.own.owntv.ui.theme.stageText(if (size >= 80) 17 else 12, 700), color = tint,
-                maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Clip,
+                label, style = tv.own.owntv.ui.theme.stageText(if (size >= 108) 19 else 15, 700), color = tint,
+                maxLines = 2, textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
             )
         }
     }

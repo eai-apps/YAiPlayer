@@ -1681,6 +1681,8 @@ fun OwnTVShell(
                 // position on the other engine) rather than Live TV's compatibility toggle, which would
                 // re-tune the live stream and jump the user to the current programme.
                 val isTunedLive = isLiveChannel && !catchupActive
+                // A past programme on screen: the channel's archive stays reachable (pick another day or time, or go live).
+                val archiveChannel = isLiveChannel && catchupActive
                 // Sports Hub: the extras exist only while the playing channel is one of the match's.
                 val sportsPlayback = koinInject<tv.own.owntv.features.sports.SportsPlayback>()
                 val sportsSession by sportsPlayback.session.collectAsStateWithLifecycle()
@@ -1732,23 +1734,23 @@ fun OwnTVShell(
                         ?.takeIf { recordWatchingEnabled && isTunedLive }
                         ?.let { channel -> { liveVm.togglePlayerRecording(channel) } },
                     recordingThis = playerRecording != null,
-                    onOpenHistoryList = if (isTunedLive) { { showHistoryList = true } } else null,
+                    onOpenHistoryList = if (isLiveChannel) { { showHistoryList = true } } else null,
                     onRewindLive = if (isTunedLive && canRewindLive) liveVm::rewindLive else null,
                     onForwardLive = if (isTunedLive) liveVm::forwardLive else null,
-                    onGoToLive = if (isTunedLive) liveVm::goToLive else null,
+                    onGoToLive = if (isLiveChannel) liveVm::goToLive else null,
                     onScrubLive = if (isTunedLive && canRewindLive) liveVm::scrubLive else null,
                     // Only collected where there is a timeline to draw them on.
                     liveProgrammes = if (isTunedLive && canRewindLive) timelineProgrammes else emptyList(),
                     liveGaps = liveVm::timeshiftGaps,
                     // "Go back to…" is the provider archive's: a copy saved on this device rewinds with the
                     // bar and the buttons, and must not show a catch-up control on a channel without catch-up.
-                    jumpBackOptions = if (isTunedLive && previewChannel?.catchup == true) liveVm::currentJumpOptions else null,
-                    onJumpBack = if (isTunedLive && previewChannel?.catchup == true) liveVm::jumpBackTo else null,
+                    jumpBackOptions = if ((isTunedLive || archiveChannel) && previewChannel?.catchup == true) liveVm::currentJumpOptions else null,
+                    onJumpBack = if ((isTunedLive || archiveChannel) && previewChannel?.catchup == true) liveVm::jumpBackTo else null,
                     onPreviousChannel = if (isTunedLive && previousLiveChannel != null) liveVm::previousChannel else null,
-                    jumpBackWindowSec = if (isTunedLive && previewChannel?.catchup == true) liveVm::currentCatchupWindowSec else null,
-                    jumpBackProgrammeStart = if (isTunedLive && previewChannel?.catchup == true) liveVm::currentProgrammeStart else null,
-                    jumpBackProgrammes = if (isTunedLive && previewChannel?.catchup == true) liveVm::currentCatchupProgrammes else null,
-                    onPlayProgramme = if (isTunedLive && previewChannel?.catchup == true) liveVm::playCurrentCatchupProgramme else null,
+                    jumpBackWindowSec = if ((isTunedLive || archiveChannel) && previewChannel?.catchup == true) liveVm::currentCatchupWindowSec else null,
+                    jumpBackProgrammeStart = if ((isTunedLive || archiveChannel) && previewChannel?.catchup == true) liveVm::currentProgrammeStart else null,
+                    jumpBackProgrammes = if ((isTunedLive || archiveChannel) && previewChannel?.catchup == true) liveVm::currentCatchupProgrammes else null,
+                    onPlayProgramme = if ((isTunedLive || archiveChannel) && previewChannel?.catchup == true) liveVm::playCurrentCatchupProgramme else null,
                     // Non-null only while an archive is on screen, so movies, episodes and live TV get
                     // the single real clock and catch-up gets the pair.
                     watchingWallMs = { watchingWallState.value },

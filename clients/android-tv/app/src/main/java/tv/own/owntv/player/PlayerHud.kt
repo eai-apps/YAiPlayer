@@ -716,7 +716,7 @@ fun PlayerHud(
                     player, nav, isPlaying, isLive, onRewindLive, onForwardLive, timeshiftOffset, playFocus,
                     onOpenArchive = if (onJumpBack != null) { { dialog = HudDialog.JUMP_BACK } } else null,
                     onPrevInList = onChannelUp, onNextInList = onChannelDown,
-                    onOpenRecent = onOpenHistoryList,
+                    onOpenRecent = onOpenHistoryList, onGoLive = onGoToLive,
                     modifier = Modifier.align(Alignment.Center),
                 )
 
