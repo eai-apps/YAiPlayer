@@ -43,6 +43,11 @@ fun PlaylistSheet(
     onDismiss: () -> Unit,
 ) {
     val settings: SettingsRepository = koinInject()
+    val activeProfileId by settings.activeProfileId.collectAsStateWithLifecycle(-1L)
+    val quickStartFlow = remember(activeProfileId) {
+        if (activeProfileId >= 0L) settings.quickStart(activeProfileId) else kotlinx.coroutines.flow.flowOf(false)
+    }
+    val quickStart by quickStartFlow.collectAsStateWithLifecycle(false)
     val channelDao: ChannelDao = koinInject()
     val showCounts by settings.sheetCounts.collectAsStateWithLifecycle(true)
     val counts by produceState(emptyMap<Long, Int>(), playlists) {
@@ -113,9 +118,26 @@ fun PlaylistSheet(
             )
         }
         StageMenuItem(
+            label = stringResource(if (quickStart) R.string.quick_start_on else R.string.quick_start_off),
+            onClick = {
+                scope.launch {
+                    if (activeProfileId >= 0L) {
+                        settings.setQuickStart(activeProfileId, !quickStart)
+                    }
+                }
+            },
+            icon = MobileIcons.PlayCircle,
+        )
+        StageMenuItem(
             label = stringResource(R.string.shell_resync_label),
             onClick = { askResync = true },
             icon = MobileIcons.Refresh,
+        )
+        Text(
+            stringResource(R.string.quick_start_hint),
+            style = stageText(11.5f, 500),
+            color = LocalStagePalette.current.dim,
+            modifier = Modifier.padding(start = 12.dp, end = 12.dp, top = 8.dp),
         )
         Text(
             stringResource(R.string.content_playlist_marks_note),

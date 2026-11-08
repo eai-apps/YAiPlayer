@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="quick_start_on">Quick start: on</string>
+    <string name="quick_start_off">Quick start: off</string>
+    <string name="quick_start_hint">Open the last channel full screen immediately, without choosing a profile. Turn off to choose a profile again. A profile with a PIN will still ask for the PIN.</string>
+</resources>

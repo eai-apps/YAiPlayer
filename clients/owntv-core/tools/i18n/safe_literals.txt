@@ -3318,6 +3318,7 @@
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	quick_hdr
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	quick_live_preview
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	quick_preview_sound
+2	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	quick_start_$profileId
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	recent_searches
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	record_what_im_watching
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	recording_over_mobile_data

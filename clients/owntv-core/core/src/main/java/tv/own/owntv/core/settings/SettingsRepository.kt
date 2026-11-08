@@ -721,6 +721,22 @@ class SettingsRepository(private val context: Context, private val localeStore: 
         prefs[stringPreferencesKey("startup_mode_$profileId")]?.let { runCatching { StartupMode.valueOf(it) }.getOrNull() }
             ?: if (prefs[Keys.RESUME_LAST_CHANNEL] == true) StartupMode.LAST_CHANNEL else StartupMode.HOME
     }
+    /** Quick start, per profile: enter as this profile (when it was the last used) without the chooser and
+     *  open its last channel full screen. Dynamic key like the profile's startup mode, so it needs no entry
+     *  in the settings backup lists. */
+    fun quickStart(profileId: Long): Flow<Boolean> =
+        prefsFlow { it[booleanPreferencesKey("quick_start_$profileId")] == true }
+    suspend fun setQuickStart(profileId: Long, on: Boolean) {
+        context.dataStore.edit { it[booleanPreferencesKey("quick_start_$profileId")] = on }
+    }
+
+    /** What the app actually does at launch: quick start overrides the profile's own landing. The Settings
+     *  row keeps showing [startupMode], so turning quick start off gives the old choice back untouched. */
+    fun effectiveStartupMode(profileId: Long): Flow<StartupMode> =
+        kotlinx.coroutines.flow.combine(startupMode(profileId), quickStart(profileId)) { mode, quick ->
+            if (quick) StartupMode.LAST_CHANNEL else mode
+        }
+
     suspend fun setStartupMode(profileId: Long, mode: StartupMode) {
         context.dataStore.edit { it[stringPreferencesKey("startup_mode_$profileId")] = mode.name }
     }

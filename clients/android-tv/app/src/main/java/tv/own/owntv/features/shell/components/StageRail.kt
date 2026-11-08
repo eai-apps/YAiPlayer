@@ -164,6 +164,12 @@ fun StageRail(
     val full = length == NavLength.FULL
     val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val scope = rememberCoroutineScope()
+    val settings: tv.own.owntv.core.settings.SettingsRepository = org.koin.compose.koinInject()
+    val activeProfileId by settings.activeProfileId.collectAsStateWithLifecycle(initialValue = -1L)
+    val quickStartFlow = remember(activeProfileId) {
+        if (activeProfileId >= 0L) settings.quickStart(activeProfileId) else kotlinx.coroutines.flow.flowOf(false)
+    }
+    val quickStart by quickStartFlow.collectAsStateWithLifecycle(initialValue = false)
     var hasFocus by remember { mutableStateOf(false) }
     // Search, Settings and More all land on a rail item: Search has its own, Settings lives behind More.
     val focusSection = when {
@@ -319,6 +325,22 @@ fun StageRail(
             if (full) Spacer(Modifier.weight(1f))
             RailSeparator(shown)
             RailProfile(shown, namesAlpha, profileName, profileLine.takeIf { counts }, avatarId, avatarPath, onSwitchProfile, onPickAvatar)
+            RailItem(
+                icon = OwnTVIcon.PLAY_CIRCLE,
+                label = stringResource(if (quickStart) R.string.quick_start_on else R.string.quick_start_off),
+                trailing = null,
+                detail = stringResource(R.string.quick_start_hint),
+                open = shown,
+                namesAlpha = namesAlpha,
+                active = false,
+                onClick = {
+                    scope.launch {
+                        if (activeProfileId >= 0L) {
+                            settings.setQuickStart(activeProfileId, !quickStart)
+                        }
+                    }
+                },
+            )
             if (onResync != null) {
                 RailItem(
                     icon = OwnTVIcon.REFRESH,

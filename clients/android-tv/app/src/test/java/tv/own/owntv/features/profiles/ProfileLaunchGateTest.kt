@@ -97,4 +97,15 @@ class ProfileLaunchGateTest {
         avatarColor = 0,
         avatarId = 0,
     )
+
+    @Test
+    fun `quick start skips the chooser for an unlocked profile but never a PIN`() {
+        val two = listOf(fakeProfile(1L), fakeProfile(2L))
+        assertTrue(profileGateRequired(two))
+        assertFalse(profileGateRequired(two, quickStartProfileId = 2L))
+        val locked = listOf(fakeProfile(1L), fakeProfile(2L).copy(pinHash = "locked"))
+        assertTrue(profileGateRequired(locked, quickStartProfileId = 2L))
+        assertFalse(profileGateRequired(locked, quickStartProfileId = 1L))
+        assertTrue(profileGateRequired(two, quickStartProfileId = 99L))
+    }
 }

@@ -130,8 +130,11 @@ class ProfileManager(
 const val PROFILE_AVATAR_COUNT = 10
 
 /** One unlocked profile enters the app immediately; every chooser and PIN case stays gated. */
-fun profileGateRequired(profiles: List<ProfileEntity>): Boolean =
-    profiles.size > 1 || profiles.singleOrNull()?.pinHash != null
+fun profileGateRequired(profiles: List<ProfileEntity>, quickStartProfileId: Long? = null): Boolean {
+    // Quick start enters the last used profile without the chooser, but never past a PIN.
+    if (quickStartProfileId != null && profiles.any { it.id == quickStartProfileId && it.pinHash == null }) return false
+    return profiles.size > 1 || profiles.singleOrNull()?.pinHash != null
+}
 
 /**
  * Whether the app proper may be shown yet, given what is known so far.

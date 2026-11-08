@@ -181,7 +181,13 @@ fun MobileShell(
         )
         return
     }
-    val gateRequired = profileGateRequired(loadedProfiles)
+    // Quick start (Settings): no chooser, as the last used profile; never past a PIN. Null until DataStore
+    // answers, so the chooser cannot flash for a moment first.
+    val quickStartSettings: SettingsRepository = koinInject()
+    val quickStartFlow = remember(activeId) { quickStartSettings.quickStart(activeId) }
+    val quickStart by quickStartFlow.collectAsStateWithLifecycle(null as Boolean?)
+    if (quickStart == null) return
+    val gateRequired = profileGateRequired(loadedProfiles, if (quickStart == true) activeId else null)
     // With no chooser needed (one profile, no PIN) the person using the app has entered as that profile;
     // so adding a second profile keeps them in rather than throwing them to "Who's watching?".
     LaunchedEffect(gateRequired, activeId) { if (!gateRequired) gateSession.unlock(activeId) }
