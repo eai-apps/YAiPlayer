@@ -32,6 +32,8 @@ class SettingsBackupCoverageTest {
         "last_update_check_at",
         // A Room channel id — meaningless after the next sync.
         "last_live_channel",
+        // This television's launch behaviour, not the viewer's choice (like Auto start).
+        "quick_start",
         // Backed up in their own BackupManager blocks, remapped to this device's playlists / EPG sources.
         "playlist_auto_refresh", "epg_auto_refresh", "epg_use_logos", "refresh_source_ids",
         // Exported only in their portable forms (backupLastCategoryKeys).
