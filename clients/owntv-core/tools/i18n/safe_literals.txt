@@ -5972,6 +5972,7 @@
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	frames=$frames dropped=$dropped isPlaying=${p.isPlaying}
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	hardware
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	hardware decoding is ON but '$decoderName' is a software decoder —
+1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	hardware video decoder gave no usable picture — reopening with the software decoder first
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	health posMs=$pos bufferMs=${p.totalBufferedDuration} liveOffsetMs=${liveOffset ?: -1}
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	hevc
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	hls
@@ -6024,7 +6025,7 @@
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	play() failed: ${it.message}
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	playback healthy for ${HEALTHY_MS}ms — reconnect ladder reset
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	playback kept re-buffering ($detail)
-1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	player stale (load_control was=$builtLoadControl want=$wanted, hw decoding was=$builtHwDecoding want=$hwDecodingEnabled) — rebuilding player
+1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	player stale (load_control was=$builtLoadControl want=$wanted, hw decoding was=$builtHwDecoding want=$wantHw) — rebuilding player
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	player_error code=${error.errorCodeName} hasPlayed=${tune.hasPlayed}
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	playing — READY, spinner cleared, stallWatchdog cancelled
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	pos=${p?.currentPosition} buffered=${p?.bufferedPosition} hasPlayed=${tune.hasPlayed}
