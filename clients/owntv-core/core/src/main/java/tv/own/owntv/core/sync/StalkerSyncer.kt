@@ -287,7 +287,7 @@ internal class StalkerSyncer(
                         val maxPer = first.maxPageItems.takeIf { it > 0 } ?: first.items.size
                         val pages = (if (maxPer > 0) (first.totalItems + maxPer - 1) / maxPer else 1)
                             .coerceAtMost(MAX_PAGES_PER_GENRE)
-                        Log.i(TAG, "$label genre ${gi + 1}/${list.size} id=${genre.id} '${genre.title}' total=${first.totalItems} maxPer=$maxPer pages=$pages")
+                        Log.i(TAG, "$label genre ${gi + 1}/${list.size} id=${genre.id} '${genre.title}' total=${first.totalItems} maxPer=$maxPer pages=$pages sample=${first.items.take(3).joinToString(" | ") { it.title.orEmpty() }}")
                         var page = 2
                         val missed = ArrayList<Int>()
                         while (page <= pages) {
