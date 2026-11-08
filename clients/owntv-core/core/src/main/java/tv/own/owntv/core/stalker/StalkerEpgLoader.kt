@@ -102,7 +102,7 @@ class StalkerEpgLoader(
                     if (best == null || spanH > bestSpanH) { best = outcome; bestSpanH = spanH }
                     // `period` is DAYS on some portals and HOURS on others. A reply covering far less than
                     // was asked for says it was read as hours: ask again in hours (the next entries).
-                    if (spanH >= wantedSpanHours(period)) {
+                    if (spanH >= wantedSpanHours(period, (to - from) / 3_600_000L)) {
                         tv.own.owntv.core.util.GuideTrace.add("guide ok: period=$period covers ${spanH}h")
                         return outcome
                     }
@@ -267,7 +267,8 @@ class StalkerEpgLoader(
         val PERIODS = listOf(7, 168, 3, 72, 1, 24)
 
         /** The hours of guide worth accepting for a request of [period]: half of it, read as days (≤ 14) or hours. */
-        fun wantedSpanHours(period: Int): Long = if (period <= 14) period * 12L else period / 2L
+        fun wantedSpanHours(period: Int, windowHours: Long = Long.MAX_VALUE): Long =
+            minOf(if (period <= 14) period * 12L else period / 2L, windowHours / 2)
 
         /** Programmes per database write. */
         const val BATCH = 2_000

@@ -135,7 +135,7 @@ class StalkerEpgInfoParseTest {
 
     @Test
     fun crawl_takesTheFullWeekWhenThePortalServesIt() {
-        val client = FakeClient(bulk = mapOf(7 to listOf("1234" to entry("News", from + 1000, from + 2000, "The news"))))
+        val client = FakeClient(bulk = mapOf(7 to listOf("1234" to entry("News", from + 1000, from + 30L * 3_600_000L, "The news"))))
         val rows = ArrayList<StalkerEpgLoader.Row>()
         val outcome = crawl(client, rows = rows)
 
@@ -144,6 +144,34 @@ class StalkerEpgInfoParseTest {
         assertEquals(listOf(7), client.periodsTried)
         assertEquals("1234", rows.single().epgChannelId)
         assertEquals("The news", rows.single().description)
+    }
+
+    /** A portal that reads `period` as hours: 7 gives about seven hours, so 168 is asked for next. */
+    @Test
+    fun crawl_asksInHoursWhenThePortalReadsThePeriodAsHours() {
+        val hour = 3_600_000L
+        val client = FakeClient(
+            bulk = mapOf(
+                7 to listOf("1" to entry("Now", from, from + 7 * hour)),
+                168 to listOf("1" to entry("Week", from, from + 40 * hour)),
+            ),
+        )
+        val outcome = crawl(client)
+
+        assertEquals(168, outcome.periodDays)
+        assertEquals(listOf(7, 168), client.periodsTried)
+    }
+
+    /** A portal that counts days: a small guide must not trigger a second, pointless download. */
+    @Test
+    fun crawl_doesNotAskAgainWhenDaysAlreadyGaveMoreThanHours() {
+        val hour = 3_600_000L
+        val client = FakeClient(bulk = mapOf(7 to listOf("1" to entry("Show", from, from + 20 * hour))))
+        // Window of 48h caps the target at 24h; 20h is under it but well over 2*7... so stop.
+        val outcome = crawl(client)
+
+        assertEquals(7, outcome.periodDays)
+        assertEquals(listOf(7), client.periodsTried)
     }
 
     /** A portal that cannot build a week is asked for less before anything drastic happens. */
@@ -199,7 +227,7 @@ class StalkerEpgInfoParseTest {
     @Test
     fun crawl_treatsAnEmptyBulkAnswerAsAFailure() {
         val client = FakeClient(
-            bulk = mapOf(7 to emptyList(), 3 to emptyList(), 1 to emptyList()),
+            bulk = StalkerEpgLoader.PERIODS.associateWith { emptyList<Pair<String, StalkerClient.ShortEpgEntry>>() },
             perChannel = mapOf("aa" to listOf(entry("One", from + 10, from + 20))),
         )
         val outcome = crawl(client, channelIds = listOf("aa"))
@@ -216,7 +244,7 @@ class StalkerEpgInfoParseTest {
      */
     @Test
     fun crawl_reportsAPortalWithNothingToGiveAsAFinalAnswer() {
-        val client = FakeClient(bulk = mapOf(7 to emptyList(), 3 to emptyList(), 1 to emptyList()))
+        val client = FakeClient(bulk = StalkerEpgLoader.PERIODS.associateWith { emptyList<Pair<String, StalkerClient.ShortEpgEntry>>() })
         assertThrows(StalkerEpgLoader.PortalHasNoGuideException::class.java) { crawl(client) }
     }
 
@@ -243,7 +271,7 @@ class StalkerEpgInfoParseTest {
     @Test
     fun crawl_stopsAskingOnceEnoughChannelsHaveAnsweredEmpty() {
         val client = FakeClient(
-            bulk = mapOf(7 to emptyList(), 3 to emptyList(), 1 to emptyList()),
+            bulk = StalkerEpgLoader.PERIODS.associateWith { emptyList<Pair<String, StalkerClient.ShortEpgEntry>>() },
             perChannelDefault = emptyList(),
         )
         val ids = (1..1_000).map { "ch$it" }
@@ -259,7 +287,7 @@ class StalkerEpgInfoParseTest {
     @Test
     fun crawl_keepsAskingOnceAChannelHasProduced() {
         val client = FakeClient(
-            bulk = mapOf(7 to emptyList(), 3 to emptyList(), 1 to emptyList()),
+            bulk = StalkerEpgLoader.PERIODS.associateWith { emptyList<Pair<String, StalkerClient.ShortEpgEntry>>() },
             perChannel = mapOf("ch1" to listOf(entry("One", from + 10, from + 20))),
             perChannelDefault = emptyList(),
         )
