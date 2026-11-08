@@ -1,5 +1,5 @@
 name: Daily digest to Telegram
-# One post a day at 09:00 Berlin about the previous day's releases. GitHub cron is UTC only, so it is
+# One post a day at 09:00 Berlin about everything released since 09:00 the day before (no post if nothing was). GitHub cron is UTC only, so it is
 # triggered at both 07:00 and 08:00 UTC and the job runs only when it is 09:xx in Berlin.
 on:
   schedule:
@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       day:
-        description: "Дата для дайджеста (YYYY-MM-DD), пусто = вчера"
+        description: "Окно заканчивается в 09:00 этой даты (YYYY-MM-DD), пусто = сегодня"
         required: false
 permissions:
   contents: read
@@ -30,4 +30,4 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           f=$(python3 telegram-release/daily_digest.py "${{ inputs.day }}")
-          if [ -n "$f" ]; then python3 telegram-release/post_release.py --announce-file "$f"; else echo "no releases yesterday"; fi
+          if [ -n "$f" ]; then python3 telegram-release/post_release.py --announce-file "$f"; else echo "no releases in the last 24 hours"; fi
