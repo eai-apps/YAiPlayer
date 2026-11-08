@@ -287,6 +287,8 @@ internal fun CenterControls(
     onOpenArchive: (() -> Unit)? = null,
     onPrevInList: (() -> Unit)? = null, onNextInList: (() -> Unit)? = null,
     onOpenRecent: (() -> Unit)? = null,
+    /** Back to the live edge, shown while an archive is playing. */
+    onGoLive: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
     val seekStep by player.seekStepMs.collectAsStateWithLifecycle() // Settings -> Seek step
@@ -304,10 +306,12 @@ internal fun CenterControls(
             )
             Spacer(Modifier.height(12.dp))
         }
+        // Live channel or its archive (an archive plays as a seekable stream, so isLive is false there).
+        val liveLike = isLive || onOpenArchive != null
         TransportCapsule {
-            if (isLive && onPrevInList != null) LabelledCircleButton(OwnTVIcon.SKIP_PREVIOUS, stringResource(R.string.player_previous_channel_in_list), size = 56) { onPrevInList() }
+            if (liveLike && onPrevInList != null) LabelledCircleButton(OwnTVIcon.SKIP_PREVIOUS, stringResource(R.string.player_btn_prev_channel), size = 100) { onPrevInList() }
             if (nav.hasPrev) CircleButton(OwnTVIcon.SKIP_PREVIOUS, size = 44) { player.previous() }
-            if (isLive && onOpenArchive != null) LabelledCircleButton(OwnTVIcon.CATCHUP, stringResource(R.string.player_tool_catchup), size = 84) { onOpenArchive() }
+            if (liveLike && onOpenArchive != null) LabelledCircleButton(OwnTVIcon.CATCHUP, stringResource(R.string.player_tool_catchup), size = 112) { onOpenArchive() }
             when {
                 // Seeking inside a running archive only; at the live edge the Archive button is the way back.
                 rewindMode -> if (timeshifting || onOpenArchive == null) CircleButton(OwnTVIcon.REWIND, size = 44) { onRewindLive() }
@@ -318,11 +322,11 @@ internal fun CenterControls(
                 rewindMode && timeshifting -> CircleButton(OwnTVIcon.FORWARD, size = 44) { onForwardLive?.invoke() } // toward live
                 !isLive && !rewindMode -> CircleButton(OwnTVIcon.FORWARD, size = 44) { player.seekBy(seekStep) }
             }
-            // "Go to live" is no longer a transport button: it is the Go Live pill at the head of the
-            // dock's left cluster, beside the timeline it acts on.
+            // From an archive, one press back to the live picture.
+            if (onGoLive != null && (timeshifting || !isLive)) LabelledCircleButton(OwnTVIcon.LIVE_DOT, stringResource(R.string.player_go_live), size = 100) { onGoLive() }
             if (nav.hasNext) CircleButton(OwnTVIcon.SKIP_NEXT, size = 44) { player.next() }
-            if (isLive && onNextInList != null) LabelledCircleButton(OwnTVIcon.SKIP_NEXT, stringResource(R.string.player_next_channel_in_list), size = 56) { onNextInList() }
-            if (isLive && onOpenRecent != null) LabelledCircleButton(OwnTVIcon.HISTORY, stringResource(R.string.player_recent_channels), size = 56) { onOpenRecent() }
+            if (liveLike && onNextInList != null) LabelledCircleButton(OwnTVIcon.SKIP_NEXT, stringResource(R.string.player_btn_next_channel), size = 100) { onNextInList() }
+            if (liveLike && onOpenRecent != null) LabelledCircleButton(OwnTVIcon.HISTORY, stringResource(R.string.player_btn_recent_channels), size = 100) { onOpenRecent() }
         }
     }
 }
@@ -427,9 +431,8 @@ internal fun BottomBar(
                         // catch-up channels. CATCHUP (a TV with a replay loop): REWIND is already the
                         // transport button beside it, and a plain clock would not say which of the
                         // two time controls this is.
-                        PlayerControl.CATCH_UP -> if (onOpenJumpBack != null) {
-                            CtrlButton(OwnTVIcon.CATCHUP, label = stringResource(R.string.player_tool_catchup)) { onOpenJumpBack() }
-                        }
+                        // Archive now lives on the big round button in the centre pill; no second one here.
+                        PlayerControl.CATCH_UP -> Unit
                         // Back to the channel watched before; present only once there is one.
                         PlayerControl.PREVIOUS_CHANNEL -> if (onPreviousChannel != null) {
                             CtrlButton(OwnTVIcon.HISTORY, label = stringResource(R.string.player_previous_channel)) { onPreviousChannel() }

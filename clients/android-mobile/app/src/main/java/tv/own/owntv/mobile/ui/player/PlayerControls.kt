@@ -5,6 +5,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -139,6 +140,8 @@ fun PlayerControls(
      */
     onChannelPrevious: (() -> Unit)? = null,
     onChannelNext: (() -> Unit)? = null,
+    /** An archive programme is playing (the channel is known, the picture is not the live edge). */
+    replaying: Boolean = false,
     // Live only, and only once Multiview is switched on in Settings. Null hides the button.
     onMultiview: (() -> Unit)? = null,
     /** Files a diagnostic report about the stream on screen. */
@@ -207,6 +210,9 @@ fun PlayerControls(
             TransportRow(
                 player = engine,
                 isLive = isLive,
+                onCatchup = onCatchup,
+                // From an archive, one press back to the live picture.
+                onGoLive = if (replaying) onGoLive else null,
                 onSkipLive = onSkipLive,
                 // Forward only while behind live, as on the television: at the edge there is nothing ahead.
                 behindLive = behindLive,
@@ -324,6 +330,8 @@ private fun TransportRow(
     isLive: Boolean,
     onSkipLive: ((forward: Boolean) -> Unit)?,
     behindLive: Boolean,
+    onCatchup: (() -> Unit)? = null,
+    onGoLive: (() -> Unit)? = null,
     /** Step within the channel list; null hides the button (live only). */
     onChannelPrevious: (() -> Unit)? = null,
     onChannelNext: (() -> Unit)? = null,
@@ -334,45 +342,76 @@ private fun TransportRow(
     // Whether there is an episode either side of this one. The engine answers "no" for a film and for
     // live, so the two buttons appear only where they mean something.
     val nav by player.nav.collectAsStateWithLifecycle()
-    TransportCapsule(modifier) {
-        // The phone used to reach the next episode only through the card that appears in the last
-        // thirty seconds — so skipping the end credits meant leaving the player, finding the series
-        // and picking the episode. The television has had both of these beside play all along.
-        if (nav.hasPrev) {
-            RoundControl(MobileIcons.SkipPrevious, R.string.settings_remote_button_previous) {
-                player.previous()
+    // A live channel or its archive: an archive plays as a seekable stream, so isLive is false there.
+    val liveLike = isLive || onCatchup != null || onGoLive != null
+    Column(modifier, horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        TransportCapsule {
+            if (nav.hasPrev) {
+                RoundControl(MobileIcons.SkipPrevious, R.string.settings_remote_button_previous) { player.previous() }
+            }
+            if (liveLike && onCatchup != null) {
+                LabelledRoundControl(MobileIcons.Catchup, R.string.player_tool_catchup, size = 80.dp, onClick = onCatchup)
+            }
+            if (!isLive) {
+                RoundControl(MobileIcons.FastRewind, R.string.player_skip_back) { player.seekBy(-step) }
+            } else if (onSkipLive != null) {
+                // Live, on a channel that can be rewound (catch-up, or its saved copy): the television's buttons.
+                RoundControl(MobileIcons.FastRewind, R.string.player_skip_back) { onSkipLive(false) }
+            }
+            RoundControl(
+                icon = if (playing) MobileIcons.Pause else MobileIcons.PlayArrow,
+                labelRes = R.string.settings_remote_action_play_pause,
+                size = 68.dp,
+                onClick = { player.togglePlayPause() },
+            )
+            if (!isLive) {
+                RoundControl(MobileIcons.FastForward, R.string.player_skip_forward) { player.seekBy(step) }
+            } else if (onSkipLive != null && behindLive) {
+                RoundControl(MobileIcons.FastForward, R.string.player_skip_forward) { onSkipLive(true) }
+            }
+            if (onGoLive != null) {
+                LabelledRoundControl(MobileIcons.PlayArrow, R.string.player_go_live, size = 72.dp, onClick = onGoLive)
+            }
+            if (nav.hasNext) {
+                RoundControl(MobileIcons.SkipNext, R.string.settings_remote_button_next) { player.next() }
             }
         }
-        // Live: the previous/next channel of the same category at the capsule's outer ends, so a
-        // thumb can zap without opening the channel list. Hidden with a single-channel list.
-        if (isLive && onChannelPrevious != null) {
-            RoundControl(MobileIcons.SkipPrevious, R.string.player_previous_channel_in_list) {
-                onChannelPrevious()
+        // Live or archive: the neighbouring channels of the list, named in full so nobody has to guess.
+        if (liveLike && (onChannelPrevious != null || onChannelNext != null)) {
+            TransportCapsule {
+                if (onChannelPrevious != null) {
+                    LabelledRoundControl(MobileIcons.SkipPrevious, R.string.player_btn_prev_channel, size = 76.dp, onClick = onChannelPrevious)
+                }
+                if (onChannelNext != null) {
+                    LabelledRoundControl(MobileIcons.SkipNext, R.string.player_btn_next_channel, size = 76.dp, onClick = onChannelNext)
+                }
             }
         }
-        if (!isLive) {
-            RoundControl(MobileIcons.FastRewind, R.string.player_skip_back) { player.seekBy(-step) }
-        } else if (onSkipLive != null) {
-            // Live, on a channel that can be rewound (catch-up, or its saved copy): the television's buttons.
-            RoundControl(MobileIcons.FastRewind, R.string.player_skip_back) { onSkipLive(false) }
-        }
-        RoundControl(
-            icon = if (playing) MobileIcons.Pause else MobileIcons.PlayArrow,
-            labelRes = R.string.settings_remote_action_play_pause,
-            size = 68.dp,
-            onClick = { player.togglePlayPause() },
+    }
+}
+
+/** A round button with its name under the glyph, in up to two lines that stay inside the circle. */
+@Composable
+private fun LabelledRoundControl(icon: ImageVector, labelRes: Int, size: Dp, onClick: () -> Unit) {
+    Column(
+        Modifier
+            .size(size)
+            .clip(SquircleShape(size / 2))
+            .background(Color.White.copy(alpha = 0.14f))
+            .clickable(onClick = onClick)
+            .padding(horizontal = 6.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Icon(icon, null, tint = Color.White, modifier = Modifier.size(size * 0.3f))
+        Text(
+            stringResource(labelRes),
+            color = Color.White,
+            style = MaterialTheme.typography.labelSmall,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
         )
-        if (!isLive) {
-            RoundControl(MobileIcons.FastForward, R.string.player_skip_forward) { player.seekBy(step) }
-        } else if (onSkipLive != null && behindLive) {
-            RoundControl(MobileIcons.FastForward, R.string.player_skip_forward) { onSkipLive(true) }
-        }
-        if (nav.hasNext) {
-            RoundControl(MobileIcons.SkipNext, R.string.settings_remote_button_next) { player.next() }
-        }
-        if (isLive && onChannelNext != null) {
-            RoundControl(MobileIcons.SkipNext, R.string.player_next_channel_in_list) { onChannelNext() }
-        }
     }
 }
 
@@ -593,9 +632,8 @@ private fun ToolBar(
                 active = favorite,
             )
             // The television's catch-up glyph, not History.
-            PlayerControl.CATCH_UP -> if (onCatchup != null) {
-                CtrlButton(MobileIcons.Catchup, stringResource(R.string.content_catchup_jump), onCatchup)
-            }
+            // Archive now lives on the big round button in the middle of the screen; no second one here.
+            PlayerControl.CATCH_UP -> Unit
             // The television's glyph for it, History; present only once there is a channel to go back to.
             PlayerControl.PREVIOUS_CHANNEL -> if (onPreviousChannel != null) {
                 CtrlButton(MobileIcons.History, stringResource(R.string.player_previous_channel), onPreviousChannel)
