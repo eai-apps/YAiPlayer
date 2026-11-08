@@ -332,7 +332,7 @@ internal fun LiveStagePane(
                 }
             }
             val next = nowNext?.next
-            val later = nowNext?.upcoming.orEmpty().take(5)
+            val later = nowNext?.upcoming.orEmpty().take(10)
             if (next != null) {
                 Column(
                     Modifier
@@ -347,7 +347,7 @@ internal fun LiveStagePane(
                             if (e.type == KeyEventType.KeyDown && e.key == Key.DirectionLeft) { onBackToList(); true } else false
                         },
                     )
-                    // Up to three more lines of the guide: the pane has room for what is coming after "next".
+                    // Up to ten more lines of the guide: the pane has room for what is coming after "next".
                     later.forEach { p ->
                         LiveScheduleItem(
                             p, accentTime = false, onClick = { onOpenProgramme(p) },
