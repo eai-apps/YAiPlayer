@@ -445,8 +445,8 @@ private fun EditPlaylistDialog(
                 StagePill(onClick = onDismiss, icon = MobileIcons.Close, contentDescription = stringResource(R.string.settings_close))
             }
             AddSourceForm(
-                onStartXtream = { _, _, _, _, _, _, _, _, _, _, _ -> },
-                onStartM3u = { _, _, _, _, _ -> },
+                onStartXtream = { _, _, _, _, _, _, _, _, _, _, _, _ -> },
+                onStartM3u = { _, _, _, _, _, _ -> },
                 onStartStalker = { _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ -> },
                 initial = source.toFormValues(),
                 onSave = onSave,
