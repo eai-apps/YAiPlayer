@@ -1745,4 +1745,11 @@
     <string name="settings_epg_builtin_feed_failed">Fehlgeschlagen – zum Wiederholen tippen</string>
     <string name="settings_sources_use_other_profiles">Playlists anderer Profile</string>
     <string name="settings_sources_guide_logos">Logos aus dem Guide</string>
+    <string name="settings_export_log">Diagnoseprotokoll exportieren</string>
+    <string name="settings_log_export_dialog_title">Diagnoseprotokoll-Export</string>
+    <string name="settings_log_export_lan_hint">Scannen Sie den QR-Code oder öffnen Sie diese Adresse im Browser auf Ihrem Smartphone oder Computer im selben WLAN-Netzwerk:</string>
+    <string name="settings_log_export_expires_in">Der Server wird in %1$d Min. oder nach dem Download automatisch heruntergefahren</string>
+    <string name="settings_log_export_downloaded">Datei erfolgreich heruntergeladen</string>
+    <string name="settings_log_export_stop">Server stoppen</string>
+    <string name="settings_log_export_share_title">Diagnoseprotokoll teilen</string>
 </resources>

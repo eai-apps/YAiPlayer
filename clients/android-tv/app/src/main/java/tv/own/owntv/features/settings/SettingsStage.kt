@@ -914,6 +914,7 @@ fun StageFieldRow(
     /** "▶ Start Import" on a form whose button sits in the panel; a password row's ▶ shows the text instead. */
     submitHint: Pair<String, String>? = null,
     badge: String? = null,
+    error: String? = null,
 ) {
     val a = stageAccent
     val panel = LocalSettingsPanel.current
@@ -1017,6 +1018,9 @@ fun StageFieldRow(
                         visualTransformation = if (password && !shown) androidx.compose.ui.text.input.PasswordVisualTransformation()
                             else androidx.compose.ui.text.input.VisualTransformation.None,
                     )
+                }
+                if (error != null) {
+                    Text(error, style = stageText(13.5f, 500), color = StageColors.Danger, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 2.mpx))
                 }
             }
             // Without a settings panel (the setup wizard, a popup) nothing else tells the user ▶ shows the password.

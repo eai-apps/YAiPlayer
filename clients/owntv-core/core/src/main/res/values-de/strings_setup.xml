@@ -321,4 +321,12 @@
     <string name="setup_protect_pin">PIN (mind. 4 Ziffern, nur nötig, falls noch keine gesetzt ist)</string>
     <string name="setup_progress_connecting">Verbinde mit dem Portal und lade die Senderliste … das kann einige Minuten dauern. Bitte warten.</string>
     <string name="setup_btn_syncing">Synchronisierung läuft …</string>
+    <!-- Multi-EPG Source Setup -->
+    <string name="setup_epg_section_title">EPG-Quellen (Programmführer)</string>
+    <string name="setup_epg_add_source">EPG-Quelle hinzufügen</string>
+    <string name="setup_epg_source_label">EPG-Adresse <xliff:g id="index">%1$d</xliff:g></string>
+    <string name="setup_epg_source_priority_hint">Höhere Quellen in der Liste haben Priorität</string>
+    <string name="setup_epg_delete_source">Löschen</string>
+    <string name="setup_epg_url_invalid">Adresse muss mit http:// oder https:// beginnen</string>
+    <string name="setup_epg_url_placeholder">http://example.com/epg.xml.gz</string>
 </resources>

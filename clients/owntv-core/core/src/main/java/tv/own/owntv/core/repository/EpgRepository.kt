@@ -54,6 +54,7 @@ class EpgRepository(
     private val bulkInsertHelper: BulkInsertHelper,
     private val sourceDao: tv.own.owntv.core.database.dao.SourceDao,
     private val stalkerEpg: tv.own.owntv.core.stalker.StalkerEpgLoader,
+    private val epgSourceStore: tv.own.owntv.core.epg.EpgSourceStore? = null,
 ) {
 
     /** Where a source's downloaded XMLTV is cached, so a later smart-match can top up programmes from it
@@ -302,8 +303,30 @@ class EpgRepository(
      * refreshed through [refreshUrl] like any other feed.
      */
     suspend fun refresh(source: SourceEntity, onProgress: (channels: Int, programmes: Int) -> Unit = { _, _ -> }): Int {
-        val url = guideUrls(source).firstOrNull() ?: return 0
-        return refreshUrl(source.id, url, source.userAgent, onProgress)
+        val urls = guideUrls(source)
+        if (urls.isEmpty()) return 0
+        val store = epgSourceStore
+        var total = 0
+        var anySucceeded = false
+        var failure: Exception? = null
+        for ((index, url) in urls.withIndex()) {
+            val storeId = store?.ensure(source.name, url, source.userAgent)?.id
+                ?: if (index == 0) source.id else -(source.id * 1000 + index)
+            val now = System.currentTimeMillis()
+            try {
+                val written = refreshUrl(storeId, url, source.userAgent, onProgress)
+                store?.setSynced(storeId, now, null)
+                total += written
+                anySucceeded = true
+            } catch (c: CancellationException) {
+                throw c
+            } catch (e: Exception) {
+                store?.setSynced(storeId, now, e.message)
+                failure = e
+            }
+        }
+        if (failure != null && !anySucceeded) throw failure
+        return total
     }
 
     /**
@@ -1162,9 +1185,48 @@ private class ProgrammeHashTracker(
  * keeps the Stalker portal marker URL intact. Whitespace is trimmed and duplicates dropped.
  */
 fun splitGuideUrls(raw: String?): List<String> {
-    val url = raw?.trim()?.takeIf { it.isNotBlank() } ?: return emptyList()
-    if (',' !in url) return listOf(url)
-    val parts = url.split(',').map { it.trim() }
-    if (parts.any { !it.startsWith("http://", true) && !it.startsWith("https://", true) }) return listOf(url)
-    return parts.distinct()
+    val text = raw?.trim()?.takeIf { it.isNotBlank() } ?: return emptyList()
+    if (text.startsWith("[") && text.endsWith("]")) {
+        val parsed = runCatching {
+            val array = org.json.JSONArray(text)
+            (0 until array.length()).mapNotNull {
+                array.optString(it)?.trim()?.takeIf { s -> s.isNotBlank() }
+            }
+        }.getOrNull()
+        if (parsed != null && parsed.isNotEmpty()) {
+            return parsed.distinct()
+        }
+    }
+    val lines = text.lines().map { it.trim() }.filter { it.isNotBlank() }
+    val results = mutableListOf<String>()
+    for (line in lines) {
+        if (',' in line) {
+            val parts = line.split(',').map { it.trim() }
+            if (parts.all { it.startsWith("http://", true) || it.startsWith("https://", true) }) {
+                results.addAll(parts.filter { it.isNotBlank() })
+            } else {
+                results.add(line)
+            }
+        } else {
+            results.add(line)
+        }
+    }
+    return results.distinct()
+}
+
+/**
+ * Join multiple guide URLs into a single newline-delimited string for persistence.
+ */
+fun joinGuideUrls(urls: List<String>): String =
+    urls.map { it.trim() }.filter { it.isNotBlank() }.distinct().joinToString("\n")
+
+/**
+ * Validate that an EPG URL has an acceptable scheme (http, https, stalker, owntv-stalker).
+ */
+fun isValidEpgUrl(url: String): Boolean {
+    val trimmed = url.trim()
+    return trimmed.startsWith("http://", ignoreCase = true) ||
+        trimmed.startsWith("https://", ignoreCase = true) ||
+        trimmed.startsWith("stalker://", ignoreCase = true) ||
+        trimmed.startsWith("owntv-stalker://", ignoreCase = true)
 }

@@ -129,6 +129,7 @@ fun StageSettingRow(
     styledTitle: androidx.compose.ui.text.AnnotatedString? = null,
     /** The line's colour when it is a value rather than a description (a form row's text, its dim example). */
     subtitleColor: Color? = null,
+    error: String? = null,
     trailing: @Composable RowScope.() -> Unit = {},
 ) {
     val palette = LocalStagePalette.current
@@ -162,6 +163,14 @@ fun StageSettingRow(
                     it,
                     style = stageText(11.5f, 500, lineHeight = 1.3f),
                     color = subtitleColor ?: palette.muted,
+                    modifier = Modifier.padding(top = 1.dp),
+                )
+            }
+            error?.let {
+                Text(
+                    it,
+                    style = stageText(11.5f, 600),
+                    color = palette.danger,
                     modifier = Modifier.padding(top = 1.dp),
                 )
             }
@@ -359,6 +368,7 @@ fun StageTextRow(
     password: Boolean = false,
     keyboardType: androidx.compose.ui.text.input.KeyboardType = androidx.compose.ui.text.input.KeyboardType.Text,
     current: Boolean = false,
+    error: String? = null,
     trailing: @Composable androidx.compose.foundation.layout.RowScope.() -> Unit = {},
 ) {
     var editing by remember { mutableStateOf(false) }
@@ -374,6 +384,7 @@ fun StageTextRow(
         },
         subtitleColor = if (value.isBlank()) palette.dim else palette.text,
         current = current,
+        error = error,
         onClick = { editing = true },
         trailing = trailing,
     )

@@ -166,17 +166,32 @@ fun SettingsErrorLogPage(modifier: Modifier = Modifier) {
             Column {
                 Text(stringResource(R.string.settings_playback_error_description_full), style = stageText(12f, 500, lineHeight = 1.4f), color = palette.muted)
                 Row(Modifier.padding(vertical = 10.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    val sourceDao: tv.own.owntv.core.database.dao.SourceDao = org.koin.compose.koinInject()
                     // Export stays available on an empty list: the live diagnostics ring goes into the
                     // file too, and a handoff can leave useful detail without logging an entry.
                     StageButton(
                         onClick = {
                             scope.launch {
-                                val path = withContext(Dispatchers.IO) { PlaybackErrorLog.export(context) }
-                                exportPath = path
-                                exportFailed = path == null
+                                try {
+                                    val file = withContext(Dispatchers.IO) {
+                                        val sources = runCatching { sourceDao.all() }.getOrDefault(emptyList())
+                                        tv.own.owntv.player.diagnostic.DiagnosticLogExporter.exportToCache(context, sources)
+                                    }
+                                    exportPath = file.name
+                                    exportFailed = false
+                                    val uri = androidx.core.content.FileProvider.getUriForFile(context, context.packageName + ".share", file)
+                                    val send = android.content.Intent(android.content.Intent.ACTION_SEND)
+                                        .setType("text/plain")
+                                        .putExtra(android.content.Intent.EXTRA_STREAM, uri)
+                                        .putExtra(android.content.Intent.EXTRA_SUBJECT, file.name)
+                                        .addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                    context.startActivity(android.content.Intent.createChooser(send, null))
+                                } catch (e: Exception) {
+                                    exportFailed = true
+                                }
                             }
                         },
-                        text = stringResource(R.string.settings_export),
+                        text = stringResource(R.string.settings_export_log),
                         icon = MobileIcons.OpenInNew,
                         small = true,
                     )

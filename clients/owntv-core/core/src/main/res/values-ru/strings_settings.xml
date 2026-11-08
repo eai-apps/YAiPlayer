@@ -1825,4 +1825,11 @@
     <string name="settings_epg_builtin_feed_failed">Не удалось — нажмите, чтобы повторить</string>
     <string name="settings_sources_use_other_profiles">Плейлисты других профилей</string>
     <string name="settings_sources_guide_logos">Иконки из телегида</string>
+    <string name="settings_export_log">Экспорт журнала</string>
+    <string name="settings_log_export_dialog_title">Экспорт журнала диагностики</string>
+    <string name="settings_log_export_lan_hint">Отсканируйте QR-код или откройте адрес в браузере телефона или компьютера в той же Wi-Fi сети:</string>
+    <string name="settings_log_export_expires_in">Сервер автоматически выключится через %1$d мин или после скачивания</string>
+    <string name="settings_log_export_downloaded">Файл успешно скачан</string>
+    <string name="settings_log_export_stop">Остановить</string>
+    <string name="settings_log_export_share_title">Поделиться журналом</string>
 </resources>

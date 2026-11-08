@@ -203,6 +203,7 @@ fun SettingsPlaylistsPage(
                     syncMovies = v.movies != SyncScopeChoice.Off,
                     syncSeries = v.series != SyncScopeChoice.Off,
                     preferHls = v.preferHls,
+                    epgUrl = v.epgUrl,
                 )
                 editSource = null
             },
@@ -477,6 +478,7 @@ private fun SourceEntity.toFormValues(): SourceFormValues {
         movies = scope(syncMovies),
         series = scope(syncSeries),
         preferHls = preferHls,
+        epgUrl = epgUrl.orEmpty(),
     )
 }
 

@@ -108,17 +108,19 @@ class SetupViewModel(
         movies: SyncScopeChoice,
         series: SyncScopeChoice,
         preferHls: Boolean,
+        epgUrl: String = "",
     ) = runImport {
         importer.xtream(
             name = name, server = server, username = username, password = password,
             userAgent = userAgent, httpReferer = httpReferer, autoRefresh = autoRefresh,
             live = live, movies = movies, series = series, preferHls = preferHls,
+            epgUrl = epgUrl,
         )
     }
 
-    fun startM3u(name: String, url: String, userAgent: String, httpReferer: String, autoRefresh: PlaylistRefresh) =
+    fun startM3u(name: String, url: String, userAgent: String, httpReferer: String, autoRefresh: PlaylistRefresh, epgUrl: String = "") =
         runImport {
-            importer.m3u(name = name, url = url, userAgent = userAgent, httpReferer = httpReferer, autoRefresh = autoRefresh)
+            importer.m3u(name = name, url = url, userAgent = userAgent, httpReferer = httpReferer, autoRefresh = autoRefresh, epgUrl = epgUrl)
         }
 
     fun startStalker(

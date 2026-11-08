@@ -3273,4 +3273,11 @@
     <string name="settings_epg_builtin_feed_failed">Failed — tap to retry</string>
     <string name="settings_sources_use_other_profiles">Use playlists of other profiles</string>
     <string name="settings_sources_guide_logos">Logos from the guide</string>
+    <string name="settings_export_log">Export diagnostic log</string>
+    <string name="settings_log_export_dialog_title">Diagnostic Log Export</string>
+    <string name="settings_log_export_lan_hint">Scan the QR code or open this address in a browser on your phone or computer on the same Wi-Fi network:</string>
+    <string name="settings_log_export_expires_in">Server will shut down automatically in %1$d min or after download</string>
+    <string name="settings_log_export_downloaded">File downloaded successfully</string>
+    <string name="settings_log_export_stop">Stop server</string>
+    <string name="settings_log_export_share_title">Share diagnostic log</string>
 </resources>
