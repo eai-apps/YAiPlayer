@@ -308,8 +308,11 @@ open class MainActivity : ComponentActivity() {
             }
             // Quick start (Settings): enter as the last used profile without the chooser, never past a PIN.
             // Null until DataStore answers, so the chooser cannot flash for a moment first.
-            val quickStart by org.koin.compose.koinInject<tv.own.owntv.core.settings.SettingsRepository>()
-                .quickStart.collectAsStateWithLifecycle<Boolean?>(null)
+            val quickStartSettings = org.koin.compose.koinInject<tv.own.owntv.core.settings.SettingsRepository>()
+            val quickStartFlow = androidx.compose.runtime.remember(loadedProfileId) {
+                loadedProfileId?.let { quickStartSettings.quickStart(it) } ?: kotlinx.coroutines.flow.flowOf<Boolean?>(null)
+            }
+            val quickStart by quickStartFlow.collectAsStateWithLifecycle<Boolean?>(null)
             val shouldShowProfileGate = profilesLoaded && quickStart != null &&
                 tv.own.owntv.features.profiles.profileGateRequired(profiles, if (quickStart == true) loadedProfileId else null)
             // Keep the pure launch policy in the actual composition path as well as in its unit
