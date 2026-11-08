@@ -56,6 +56,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.compose.koinInject
@@ -174,7 +175,7 @@ fun SettingsErrorLogPage(modifier: Modifier = Modifier) {
                             scope.launch {
                                 try {
                                     val file = withContext(Dispatchers.IO) {
-                                        val sources = runCatching { sourceDao.all() }.getOrDefault(emptyList())
+                                        val sources = runCatching { sourceDao.observeAll().first() }.getOrDefault(emptyList())
                                         tv.own.owntv.player.diagnostic.DiagnosticLogExporter.exportToCache(context, sources)
                                     }
                                     exportPath = file.name

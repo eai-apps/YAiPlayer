@@ -1,6 +1,13 @@
 package tv.own.owntv.features.setup
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.ui.Alignment
+import tv.own.owntv.ui.stage.StageSurface
+import tv.own.owntv.ui.stage.StageFocus
+import tv.own.owntv.ui.theme.StageRadii
+import tv.own.owntv.ui.theme.StageColors
 import tv.own.owntv.ui.theme.mpx
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.height
@@ -786,7 +793,7 @@ fun AddSourceScreen(
                     icon = OwnTVIcon.EPG,
                     title = stringResource(R.string.setup_epg_source_priority_hint),
                     desc = null,
-                    value = SettingValue.None,
+                    value = null,
                     onClick = {},
                     modifier = toSubmit,
                     help = help(stringResource(R.string.setup_epg_section_title), stringResource(R.string.setup_epg_source_priority_hint), listOf(back to parent)),
