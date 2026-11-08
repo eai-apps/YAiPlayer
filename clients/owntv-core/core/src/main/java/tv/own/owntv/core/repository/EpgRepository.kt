@@ -310,18 +310,21 @@ class EpgRepository(
         var anySucceeded = false
         var failure: Exception? = null
         for ((index, url) in urls.withIndex()) {
-            val storeId = store?.ensure(source.name, url, source.userAgent)?.id
-                ?: if (index == 0) source.id else -(source.id * 1000 + index)
+            // The first feed keeps writing under the playlist's own id, exactly as one feed always has: the
+            // guide already stored there stays valid and a portal's marker URL still resolves against it.
+            // Further feeds are registered in the EPG list and stored under their own ids.
+            val extraId = if (index == 0) null else store?.ensure(source.name, url, source.userAgent)?.id
+            val storeId = if (index == 0) source.id else extraId ?: -(source.id * 1000 + index)
             val now = System.currentTimeMillis()
             try {
                 val written = refreshUrl(storeId, url, source.userAgent, onProgress)
-                store?.setSynced(storeId, now, null)
+                if (extraId != null) store?.setSynced(extraId, now, null)
                 total += written
                 anySucceeded = true
             } catch (c: CancellationException) {
                 throw c
             } catch (e: Exception) {
-                store?.setSynced(storeId, now, e.message)
+                if (extraId != null) store?.setSynced(extraId, now, e.message)
                 failure = e
             }
         }

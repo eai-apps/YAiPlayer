@@ -117,14 +117,18 @@ class LogExportServer {
             }
             val reqToken = params["token"].orEmpty()
 
-            if (reqToken.isBlank() || reqToken != validToken || tokenConsumed.get()) {
+            if (reqToken.isBlank() || reqToken != validToken) {
                 val body = "401 Unauthorized - invalid or expired token\n".toByteArray(Charsets.UTF_8)
                 sendResponse(s, 401, "Unauthorized", "text/plain; charset=utf-8", body)
                 return
             }
 
-            // Valid token: mark single-use token consumed
-            tokenConsumed.set(true)
+            // Valid token: single use, claimed atomically so two simultaneous requests cannot both win.
+            if (!tokenConsumed.compareAndSet(false, true)) {
+                val body = "401 Unauthorized - invalid or expired token\n".toByteArray(Charsets.UTF_8)
+                sendResponse(s, 401, "Unauthorized", "text/plain; charset=utf-8", body)
+                return
+            }
             val bytes = content.toByteArray(Charsets.UTF_8)
             val headers = listOf(
                 "Content-Disposition: attachment; filename=\"$filename\"",
