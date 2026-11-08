@@ -4860,6 +4860,7 @@
 1	log	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	$label cat=${task.catId} page=${task.page} failed again (${e.message})
 1	log	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	$label catalogue-shape sourceId=${s.id} totalItems=${bulk.totalItems}
 1	log	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	$label categories sourceId=${s.id} count=${cats.size}
+1	log	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	$label category id=${cat.id} title=${cat.title} total=${page1.totalItems} sample=$sample
 1	log	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	$label delta-skip sourceId=${s.id} unchangedCategories=${skippedCatDbIds.size}
 1	log	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	$label fetch done sourceId=${s.id} pages=${pagesFetched.get()} failures=${pageFailures.get()} emitted=$emitted fetchMs=${SystemClock.elapsedRealtime() - fetchStart}
 1	log	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	$label fieldDiff sourceId=$sourceId remoteId=${c.remoteId} hash=${stalkerChannelHash(c)}

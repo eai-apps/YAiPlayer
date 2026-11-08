@@ -287,7 +287,7 @@ internal class StalkerSyncer(
                         val maxPer = first.maxPageItems.takeIf { it > 0 } ?: first.items.size
                         val pages = (if (maxPer > 0) (first.totalItems + maxPer - 1) / maxPer else 1)
                             .coerceAtMost(MAX_PAGES_PER_GENRE)
-                        Log.i(TAG, "$label genre ${gi + 1}/${list.size} id=${genre.id} '${genre.title}' total=${first.totalItems} maxPer=$maxPer pages=$pages sample=${first.items.take(3).joinToString(" | ") { it.title.orEmpty() }}")
+                        Log.i(TAG, "$label genre ${gi + 1}/${list.size} id=${genre.id} '${genre.title}' total=${first.totalItems} maxPer=$maxPer pages=$pages")
                         var page = 2
                         val missed = ArrayList<Int>()
                         while (page <= pages) {
@@ -720,6 +720,8 @@ internal class StalkerSyncer(
                                 val maxPer = page1.maxPageItems.takeIf { it > 0 } ?: page1.items.size
                                 if (maxPer > maxPerSeen) maxPerSeen = maxPer
                                 advertisedTotal += page1.totalItems
+                                val sample = page1.items.take(3).map { it.name }
+                                Log.i(TAG, "$label category id=${cat.id} title=${cat.title} total=${page1.totalItems} sample=$sample")
                                 val pages = (if (maxPer > 0) (page1.totalItems + maxPer - 1) / maxPer else 1)
                                     .coerceAtMost(MAX_PAGES_PER_GENRE)
                                 // Unchanged count ⇒ keep the category's rows as-is, skip its pages.
