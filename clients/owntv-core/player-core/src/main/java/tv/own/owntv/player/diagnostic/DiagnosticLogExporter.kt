@@ -118,7 +118,8 @@ object DiagnosticLogExporter {
                 val timeStr = dateFmt.format(Date(e.atMs))
                 val liveStr = if (e.live) "live" else "vod"
                 appendLine("[$timeStr] ${e.kind} · ${e.engine} · $liveStr")
-                e.reason?.let { appendLine("  reason: ${maskSensitiveText(it)}") }
+                val reasonText = e.reason?.name ?: e.legacyReason
+                reasonText?.let { appendLine("  reason: ${maskSensitiveText(it)}") }
                 e.spec?.let { appendLine("  spec  : ${maskSensitiveText(it)}") }
                 e.raw?.let { appendLine("  raw   : ${maskSensitiveText(it)}") }
                 appendLine()
