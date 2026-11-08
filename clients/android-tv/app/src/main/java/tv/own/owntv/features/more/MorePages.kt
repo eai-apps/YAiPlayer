@@ -58,6 +58,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.compose.koinInject
@@ -735,7 +736,7 @@ internal fun LogExportDialog(onDismiss: () -> Unit) {
 
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
-            val sources = runCatching { sourceDao.all() }.getOrDefault(emptyList())
+            val sources = runCatching { sourceDao.observeAll().first() }.getOrDefault(emptyList())
             val content = tv.own.owntv.player.diagnostic.DiagnosticLogExporter.buildReport(context, sources)
             server.start(content)
         }
@@ -775,9 +776,10 @@ internal fun LogExportDialog(onDismiss: () -> Unit) {
                 modifier = Modifier.fillMaxWidth(),
             )
 
-            if (runningState?.qrBitmap != null) {
+            val qr = runningState?.qrBitmap
+            if (qr != null) {
                 androidx.compose.foundation.Image(
-                    bitmap = runningState.qrBitmap.asImageBitmap(),
+                    bitmap = qr.asImageBitmap(),
                     contentDescription = null,
                     modifier = Modifier
                         .size(220.mpx)
