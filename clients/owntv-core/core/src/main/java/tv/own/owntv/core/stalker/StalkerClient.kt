@@ -713,7 +713,7 @@ open class StalkerClient(okHttpClient: OkHttpClient) {
             categoryId = (f["category_id"] ?: f["category"])?.takeIf { it.isNotBlank() && it != "*" },
             addedAt = parseAddedAt(f["added"]),
             // Some portals never set `is_series` and instead name each season row "Title [S01]".
-            isSeries = isFlagSet(f["is_series"]) || SEASON_TAG.containsMatchIn(title.orEmpty()),
+            isSeries = isFlagSet(f["is_series"]) || hasSeasonTag(title),
         )
     }
 
@@ -1255,9 +1255,12 @@ open class StalkerClient(okHttpClient: OkHttpClient) {
         internal fun retryAfterMs(header: String?): Long? =
             header?.trim()?.toLongOrNull()?.takeIf { it >= 0 }?.let { it * 1_000L }
 
-        /** A portal flag: `1`, `"1"` or `true`. */
-        private val SEASON_TAG = Regex("""\[S\d{1,3}]\s*$""")
+        /** A season tag anywhere in the title: "Title [S01]" and also "Title [S01] [ua] [ru]". */
+        private val SEASON_TAG = Regex("""\[S\d{1,3}(?:E\d{1,4})?]""", RegexOption.IGNORE_CASE)
 
+        internal fun hasSeasonTag(title: String?): Boolean = SEASON_TAG.containsMatchIn(title.orEmpty())
+
+        /** A portal flag: `1`, `"1"` or `true`. */
         internal fun isFlagSet(raw: String?): Boolean = raw?.trim()?.let { it == "1" || it.equals("true", ignoreCase = true) } == true
 
         /** Ministra's bare-text refusal, `Authorization failed.`, as opposed to any other non-JSON body. */
