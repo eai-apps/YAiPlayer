@@ -112,6 +112,9 @@ jobs:
             --notes-file notes.md \
             --latest
       - name: Post to Telegram channel
+        # Off unless the repo variable TELEGRAM_AUTOPOST is "1": small fixes pile up and are announced
+        # together on the owner's word (workflow "Post announcement to Telegram" / "Repost release").
+        if: ${{ vars.TELEGRAM_AUTOPOST == '1' }}
         continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}

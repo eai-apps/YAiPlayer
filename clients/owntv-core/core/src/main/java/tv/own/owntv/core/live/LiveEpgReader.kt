@@ -48,7 +48,10 @@ private const val SHORT_EPG_LIMIT = 8
 /** A Stalker channel's day tables are read again after this long, sooner after a failure. */
 private const val PORTAL_DAYS_REFETCH_MS = 3L * 60 * 60 * 1000
 private const val PORTAL_DAYS_RETRY_MS = 10L * 60 * 1000
-private const val PORTAL_DAYS_TIMEOUT_MS = 12_000L
+private const val PORTAL_DAYS_TIMEOUT_MS = 30_000L
+
+/** How many past days of a portal channel's guide table are read: the longest archive portals keep. */
+private const val PORTAL_PAST_DAYS = 7
 
 /**
  * How many stored rows to read for Now/Next/Later. Well over the six those show, because a second
@@ -380,22 +383,25 @@ class LiveEpgReader(
      * of its own ([ArchiveGuidePlan.storeId]) and written only where the playlist's own guide rows are
      * not, so the two never list a programme twice. A failure leaves the stored guide as it was.
      */
-    suspend fun ensurePortalDays(ch: ChannelEntity, epgKey: String) {
-        val remoteId = ch.remoteId?.takeIf { it.isNotBlank() } ?: return
+    suspend fun ensurePortalDays(ch: ChannelEntity, epgKey: String): Boolean {
+        val remoteId = ch.remoteId?.takeIf { it.isNotBlank() } ?: return false
+        if (sourceDao.getById(ch.sourceId)?.type != SourceType.STALKER) return false
         val now = System.currentTimeMillis()
         synchronized(portalDayTries) {
             val last = portalDayTries[ch.id]
-            if (last != null && now - last < PORTAL_DAYS_REFETCH_MS) return
+            if (last != null && now - last < PORTAL_DAYS_REFETCH_MS) return true
             portalDayTries[ch.id] = now
         }
         try {
-            val source = sourceDao.getById(ch.sourceId)?.takeIf { it.type == SourceType.STALKER } ?: return
-            val past = if (ch.catchup) (ch.catchupDays.takeIf { it > 0 } ?: DEFAULT_CATCHUP_DAYS).coerceIn(1, 7) else 0
+            val source = sourceDao.getById(ch.sourceId)?.takeIf { it.type == SourceType.STALKER } ?: return true
+            // Whatever the portal keeps, up to a week: its own "archive days" figure is often smaller than
+            // the days its guide table still lists, and the list should show every one of them.
+            val past = if (ch.catchup) PORTAL_PAST_DAYS else 0
             val listed = kotlinx.coroutines.withTimeoutOrNull(PORTAL_DAYS_TIMEOUT_MS) {
                 streamUrlResolver.scheduleDays(source, remoteId, (-past..1).toList())
-            } ?: run { portalDayTries[ch.id] = now - PORTAL_DAYS_REFETCH_MS + PORTAL_DAYS_RETRY_MS; return }
+            } ?: run { portalDayTries[ch.id] = now - PORTAL_DAYS_REFETCH_MS + PORTAL_DAYS_RETRY_MS; return true }
             val rows = listed.filter { it.title.isNotBlank() && it.stopMs > it.startMs }
-            if (rows.isEmpty()) return
+            if (rows.isEmpty()) return true
             val store = ArchiveGuidePlan.storeId(ch.sourceId)
             val existing = epgDao.programmeSummariesForChannel(epgKey, Long.MIN_VALUE / 2, Long.MAX_VALUE)
             val others = existing.filter { it.sourceId != store }
@@ -418,6 +424,7 @@ class LiveEpgReader(
             portalDayTries[ch.id] = now - PORTAL_DAYS_REFETCH_MS + PORTAL_DAYS_RETRY_MS
             tv.own.owntv.core.util.GuideTrace.add("portal days: failed (${e.javaClass.simpleName})")
         }
+        return true
     }
 
     /** Recent (already-aired) programmes for a catch-up channel, newest first — drives the Live TV
@@ -431,9 +438,9 @@ class LiveEpgReader(
         if (!ch.catchup) return@withContext emptyList()
         val epgKey = (cust.epgMatchResolver.epgIdFor(ch) ?: ch.epgChannelId)
             ?.trim()?.lowercase()?.takeIf { it.isNotEmpty() } ?: return@withContext emptyList()
-        ensurePortalDays(ch, epgKey)
+        val portal = ensurePortalDays(ch, epgKey)
         val now = System.currentTimeMillis()
-        val days = ch.catchupDays.takeIf { it > 0 } ?: DEFAULT_CATCHUP_DAYS
+        val days = if (portal) PORTAL_PAST_DAYS else ch.catchupDays.takeIf { it > 0 } ?: DEFAULT_CATCHUP_DAYS
         val windowMs = (days * 24L * 60 * 60 * 1000).coerceAtMost(CATCHUP_LOOKBACK_CAP_MS)
         val ids = liveSourceIds + epgSourceStore.getAll().map { it.id }
         // Shifted guide → shifted window, and the rows come back on the corrected clock, so the
@@ -443,7 +450,7 @@ class LiveEpgReader(
         epgSourceStore.priority().resolve(epgDao.programmesForChannel(epgKey, at - windowMs, at + 60 * 60 * 1000))
             .filter { it.startMs <= at }           // already started → catch-up applies
             .sortedByDescending { it.startMs }      // most recent first
-            .take(400)
+            .take(900)
             .map { EpgShift.apply(it, shift) }
     }
 

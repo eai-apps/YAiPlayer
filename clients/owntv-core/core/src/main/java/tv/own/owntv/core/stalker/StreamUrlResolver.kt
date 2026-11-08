@@ -220,7 +220,7 @@ class StreamUrlResolver(
         const val MAX_GUIDE_PAGES = 12
 
         /** Days of one channel read at the same time. */
-        const val DAY_PARALLEL = 3
+        const val DAY_PARALLEL = 4
 
         /** How far a portal listing may sit from our XMLTV start and still be the same programme. */
         const val MATCH_TOLERANCE_MS = 15 * 60 * 1000L
