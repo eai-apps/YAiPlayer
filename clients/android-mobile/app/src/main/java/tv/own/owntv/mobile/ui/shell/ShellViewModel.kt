@@ -84,7 +84,7 @@ class ShellViewModel(
      */
     suspend fun resolveStartup(): StartupTarget {
         val ctx = activeProfileSources(settings, sourceDao).first { it.profileId >= 0L }
-        return when (val mode = settings.startupMode(ctx.profileId).first()) {
+        return when (val mode = settings.effectiveStartupMode(ctx.profileId).first()) {
             StartupMode.HOME -> StartupTarget.Home
             StartupMode.FAVORITES -> StartupTarget.Favorites
             StartupMode.LAST_CHANNEL, StartupMode.LAST_CHANNEL_GUIDE, StartupMode.LAST_CHANNEL_LIVE -> {

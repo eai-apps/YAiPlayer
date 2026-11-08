@@ -168,5 +168,5 @@ internal fun shellMayCompose(
 
 /** One unlocked profile enters the shell immediately; all chooser/PIN cases stay gated. Core's rule
  *  — the phone applies the same one. */
-internal fun profileGateRequired(profiles: List<ProfileEntity>): Boolean =
-    tv.own.owntv.core.profile.profileGateRequired(profiles)
+internal fun profileGateRequired(profiles: List<ProfileEntity>, quickStartProfileId: Long? = null): Boolean =
+    tv.own.owntv.core.profile.profileGateRequired(profiles, quickStartProfileId)
