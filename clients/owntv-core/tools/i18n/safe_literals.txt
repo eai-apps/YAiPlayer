@@ -2985,6 +2985,7 @@
 1	technical	core/src/main/java/tv/own/owntv/core/repository/EpgCacheFiles.kt	.xmltv
 1	technical	core/src/main/java/tv/own/owntv/core/repository/EpgCacheFiles.kt	.xmltv.tmp
 1	technical	core/src/main/java/tv/own/owntv/core/repository/EpgCacheFiles.kt	epg_
+1	technical	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	\0
 1	protocol	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	$STALKER_GUIDE_SCHEME$sourceId
 1	technical	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	${it.name}:${it.length()}:${it.lastModified()}
 1	technical	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	${missing.size}|${missing.hashCode()}|${cacheFingerprint()}
@@ -6869,11 +6870,21 @@
 1	log	player-core/src/main/java/tv/own/owntv/player/VolumeBoost.kt	volume boost failed: ${it.javaClass.simpleName}
 1	log	player-core/src/main/java/tv/own/owntv/player/VolumeBoost.kt	volume boost unavailable: ${it.javaClass.simpleName}
 1	log	player-core/src/main/java/tv/own/owntv/player/ZapTiming.kt	(zap key press to first frame ${it}ms)
+1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	$1***
 1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	$PREFIX${fmt.format(Date(timestamp))}$EXTENSION
+1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	${m.groupValues[1]}***
+1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	${m.groupValues[1]}: ***
 1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	${match.groupValues[1]}***:***@
 2	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	${match.groupValues[1]}=***
+1	regex	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	(?i)(bearer\\s+)[A-Za-z0-9._~+/=-]+
+1	regex	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	(?i)(https?://)(?:[^/\\s@]*@)?[^/\\s:?#]+(?::\\d+)?
+1	regex	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	(?i)(password|pass|passwd|pwd|token|signature|secret|key|api_key)=([^&\\s,;"'<>]+)
+1	regex	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	(?i)(username|user|login)=([^&\\s,;"'<>]+)
+1	regex	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	(?i)\\b(?:[0-9a-f]{2}[:-]){5}[0-9a-f]{2}\\b
+1	regex	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	(?i)\\b(authorization|cookie|set-cookie)\\s*[:=]\\s*[^\\r\\n]+
 1	regex	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	(https?://)([^:/\\s]+):([^@/\\s]+)@
 1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	*** (redacted)
+1	technical	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	**:**:**:**:**:**
 1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	--- Last Crash ---
 1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	--- Live Diagnostics ---
 8	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	----------------------------------------------------------------------
@@ -6913,10 +6924,11 @@
 1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	yyyy-MM-dd HH:mm:ss
 1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	yyyyMMdd-HHmm
 5	empty	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	\0
+1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	$h
 1	protocol	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	&
 1	technical	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	-
 1	protocol	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	127.0.0.1
-1	protocol	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	401 Unauthorized - invalid or expired token
+2	protocol	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	401 Unauthorized - invalid or expired token
 1	protocol	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	=
 1	protocol	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	?
 2	protocol	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	Bad Request
@@ -6928,8 +6940,8 @@
 1	protocol	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	GET
 1	protocol	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	HTTP/1.1 $code $status
 1	protocol	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	OK
-1	protocol	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	Unauthorized
+2	protocol	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	Unauthorized
 1	protocol	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	http://$lanHost:$port/log.txt?token=$token
 1	protocol	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	text/plain
-2	protocol	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	text/plain; charset=utf-8
+3	protocol	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	text/plain; charset=utf-8
 1	protocol	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	token

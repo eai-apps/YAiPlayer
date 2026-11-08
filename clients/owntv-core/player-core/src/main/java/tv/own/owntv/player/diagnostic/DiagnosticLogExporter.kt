@@ -24,6 +24,11 @@ object DiagnosticLogExporter {
     private const val EXTENSION = ".txt"
     private const val REDACTED = "*** (redacted)"
 
+    private val URL_HOST = Regex("(?i)(https?://)(?:[^/\\s@]*@)?[^/\\s:?#]+(?::\\d+)?")
+    private val MAC_ADDRESS = Regex("(?i)\\b(?:[0-9a-f]{2}[:-]){5}[0-9a-f]{2}\\b")
+    private val AUTH_HEADER = Regex("(?i)\\b(authorization|cookie|set-cookie)\\s*[:=]\\s*[^\\r\\n]+")
+    private val BEARER = Regex("(?i)(bearer\\s+)[A-Za-z0-9._~+/=-]+")
+
     fun formatFilename(timestamp: Long = System.currentTimeMillis()): String {
         val fmt = SimpleDateFormat("yyyyMMdd-HHmm", Locale.US)
         return "$PREFIX${fmt.format(Date(timestamp))}$EXTENSION"
@@ -46,6 +51,14 @@ object DiagnosticLogExporter {
         text = text.replace(Regex("(https?://)([^:/\\s]+):([^@/\\s]+)@")) { match ->
             "${match.groupValues[1]}***:***@"
         }
+        // Xtream/Stalker credentials that sit in the PATH (/live/user/pass/1.ts, /timeshift/..., short form)
+        // and Stalker's mac=; the app's own URL redaction already knows these shapes.
+        text = tv.own.owntv.core.network.HttpClient.redactUrl(text)
+        // A provider's host identifies the account's panel as surely as the credentials do: keep scheme and path only.
+        text = text.replace(URL_HOST, "$1***")
+        text = text.replace(MAC_ADDRESS, "**:**:**:**:**:**")
+        text = text.replace(AUTH_HEADER) { m -> "${m.groupValues[1]}: ***" }
+        text = text.replace(BEARER) { m -> "${m.groupValues[1]}***" }
         return text
     }
 

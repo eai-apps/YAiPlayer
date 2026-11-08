@@ -54,7 +54,8 @@ class DiagnosticLogExporterTest {
         val masked = DiagnosticLogExporter.maskSensitiveText(raw)
 
         assertFalse("Credentials leaked in masked text", masked.contains("admin:p@ssw0rd@"))
-        assertTrue("Credentials mask missing", masked.contains("***:***@192.168.1.10:8000/playlist.m3u8"))
+        assertFalse("Host leaked in masked text", masked.contains("192.168.1.10"))
+        assertTrue("Path kept", masked.contains("/playlist.m3u8"))
     }
 
     @Test
@@ -149,5 +150,16 @@ class DiagnosticLogExporterTest {
 
         server.stop()
         assertEquals(LogExportServer.State.Stopped, server.state.value)
+    }
+
+    @Test
+    fun `maskSensitiveText masks path credentials hosts MACs and bearer tokens`() {
+        val raw = "GET https://panel.example.org:8080/live/bob/hunter2/4711.ts mac=00:1A:79:AB:CD:EF Authorization: Bearer abc.def.ghi"
+        val masked = DiagnosticLogExporter.maskSensitiveText(raw)
+        assertFalse(masked.contains("bob"))
+        assertFalse(masked.contains("hunter2"))
+        assertFalse(masked.contains("panel.example.org"))
+        assertFalse(masked.contains("00:1A:79:AB:CD:EF"))
+        assertFalse(masked.contains("abc.def.ghi"))
     }
 }
