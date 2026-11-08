@@ -969,6 +969,7 @@ class LivePreviewEngine(
                 if (!tunneledNow && !_audioOnly.value && tune.everRendered && hasVideo) {
                     val dropped = (currentDroppedFrames(p) - dropsBaseline).coerceAtLeast(0).toLong()
                     if (dropWatch.poll(frames.toLong(), dropped)) {
+                        if (retryWithSoftwareVideo(currentUrl.orEmpty())) return
                         LiveDiagnosticsLog.event("progressWatchdog: dropping more frames than it shows (frames=$frames dropped=$dropped) — giving up on ExoPlayer for this stream")
                         failLoad("frames dropped faster than shown"); return
                     }
@@ -1043,6 +1044,7 @@ class LivePreviewEngine(
                         return
                     }
                     if (!_audioOnly.value && retryWithNonIdrKeyframes(url)) return
+                    if (!_audioOnly.value && retryWithSoftwareVideo(url)) return
                     failLoad("buffered but never started playing ($detail)")
                     return
                 }
@@ -1725,9 +1727,10 @@ class LivePreviewEngine(
             // differs from the last channel's, would otherwise never take effect (the "Pre-buffer
             // does nothing" report). Drop the player whenever the numbers it was built with no longer match.
             val wanted = LiveBuffer.loadControlFor(effectiveLiveBufferSecs(), effectivePrerollSecs())
+            val wantHw = !wantSoftwareVideo()
             if (player != null && (builtLoadControl != wanted || (memoryPressure && !builtLowRam) || builtTunneled != wantTunneling() ||
-                    builtHwDecoding != hwDecodingEnabled)) {
-                LiveDiagnosticsLog.event("player stale (load_control was=$builtLoadControl want=$wanted, hw decoding was=$builtHwDecoding want=$hwDecodingEnabled) — rebuilding player")
+                    builtHwDecoding != wantHw)) {
+                LiveDiagnosticsLog.event("player stale (load_control was=$builtLoadControl want=$wanted, hw decoding was=$builtHwDecoding want=$wantHw) — rebuilding player")
                 player?.run { removeListener(listener); release() }
                 player = null
                 videoRenderer = null
@@ -3379,6 +3382,27 @@ class LivePreviewEngine(
         return true
     }
 
+    /** Whether this open should put the software video decoder first: the user's hardware-decoding switch
+     *  is off, or this channel's hardware decoder already failed it silently this session. */
+    private fun wantSoftwareVideo(): Boolean =
+        !hwDecodingEnabled || currentUrl?.let { LiveStreamQuirks.needsSoftwareVideo(nonIdrKey(it)) } == true
+
+    /**
+     * The hardware decoder accepted the stream and showed nothing usable, with no error to react to.
+     * Once per channel, before it is given to mpv: reopen with the software decoder first. Returns
+     * whether it reopened.
+     */
+    private fun retryWithSoftwareVideo(url: String): Boolean {
+        val key = nonIdrKey(url)
+        if (wantSoftwareVideo() || url.isEmpty()) return false
+        LiveStreamQuirks.rememberNeedsSoftwareVideo(key)
+        LiveDiagnosticsLog.event("hardware video decoder gave no usable picture — reopening with the software decoder first")
+        tune.prerollRetunePending = true
+        mainHandler.removeCallbacks(openWatchdog)
+        mainHandler.post { if (currentUrl == url) rebuildForSettingChange() else tune.prerollRetunePending = false }
+        return true
+    }
+
     /** HLS → caption-aware factory; everything else (raw MPEG-TS, etc.) → default. */
     private fun mediaSourceFor(url: String): MediaSource {
         httpDataSourceFor(currentUa) // ensure factories match current UA
@@ -3517,7 +3541,7 @@ class LivePreviewEngine(
             // levelling work on. A receiver user who wants 5.1 PCM picks "Surround" explicitly.
             forceStereo = !AudioOutputPolicy.allowsMultichannel(surroundMode) ||
                 (!passthroughAllowed && surroundMode == tv.own.owntv.core.player.SurroundMode.AUTO),
-            softwareFirst = !hwDecodingEnabled.also { builtHwDecoding = it },
+            softwareFirst = wantSoftwareVideo().also { builtHwDecoding = !it },
             audioDelay = audioDelayClock,
             passthrough = passthroughAllowed,
             onSurfaceOnly = true,

@@ -132,6 +132,7 @@ object LiveStreamQuirks {
     private val tolerantDemuxStreams = urlLessonSet()
     private val prerollDefeatedStreams = urlLessonSet()
     private val nonIdrStreams = urlLessonSet()
+    private val softwareVideoStreams = urlLessonSet()
     private val exoFailedChannels = urlLessonSet()
     private val softwareArchiveHosts = ConcurrentHashMap.newKeySet<String>()
     private val uaBlockingHosts = ConcurrentHashMap.newKeySet<String>()
@@ -346,6 +347,16 @@ object LiveStreamQuirks {
 
     fun needsNonIdrKeyframes(key: String): Boolean = key in nonIdrStreams
 
+    /**
+     * The device's hardware video decoder took this channel but showed nothing usable (a green or
+     * frozen picture, frames dropped faster than shown) without ever raising an error — seen on
+     * Amlogic Android 9 boxes. The channel's next opens put the software decoder first. [key] is the
+     * channel's own key. Session only.
+     */
+    fun rememberNeedsSoftwareVideo(key: String) { softwareVideoStreams += key }
+
+    fun needsSoftwareVideo(key: String): Boolean = key in softwareVideoStreams
+
     /** ExoPlayer tried every format it has on this channel and failed; mpv took it. Session only. */
     fun rememberExoFailedChannel(channelId: Long) { exoFailedChannels += channelId.toString() }
 
@@ -413,7 +424,7 @@ object LiveStreamQuirks {
     internal fun clearForTest() {
         hlsRedirectHosts.clear(); mixedHlsHosts.clear(); segmentRefusingHosts.clear(); singleSessionHosts.clear()
         brokenTimestampStreams.clear(); softwareArchiveHosts.clear()
-        noHlsVariantStreams.clear(); noHlsVariantMpvStreams.clear(); prerollDefeatedStreams.clear(); nonIdrStreams.clear(); exoFailedChannels.clear()
+        noHlsVariantStreams.clear(); noHlsVariantMpvStreams.clear(); prerollDefeatedStreams.clear(); nonIdrStreams.clear(); softwareVideoStreams.clear(); exoFailedChannels.clear()
         tolerantDemuxStreams.clear()
         uaBlockingHosts.clear(); providerMessages.clear()
     }
