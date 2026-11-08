@@ -44,6 +44,8 @@
     <string name="player_timeshift_resume_message">This channel was saved while you were away.</string>
     <!-- Translators: Action that tunes back to the channel watched before the current one, like a TV remote's "last channel" button. Shown in Remote shortcuts and read out for the phone player's button. -->
     <string name="player_previous_channel">Previous channel</string>
+    <!-- Translators: Label on the TV player's centre button that opens the list of recently watched channels. -->
+    <string name="player_recent_channels">Recent</string>
     <!-- Translators: Player button: the other versions of the channel playing (the same channel in another quality, category or playlist), to switch to. Keep it short. -->
     <string name="player_tool_sources">Sources</string>
     <!-- Translators: Shown in the Sources list when the channel playing has no other version. -->

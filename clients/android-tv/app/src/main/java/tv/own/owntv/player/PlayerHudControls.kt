@@ -120,6 +120,29 @@ internal fun CircleButton(icon: OwnTVIcon, size: Int, primary: Boolean = false, 
     }
 }
 
+/** A round button with its name under the glyph, so what it does is never a guess. */
+@Composable
+internal fun LabelledCircleButton(icon: OwnTVIcon, label: String, size: Int, modifier: Modifier = Modifier, onClick: () -> Unit) {
+    StageSurface(
+        onClick = onClick,
+        radius = (size / 2f).dp,
+        modifier = modifier.size(size.dp),
+        focusStyle = StageFocus.FILLED,
+        idle = Modifier.background(hudInk.copy(alpha = 0.16f), CircleShape),
+        accent = hudFocus(ring = hudInk),
+        contentAlignment = Alignment.Center,
+    ) { focused ->
+        val tint = if (focused) hudOnAccent else hudInk
+        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+            OwnTVIcon(icon, tint = tint, filled = true, modifier = Modifier.size((size * 0.34f).dp))
+            androidx.tv.material3.Text(
+                label, style = tv.own.owntv.ui.theme.stageText(if (size >= 80) 17 else 12, 700), color = tint,
+                maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Clip,
+            )
+        }
+    }
+}
+
 /** The transport buttons live in one frosted capsule instead of floating loose over the video. */
 @Composable
 internal fun TransportCapsule(modifier: Modifier = Modifier, content: @Composable RowScope.() -> Unit) {

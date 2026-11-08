@@ -280,7 +280,14 @@ internal fun ChannelNumberCard(digits: String, error: String? = null, modifier: 
 internal fun CenterControls(
     player: PlaybackEngine, nav: NavState, isPlaying: Boolean, isLive: Boolean,
     onRewindLive: (() -> Unit)?, onForwardLive: (() -> Unit)?, timeshiftOffset: () -> Int?,
-    playFocus: FocusRequester, modifier: Modifier = Modifier,
+    playFocus: FocusRequester,
+    // Live only (null = not shown): the labelled round Archive button, the channel steps either side of
+    // Play, and the recent-channels list. Archive stays on screen while an archive plays, so another
+    // day or time can be picked without going back to live first.
+    onOpenArchive: (() -> Unit)? = null,
+    onPrevInList: (() -> Unit)? = null, onNextInList: (() -> Unit)? = null,
+    onOpenRecent: (() -> Unit)? = null,
+    modifier: Modifier = Modifier,
 ) {
     val seekStep by player.seekStepMs.collectAsStateWithLifecycle() // Settings -> Seek step
     val rewindMode = onRewindLive != null // this is a catch-up-capable Live channel
@@ -298,9 +305,12 @@ internal fun CenterControls(
             Spacer(Modifier.height(12.dp))
         }
         TransportCapsule {
+            if (isLive && onPrevInList != null) LabelledCircleButton(OwnTVIcon.SKIP_PREVIOUS, stringResource(R.string.player_previous_channel_in_list), size = 56) { onPrevInList() }
             if (nav.hasPrev) CircleButton(OwnTVIcon.SKIP_PREVIOUS, size = 44) { player.previous() }
+            if (isLive && onOpenArchive != null) LabelledCircleButton(OwnTVIcon.CATCHUP, stringResource(R.string.player_tool_catchup), size = 84) { onOpenArchive() }
             when {
-                rewindMode -> CircleButton(OwnTVIcon.REWIND, size = 44) { onRewindLive() } // step back into the archive
+                // Seeking inside a running archive only; at the live edge the Archive button is the way back.
+                rewindMode -> if (timeshifting || onOpenArchive == null) CircleButton(OwnTVIcon.REWIND, size = 44) { onRewindLive() }
                 !isLive -> CircleButton(OwnTVIcon.REWIND, size = 44) { player.seekBy(-seekStep) }
             }
             CircleButton(if (isPlaying) OwnTVIcon.PAUSE else OwnTVIcon.PLAY, size = 64, primary = true, modifier = Modifier.focusRequester(playFocus)) { player.togglePlayPause() }
@@ -311,6 +321,8 @@ internal fun CenterControls(
             // "Go to live" is no longer a transport button: it is the Go Live pill at the head of the
             // dock's left cluster, beside the timeline it acts on.
             if (nav.hasNext) CircleButton(OwnTVIcon.SKIP_NEXT, size = 44) { player.next() }
+            if (isLive && onNextInList != null) LabelledCircleButton(OwnTVIcon.SKIP_NEXT, stringResource(R.string.player_next_channel_in_list), size = 56) { onNextInList() }
+            if (isLive && onOpenRecent != null) LabelledCircleButton(OwnTVIcon.HISTORY, stringResource(R.string.player_recent_channels), size = 56) { onOpenRecent() }
         }
     }
 }
