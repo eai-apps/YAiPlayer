@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- Copyright (C) 2026 YAiPlayer authors. Original code, written for YAiPlayer. -->
+    <string name="yesterday_on_air">Yesterday on air</string>
+    <string name="yesterday_on_air_title">Yesterday on air \u00b7 <xliff:g id="channel">%1$s</xliff:g></string>
+    <string name="yesterday_on_air_prompt">Select a programme from past days to replay from the archive.</string>
+    <string name="yesterday_on_air_empty">No programme archive found for this day.</string>
+    <string name="yesterday_day_yesterday">Yesterday</string>
+    <string name="yesterday_day_2_days">2 days ago</string>
+    <string name="yesterday_day_ago"><xliff:g id="days">%1$d</xliff:g> days ago</string>
+</resources>

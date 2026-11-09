@@ -107,6 +107,7 @@ fun MultiviewScreen(
                             focusRequester = focusRequesters[index],
                             onPickChannel = { onPickChannel(index) },
                             onMenu = { menuFor = index },
+                            onFullscreen = onFullscreen,
                             modifier = Modifier.weight(1f).fillMaxSize(),
                         )
                     }
@@ -145,6 +146,7 @@ private fun Tile(
     focusRequester: FocusRequester,
     onPickChannel: () -> Unit,
     onMenu: () -> Unit,
+    onFullscreen: (ChannelEntity) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val tile = state.tiles[index]
@@ -180,6 +182,7 @@ private fun Tile(
                             // Held: the menu, on a filled tile or an empty one, exactly as MENU did.
                             held >= LongPressMs -> onMenu()
                             tile.channel == null -> onPickChannel()
+                            state.audible == index -> tile.channel?.let { onFullscreen(it) }
                             else -> state.giveSoundTo(index)
                         }
                         true
