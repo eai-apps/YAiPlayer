@@ -32,7 +32,10 @@ class SelectedEpisodePlaybackTest {
         }.build())
         val resolver = resolver(client)
         for (ep in selected) {
-            assertSame(stop, runCatching { resolver.resolveEpisode(source, ep) }.exceptionOrNull())
+            val failure = runCatching { resolver.resolveEpisode(source, ep) }.exceptionOrNull()
+            // Coroutine stack-trace recovery may copy an IOException across Dispatchers.IO.
+            assertTrue(failure is IOException)
+            assertEquals(stop.message, failure?.message)
             val url = requests.last()
             assertEquals("vod", url.queryParameter("type"))
             assertEquals("create_link", url.queryParameter("action"))
