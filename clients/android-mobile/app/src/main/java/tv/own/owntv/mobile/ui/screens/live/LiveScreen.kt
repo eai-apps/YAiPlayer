@@ -132,6 +132,7 @@ fun LiveScreen(
     var categoryMenuFor by remember { mutableStateOf<LiveCategory?>(null) }
     var restoreFor by remember { mutableStateOf<LiveCategory?>(null) }
     var catchupFor by remember { mutableStateOf<ChannelEntity?>(null) }
+    var yesterdayFor by remember { mutableStateOf<ChannelEntity?>(null) }
     var jumpBackOpen by remember { mutableStateOf(false) }
     // Wide: the list on the left, the preview and its programme on the right — the same preview
     // the phone draws on top, so a tap plays and a second tap is full screen there too.
@@ -379,6 +380,10 @@ fun LiveScreen(
                 tuner.tune(channel.id)
                 catchupFor = channel
             },
+            onOpenYesterday = {
+                tuner.tune(channel.id)
+                yesterdayFor = channel
+            },
             onDismiss = { menuFor = null },
         )
     }
@@ -406,6 +411,17 @@ fun LiveScreen(
             onPick = tuner::playCatchup,
             onJumpBack = { catchupFor = null; jumpBackOpen = true },
             onDismiss = { catchupFor = null },
+        )
+    }
+    yesterdayFor?.let { channel ->
+        tv.own.owntv.extras.catchup.YesterdayOnAirSheet(
+            channel = channel,
+            loadProgrammes = { fromMs, toMs -> vm.pastProgrammes(channel, fromMs, toMs) },
+            onPick = { prog ->
+                yesterdayFor = null
+                tuner.playCatchup(prog)
+            },
+            onDismiss = { yesterdayFor = null },
         )
     }
     if (jumpBackOpen) {

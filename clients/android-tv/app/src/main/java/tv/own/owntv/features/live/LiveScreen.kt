@@ -226,6 +226,7 @@ fun LiveScreen(
     var catchupDetail by remember {
         mutableStateOf<Pair<ChannelEntity, tv.own.owntv.core.database.entity.EpgProgrammeEntity>?>(null)
     }
+    var yesterdayChannel by remember { mutableStateOf<ChannelEntity?>(null) }
     var contextChannel by remember { mutableStateOf<ChannelEntity?>(null) } // long-press quick menu
     // Multiview: whether the menu offers it at all, how many tiles the grid has, and the confirmation
     // after a channel is kept (null = nothing to say).
@@ -960,6 +961,19 @@ fun LiveScreen(
         )
     }
 
+    yesterdayChannel?.let { ch ->
+        tv.own.owntv.extras.catchup.YesterdayOnAirDialog(
+            channel = ch,
+            loadProgrammes = { fromMs, toMs -> vm.pastProgrammes(ch, fromMs, toMs) },
+            onPick = { prog ->
+                yesterdayChannel = null
+                vm.playCatchupProgramme(ch, prog)
+                if (!externalPlayerOn) onFullscreen()
+            },
+            onDismiss = { yesterdayChannel = null },
+        )
+    }
+
     // Same dialog the Guide shows for a programme, so both routes offer the identical choice:
     // replay from the start, tune the channel live, favourite it, or back out.
     catchupDetail?.let { (ch, prog) ->
@@ -1028,6 +1042,7 @@ fun LiveScreen(
             onMatchEpg = { matchingEpg = ch; contextChannel = null },
             onEpgOffset = { offsettingEpg = ch; contextChannel = null },
             onCatchup = { catchupChannel = ch; contextChannel = null },
+            onYesterdayOnAir = { yesterdayChannel = ch; contextChannel = null },
             isRecording = ch.id in recordingChannelIds,
             onRecord = { if (ch.id in recordingChannelIds) vm.stopRecordingOn(ch) else vm.recordNow(ch); contextChannel = null },
             onScheduleRecord = { schedulingChannel = ch; contextChannel = null },
@@ -1183,6 +1198,7 @@ private fun ChannelContextMenu(
     onMatchEpg: () -> Unit,
     onEpgOffset: () -> Unit,
     onCatchup: () -> Unit,
+    onYesterdayOnAir: () -> Unit,
     // A recording of this channel is running: Record becomes Stop recording.
     isRecording: Boolean,
     onRecord: () -> Unit,
@@ -1207,7 +1223,10 @@ private fun ChannelContextMenu(
     // Group ids = the four groups, in their order.
     val watch = 0; val chan = 1; val guide = 2; val organise = 3
     val actions = buildList {
-        if (channel.catchup) add(MenuAction("catchup", stringResource(R.string.content_catchup), OwnTVIcon.REWIND, group = watch, onClick = onCatchup))
+        if (channel.catchup) {
+            add(MenuAction("catchup", stringResource(R.string.content_catchup), OwnTVIcon.REWIND, group = watch, onClick = onCatchup))
+            add(MenuAction("yesterday_on_air", stringResource(R.string.yesterday_on_air), OwnTVIcon.CALENDAR, group = watch, onClick = onYesterdayOnAir))
+        }
         // Record this channel from now. The guide's Record needs a programme, so a channel
         // the provider publishes no guide for can only be recorded from here. While it records, the
         // same row stops it — pressing Record again would start a second copy on another connection.

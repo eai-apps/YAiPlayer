@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- Copyright (C) 2026 YAiPlayer authors. Original code, written for YAiPlayer. -->
+    <string name="yesterday_on_air">Вчера в эфире</string>
+    <string name="yesterday_on_air_title">Вчера в эфире \u00b7 <xliff:g id="channel">%1$s</xliff:g></string>
+    <string name="yesterday_on_air_prompt">Выберите передачу за прошлые дни для просмотра из архива.</string>
+    <string name="yesterday_on_air_empty">Программа передач за этот день не найдена.</string>
+    <string name="yesterday_day_yesterday">Вчера</string>
+    <string name="yesterday_day_2_days">Позавчера</string>
+    <string name="yesterday_day_ago"><xliff:g id="days">%1$d</xliff:g> дн. назад</string>
+</resources>

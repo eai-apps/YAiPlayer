@@ -274,6 +274,7 @@
 1	preference-key	app/src/main/java/tv/own/owntv/mobile/ui/screens/live/ChannelActions.kt	remove_history
 1	preference-key	app/src/main/java/tv/own/owntv/mobile/ui/screens/live/ChannelActions.kt	rename
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/live/ChannelActions.kt	schedule_record
+1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/live/ChannelActions.kt	yesterday_on_air
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/live/ChannelActions.kt	−
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/live/LiveCatchupSheet.kt	jump-back
 1	empty	app/src/main/java/tv/own/owntv/mobile/ui/screens/live/LiveCategoriesSheet.kt	\0

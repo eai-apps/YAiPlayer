@@ -116,7 +116,7 @@ class LiveViewModel(
     private val streamUrlResolver: StreamUrlResolver,
     private val syncScheduler: CatalogSyncScheduler,
     private val startupSelection: StartupLiveSelection,
-    epgDao: EpgDao,
+    private val epgDao: EpgDao,
     /** The app-wide reader the Guide uses too — one now/next cache, not two. */
     private val epgReader: LiveEpgReader,
 ) : ViewModel() {
@@ -723,6 +723,19 @@ class LiveViewModel(
             _refreshing.value = false
         }
     }
+
+    /** Past programmes for a channel in a specific time window [fromMs..toMs], for "Yesterday on air". */
+    suspend fun pastProgrammes(ch: ChannelEntity, fromMs: Long, toMs: Long): List<EpgProgrammeEntity> =
+        withContext(kotlinx.coroutines.Dispatchers.IO) {
+            val epgKey = (custom.value.epgMatchResolver.epgIdFor(ch) ?: ch.epgChannelId)
+                ?.trim()?.lowercase()?.takeIf { it.isNotEmpty() } ?: return@withContext emptyList()
+            val shift = tv.own.owntv.core.epg.EpgShift.minutesFor(custom.value, ch, settings.epgOffsetMinutes.first())
+            val atFrom = tv.own.owntv.core.epg.EpgShift.toStored(fromMs, shift)
+            val atTo = tv.own.owntv.core.epg.EpgShift.toStored(toMs, shift)
+            epgDao.programmesForChannel(epgKey, atFrom, atTo)
+                .map { tv.own.owntv.core.epg.EpgShift.apply(it, shift) }
+                .sortedBy { it.startMs }
+        }
 
     private companion object {
         const val PAGE_SIZE = 60

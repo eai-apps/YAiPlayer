@@ -1722,6 +1722,19 @@ class LiveViewModel(
     suspend fun catchupProgrammes(ch: ChannelEntity): List<tv.own.owntv.core.database.entity.EpgProgrammeEntity> =
         epgReader.catchupProgrammes(ch, custom.value, epgOffset.value, ctx.value.sourceIds)
 
+    /** Past programmes for a channel in a specific time window [fromMs..toMs], for "Yesterday on air". */
+    suspend fun pastProgrammes(ch: ChannelEntity, fromMs: Long, toMs: Long): List<tv.own.owntv.core.database.entity.EpgProgrammeEntity> =
+        withContext(kotlinx.coroutines.Dispatchers.IO) {
+            val epgKey = (custom.value.epgMatchResolver.epgIdFor(ch) ?: ch.epgChannelId)
+                ?.trim()?.lowercase()?.takeIf { it.isNotEmpty() } ?: return@withContext emptyList()
+            val shift = tv.own.owntv.core.epg.EpgShift.minutesFor(custom.value, ch, epgOffset.value)
+            val atFrom = tv.own.owntv.core.epg.EpgShift.toStored(fromMs, shift)
+            val atTo = tv.own.owntv.core.epg.EpgShift.toStored(toMs, shift)
+            epgDao.programmesForChannel(epgKey, atFrom, atTo)
+                .map { tv.own.owntv.core.epg.EpgShift.apply(it, shift) }
+                .sortedBy { it.startMs }
+        }
+
     /** Full description for a programme picked in the catch-up dialog. The list query drops it to stay
      *  under the CursorWindow limit, so the detail popup fetches it on demand (same as the Guide). */
     suspend fun programmeDescription(programmeId: Long): String? = epgReader.programmeDescription(programmeId)

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- Copyright (C) 2026 YAiPlayer authors. Original code, written for YAiPlayer. -->
+    <string name="yesterday_on_air">Gestern auf Sendung</string>
+    <string name="yesterday_on_air_title">Gestern auf Sendung \u00b7 <xliff:g id="channel">%1$s</xliff:g></string>
+    <string name="yesterday_on_air_prompt">Wählen Sie eine Sendung der vergangenen Tage aus dem Archiv.</string>
+    <string name="yesterday_on_air_empty">Kein Programmarchiv für diesen Tag gefunden.</string>
+    <string name="yesterday_day_yesterday">Gestern</string>
+    <string name="yesterday_day_2_days">Vorgestern</string>
+    <string name="yesterday_day_ago">Vor <xliff:g id="days">%1$d</xliff:g> Tagen</string>
+</resources>

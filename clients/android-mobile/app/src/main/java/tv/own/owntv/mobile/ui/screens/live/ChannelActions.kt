@@ -81,6 +81,7 @@ fun ChannelMenu(
     providerName: String?,
     vm: LiveViewModel,
     onOpenCatchup: () -> Unit,
+    onOpenYesterday: () -> Unit,
     onDismiss: () -> Unit,
 ) {
     var sheetOpen by remember { mutableStateOf(true) }
@@ -120,6 +121,7 @@ fun ChannelMenu(
         val actions = buildList {
             if (channel.catchup) {
                 add(SheetAction("catchup", stringResource(R.string.content_catchup), MobileIcons.Catchup, group = watch, value = catchupValue, onClick = onOpenCatchup))
+                add(SheetAction("yesterday_on_air", stringResource(R.string.yesterday_on_air), MobileIcons.CalendarMonth, group = watch, onClick = onOpenYesterday))
             }
             // Record this channel from now. The guide's Record needs a programme, so a channel the
             // provider publishes no guide for can only be recorded from here. While it records, the

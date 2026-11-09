@@ -331,6 +331,10 @@ fun OwnTVShell(
     val multiviewTileCount by settingsRepo.multiviewTiles.collectAsStateWithLifecycle(
         tv.own.owntv.core.live.DEFAULT_MULTIVIEW_TILES,
     )
+    val shellContext = androidx.compose.ui.platform.LocalContext.current
+    val effectiveMultiviewTiles = remember(shellContext, multiviewTileCount) {
+        tv.own.owntv.extras.multiview.DeviceMemory.maxAllowedTiles(shellContext, multiviewTileCount)
+    }
     val enginePool = koinInject<tv.own.owntv.player.LiveEnginePool>()
     val streamRegistry = koinInject<tv.own.owntv.core.live.OpenStreamRegistry>()
     var multiview by remember { mutableStateOf<tv.own.owntv.features.multiview.MultiviewState?>(null) }
@@ -638,7 +642,7 @@ fun OwnTVShell(
             pool = enginePool,
             registry = streamRegistry,
             live = liveVm,
-            maxTiles = multiviewTileCount,
+            maxTiles = effectiveMultiviewTiles,
         )
         var tile = 0
         first?.let { state.fill(tile++, it) }

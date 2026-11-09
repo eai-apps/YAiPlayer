@@ -1,0 +1,19 @@
+{
+  "appName": "CustomIPTV",
+  "applicationId": {
+    "tv": "com.custom.iptv.player.tv",
+    "mobile": "com.custom.iptv.player.mobile"
+  },
+  "primaryColor": "#1E3A8A",
+  "accentColor": "#F59E0B",
+  "githubOwner": "my-org",
+  "githubRepo": "my-iptv-player",
+  "telegramChannel": "@my_iptv_channel",
+  "telegramChat": "@my_iptv_chat",
+  "siteUrl": "https://my-iptv-player.pages.dev",
+  "apiBaseUrl": "https://my-sync-worker.workers.dev",
+  "logos": {
+    "launcherSvg": "tools/brand/custom_logo.svg",
+    "bannerPng": "tools/brand/custom_banner.png"
+  }
+}
