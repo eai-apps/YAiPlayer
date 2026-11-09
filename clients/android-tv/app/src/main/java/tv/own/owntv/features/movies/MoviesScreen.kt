@@ -1191,7 +1191,7 @@ private fun buildMovieDetails(
         plot = plot,
         cast = tv.own.owntv.core.metadata.MetadataCast.parse(meta?.castJson),
         year = movie.year ?: meta?.year,
-        durationText = movie.durationSecs?.takeIf { it > 0 }?.let { vodRuntime(it) },
+        durationText = movie.durationSecs?.takeIf { it > 0 }?.let { tv.own.owntv.features.shell.components.vodRuntime(it) },
     )
 }
 
