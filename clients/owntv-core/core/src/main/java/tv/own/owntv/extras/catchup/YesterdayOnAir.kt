@@ -3,7 +3,7 @@ package tv.own.owntv.extras.catchup
 
 import java.util.Calendar
 import java.util.TimeZone
-import tv.own.owntv.R
+import tv.own.owntv.core.R
 
 /**
  * Data and calculations for browsing past days' EPG schedule on catchup-enabled channels ("Yesterday on air").
