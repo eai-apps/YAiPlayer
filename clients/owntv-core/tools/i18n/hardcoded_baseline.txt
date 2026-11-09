@@ -7,6 +7,78 @@
 1	core/src/main/java/tv/own/owntv/core/backup/BackupManager.kt	$mapped:${contextKey.substringAfter(':')}
 1	core/src/main/java/tv/own/owntv/core/backup/BackupManager.kt	movedFrom
 4	core/src/main/java/tv/own/owntv/core/backup/BackupManager.kt	opensub_api_key_enc
+1	core/src/main/java/tv/own/owntv/core/backup/SettingsBackupManager.kt	catOrder
+1	core/src/main/java/tv/own/owntv/core/backup/SettingsBackupManager.kt	catPos
+4	core/src/main/java/tv/own/owntv/core/backup/SettingsBackupManager.kt	ctx
+1	core/src/main/java/tv/own/owntv/core/backup/SettingsBackupManager.kt	cust
+1	core/src/main/java/tv/own/owntv/core/backup/SettingsBackupManager.kt	cust_${localPid}_${parts.drop(2).joinToString("_")}
+5	core/src/main/java/tv/own/owntv/core/backup/SettingsBackupManager.kt	customizations
+1	core/src/main/java/tv/own/owntv/core/backup/SettingsBackupManager.kt	enabled
+3	core/src/main/java/tv/own/owntv/core/backup/SettingsBackupManager.kt	epgSources
+1	core/src/main/java/tv/own/owntv/core/backup/SettingsBackupManager.kt	exportedAt
+2	core/src/main/java/tv/own/owntv/core/backup/SettingsBackupManager.kt	fav
+2	core/src/main/java/tv/own/owntv/core/backup/SettingsBackupManager.kt	formatVersion
+1	core/src/main/java/tv/own/owntv/core/backup/SettingsBackupManager.kt	hiddenCats
+4	core/src/main/java/tv/own/owntv/core/backup/SettingsBackupManager.kt	id
+2	core/src/main/java/tv/own/owntv/core/backup/SettingsBackupManager.kt	isKids
+1	core/src/main/java/tv/own/owntv/core/backup/SettingsBackupManager.kt	key
+1	core/src/main/java/tv/own/owntv/core/backup/SettingsBackupManager.kt	kind
+1	core/src/main/java/tv/own/owntv/core/backup/SettingsBackupManager.kt	member
+6	core/src/main/java/tv/own/owntv/core/backup/SettingsBackupManager.kt	name
+1	core/src/main/java/tv/own/owntv/core/backup/SettingsBackupManager.kt	order
+2	core/src/main/java/tv/own/owntv/core/backup/SettingsBackupManager.kt	p
+1	core/src/main/java/tv/own/owntv/core/backup/SettingsBackupManager.kt	pass
+1	core/src/main/java/tv/own/owntv/core/backup/SettingsBackupManager.kt	pending_backup_playlists.json
+1	core/src/main/java/tv/own/owntv/core/backup/SettingsBackupManager.kt	pin
+3	core/src/main/java/tv/own/owntv/core/backup/SettingsBackupManager.kt	playlists
+3	core/src/main/java/tv/own/owntv/core/backup/SettingsBackupManager.kt	profiles
+2	core/src/main/java/tv/own/owntv/core/backup/SettingsBackupManager.kt	quickStartMode
+1	core/src/main/java/tv/own/owntv/core/backup/SettingsBackupManager.kt	secret
+2	core/src/main/java/tv/own/owntv/core/backup/SettingsBackupManager.kt	settings
+1	core/src/main/java/tv/own/owntv/core/backup/SettingsBackupManager.kt	sort
+4	core/src/main/java/tv/own/owntv/core/backup/SettingsBackupManager.kt	src
+1	core/src/main/java/tv/own/owntv/core/backup/SettingsBackupManager.kt	token
+1	core/src/main/java/tv/own/owntv/core/backup/SettingsBackupManager.kt	type
+2	core/src/main/java/tv/own/owntv/core/backup/SettingsBackupManager.kt	url
+5	core/src/main/java/tv/own/owntv/core/backup/SettingsBackupManager.kt	userData
+1	core/src/main/java/tv/own/owntv/core/backup/SettingsBackupManager.kt	yaiplayer
+1	core/src/main/java/tv/own/owntv/core/backup/SettingsBackupManager.kt	yaiplayer-backup-$date.json
+1	core/src/main/java/tv/own/owntv/core/backup/SettingsBackupManager.kt	yyyyMMdd
+10	core/src/main/java/tv/own/owntv/core/backup/SettingsTransferServer.kt	\0
+1	core/src/main/java/tv/own/owntv/core/backup/SettingsTransferServer.kt	$h
+2	core/src/main/java/tv/own/owntv/core/backup/SettingsTransferServer.kt	&
+2	core/src/main/java/tv/own/owntv/core/backup/SettingsTransferServer.kt	-
+2	core/src/main/java/tv/own/owntv/core/backup/SettingsTransferServer.kt	127.0.0.1
+1	core/src/main/java/tv/own/owntv/core/backup/SettingsTransferServer.kt	400 Bad Request - no JSON content found
+2	core/src/main/java/tv/own/owntv/core/backup/SettingsTransferServer.kt	401 Unauthorized - invalid or expired token
+1	core/src/main/java/tv/own/owntv/core/backup/SettingsTransferServer.kt	413 Payload Too Large
+1	core/src/main/java/tv/own/owntv/core/backup/SettingsTransferServer.kt	413 Payload Too Large - file exceeds 5MB limit
+2	core/src/main/java/tv/own/owntv/core/backup/SettingsTransferServer.kt	:
+1	core/src/main/java/tv/own/owntv/core/backup/SettingsTransferServer.kt	<!DOCTYPE html> <html> <head> <meta charset="utf-8"> <meta name="viewport" content="width=device-width, initial-scale=1"> <title>YAiPlayer Settings Restore</title> <style> body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #121212; color: #fff; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; text-align: center; } .card { background: #1e1e1e; border: 1px solid #333; border-radius: 16px; padding: 32px; max-width: 440px; width: 100%; box-shadow: 0 8px 24px rgba(0,0,0,0.5); } h1 { color: #10b981; font-size: 22px; margin-top: 0; } p { font-size: 15px; color: #ccc; line-height: 1.5; margin-bottom: 0; } </style> </head> <body> <div class="card"> <h1>Файл успешно передан!</h1> <p>Проверьте экран телевизора и подтвердите восстановление настроек.</p> </div> </body> </html>
+1	core/src/main/java/tv/own/owntv/core/backup/SettingsTransferServer.kt	<!DOCTYPE html> <html> <head> <meta charset="utf-8"> <meta name="viewport" content="width=device-width, initial-scale=1"> <title>YAiPlayer Settings Restore</title> <style> body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #121212; color: #fff; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; } .card { background: #1e1e1e; border: 1px solid #333; border-radius: 16px; padding: 32px; max-width: 440px; width: 100%; box-shadow: 0 8px 24px rgba(0,0,0,0.5); text-align: center; } h1 { font-size: 20px; margin-top: 0; margin-bottom: 8px; } p { font-size: 14px; color: #aaa; margin-bottom: 24px; line-height: 1.5; } .file-input { margin-bottom: 24px; } input[type="file"] { display: none; } .file-label { display: block; background: #2a2a2a; border: 2px dashed #444; border-radius: 12px; padding: 24px 16px; cursor: pointer; color: #ccc; transition: all 0.2s; word-break: break-all; } .file-label:hover { border-color: #6366f1; color: #fff; } button { width: 100%; background: #4f46e5; color: #fff; border: none; border-radius: 10px; padding: 14px; font-size: 16px; font-weight: 600; cursor: pointer; transition: background 0.2s; } button:hover { background: #4338ca; } </style> </head> <body> <div class="card"> <h1>Загрузить резервную копию</h1> <p>Выберите файл резервной копии (.json) для передачи на ТВ (максимум 5 МБ)</p> <form method="POST" action="/restore?token=$token" enctype="multipart/form-data"> <div class="file-input"> <label class="file-label" id="file-label"> <input type="file" name="backup" accept=".json,application/json" required onchange="document.getElementById('file-label').textContent = this.files[0] ? this.files[0].name : 'Выберите файл';"> <span>Нажмите, чтобы выбрать .json файл</span> </label> </div> <button type="submit">Загрузить на ТВ</button> </form> </div> </body> </html>
+2	core/src/main/java/tv/own/owntv/core/backup/SettingsTransferServer.kt	=
+3	core/src/main/java/tv/own/owntv/core/backup/SettingsTransferServer.kt	?
+5	core/src/main/java/tv/own/owntv/core/backup/SettingsTransferServer.kt	Bad Request
+1	core/src/main/java/tv/own/owntv/core/backup/SettingsTransferServer.kt	Cache-Control: no-cache, no-store, must-revalidate
+1	core/src/main/java/tv/own/owntv/core/backup/SettingsTransferServer.kt	Connection: close
+1	core/src/main/java/tv/own/owntv/core/backup/SettingsTransferServer.kt	Content-Disposition: attachment; filename="$filename"
+1	core/src/main/java/tv/own/owntv/core/backup/SettingsTransferServer.kt	Content-Length: ${body.size}
+1	core/src/main/java/tv/own/owntv/core/backup/SettingsTransferServer.kt	Content-Type: $contentType
+2	core/src/main/java/tv/own/owntv/core/backup/SettingsTransferServer.kt	GET
+1	core/src/main/java/tv/own/owntv/core/backup/SettingsTransferServer.kt	HTTP/1.1 $code $status
+3	core/src/main/java/tv/own/owntv/core/backup/SettingsTransferServer.kt	OK
+1	core/src/main/java/tv/own/owntv/core/backup/SettingsTransferServer.kt	POST
+2	core/src/main/java/tv/own/owntv/core/backup/SettingsTransferServer.kt	Payload Too Large
+2	core/src/main/java/tv/own/owntv/core/backup/SettingsTransferServer.kt	Unauthorized
+1	core/src/main/java/tv/own/owntv/core/backup/SettingsTransferServer.kt	application/json; charset=utf-8
+1	core/src/main/java/tv/own/owntv/core/backup/SettingsTransferServer.kt	content-length:
+1	core/src/main/java/tv/own/owntv/core/backup/SettingsTransferServer.kt	content-type:
+1	core/src/main/java/tv/own/owntv/core/backup/SettingsTransferServer.kt	http://$lanHost:$port/backup?token=$token
+1	core/src/main/java/tv/own/owntv/core/backup/SettingsTransferServer.kt	http://$lanHost:$port/restore?token=$token
+2	core/src/main/java/tv/own/owntv/core/backup/SettingsTransferServer.kt	text/html; charset=utf-8
+2	core/src/main/java/tv/own/owntv/core/backup/SettingsTransferServer.kt	text/plain
+5	core/src/main/java/tv/own/owntv/core/backup/SettingsTransferServer.kt	text/plain; charset=utf-8
+2	core/src/main/java/tv/own/owntv/core/backup/SettingsTransferServer.kt	token
 1	core/src/main/java/tv/own/owntv/core/backup/UserDataResolver.kt	oid
 3	core/src/main/java/tv/own/owntv/core/backup/UserDataResolver.kt	pos
 1	core/src/main/java/tv/own/owntv/core/catalog/ProviderCatalogMetadata.kt	2.0 Audio
@@ -129,55 +201,6 @@
 1	core/src/main/java/tv/own/owntv/core/database/entity/UserDataEntities.kt	custom_category_members
 1	core/src/main/java/tv/own/owntv/core/database/entity/UserDataEntities.kt	itemId
 2	core/src/main/java/tv/own/owntv/core/database/entity/UserDataEntities.kt	mediaType
-1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	chart
-1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	child
-1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	children
-1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	cinema
-1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	classical music
-1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	comedy
-1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	concert
-1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	cricket
-1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	crime
-1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	culture
-1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	current affairs
-1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	discovery
-1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	doc
-1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	documentary
-1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	drama
-1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	education
-1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	educational
-1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	episode
-1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	family
-1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	feature film
-1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	film
-1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	football
-1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	for children
-1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	formula 1
-1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	geography
-1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	history
-1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	hockey
-1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	horror
-1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	information
-1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	investigation
-1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	jazz
-1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	kids
-1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	martial arts
-1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	mini-series
-1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	miniseries
-1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	mma
-1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	motorsport
-1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	movie
-1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	music
-1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	music video
-1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	musical
-1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	nature
-1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	news
-1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	olympics
-1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	opera
-1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	politics
-1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	pop
-1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	racing
-1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	report
 1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	rock
 1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	romance
 1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	rugby

@@ -41,7 +41,45 @@ class BackupViewModel(
     profileDao: ProfileDao,
     settings: SettingsRepository,
     private val companion: CompanionController,
+    val settingsBackupManager: tv.own.owntv.core.backup.SettingsBackupManager? = null,
 ) : ViewModel() {
+
+    fun exportSettingsCopy(onReady: (File) -> Unit) {
+        val manager = settingsBackupManager ?: return
+        viewModelScope.launch(Dispatchers.IO) {
+            busy = true
+            try {
+                val json = manager.exportJson()
+                val filename = manager.formatFilename()
+                val file = File(context.cacheDir, filename)
+                file.writeText(json)
+                withContext(Dispatchers.Main) {
+                    busy = false
+                    onReady(file)
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    busy = false
+                    outcome = Outcome.Failed(R.string.settings_backup_failed)
+                }
+            }
+        }
+    }
+
+    fun validateSettingsBackup(raw: String): tv.own.owntv.core.backup.SettingsBackupManager.ValidationResult {
+        val manager = settingsBackupManager ?: return tv.own.owntv.core.backup.SettingsBackupManager.ValidationResult.InvalidFormat
+        return manager.validateJson(raw)
+    }
+
+    fun applySettingsBackup(raw: String, onDone: (Result<tv.own.owntv.core.backup.SettingsBackupManager.BackupSummary>) -> Unit) {
+        val manager = settingsBackupManager ?: return
+        viewModelScope.launch {
+            busy = true
+            val result = manager.restoreFromJson(raw)
+            busy = false
+            onDone(result)
+        }
+    }
 
     val profiles: StateFlow<List<ProfileEntity>> = profileDao.observeAll()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), emptyList())

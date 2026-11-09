@@ -713,4 +713,16 @@
     <string name="on_air_genre_kids">Kids</string>
     <string name="on_air_genre_music">Music</string>
     <string name="on_air_genre_educational">Educational</string>
+    <string name="backup_settings_title">Backup &amp; Restore</string>
+    <string name="backup_save_copy">Save backup</string>
+    <string name="backup_restore_copy">Restore from backup</string>
+    <string name="backup_preview_title">Backup Preview</string>
+    <string name="backup_preview_summary">Profiles: %1$d, favorites: %2$d, categories: %3$d, EPG feeds: %4$d</string>
+    <string name="backup_confirm_apply">Apply</string>
+    <string name="backup_error_invalid_format">Invalid or corrupt backup format</string>
+    <string name="backup_error_newer_version">This backup is from a newer app version. Please update the app.</string>
+    <string name="backup_lan_transfer_title">Local Network Transfer</string>
+    <string name="backup_lan_transfer_desc">Open this address on your phone or PC on the same Wi-Fi network</string>
+    <string name="backup_upload_success">Backup uploaded! Check your TV screen.</string>
+    <string name="backup_applied_success">Settings restored successfully</string>
 </resources>

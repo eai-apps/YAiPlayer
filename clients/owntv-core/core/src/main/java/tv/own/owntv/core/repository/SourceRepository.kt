@@ -28,6 +28,7 @@ class SourceRepository(
     private val categoryDao: tv.own.owntv.core.database.dao.CategoryDao,
     private val playbackQuirkDao: tv.own.owntv.core.database.dao.PlaybackQuirkDao,
     private val playbackPrefsDao: tv.own.owntv.core.database.dao.PlaybackPrefsDao,
+    private val settingsBackup: tv.own.owntv.core.backup.SettingsBackupManager? = null,
 ) {
     fun observeSources(profileId: Long): Flow<List<SourceEntity>> = sourceDao.observeForProfile(profileId)
 
@@ -79,7 +80,9 @@ class SourceRepository(
     private suspend fun addAndLink(profileId: Long, source: SourceEntity): SourceEntity {
         val id = sourceDao.insert(source)
         sourceDao.link(ProfileSourceCrossRef(profileId = profileId, sourceId = id))
-        return source.copy(id = id)
+        val created = source.copy(id = id)
+        runCatching { settingsBackup?.onSourceConnected(created) }
+        return created
     }
 
     /**

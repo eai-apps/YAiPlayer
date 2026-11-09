@@ -390,4 +390,16 @@
     <string name="on_air_genre_kids">Kinder</string>
     <string name="on_air_genre_music">Musik</string>
     <string name="on_air_genre_educational">Wissen</string>
+    <string name="backup_settings_title">Sicherung &amp; Wiederherstellung</string>
+    <string name="backup_save_copy">Sicherung erstellen</string>
+    <string name="backup_restore_copy">Aus Sicherung wiederherstellen</string>
+    <string name="backup_preview_title">Sicherungsvorschau</string>
+    <string name="backup_preview_summary">Profile: %1$d, Favoriten: %2$d, Kategorien: %3$d, EPG-Quellen: %4$d</string>
+    <string name="backup_confirm_apply">Anwenden</string>
+    <string name="backup_error_invalid_format">Ungültiges oder beschädigtes Sicherungsformat</string>
+    <string name="backup_error_newer_version">Diese Sicherung stammt aus einer neueren App-Version. Bitte App aktualisieren.</string>
+    <string name="backup_lan_transfer_title">Übertragung im lokalen Netzwerk</string>
+    <string name="backup_lan_transfer_desc">Öffnen Sie diese Adresse auf dem Smartphone oder PC im selben WLAN</string>
+    <string name="backup_upload_success">Sicherung hochgeladen! Auf dem TV-Bildschirm bestätigen.</string>
+    <string name="backup_applied_success">Einstellungen erfolgreich wiederhergestellt</string>
 </resources>

@@ -422,4 +422,16 @@
     <string name="on_air_genre_kids">Детям</string>
     <string name="on_air_genre_music">Музыка</string>
     <string name="on_air_genre_educational">Познавательное</string>
+    <string name="backup_settings_title">Резервная копия</string>
+    <string name="backup_save_copy">Сохранить копию</string>
+    <string name="backup_restore_copy">Восстановить из копии</string>
+    <string name="backup_preview_title">Предпросмотр резервной копии</string>
+    <string name="backup_preview_summary">Профилей: %1$d, избранных каналов: %2$d, категорий: %3$d, источников EPG: %4$d</string>
+    <string name="backup_confirm_apply">Применить</string>
+    <string name="backup_error_invalid_format">Неверный или повреждённый формат копии</string>
+    <string name="backup_error_newer_version">Версия копии новее приложения. Пожалуйста, обновите приложение.</string>
+    <string name="backup_lan_transfer_title">Перенос по домашней сети</string>
+    <string name="backup_lan_transfer_desc">Откройте этот адрес на телефоне или компьютере в той же сети Wi-Fi</string>
+    <string name="backup_upload_success">Копия загружена! Подтвердите на экране ТВ.</string>
+    <string name="backup_applied_success">Настройки успешно восстановлены</string>
 </resources>
