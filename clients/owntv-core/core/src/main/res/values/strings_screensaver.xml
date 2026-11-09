@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="screensaver_title">Screensaver</string>
+    <string name="screensaver_desc">Photos and clock when idle</string>
+    <string name="screensaver_enable">Enable screensaver</string>
+    <string name="screensaver_timeout">Idle timeout</string>
+    <string name="screensaver_timeout_1m">1 minute</string>
+    <string name="screensaver_timeout_3m">3 minutes</string>
+    <string name="screensaver_timeout_5m">5 minutes</string>
+    <string name="screensaver_timeout_10m">10 minutes</string>
+    <string name="screensaver_timeout_15m">15 minutes</string>
+    <string name="screensaver_timeout_30m">30 minutes</string>
+    <string name="screensaver_mode">Display mode</string>
+    <string name="screensaver_mode_posters">Catalog posters</string>
+    <string name="screensaver_mode_nature">Nature and Space</string>
+    <string name="screensaver_mode_clock">Clock</string>
+    <string name="screensaver_mode_mix">Mix</string>
+    <string name="screensaver_corner_clock">Show corner clock</string>
+    <string name="screensaver_corner_clock_desc">Small clock overlay during photos</string>
+    <string name="screensaver_preview">Preview</string>
+    <string name="screensaver_preview_desc">Start screensaver now</string>
+    <string name="screensaver_dismiss_hint">Press any button to return</string>
+</resources>

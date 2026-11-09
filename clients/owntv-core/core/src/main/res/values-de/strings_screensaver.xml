@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="screensaver_title">Bildschirmschoner</string>
+    <string name="screensaver_desc">Fotos und Uhr im Ruhezustand</string>
+    <string name="screensaver_enable">Bildschirmschoner aktivieren</string>
+    <string name="screensaver_timeout">Wartezeit bis Aktivierung</string>
+    <string name="screensaver_timeout_1m">1 Minute</string>
+    <string name="screensaver_timeout_3m">3 Minuten</string>
+    <string name="screensaver_timeout_5m">5 Minuten</string>
+    <string name="screensaver_timeout_10m">10 Minuten</string>
+    <string name="screensaver_timeout_15m">15 Minuten</string>
+    <string name="screensaver_timeout_30m">30 Minuten</string>
+    <string name="screensaver_mode">Anzeigemodus</string>
+    <string name="screensaver_mode_posters">Katalogposter</string>
+    <string name="screensaver_mode_nature">Natur und Weltall</string>
+    <string name="screensaver_mode_clock">Uhr</string>
+    <string name="screensaver_mode_mix">Mix</string>
+    <string name="screensaver_corner_clock">Uhr in der Ecke</string>
+    <string name="screensaver_corner_clock_desc">Kleine Uhr über Fotos anzeigen</string>
+    <string name="screensaver_preview">Vorschau</string>
+    <string name="screensaver_preview_desc">Bildschirmschoner jetzt starten</string>
+    <string name="screensaver_dismiss_hint">Beliebige Taste zum Beenden drücken</string>
+</resources>
