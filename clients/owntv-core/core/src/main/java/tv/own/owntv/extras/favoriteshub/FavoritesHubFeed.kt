@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import tv.own.owntv.core.content.AdultCategoryClassifier
 import tv.own.owntv.core.customize.CustomizationStore
+import tv.own.owntv.core.customize.CustomizeKeys
 import tv.own.owntv.core.database.dao.CategoryDao
 import tv.own.owntv.core.database.dao.ChannelDao
 import tv.own.owntv.core.database.dao.EpgDao
@@ -97,13 +98,9 @@ class FavoritesHubFeed(
             }
 
             // EPG on-air programmes
-            val epgShiftHours = settings.epgTimeShiftHours.first()
-            val epgTimeShiftMin = settings.epgTimeShiftMin.first()
-            val userShift = epgShiftHours * 60 + epgTimeShiftMin
+            val globalShiftMinutes = settings.epgOffsetMinutes.first()
             val keyed = channels.mapNotNull { ch ->
-                val key = epgKeyOf(ch.epgChannelId, ch.name) ?: return@mapNotNull null
-                val totalShift = userShift + ch.catchupCorrectionMin
-                Triple(ch, key, totalShift)
+                epgKeyOf(ch, liveCustom)?.let { key -> Triple(ch, key, EpgShift.minutesFor(liveCustom, ch, globalShiftMinutes)) }
             }
 
             val programmesByChannelId = HashMap<Long, EpgProgrammeEntity>()
@@ -127,7 +124,7 @@ class FavoritesHubFeed(
                 categoriesById = categoriesById,
                 sourceNamesById = sourceNamesById,
                 hiddenCategoryIds = hiddenCatIds,
-                hiddenChannelIds = liveCustom.hiddenItems,
+                hiddenChannelIds = channels.filter { CustomizeKeys.channel(it) in liveCustom.hiddenItems }.mapTo(HashSet()) { it.id },
                 sealedCategoryIds = liveCustom.sealedCategoryIds,
                 manualPositions = emptyMap(), // channels from snapshotFavoritesManual already in manual order
                 categoryOrder = categoryOrder,

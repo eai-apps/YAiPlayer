@@ -26,7 +26,7 @@ class FavoritesHubViewModel(
     init {
         viewModelScope.launch {
             activeProfileId = settings.activeProfileId.first()
-            currentSourceId = settings.activePlaylistId.first().takeIf { it > 0 }
+            currentSourceId = null // the feed resolves the active playlist itself
             val savedFilterAll = settings.favoritesHubAllPlaylists.first()
             currentFilter = if (savedFilterAll) FavoritesHubFilter.ALL_PLAYLISTS else FavoritesHubFilter.CURRENT_ONLY
             refresh()
@@ -46,7 +46,7 @@ class FavoritesHubViewModel(
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true)
             activeProfileId = settings.activeProfileId.first()
-            currentSourceId = settings.activePlaylistId.first().takeIf { it > 0 }
+            currentSourceId = null // the feed resolves the active playlist itself
             val newState = feed.loadState(
                 profileId = activeProfileId,
                 currentSourceId = currentSourceId,
