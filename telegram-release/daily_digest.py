@@ -50,6 +50,9 @@ def kind(text: str) -> str:
     return "better"
 
 
+MAX_PER_GROUP = 4  # a short post is read; a long one is scrolled past
+
+
 def main() -> int:
     end_date = datetime.strptime(sys.argv[1], "%Y-%m-%d").date() if len(sys.argv) > 1 and sys.argv[1] else datetime.now(BERLIN).date()
     end = datetime.combine(end_date, time(9, 0), tzinfo=BERLIN)
@@ -86,7 +89,11 @@ def main() -> int:
     titles = (("new", "🆕 <b>Новое</b>"), ("better", "✨ <b>Стало лучше</b>"), ("fix", "🛠 <b>Исправлено</b>"))
     for key, title in titles:
         if groups[key]:
-            lines += ["", title] + [f"• {esc(n)}" for n in groups[key]]
+            shown = groups[key][:MAX_PER_GROUP]
+            more = len(groups[key]) - len(shown)
+            lines += ["", title] + [f"• {esc(n[:160])}" for n in shown]
+            if more > 0:
+                lines.append(f"<i>…и ещё {more}</i>")
     lines += ["", "<i>Обновитесь до последней версии и напишите в чат, если что-то не так</i> 🙌"]
     path = "digest.html"
     with open(path, "w", encoding="utf-8") as f:

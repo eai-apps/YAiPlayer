@@ -1,10 +1,10 @@
 name: Daily digest to Telegram
 # One post a day at 09:00 Berlin about everything released since 09:00 the day before (no post if nothing was). GitHub cron is UTC only, so it is
-# triggered at both 07:00 and 08:00 UTC and the job runs only when it is 09:xx in Berlin.
+# queued at 06:15 and 07:15 UTC (one of them is 08:15 Berlin, winter or summer), waits until 09:00 sharp, and the other is skipped.
 on:
   schedule:
-    - cron: "5 7 * * *"
-    - cron: "5 8 * * *"
+    - cron: "15 6 * * *"
+    - cron: "15 7 * * *"
   workflow_dispatch:
     inputs:
       day:
@@ -20,8 +20,8 @@ jobs:
       - name: Only at 09:00 Berlin
         id: gate
         run: |
-          h=$(TZ=Europe/Berlin date +%H)
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "$h" = "09" ]; then echo "go=1" >> "$GITHUB_OUTPUT"; fi
+          h=$(TZ=Europe/Berlin date +%H); m=$(TZ=Europe/Berlin date +%M)
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "$h" = "08" ] || { [ "$h" = "09" ] && [ "$m" -lt 10 ]; }; then echo "go=1" >> "$GITHUB_OUTPUT"; fi
       - name: Build and send
         if: steps.gate.outputs.go == '1'
         env:
@@ -29,5 +29,8 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
+          # GitHub starts scheduled runs 5-20 minutes late, so the job is queued early and waits for 09:00 sharp.
+          now=$(date +%s); target=$(TZ=Europe/Berlin date -d "today 09:00" +%s)
+          if [ "${{ github.event_name }}" != "workflow_dispatch" ] && [ "$target" -gt "$now" ]; then sleep $((target - now)); fi
           f=$(python3 telegram-release/daily_digest.py "${{ inputs.day }}")
           if [ -n "$f" ]; then python3 telegram-release/post_release.py --announce-file "$f"; else echo "no releases in the last 24 hours"; fi
