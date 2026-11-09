@@ -109,6 +109,7 @@ class MovieViewModel(
     private val externalPlayerLauncher: tv.own.owntv.core.player.ExternalPlayerLauncher,
     private val streamUrlResolver: tv.own.owntv.core.stalker.StreamUrlResolver,
     private val subtitleController: tv.own.owntv.core.subtitles.SubtitleController,
+    private val providerDetails: tv.own.owntv.core.repository.ProviderDetailsRepository,
 ) : ViewModel() {
 
     /** The categories' search text, held here so it survives the player (see LiveViewModel). */
@@ -562,7 +563,15 @@ class MovieViewModel(
         }
     }
     fun setSearchQuery(query: String) { _search.value = query }
-    fun onMovieFocused(movie: MovieEntity) { _selectedMovie.value = movie }
+    fun onMovieFocused(movie: MovieEntity) {
+        _selectedMovie.value = movie
+        viewModelScope.launch {
+            delay(tv.own.owntv.core.metadata.MetadataRepository.FOCUS_DEBOUNCE_MS)
+            if (_selectedMovie.value?.id != movie.id) return@launch
+            val enriched = providerDetails.movie(movie)
+            if (_selectedMovie.value?.id == movie.id) _selectedMovie.value = enriched
+        }
+    }
 
     /** Search's "Go to movie": the titles scroll to [reveal] and focus it, then call [revealDone]. */
     private val _reveal = MutableStateFlow<tv.own.owntv.features.search.Reveal?>(null)

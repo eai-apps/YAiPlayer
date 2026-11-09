@@ -518,6 +518,17 @@ open class StalkerClient(okHttpClient: OkHttpClient) {
         return request(url, mac, token, userAgent) { readSeasonPage(it) }
     }
 
+    /** One bounded lookup in the same catalogue endpoint used by sync; accept only the exact id. */
+    suspend fun getCatalogDetails(
+        apiBase: String, mac: String, token: String, userAgent: String?,
+        remoteId: String, categoryId: String?, title: String, series: Boolean,
+    ): VodItem? {
+        val type = if (series) "series" else "vod"
+        val category = categoryId ?: "*"
+        val url = "$apiBase?type=$type&action=get_ordered_list&category=${enc(category)}&search=${enc(title)}&p=1&JsHttpRequest=1-xml"
+        return request(url, mac, token, userAgent) { readVodPage(it, apiBase) }.items.firstOrNull { it.id == remoteId }
+    }
+
     /**
      * `?type=series&action=get_ordered_list&movie_id=<show remoteId>&p=<page>` → one page of the
      * show's SEASONS, each carrying its `series` episode-number array. Category is included

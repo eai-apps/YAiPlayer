@@ -1192,7 +1192,8 @@ private fun buildSeriesDetails(
         logoUrl = tv.own.owntv.core.metadata.MetadataImages.logo(meta?.logoPath),
         posterUrl = poster,
         metaLine = metaLine,
-        genres = s.genres?.split(',')?.map(String::trim)?.filter(String::isNotEmpty) ?: jsonStringList(meta?.genresJson),
+        genres = (if (tmdbWins) jsonStringList(meta?.genresJson).takeIf { it.isNotEmpty() } else null)
+            ?: s.genres?.split(',')?.map(String::trim)?.filter(String::isNotEmpty) ?: jsonStringList(meta?.genresJson),
         plot = plot,
         cast = tv.own.owntv.core.metadata.MetadataCast.parse(meta?.castJson),
         country = s.country, director = s.director, actorsText = s.actors,

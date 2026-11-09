@@ -157,13 +157,19 @@ fun seriesDetails(show: SeriesEntity, meta: MetadataCacheEntity?, tmdbWins: Bool
     val year = if (tmdbWins) meta?.year ?: show.year else show.year ?: meta?.year
     val rating = if (tmdbWins) meta?.rating?.positive() ?: show.rating?.positive()
     else show.rating?.positive() ?: meta?.rating?.positive()
+    val duration = show.durationSecs?.takeIf { it > 0 }?.let { secs ->
+        val hours = secs / 3600
+        val minutes = (secs % 3600) / 60
+        if (hours > 0) stringResource(R.string.content_duration_hours, hours, minutes)
+        else stringResource(R.string.content_duration_minutes, minutes)
+    }
     return MediaDetails(
         title = show.name,
         originalTitle = show.originalTitle, country = show.country,
         director = show.director, actorsText = show.actors,
         backdropUrl = MetadataImages.backdrop(meta?.backdropPath) ?: show.backdropUrl?.takeIf { it.isNotBlank() },
         posterUrl = if (tmdbWins) tmdbPoster ?: providerPoster else providerPoster ?: tmdbPoster,
-        metaLine = metaLine(year, rating, null),
+        metaLine = metaLine(year, rating, duration),
         genres = (if (tmdbWins) jsonList(meta?.genresJson).takeIf { it.isNotEmpty() } else null) ?: show.genres?.split(',')?.map(String::trim)?.filter(String::isNotEmpty) ?: jsonList(meta?.genresJson),
         plot = if (tmdbWins) meta?.overview ?: show.plot else show.plot?.takeIf { it.isNotBlank() } ?: meta?.overview,
         cast = MetadataCast.parse(meta?.castJson),

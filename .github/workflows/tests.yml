@@ -63,8 +63,8 @@ jobs:
           arch: x86_64
           target: google_apis
           disable-animations: true
+          working-directory: clients/owntv-core
           script: |
-            cd clients/owntv-core
             chmod +x gradlew
             ./gradlew :core:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=tv.own.owntv.core.database.Migration53To54Test --no-daemon --stacktrace
       - uses: actions/upload-artifact@v4

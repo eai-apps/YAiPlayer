@@ -116,6 +116,31 @@ data class XtEpgEntry(val title: String, val description: String?, val startMs: 
  */
 class XtreamClient(private val http: HttpClient) {
 
+    /** Provider metadata only; this request does not fetch or replace any catalogue rows. */
+    suspend fun getCatalogDetails(s: SourceEntity, remoteId: String, series: Boolean): Map<String, String?> {
+        val action = if (series) "get_series_info" else "get_vod_info"
+        val parameter = if (series) "series_id" else "vod_id"
+        return http.get(api(s, action, "&$parameter=${URLEncoder.encode(remoteId, "UTF-8")}"), s.userAgent) { input ->
+            val fields = LinkedHashMap<String, String?>()
+            JsonReader(input.reader(Charsets.UTF_8)).use { reader ->
+                reader.beginObject()
+                while (reader.hasNext()) {
+                    val key = reader.nextName()
+                    if (key in listOf("info", "movie_data") && reader.peek() == JsonToken.BEGIN_OBJECT) {
+                        reader.beginObject()
+                        while (reader.hasNext()) {
+                            val name = reader.nextName()
+                            tv.own.owntv.core.content.readProviderField(reader)?.let { fields[name] = it }
+                        }
+                        reader.endObject()
+                    } else reader.skipValue()
+                }
+                reader.endObject()
+            }
+            fields
+        }
+    }
+
     // --- Categories ---
     suspend fun liveCategories(s: SourceEntity, onProgress: ((Long, Long?) -> Unit)? = null) = categories(s, "get_live_categories", onProgress)
     suspend fun vodCategories(s: SourceEntity, onProgress: ((Long, Long?) -> Unit)? = null) = categories(s, "get_vod_categories", onProgress)

@@ -1187,7 +1187,8 @@ private fun buildMovieDetails(
         logoUrl = tv.own.owntv.core.metadata.MetadataImages.logo(meta?.logoPath),
         posterUrl = poster,
         metaLine = metaLine(movie, meta, tmdbWins),
-        genres = movie.genres?.split(',')?.map(String::trim)?.filter(String::isNotEmpty) ?: jsonList(meta?.genresJson),
+        genres = (if (tmdbWins) jsonList(meta?.genresJson).takeIf { it.isNotEmpty() } else null)
+            ?: movie.genres?.split(',')?.map(String::trim)?.filter(String::isNotEmpty) ?: jsonList(meta?.genresJson),
         plot = plot,
         cast = tv.own.owntv.core.metadata.MetadataCast.parse(meta?.castJson),
         country = movie.country, director = movie.director, actorsText = movie.actors,

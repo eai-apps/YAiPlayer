@@ -77,6 +77,7 @@ class DetailViewModel(
     private val metadata: MetadataRepository,
     private val subtitleController: SubtitleController,
     private val customize: CustomizationStore,
+    private val providerDetails: tv.own.owntv.core.repository.ProviderDetailsRepository,
 ) : ViewModel() {
 
     private data class Target(val tab: LibraryTab, val id: Long)
@@ -308,14 +309,25 @@ class DetailViewModel(
                 // A title from a locked category the PIN has not opened does not open (search, a link).
                 val film = movieDao.getById(id)?.takeUnless { customize.sealsCategory(profileId.value, it.categoryId) }
                 _movie.value = film
-                if (film != null) loadMoviePage(film)
+                if (film != null) {
+                    val enriched = providerDetails.movie(film)
+                    if (target.value != Target(tab, id)) return@launch
+                    _movie.value = enriched
+                    loadMoviePage(enriched)
+                }
                 return@launch
             }
             _loading.value = true
             val entity = seriesDao.getSeriesById(id)?.takeUnless { customize.sealsCategory(profileId.value, it.categoryId) }
             _show.value = entity
             if (entity != null) {
-                launch { loadSeriesPage(entity) }
+                launch {
+                    val enriched = providerDetails.show(entity)
+                    if (target.value == Target(tab, id)) {
+                        _show.value = enriched
+                        loadSeriesPage(enriched)
+                    }
+                }
                 _episodesFailure.value = (seriesRepository.loadEpisodes(entity) as? EpisodeLoad.Failed)?.reason
             }
             _loading.value = false
