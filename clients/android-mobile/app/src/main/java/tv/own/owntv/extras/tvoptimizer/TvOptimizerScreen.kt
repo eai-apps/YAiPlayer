@@ -280,6 +280,7 @@ private fun DebugGuideStepView(
     onBack: () -> Unit,
 ) {
     val palette = LocalStagePalette.current
+    val accent = stageAccent
     var showHint by remember { mutableStateOf(false) }
     var expandedVendor by remember { mutableStateOf<String?>(null) }
 
@@ -316,8 +317,8 @@ private fun DebugGuideStepView(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 6.dp)
-                    .clip(RoundedCornerShape(StageRadii.Card))
-                    .background(palette.card)
+                    .clip(RoundedCornerShape(StageRadii.Row))
+                    .background(palette.cardSolid)
                     .padding(horizontal = 14.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -328,7 +329,7 @@ private fun DebugGuideStepView(
                         .background(palette.ink.copy(alpha = 0.08f)),
                     contentAlignment = Alignment.Center,
                 ) {
-                    StageIcon(icon, 18.dp, palette.accent)
+                    StageIcon(icon, 18.dp, accent.accent)
                 }
                 Spacer(Modifier.width(12.dp))
                 Column(Modifier.weight(1f)) {
@@ -359,8 +360,8 @@ private fun DebugGuideStepView(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 4.dp)
-                    .clip(RoundedCornerShape(StageRadii.Card))
-                    .background(palette.card)
+                    .clip(RoundedCornerShape(StageRadii.Row))
+                    .background(palette.cardSolid)
                     .clickable { expandedVendor = if (isExpanded) null else key }
                     .padding(horizontal = 14.dp, vertical = 10.dp)
                     .animateContentSize(),
@@ -406,7 +407,7 @@ private fun DebugGuideStepView(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 8.dp)
-                    .clip(RoundedCornerShape(StageRadii.Card))
+                    .clip(RoundedCornerShape(StageRadii.Row))
                     .background(palette.ink.copy(alpha = 0.05f))
                     .padding(12.dp)
             ) {
@@ -449,6 +450,7 @@ private fun ConnectStepView(
     onBack: () -> Unit,
 ) {
     val palette = LocalStagePalette.current
+    val accent = stageAccent
     val isConnected = state.connectionStatus == ConnectionStatus.CONNECTED
 
     Column(
@@ -499,15 +501,15 @@ private fun ConnectStepView(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(StageRadii.Card))
-                        .background(palette.card)
+                        .clip(RoundedCornerShape(StageRadii.Row))
+                        .background(palette.cardSolid)
                         .padding(14.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(20.dp),
                         strokeWidth = 2.dp,
-                        color = palette.accent,
+                        color = accent.accent,
                     )
                     Spacer(Modifier.width(12.dp))
                     Text(
@@ -521,7 +523,7 @@ private fun ConnectStepView(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(StageRadii.Card))
+                        .clip(RoundedCornerShape(StageRadii.Row))
                         .background(palette.warn.copy(alpha = 0.15f))
                         .padding(14.dp),
                     verticalAlignment = Alignment.CenterVertically,
@@ -539,12 +541,12 @@ private fun ConnectStepView(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(StageRadii.Card))
-                        .background(palette.card)
+                        .clip(RoundedCornerShape(StageRadii.Row))
+                        .background(palette.cardSolid)
                         .padding(14.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    StageIcon(MobileIcons.CheckCircle, 20.dp, palette.accent)
+                    StageIcon(MobileIcons.CheckCircle, 20.dp, accent.accent)
                     Spacer(Modifier.width(12.dp))
                     Text(
                         text = stringResource(R.string.tv_optimizer_status_connected),
@@ -557,7 +559,7 @@ private fun ConnectStepView(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(StageRadii.Card))
+                        .clip(RoundedCornerShape(StageRadii.Row))
                         .background(palette.danger.copy(alpha = 0.15f))
                         .padding(14.dp),
                     verticalAlignment = Alignment.CenterVertically,
@@ -605,6 +607,7 @@ private fun SelectModelStepView(
     onBack: () -> Unit,
 ) {
     val palette = LocalStagePalette.current
+    val accent = stageAccent
     val filteredModels = remember(state.availableModels, state.modelSearchQuery) {
         val q = state.modelSearchQuery.trim().lowercase()
         if (q.isEmpty()) state.availableModels
@@ -639,12 +642,12 @@ private fun SelectModelStepView(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 4.dp)
-                    .clip(RoundedCornerShape(StageRadii.Card))
-                    .background(if (isSelected) palette.accent.copy(alpha = 0.12f) else palette.card)
+                    .clip(RoundedCornerShape(StageRadii.Row))
+                    .background(if (isSelected) accent.accent.copy(alpha = 0.12f) else palette.cardSolid)
                     .border(
                         width = if (isSelected) 1.5.dp else 0.dp,
-                        color = if (isSelected) palette.accent else Color.Transparent,
-                        shape = RoundedCornerShape(StageRadii.Card),
+                        color = if (isSelected) accent.accent else Color.Transparent,
+                        shape = RoundedCornerShape(StageRadii.Row),
                     )
                     .clickable { onModelSelect(model) }
                     .padding(horizontal = 16.dp, vertical = 14.dp),
@@ -654,10 +657,10 @@ private fun SelectModelStepView(
                 Text(
                     text = model.name,
                     style = stageText(14f, if (isSelected) 700 else 500),
-                    color = if (isSelected) palette.accent else palette.text,
+                    color = if (isSelected) accent.accent else palette.text,
                 )
                 if (isSelected) {
-                    StageIcon(MobileIcons.Check, 18.dp, palette.accent)
+                    StageIcon(MobileIcons.Check, 18.dp, accent.accent)
                 }
             }
         }
@@ -696,6 +699,7 @@ private fun SelectPackagesStepView(
 ) {
     val context = LocalContext.current
     val palette = LocalStagePalette.current
+    val accent = stageAccent
 
     Column(
         modifier = Modifier
@@ -751,8 +755,8 @@ private fun SelectPackagesStepView(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 4.dp)
-                    .clip(RoundedCornerShape(StageRadii.Card))
-                    .background(palette.card)
+                    .clip(RoundedCornerShape(StageRadii.Row))
+                    .background(palette.cardSolid)
                     .clickable { onTogglePackage(pkg.packageName) }
                     .padding(horizontal = 14.dp, vertical = 12.dp),
             ) {
@@ -833,6 +837,7 @@ private fun ConfirmStepView(
     onBack: () -> Unit,
 ) {
     val palette = LocalStagePalette.current
+    val accent = stageAccent
 
     Column(
         modifier = Modifier
@@ -851,9 +856,9 @@ private fun ConfirmStepView(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(StageRadii.Card))
+                .clip(RoundedCornerShape(StageRadii.Row))
                 .background(palette.warn.copy(alpha = 0.12f))
-                .border(1.dp, palette.warn.copy(alpha = 0.4f), RoundedCornerShape(StageRadii.Card))
+                .border(1.dp, palette.warn.copy(alpha = 0.4f), RoundedCornerShape(StageRadii.Row))
                 .padding(16.dp),
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -879,8 +884,8 @@ private fun ConfirmStepView(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(StageRadii.Card))
-                .background(palette.card)
+                .clip(RoundedCornerShape(StageRadii.Row))
+                .background(palette.cardSolid)
                 .clickable { onUnderstandToggle(!state.understandRiskChecked) }
                 .padding(horizontal = 16.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -909,11 +914,11 @@ private fun ConfirmStepView(
                     .fillMaxWidth()
                     .padding(vertical = 2.dp)
                     .clip(RoundedCornerShape(8.dp))
-                    .background(palette.card.copy(alpha = 0.6f))
+                    .background(palette.cardSolid.copy(alpha = 0.6f))
                     .padding(horizontal = 12.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                StageIcon(MobileIcons.Check, 14.dp, palette.accent)
+                StageIcon(MobileIcons.Check, 14.dp, accent.accent)
                 Spacer(Modifier.width(8.dp))
                 Text(
                     text = pkg,
@@ -948,6 +953,7 @@ private fun ConfirmStepView(
 @Composable
 private fun ApplyingStepView(state: TvOptimizerUiState) {
     val palette = LocalStagePalette.current
+    val accent = stageAccent
 
     Column(
         modifier = Modifier
@@ -959,7 +965,7 @@ private fun ApplyingStepView(state: TvOptimizerUiState) {
         CircularProgressIndicator(
             modifier = Modifier.size(56.dp),
             strokeWidth = 3.dp,
-            color = palette.accent,
+            color = accent.accent,
         )
         Spacer(Modifier.height(24.dp))
         Text(
@@ -988,6 +994,7 @@ private fun ResultStepView(
     onDone: () -> Unit,
 ) {
     val palette = LocalStagePalette.current
+    val accent = stageAccent
     val count = state.disabledSuccessPackages.size
 
     Column(
@@ -1002,10 +1009,10 @@ private fun ResultStepView(
             modifier = Modifier
                 .size(72.dp)
                 .clip(CircleShape)
-                .background(palette.accent.copy(alpha = 0.16f)),
+                .background(accent.accent.copy(alpha = 0.16f)),
             contentAlignment = Alignment.Center,
         ) {
-            StageIcon(MobileIcons.CheckCircle, 36.dp, palette.accent)
+            StageIcon(MobileIcons.CheckCircle, 36.dp, accent.accent)
         }
         Spacer(Modifier.height(20.dp))
         Text(
@@ -1046,6 +1053,7 @@ private fun RollbackStepView(
     onDone: () -> Unit,
 ) {
     val palette = LocalStagePalette.current
+    val accent = stageAccent
 
     Column(
         modifier = Modifier
@@ -1064,13 +1072,13 @@ private fun RollbackStepView(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(StageRadii.Card))
-                    .background(palette.card)
+                    .clip(RoundedCornerShape(StageRadii.Row))
+                    .background(palette.cardSolid)
                     .padding(20.dp),
                 contentAlignment = Alignment.Center,
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    StageIcon(MobileIcons.CheckCircle, 32.dp, palette.accent)
+                    StageIcon(MobileIcons.CheckCircle, 32.dp, accent.accent)
                     Spacer(Modifier.height(8.dp))
                     Text(
                         text = stringResource(R.string.tv_optimizer_result_title),
@@ -1093,8 +1101,8 @@ private fun RollbackStepView(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(StageRadii.Card))
-                    .background(palette.card)
+                    .clip(RoundedCornerShape(StageRadii.Row))
+                    .background(palette.cardSolid)
                     .padding(20.dp),
             ) {
                 Text(
@@ -1119,8 +1127,8 @@ private fun RollbackStepView(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 4.dp)
-                    .clip(RoundedCornerShape(StageRadii.Card))
-                    .background(palette.card)
+                    .clip(RoundedCornerShape(StageRadii.Row))
+                    .background(palette.cardSolid)
                     .clickable { onToggle(pkg) }
                     .padding(horizontal = 14.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically,
