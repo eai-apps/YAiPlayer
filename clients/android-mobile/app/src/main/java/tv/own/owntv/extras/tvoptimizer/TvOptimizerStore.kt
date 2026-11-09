@@ -2,54 +2,66 @@
 package tv.own.owntv.extras.tvoptimizer
 
 import android.content.Context
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.longPreferencesKey
-import androidx.datastore.preferences.core.stringSetPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
+import android.content.SharedPreferences
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
-private val Context.tvOptimizerStore: DataStore<Preferences> by preferencesDataStore(name = "owntv_tv_optimizer")
+class TvOptimizerStore(context: Context) {
 
-class TvOptimizerStore(private val context: Context) {
+    private val prefs: SharedPreferences =
+        context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
-    private object Keys {
-        val DISABLED_PACKAGES = stringSetPreferencesKey("disabled_packages")
-        val BACKUP_TIMESTAMP = longPreferencesKey("backup_timestamp")
+    private val _disabledPackages = MutableStateFlow(readDisabledPackages())
+    val disabledPackages: StateFlow<Set<String>> = _disabledPackages.asStateFlow()
+
+    private val _backupTimestamp = MutableStateFlow(readBackupTimestamp())
+    val backupTimestamp: StateFlow<Long?> = _backupTimestamp.asStateFlow()
+
+    private fun readDisabledPackages(): Set<String> {
+        return prefs.getStringSet(KEY_DISABLED_PACKAGES, null)?.toSet() ?: emptySet()
     }
 
-    val disabledPackages: Flow<Set<String>> = context.tvOptimizerStore.data.map { prefs ->
-        prefs[Keys.DISABLED_PACKAGES] ?: emptySet()
+    private fun readBackupTimestamp(): Long? {
+        val ts = prefs.getLong(KEY_BACKUP_TIMESTAMP, -1L)
+        return if (ts > 0) ts else null
     }
 
-    val backupTimestamp: Flow<Long?> = context.tvOptimizerStore.data.map { prefs ->
-        prefs[Keys.BACKUP_TIMESTAMP]
-    }
-
-    suspend fun getDisabledPackages(): Set<String> = disabledPackages.first()
+    suspend fun getDisabledPackages(): Set<String> = readDisabledPackages()
 
     suspend fun saveDisabledPackages(packages: Set<String>) {
-        context.tvOptimizerStore.edit { prefs ->
-            val current = prefs[Keys.DISABLED_PACKAGES] ?: emptySet()
-            prefs[Keys.DISABLED_PACKAGES] = current + packages
-            prefs[Keys.BACKUP_TIMESTAMP] = System.currentTimeMillis()
-        }
+        val current = readDisabledPackages()
+        val updated = current + packages
+        val now = System.currentTimeMillis()
+        prefs.edit()
+            .putStringSet(KEY_DISABLED_PACKAGES, updated)
+            .putLong(KEY_BACKUP_TIMESTAMP, now)
+            .apply()
+        _disabledPackages.value = updated
+        _backupTimestamp.value = now
     }
 
     suspend fun removeDisabledPackages(packages: Set<String>) {
-        context.tvOptimizerStore.edit { prefs ->
-            val current = prefs[Keys.DISABLED_PACKAGES] ?: emptySet()
-            prefs[Keys.DISABLED_PACKAGES] = current - packages
-        }
+        val current = readDisabledPackages()
+        val updated = current - packages
+        prefs.edit()
+            .putStringSet(KEY_DISABLED_PACKAGES, updated)
+            .apply()
+        _disabledPackages.value = updated
     }
 
     suspend fun clearAll() {
-        context.tvOptimizerStore.edit { prefs ->
-            prefs.remove(Keys.DISABLED_PACKAGES)
-            prefs.remove(Keys.BACKUP_TIMESTAMP)
-        }
+        prefs.edit()
+            .remove(KEY_DISABLED_PACKAGES)
+            .remove(KEY_BACKUP_TIMESTAMP)
+            .apply()
+        _disabledPackages.value = emptySet()
+        _backupTimestamp.value = null
+    }
+
+    companion object {
+        private const val PREFS_NAME = "owntv_tv_optimizer"
+        private const val KEY_DISABLED_PACKAGES = "disabled_packages"
+        private const val KEY_BACKUP_TIMESTAMP = "backup_timestamp"
     }
 }
