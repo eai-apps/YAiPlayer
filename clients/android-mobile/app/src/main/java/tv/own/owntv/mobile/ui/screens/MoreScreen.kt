@@ -190,6 +190,16 @@ fun MoreScreen(
                         icon = MobileIcons.Refresh,
                         height = 48.dp,
                     )
+                    val lightMode by settings.lightModeEnabled.collectAsStateWithLifecycle(initialValue = false)
+                    StageMenuItem(
+                        label = stringResource(R.string.light_mode_title),
+                        onClick = {
+                            scope.launch { settings.setLightModeEnabled(!lightMode) }
+                        },
+                        icon = MobileIcons.AutoAwesome,
+                        value = stringResource(if (lightMode) R.string.common_on else R.string.common_off),
+                        height = 48.dp,
+                    )
                     StageMenuItem(
                         label = stringResource(R.string.quick_categories),
                         onClick = { showCategoriesSheet = true },

@@ -67,6 +67,13 @@ val QUICK_TOGGLES: List<QuickToggle> = listOf(
         default = true,
     ),
     QuickToggle(
+        "vp_light_mode",
+        R.string.light_mode_title,
+        { it.lightModeEnabled },
+        { setLightModeEnabled(it) },
+        default = false,
+    ),
+    QuickToggle(
         "vp_autoplay",
         R.string.settings_autoplay_next,
         { it.autoPlayNext },

@@ -168,6 +168,7 @@ internal val VIDEO_QUICK_ROWS: List<VideoQuickRef> = listOf(
     VideoQuickRef("vp_vod_timeout", SECTION_STREAMING, OwnTVIcon.NETWORK, R.string.settings_vod_network_timeout, R.string.settings_vod_network_timeout_description),
     VideoQuickRef("vp_vod_reconnects", SECTION_STREAMING, OwnTVIcon.REFRESH, R.string.settings_vod_reconnects, R.string.settings_vod_reconnects_description),
     VideoQuickRef("vp_channel_numbers", SECTION_LIVE, OwnTVIcon.LIVE_TV, R.string.settings_channel_numbers, R.string.settings_channel_numbers_description),
+    VideoQuickRef("vp_light_mode", SECTION_LIVE, OwnTVIcon.MOTION, R.string.light_mode_title, R.string.light_mode_description),
     VideoQuickRef("vp_live_preview", SECTION_LIVE, OwnTVIcon.LIVE_TV, R.string.settings_quick_live_preview, R.string.settings_live_preview_description),
     VideoQuickRef("vp_preview_audio", SECTION_LIVE, OwnTVIcon.AUDIO, R.string.settings_preview_audio, R.string.settings_preview_audio_description),
     VideoQuickRef("vp_timeshift", SECTION_LIVE, OwnTVIcon.REWIND, R.string.settings_timeshift, R.string.settings_timeshift_description),
@@ -241,6 +242,10 @@ internal fun videoQuickBinding(key: String, vm: SettingsViewModel): VideoQuickBi
         else pluralStringResource(R.plurals.settings_reset_player_choices_count, count, count)
 
     return when (key) {
+        "vp_light_mode" -> {
+            val on by vm.lightModeEnabled.collectAsStateWithLifecycle()
+            toggle(onOff(on), on) { vm.setLightModeEnabled(!on) }
+        }
         "vp_hw" -> {
             val on by vm.hwDecoding.collectAsStateWithLifecycle()
             toggle(onOff(on), on) { vm.setHwDecoding(!on) }
@@ -1004,6 +1009,15 @@ internal fun VideoPlayerGroupRows(
             desc = stringResource(R.string.settings_channel_numbers_description),
             value = SettingValue.Switch(directTune),
             onClick = { vm.setDirectTune(!directTune) },
+        )
+        val lightModeOn by vm.lightModeEnabled.collectAsStateWithLifecycle()
+        KeyedSettingRow(
+            quickKey = "vp_light_mode",
+            icon = OwnTVIcon.MOTION,
+            title = stringResource(R.string.light_mode_title),
+            desc = stringResource(R.string.light_mode_description),
+            value = SettingValue.Switch(lightModeOn),
+            onClick = { vm.setLightModeEnabled(!lightModeOn) },
         )
         KeyedSettingRow(
             quickKey = "vp_live_preview",

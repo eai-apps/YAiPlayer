@@ -254,6 +254,13 @@ class SettingsViewModel(
         viewModelScope.launch { settings.setDefaultSource(id) }
     }
 
+    val lightModeEnabled: StateFlow<Boolean> = settings.lightModeEnabled
+        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    fun setLightModeEnabled(enabled: Boolean) {
+        viewModelScope.launch { settings.setLightModeEnabled(enabled) }
+    }
+
     val livePreviewEnabled: StateFlow<Boolean> = settings.livePreviewEnabled
         .stateIn(viewModelScope, SharingStarted.Eagerly, true)
 
