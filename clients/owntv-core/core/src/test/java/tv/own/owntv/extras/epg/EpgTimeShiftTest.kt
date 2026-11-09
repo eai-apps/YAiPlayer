@@ -47,7 +47,8 @@ class EpgTimeShiftTest {
     @Test
     fun `applyToProgramme modifies startMs and stopMs`() {
         val p = EpgProgrammeEntity(
-            channelId = "ch1",
+            sourceId = 1L,
+            epgChannelId = "ch1",
             title = "News",
             startMs = 10_000L,
             stopMs = 20_000L,
