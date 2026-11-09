@@ -71,6 +71,7 @@ fun SettingsEpgSourcesPage(
     val builtinStatus by vm.builtinStatus.collectAsStateWithLifecycle()
     val builtinSchedule by vm.builtinSchedule.collectAsStateWithLifecycle()
     val builtinFeeds by vm.builtinFeeds.collectAsStateWithLifecycle()
+    val autoRefreshOnStartup by vm.autoRefreshOnStartup.collectAsStateWithLifecycle()
     val deleting by vm.deletingIds.collectAsStateWithLifecycle()
 
     var menuSource by remember { mutableStateOf<EpgSource?>(null) }
@@ -100,6 +101,15 @@ fun SettingsEpgSourcesPage(
                     onClick = { if (source.id !in deleting) menuSource = source },
                 )
             }
+        }
+        item(key = "startup_refresh") {
+            StageSettingRow(
+                title = stringResource(R.string.settings_epg_startup_refresh),
+                subtitle = stringResource(R.string.settings_epg_startup_refresh_desc),
+                icon = MobileIcons.Refresh,
+                minHeight = 48.dp,
+                onClick = { vm.setAutoRefreshOnStartup(!autoRefreshOnStartup) },
+            ) { StageSwitch(autoRefreshOnStartup) }
         }
         item(key = "builtin") {
             StageSettingRow(

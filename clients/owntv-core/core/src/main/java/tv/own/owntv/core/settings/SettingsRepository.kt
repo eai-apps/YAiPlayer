@@ -352,6 +352,7 @@ class SettingsRepository(private val context: Context, private val localeStore: 
         // REFRESH_SOURCE_IDS set is read once (see migrateLegacyRefreshFlags) then ignored.
         val PLAYLIST_AUTO_REFRESH = stringPreferencesKey("playlist_auto_refresh")
         val EPG_AUTO_REFRESH = stringPreferencesKey("epg_auto_refresh")
+        val AUTO_REFRESH_ON_STARTUP = booleanPreferencesKey("auto_refresh_on_startup")
         // Per-EPG-source: use that feed's own <icon src> channel logos instead of the playlist's.
         val EPG_USE_LOGOS = stringPreferencesKey("epg_use_logos")
         val GUIDE_LOGO_SOURCES = stringPreferencesKey("guide_logo_sources")
@@ -2325,6 +2326,13 @@ class SettingsRepository(private val context: Context, private val localeStore: 
         }
 
     /** Per-source EPG auto-refresh selection. Missing ids default to [EpgAutoRefresh.OFF]. */
+    val autoRefreshOnStartup: Flow<Boolean> =
+        prefsFlow { it[Keys.AUTO_REFRESH_ON_STARTUP] ?: true }
+
+    suspend fun setAutoRefreshOnStartup(enabled: Boolean) {
+        context.dataStore.edit { it[Keys.AUTO_REFRESH_ON_STARTUP] = enabled }
+    }
+
     val epgAutoRefresh: Flow<Map<Long, EpgRefresh>> =
         prefsFlow { prefs ->
             readRefreshMap(prefs[Keys.EPG_AUTO_REFRESH]).entries.mapNotNull { (key, value) ->

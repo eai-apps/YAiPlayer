@@ -36,6 +36,7 @@ fun EpgSourcesScreen(onBack: () -> Unit, modifier: Modifier = Modifier, startOnA
     val builtinStatus by vm.builtinStatus.collectAsStateWithLifecycle()
     val builtinSchedule by vm.builtinSchedule.collectAsStateWithLifecycle()
     val builtinFeeds by vm.builtinFeeds.collectAsStateWithLifecycle()
+    val autoRefreshOnStartup by vm.autoRefreshOnStartup.collectAsStateWithLifecycle()
 
     var editing by remember { mutableStateOf<EpgSource?>(null) }
     var adding by remember { mutableStateOf(startOnAdd) }
@@ -162,6 +163,16 @@ fun EpgSourcesScreen(onBack: () -> Unit, modifier: Modifier = Modifier, startOnA
             value = SettingValue.Switch(builtinEnabled),
             onClick = { vm.setBuiltinEnabled(!builtinEnabled) },
             help = SettingHelp(builtinTitle, builtinDesc, hints = listOf(ok to stringResource(R.string.settings_key_switch), back to parent)),
+        )
+        val startupRefreshTitle = stringResource(R.string.settings_epg_startup_refresh)
+        val startupRefreshDesc = stringResource(R.string.settings_epg_startup_refresh_desc)
+        StageSettingRow(
+            icon = OwnTVIcon.REFRESH,
+            title = startupRefreshTitle,
+            desc = startupRefreshDesc,
+            value = SettingValue.Switch(autoRefreshOnStartup),
+            onClick = { vm.setAutoRefreshOnStartup(!autoRefreshOnStartup) },
+            help = SettingHelp(startupRefreshTitle, startupRefreshDesc, hints = listOf(ok to stringResource(R.string.settings_key_switch), back to parent)),
         )
         if (builtinEnabled) {
             val scheduleTitle = stringResource(R.string.settings_epg_builtin_schedule)

@@ -95,6 +95,16 @@ fun MoreScreen(
     val activeId by profilesVm.activeProfileId.collectAsStateWithLifecycle()
     val playlists by shell.playlists.collectAsStateWithLifecycle()
     val activePlaylistId by shell.activePlaylistId.collectAsStateWithLifecycle()
+    val settings: SettingsRepository = koinInject()
+    val scope = rememberCoroutineScope()
+    val quickStartFlow = remember(activeId) {
+        if (activeId >= 0L) settings.quickStart(activeId) else kotlinx.coroutines.flow.flowOf(false)
+    }
+    val quickStart by quickStartFlow.collectAsStateWithLifecycle(false)
+    val quickActionsSync: tv.own.owntv.core.sync.QuickActionsSync = koinInject()
+    val activeSource = playlists.firstOrNull { it.id == activePlaylistId } ?: playlists.firstOrNull()
+    val hasLibrary = (activeSource?.type == tv.own.owntv.core.model.SourceType.STALKER || activeSource?.type == tv.own.owntv.core.model.SourceType.XTREAM) ||
+        (activePlaylistId <= 0L && playlists.any { it.type == tv.own.owntv.core.model.SourceType.STALKER || it.type == tv.own.owntv.core.model.SourceType.XTREAM })
     val profile = profiles.orEmpty().firstOrNull { it.id == activeId }
     val guestProfileId by profilesVm.guestProfileId.collectAsStateWithLifecycle()
     val isGuest = profile != null && profile.id >= 0L && profile.id == guestProfileId
@@ -154,6 +164,62 @@ fun MoreScreen(
                     chevron = true,
                 )
                 MoreItem(R.string.local_sync_title, MobileIcons.Phone, stringResource(if (syncOn) R.string.common_on else R.string.common_off)) { onOpenLeaf(MoreLeaf.LOCAL_SYNC) }
+                StageGroupLabel(stringResource(R.string.more_group_quick_actions))
+                StageMenuItem(
+                    label = stringResource(R.string.quick_start_title),
+                    onClick = {
+                        scope.launch {
+                            if (activeId >= 0L) {
+                                settings.setQuickStart(activeId, !quickStart)
+                            }
+                        }
+                    },
+                    icon = MobileIcons.PlayCircle,
+                    value = stringResource(if (quickStart) R.string.common_on else R.string.common_off),
+                    height = 48.dp,
+                )
+                if (playlists.isNotEmpty()) {
+                    val refreshLabel = stringResource(if (activeSource?.type == tv.own.owntv.core.model.SourceType.STALKER) R.string.quick_refresh_portal else R.string.quick_refresh_playlist)
+                    StageMenuItem(
+                        label = refreshLabel,
+                        onClick = {
+                            scope.launch {
+                                val targets = playlists.filter { it.id == activePlaylistId }.ifEmpty { playlists }
+                                targets.forEach { quickActionsSync.refreshPlaylist(it) }
+                            }
+                        },
+                        icon = MobileIcons.Refresh,
+                        height = 48.dp,
+                    )
+                    StageMenuItem(
+                        label = stringResource(R.string.quick_refresh_epg),
+                        onClick = {
+                            scope.launch {
+                                val targets = playlists.filter { it.id == activePlaylistId }.ifEmpty { playlists }
+                                targets.forEach { quickActionsSync.refreshEpg(it) }
+                            }
+                        },
+                        icon = MobileIcons.Guide,
+                        height = 48.dp,
+                    )
+                    if (hasLibrary) {
+                        StageMenuItem(
+                            label = stringResource(R.string.quick_refresh_vod),
+                            onClick = {
+                                scope.launch {
+                                    val targets = playlists.filter { it.id == activePlaylistId }.ifEmpty { playlists }
+                                    targets.forEach {
+                                        if (it.type == tv.own.owntv.core.model.SourceType.STALKER || it.type == tv.own.owntv.core.model.SourceType.XTREAM) {
+                                            quickActionsSync.refreshVod(it)
+                                        }
+                                    }
+                                }
+                            },
+                            icon = MobileIcons.Movie,
+                            height = 48.dp,
+                        )
+                    }
+                }
                 StageGroupLabel(stringResource(R.string.settings_app_group))
                 MoreItem(R.string.settings_playback_error_log, MobileIcons.Warning, logCount.toString()) { onOpenLeaf(MoreLeaf.ERROR_LOG) }
                 MoreItem(R.string.settings_about, MobileIcons.Info, BuildConfig.VERSION_NAME) { onOpenLeaf(MoreLeaf.ABOUT) }

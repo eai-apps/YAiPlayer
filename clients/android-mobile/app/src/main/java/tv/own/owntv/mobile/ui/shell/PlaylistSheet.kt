@@ -60,10 +60,45 @@ fun PlaylistSheet(
     val finalizer: tv.own.owntv.core.sync.ImportFinalizer = koinInject()
     val scope = androidx.compose.runtime.rememberCoroutineScope()
     var askResync by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+    var showQuickStartSheet by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+    if (showQuickStartSheet) {
+        val sheetTitle = stringResource(R.string.quick_start_title)
+        MobileBottomSheet(onDismissRequest = { showQuickStartSheet = false }, title = sheetTitle) {
+            StageSheetHeader(title = sheetTitle, subtitle = stringResource(R.string.quick_start_hint))
+            StageMenuItem(
+                label = stringResource(R.string.quick_start_turn_on),
+                onClick = {
+                    scope.launch {
+                        if (activeProfileId >= 0L) {
+                            settings.setQuickStart(activeProfileId, true)
+                        }
+                    }
+                    showQuickStartSheet = false
+                },
+                checked = quickStart,
+                filled = quickStart,
+            )
+            StageMenuItem(
+                label = stringResource(R.string.quick_start_turn_off),
+                onClick = {
+                    scope.launch {
+                        if (activeProfileId >= 0L) {
+                            settings.setQuickStart(activeProfileId, false)
+                        }
+                    }
+                    showQuickStartSheet = false
+                },
+                checked = !quickStart,
+                filled = !quickStart,
+            )
+        }
+        return
+    }
     if (askResync) {
         // Which playlists: the chosen one, or all of them when "All playlists" is on.
         val targets = playlists.filter { it.id == activeId }.ifEmpty { playlists }
-        val ask = stringResource(R.string.shell_resync_title)
+        val activeSource = playlists.firstOrNull { it.id == activeId } ?: playlists.firstOrNull()
+        val ask = stringResource(if (activeSource?.type == tv.own.owntv.core.model.SourceType.STALKER) R.string.shell_resync_title_portal else R.string.shell_resync_title_playlist)
         MobileBottomSheet(onDismissRequest = { askResync = false }, title = ask) {
             StageSheetHeader(title = ask, subtitle = stringResource(R.string.shell_resync_body))
             tv.own.owntv.mobile.ui.components.StageConfirmItems(
@@ -117,19 +152,16 @@ fun PlaylistSheet(
                 } else null,
             )
         }
+        val activeSource = playlists.firstOrNull { it.id == activeId } ?: playlists.firstOrNull()
+        val resyncLabel = stringResource(if (activeSource?.type == tv.own.owntv.core.model.SourceType.STALKER) R.string.quick_refresh_portal else R.string.quick_refresh_playlist)
         StageMenuItem(
             label = stringResource(if (quickStart) R.string.quick_start_on else R.string.quick_start_off),
-            onClick = {
-                scope.launch {
-                    if (activeProfileId >= 0L) {
-                        settings.setQuickStart(activeProfileId, !quickStart)
-                    }
-                }
-            },
+            onClick = { showQuickStartSheet = true },
             icon = MobileIcons.PlayCircle,
+            selected = quickStart,
         )
         StageMenuItem(
-            label = stringResource(R.string.shell_resync_label),
+            label = resyncLabel,
             onClick = { askResync = true },
             icon = MobileIcons.Refresh,
         )

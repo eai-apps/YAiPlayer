@@ -418,6 +418,7 @@ val dataModule = module {
     // settings, sourceRepository, profileDao, catalogSyncScheduler, epgSyncScheduler, epgSourceStore,
     // epgDao, importFinalizer, vodResort — the Auto refresh settings, run by both apps on start and resume.
     single { tv.own.owntv.core.sync.AutoRefresh(get(), get(), get(), get(), get(), get(), get(), get(), get()) }
+    single { tv.own.owntv.core.sync.QuickActionsSync(get(), get(), get(), get(), get(), get()) }
     // settings, sourceDao, channelDao, catalogSyncScheduler, importFinalizer
     single { tv.own.owntv.core.sync.M3uVodResort(get(), get(), get(), get(), get()) }
     // profileDao, sourceDao, sourceRepository, backup, settings, connectivity, importFinalizer,

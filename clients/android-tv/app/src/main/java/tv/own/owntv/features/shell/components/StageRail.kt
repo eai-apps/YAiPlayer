@@ -170,6 +170,12 @@ fun StageRail(
         if (activeProfileId >= 0L) settings.quickStart(activeProfileId) else kotlinx.coroutines.flow.flowOf(false)
     }
     val quickStart by quickStartFlow.collectAsStateWithLifecycle(initialValue = false)
+    var showQuickStartMenu by remember { mutableStateOf(false) }
+    val sourceRepo: tv.own.owntv.core.repository.SourceRepository = org.koin.compose.koinInject()
+    val activePlaylistId by settings.defaultSourceId.collectAsStateWithLifecycle(initialValue = -1L)
+    val railSources by remember(activeProfileId) {
+        if (activeProfileId >= 0L) sourceRepo.observeSources(activeProfileId) else kotlinx.coroutines.flow.flowOf(emptyList())
+    }.collectAsStateWithLifecycle(emptyList())
     var hasFocus by remember { mutableStateOf(false) }
     // Search, Settings and More all land on a rail item: Search has its own, Settings lives behind More.
     val focusSection = when {
@@ -333,18 +339,15 @@ fun StageRail(
                 open = shown,
                 namesAlpha = namesAlpha,
                 active = false,
-                onClick = {
-                    scope.launch {
-                        if (activeProfileId >= 0L) {
-                            settings.setQuickStart(activeProfileId, !quickStart)
-                        }
-                    }
-                },
+                accentIcon = quickStart,
+                onClick = { showQuickStartMenu = true },
             )
             if (onResync != null) {
+                val activeSource = railSources.firstOrNull { it.id == activePlaylistId } ?: railSources.firstOrNull()
+                val resyncLabel = stringResource(if (activeSource?.type == tv.own.owntv.core.model.SourceType.STALKER) R.string.quick_refresh_portal else R.string.quick_refresh_playlist)
                 RailItem(
                     icon = OwnTVIcon.REFRESH,
-                    label = stringResource(R.string.shell_resync_label),
+                    label = resyncLabel,
                     trailing = null,
                     detail = null,
                     open = shown,
@@ -353,6 +356,45 @@ fun StageRail(
                     onClick = onResync,
                 )
             }
+        }
+    }
+    if (showQuickStartMenu) {
+        val firstRequester = remember { FocusRequester() }
+        LaunchedEffect(Unit) {
+            kotlinx.coroutines.delay(60)
+            runCatching { firstRequester.requestFocus() }
+        }
+        tv.own.owntv.ui.stage.StagePopup(
+            onDismiss = { showQuickStartMenu = false },
+            title = stringResource(R.string.quick_start_title),
+            width = 560.mpx,
+        ) {
+            tv.own.owntv.ui.stage.StagePopupOption(
+                title = stringResource(R.string.quick_start_turn_on),
+                onClick = {
+                    scope.launch {
+                        if (activeProfileId >= 0L) {
+                            settings.setQuickStart(activeProfileId, true)
+                        }
+                    }
+                    showQuickStartMenu = false
+                },
+                modifier = if (quickStart) Modifier.focusRequester(firstRequester) else Modifier,
+                leading = { focused -> tv.own.owntv.ui.stage.StagePopupRadio(on = quickStart, focused = focused) },
+            )
+            tv.own.owntv.ui.stage.StagePopupOption(
+                title = stringResource(R.string.quick_start_turn_off),
+                onClick = {
+                    scope.launch {
+                        if (activeProfileId >= 0L) {
+                            settings.setQuickStart(activeProfileId, false)
+                        }
+                    }
+                    showQuickStartMenu = false
+                },
+                modifier = if (!quickStart) Modifier.focusRequester(firstRequester) else Modifier,
+                leading = { focused -> tv.own.owntv.ui.stage.StagePopupRadio(on = !quickStart, focused = focused) },
+            )
         }
     }
 }
