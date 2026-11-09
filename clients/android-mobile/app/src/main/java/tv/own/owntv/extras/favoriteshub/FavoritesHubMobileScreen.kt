@@ -40,6 +40,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.SharedFlow
 import org.koin.androidx.compose.koinViewModel
 import tv.own.owntv.core.database.entity.ChannelEntity
+import tv.own.owntv.core.epg.displayLogoUrl
 import tv.own.owntv.core.database.entity.EpgProgrammeEntity
 import tv.own.owntv.mobile.R
 import tv.own.owntv.mobile.ui.components.ChannelLogoImage
