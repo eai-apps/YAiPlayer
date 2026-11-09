@@ -8,6 +8,8 @@ export function renderHeader(currentRoute = '') {
   const navItems = [
     { href: '#/', key: 'nav.home' },
     { href: '#/download', key: 'nav.download' },
+    { href: '#/checklist', key: 'nav.checklist' },
+    { href: '#/news', key: 'nav.news' },
     { href: '#/guide', key: 'nav.guide' },
     { href: '#/faq', key: 'nav.faq' }
   ];
@@ -63,6 +65,12 @@ export function setupHeaderEvents() {
   if (toggleBtn && siteNav) {
     toggleBtn.addEventListener('click', () => {
       siteNav.classList.toggle('open');
+    });
+
+    siteNav.querySelectorAll('.nav-link').forEach(link => {
+      link.addEventListener('click', () => {
+        siteNav.classList.remove('open');
+      });
     });
   }
 

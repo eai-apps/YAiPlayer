@@ -5,14 +5,18 @@
   "type": "module",
   "scripts": {
     "build:docs": "node scripts/build-docs.js",
-    "prebuild": "node scripts/build-docs.js",
-    "dev": "node scripts/build-docs.js && vite",
-    "build": "node scripts/build-docs.js && vite build",
+    "build:news": "node scripts/build-news.js",
+    "prebuild": "node scripts/build-docs.js && node scripts/build-news.js",
+    "dev": "node scripts/build-docs.js && node scripts/build-news.js && vite",
+    "build": "node scripts/build-docs.js && node scripts/build-news.js && vite build",
     "preview": "vite preview",
     "screenshots": "node scripts/capture-screens.js"
   },
   "devDependencies": {
     "puppeteer-core": "^23.6.0",
     "vite": "^5.4.10"
+  },
+  "dependencies": {
+    "qrcode": "^1.5.4"
   }
 }

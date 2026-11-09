@@ -7,11 +7,12 @@ import puppeteer from 'puppeteer-core';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, '..');
+const repoRoot = path.resolve(projectRoot, '..');
 const distDir = path.resolve(projectRoot, 'dist');
-const screensDir = path.resolve(projectRoot, '_screens');
+const previewDir = path.resolve(repoRoot, 'docs', 'site-preview');
 
-if (!fs.existsSync(screensDir)) {
-  fs.mkdirSync(screensDir, { recursive: true });
+if (!fs.existsSync(previewDir)) {
+  fs.mkdirSync(previewDir, { recursive: true });
 }
 
 const MIME_TYPES = {
@@ -87,44 +88,30 @@ async function capture() {
   const page = await browser.newPage();
 
   const scenarios = [
-    { name: '01_home_desktop', url: 'http://localhost:8092/#/', width: 1440, height: 900, fullPage: true },
-    { name: '02_home_mobile', url: 'http://localhost:8092/#/', width: 375, height: 812, fullPage: false },
-    { name: '03_download_desktop', url: 'http://localhost:8092/#/download', width: 1440, height: 900, fullPage: true },
-    { name: '04_download_mobile', url: 'http://localhost:8092/#/download', width: 375, height: 812, fullPage: true },
-    { name: '05_guide_desktop', url: 'http://localhost:8092/#/guide', width: 1440, height: 900, fullPage: false },
-    { name: '06_guide_mobile', url: 'http://localhost:8092/#/guide', width: 375, height: 812, fullPage: false },
-    { name: '07_faq_desktop', url: 'http://localhost:8092/#/faq', width: 1440, height: 900, fullPage: true },
-    { name: '08_faq_mobile', url: 'http://localhost:8092/#/faq', width: 375, height: 812, fullPage: true },
-    { name: '09_privacy_desktop', url: 'http://localhost:8092/#/privacy', width: 1440, height: 900, fullPage: false },
-    { name: '10_terms_desktop', url: 'http://localhost:8092/#/terms', width: 1440, height: 900, fullPage: false },
-    { name: '11_impressum_desktop', url: 'http://localhost:8092/#/impressum', width: 1440, height: 900, fullPage: false },
-    { name: '12_opensource_desktop', url: 'http://localhost:8092/#/opensource', width: 1440, height: 900, fullPage: false },
-    { name: '13_home_de_desktop', url: 'http://localhost:8092/#/', lang: 'de', width: 1440, height: 900, fullPage: true },
-    { name: '14_download_en_desktop', url: 'http://localhost:8092/#/download', lang: 'en', width: 1440, height: 900, fullPage: true }
+    // Main landing required viewports
+    { name: '01_home_desktop_1440', url: 'http://localhost:8092/#/', width: 1440, height: 900, fullPage: true },
+    { name: '02_home_tablet_820', url: 'http://localhost:8092/#/', width: 820, height: 1180, fullPage: true },
+    { name: '03_home_mobile_390', url: 'http://localhost:8092/#/', width: 390, height: 844, fullPage: true },
+
+    // Additional key pages
+    { name: '04_download_desktop_1440', url: 'http://localhost:8092/#/download', width: 1440, height: 900, fullPage: true },
+    { name: '05_checklist_desktop_1440', url: 'http://localhost:8092/#/checklist', width: 1440, height: 900, fullPage: true },
+    { name: '06_news_desktop_1440', url: 'http://localhost:8092/#/news', width: 1440, height: 900, fullPage: true }
   ];
 
   for (const s of scenarios) {
     await page.setViewport({ width: s.width, height: s.height, deviceScaleFactor: 2 });
     await page.goto(s.url, { waitUntil: 'networkidle0' });
+    await new Promise(r => setTimeout(r, 400));
 
-    if (s.lang) {
-      await page.evaluate((targetLang) => {
-        const btn = document.querySelector(`.lang-btn[data-lang="${targetLang}"]`);
-        if (btn) btn.click();
-      }, s.lang);
-      await new Promise(r => setTimeout(r, 200));
-    } else {
-      await new Promise(r => setTimeout(r, 200));
-    }
-
-    const outPath = path.join(screensDir, `${s.name}.png`);
+    const outPath = path.join(previewDir, `${s.name}.png`);
     await page.screenshot({ path: outPath, fullPage: s.fullPage });
-    console.log(`Saved screenshot: ${s.name}.png`);
+    console.log(`Saved screenshot: ${s.name}.png -> ${outPath}`);
   }
 
   await browser.close();
   server.close();
-  console.log('All screenshots captured successfully.');
+  console.log(`All screenshots captured successfully to ${previewDir}`);
 }
 
 capture().catch(err => {

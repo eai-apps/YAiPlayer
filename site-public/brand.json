@@ -31,12 +31,16 @@
     "height": 36,
     "alt": "YAiPlayer Logo"
   },
+  "cabinetUrl": "",
+  "playUrl": "",
+  "rustoreUrl": "",
   "links": {
     "repo": "https://github.com/eai-apps/YAiPlayer",
     "releases": "https://github.com/eai-apps/YAiPlayer/releases/latest",
     "releasesApi": "https://api.github.com/repos/eai-apps/YAiPlayer/releases/latest",
     "telegramChannel": "https://t.me/YAiPlayer",
-    "telegramBot": "https://t.me/YAiPlayer_bot"
+    "telegramBot": "https://t.me/YAiPlayer_App_bot",
+    "telegramChat": "https://t.me/YAiPlayer_Chat"
   },
   "apk": {
     "mobile": "YAiPlayer-Mobile.apk",

@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>YAiPlayer — Новости и релизы</title>
+    <link>https://yaiplayer.pages.dev/#/news</link>
+    <description>Официальные обновления, новые возможности и исправления IPTV-плеера YAiPlayer.</description>
+    <language>ru</language>
+    <lastBuildDate>Mon, 09 Nov 2026 12:43:23 GMT</lastBuildDate>
+    <item>
+      <title>YAiPlayer v3.0.29</title>
+      <link>https://yaiplayer.pages.dev/#/news</link>
+      <guid isPermaLink="false">v3.0.29</guid>
+      <pubDate>Mon, 09 Nov 2026 12:30:42 GMT</pubDate>
+      <description><![CDATA[✨ Быстрый старт канала: кнопка в боковом меню подсвечивается, когда он включён, и открывает выбор «включить / выключить».<br/>
+✨ В меню профиля появилась группа «Быстрые действия»: обновить плейлист (или портал), телепрограмму, фильмы и сериалы.<br/>
+✨ В настройках источников EPG можно отключить автообновление телепрограммы и плейлиста при запуске.]]></description>
+    </item>
+    <item>
+      <title>YAiPlayer v3.0.28</title>
+      <link>https://yaiplayer.pages.dev/#/news</link>
+      <guid isPermaLink="false">v3.0.28</guid>
+      <pubDate>Mon, 09 Nov 2026 12:02:17 GMT</pubDate>
+      <description><![CDATA[✨ Архив в плейлистах теперь запрашивается в стандартной форме и работает у провайдеров, где раньше включался обычный эфир.]]></description>
+    </item>
+    <item>
+      <title>YAiPlayer v3.0.27</title>
+      <link>https://yaiplayer.pages.dev/#/news</link>
+      <guid isPermaLink="false">v3.0.27</guid>
+      <pubDate>Mon, 09 Nov 2026 11:09:43 GMT</pubDate>
+      <description><![CDATA[🆕 Раздел «Избранное»: витрина любимых каналов с верхним рядом «Все избранные», группировкой по категориям, меткой «Архив» и общим избранным из всех плейлистов]]></description>
+    </item>
+    <item>
+      <title>YAiPlayer v3.0.26</title>
+      <link>https://yaiplayer.pages.dev/#/news</link>
+      <guid isPermaLink="false">v3.0.26</guid>
+      <pubDate>Mon, 09 Nov 2026 09:57:52 GMT</pubDate>
+      <description><![CDATA[✨ Архив передач теперь распознаётся и в плейлистах, где у канала указано только число дней архива (tvg-rec): значок архива и просмотр прошедших передач появятся после обновления плейлиста]]></description>
+    </item>
+    <item>
+      <title>YAiPlayer v3.0.25</title>
+      <link>https://yaiplayer.pages.dev/#/news</link>
+      <guid isPermaLink="false">v3.0.25</guid>
+      <pubDate>Mon, 09 Nov 2026 09:47:53 GMT</pubDate>
+      <description><![CDATA[✨ Поиск передач по телепрограмме: находите передачи по названию на ТВ и телефоне от текущего времени и дальше с установкой напоминаний и переходом к просмотру<br/>
+✨ «Сейчас в эфире» на главном экране: подборки идущих передач по жанрам с прогрессом и кнопкой «С начала» для каналов с архивом<br/>
+✨ Перенос настроек на новое устройство: сохранение и восстановление профилей, избранного, порядка категорий и источников EPG без секретов через меню «Поделиться» на телефоне или по домашней сети с QR-кодом на ТВ]]></description>
+    </item>
+    <item>
+      <title>YAiPlayer v3.0.24</title>
+      <link>https://yaiplayer.pages.dev/#/news</link>
+      <guid isPermaLink="false">v3.0.24</guid>
+      <pubDate>Sun, 08 Nov 2026 23:33:57 GMT</pubDate>
+      <description><![CDATA[✨ Stalker: сериалы с метками вида «[S01] [ua] [ru]» в названии теперь определяются как сериалы, а не как фильмы.]]></description>
+    </item>
+    <item>
+      <title>YAiPlayer v3.0.23</title>
+      <link>https://yaiplayer.pages.dev/#/news</link>
+      <guid isPermaLink="false">v3.0.23</guid>
+      <pubDate>Sun, 08 Nov 2026 23:05:37 GMT</pubDate>
+      <description><![CDATA[✨ Быстрый старт: кнопка под профилем включает запуск сразу на последний канал на весь экран без выбора профиля]]></description>
+    </item>
+    <item>
+      <title>YAiPlayer v3.0.22</title>
+      <link>https://yaiplayer.pages.dev/#/news</link>
+      <guid isPermaLink="false">v3.0.22</guid>
+      <pubDate>Sun, 08 Nov 2026 22:44:42 GMT</pubDate>
+      <description><![CDATA[✨ Кино: по умолчанию сверху самые недавно добавленные фильмы (сортировку можно сменить как раньше).<br/>
+✨ В превью прямого эфира под текущей передачей теперь показываются до 10 ближайших программ вместо 5.]]></description>
+    </item>
+    <item>
+      <title>YAiPlayer v3.0.21</title>
+      <link>https://yaiplayer.pages.dev/#/news</link>
+      <guid isPermaLink="false">v3.0.21</guid>
+      <pubDate>Sun, 08 Nov 2026 21:34:45 GMT</pubDate>
+      <description><![CDATA[✨ Несколько источников телепрограммы (EPG) для одного плейлиста: при добавлении или редактировании плейлиста на ТВ и телефоне теперь можно указать несколько адресов EPG. Порядок в списке задаёт приоритет — программа берётся в первую очередь из верхнего источника, а недостающие передачи дополняются из следующих.<br/>
+✨ Экспорт журнала диагностики: в «Журнале ошибок» появилась кнопка «Экспорт журнала», которая формирует полный текстовый отчёт для поддержки. На ТВ поднимается локальный сервер с адресом и QR-кодом для быстрого скачивания на телефон или ноутбук по домашней сети, а на телефоне открывается стандартное меню «Поделиться». Все пароли, токены и адреса провайдеров надёжно маскируются.]]></description>
+    </item>
+    <item>
+      <title>YAiPlayer v3.0.20</title>
+      <link>https://yaiplayer.pages.dev/#/news</link>
+      <guid isPermaLink="false">v3.0.20</guid>
+      <pubDate>Sun, 08 Nov 2026 20:38:34 GMT</pubDate>
+      <description><![CDATA[✨ Каналы с зелёным экраном или «слайд-шоу» в ExoPlayer: если аппаратный декодер телевизора принял поток, но не показал нормальную картинку, плеер один раз автоматически перезапускает канал с программным декодером и запоминает это для канала, прежде чем переключиться на mpv.]]></description>
+    </item>
+    <item>
+      <title>YAiPlayer v3.0.19</title>
+      <link>https://yaiplayer.pages.dev/#/news</link>
+      <guid isPermaLink="false">v3.0.19</guid>
+      <pubDate>Sun, 08 Nov 2026 20:14:58 GMT</pubDate>
+      <description><![CDATA[✨ Плеер (ТВ и телефон): большая кнопка «Архив» теперь есть и во время просмотра архива, плюс кнопка «К эфиру». Подписи кнопок «Предыдущий канал», «Следующий канал», «Недавние каналы» стали полными и умещаются в круг; дублирующая кнопка архива внизу убрана.]]></description>
+    </item>
+    <item>
+      <title>YAiPlayer v3.0.18</title>
+      <link>https://yaiplayer.pages.dev/#/news</link>
+      <guid isPermaLink="false">v3.0.18</guid>
+      <pubDate>Sun, 08 Nov 2026 19:35:07 GMT</pubDate>
+      <description><![CDATA[✨ Плеер на ТВ: по центру панели управления появилась большая круглая кнопка «Архив» с подписью, рядом с Play — она остаётся и во время просмотра архива, так что другой день или время можно выбрать, не возвращаясь в эфир. Вместо непонятной стрелки «назад» теперь отдельные кнопки «Предыдущий канал в списке», «Следующий канал в списке» и «Недавние».]]></description>
+    </item>
+    <item>
+      <title>YAiPlayer v3.0.17</title>
+      <link>https://yaiplayer.pages.dev/#/news</link>
+      <guid isPermaLink="false">v3.0.17</guid>
+      <pubDate>Sun, 08 Nov 2026 17:57:03 GMT</pubDate>
+      <description><![CDATA[✨ Архив портала: список «Вернуться к…» теперь показывает всю неделю программы, которую хранит провайдер, а не только вчера и сегодня.]]></description>
+    </item>
+    <item>
+      <title>YAiPlayer v3.0.16</title>
+      <link>https://yaiplayer.pages.dev/#/news</link>
+      <guid isPermaLink="false">v3.0.16</guid>
+      <pubDate>Sun, 08 Nov 2026 17:23:10 GMT</pubDate>
+      <description><![CDATA[✨ Телепрограмма порталов: при открытии архива канала теперь подгружаются прошлые дни (по глубине архива) и вся программа сегодняшних и завтрашних суток, как её хранит портал.]]></description>
+    </item>
+    <item>
+      <title>YAiPlayer v3.0.15</title>
+      <link>https://yaiplayer.pages.dev/#/news</link>
+      <guid isPermaLink="false">v3.0.15</guid>
+      <pubDate>Sun, 08 Nov 2026 01:24:31 GMT</pubDate>
+      <description><![CDATA[✨ Телепрограмма порталов, которые отдают её «по часам»: теперь определяется по типичному каналу, а не по всему порталу, и загружается на несколько дней, если портал это умеет.]]></description>
+    </item>
+  </channel>
+</rss>

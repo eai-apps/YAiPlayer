@@ -1,7 +1,9 @@
 import { renderHeader, setupHeaderEvents } from './components/header.js';
 import { renderFooter } from './components/footer.js';
-import { renderHome } from './pages/home.js';
+import { renderHome, setupHomePage } from './pages/home.js';
 import { renderDownload, setupDownloadPage } from './pages/download.js';
+import { renderChecklist, setupChecklistPage } from './pages/checklist.js';
+import { renderNews, setupNewsPage } from './pages/news.js';
 import { renderGuide, setupGuidePage } from './pages/guide.js';
 import { renderFaq, setupFaqPage } from './pages/faq.js';
 import { renderLegalPage, setupLegalPage } from './pages/legalPage.js';
@@ -31,12 +33,23 @@ export function route() {
     case '#/':
     case '#/home':
       contentHtml = renderHome();
+      setupFn = setupHomePage;
       pageTitle = `${brand.name} • ${t('home.heroTitle')}`;
       break;
     case '#/download':
       contentHtml = renderDownload();
       setupFn = setupDownloadPage;
       pageTitle = `${t('nav.download')} • ${brand.name}`;
+      break;
+    case '#/checklist':
+      contentHtml = renderChecklist();
+      setupFn = setupChecklistPage;
+      pageTitle = `${t('nav.checklist')} • ${brand.name}`;
+      break;
+    case '#/news':
+      contentHtml = renderNews();
+      setupFn = setupNewsPage;
+      pageTitle = `${t('nav.news')} • ${brand.name}`;
       break;
     case '#/guide':
       contentHtml = renderGuide();
@@ -91,7 +104,7 @@ export function route() {
   }
 
   // Scroll to top on route change unless hash is anchor
-  if (!window.location.hash.includes('-')) {
+  if (!window.location.hash.includes('-') && !window.location.hash.includes('features')) {
     window.scrollTo({ top: 0, behavior: 'instant' });
   }
 }
