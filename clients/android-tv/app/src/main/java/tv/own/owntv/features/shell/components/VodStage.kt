@@ -356,7 +356,7 @@ internal fun VodDetailsCard(info: VodTitleInfo?, hints: List<Pair<String, String
                     val art = info.backdropUrl ?: info.posterUrl
                     if (!art.isNullOrBlank()) {
                         AsyncImage(
-                            model = art, contentDescription = null, contentScale = ContentScale.Crop,
+                            model = art, contentDescription = null, contentScale = ContentScale.Fit,
                             alignment = BiasAlignment(if (series) 1f else -0.4f, -0.2f), modifier = Modifier.fillMaxSize(),
                         )
                     }
@@ -427,6 +427,7 @@ internal fun VodListRow(
     onClick: () -> Unit,
     onLongClick: () -> Unit,
     modifier: Modifier = Modifier,
+    originalTitle: String? = null,
 ) {
     StageRow(onClick = onClick, onLongClick = onLongClick, height = 118.mpx, horizontalPadding = 16.mpx, gap = 20.mpx, modifier = modifier.fillMaxWidth()) { focused ->
         Box(Modifier.size(66.mpx, 99.mpx).clip(RoundedCornerShape(10.mpx)).background(StageColors.Ink.copy(alpha = 0.06f)), contentAlignment = Alignment.Center) {
@@ -438,6 +439,9 @@ internal fun VodListRow(
         }
         Column(Modifier.weight(1f)) {
             Text(title, style = stageText(21, 700), color = if (focused) StageColors.FxText else StageColors.Text, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            if (!originalTitle.isNullOrBlank() && originalTitle.trim() != title.trim()) {
+                Text(originalTitle, style = stageText(14, 400), color = StageColors.Dim, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 2.mpx))
+            }
             if (line.isNotEmpty()) {
                 Text(line, style = stageText(16, 400), color = StageColors.Muted, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 4.mpx))
             }

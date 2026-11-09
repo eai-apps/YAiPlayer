@@ -1079,6 +1079,12 @@ class MovieViewModel(
         // Restore once at startup, and only while still on the default (never yank a user who already
         // navigated). A saved folder is honoured only once it exists in this profile's rail.
         viewModelScope.launch {
+            if (tv.own.owntv.extras.portal.SessionFirstEntryState.isFirstMoviesEntry) {
+                tv.own.owntv.extras.portal.SessionFirstEntryState.isFirstMoviesEntry = false
+                _selected.value = LiveKey.All
+                settings.setSortMovies(SettingsRepository.SortMode.DATE_ADDED)
+                return@launch
+            }
             if (!settings.rememberCategoryMovies.first()) return@launch
             val saved = parseLiveKey(settings.lastMoviesCategory.first()) ?: return@launch
             // A saved Folder/Custom is honoured only while it still exists in this profile's rail —

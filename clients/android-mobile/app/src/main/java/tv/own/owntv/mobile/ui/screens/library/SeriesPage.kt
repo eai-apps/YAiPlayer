@@ -442,6 +442,9 @@ private fun SeriesHeader(series: SeriesEntity, page: DetailViewModel.TitlePage, 
         overflow = TextOverflow.Ellipsis,
         modifier = Modifier.padding(top = 6.dp),
     )
+    if (series.name.trim() != headline.trim() && series.name.isNotBlank()) {
+        Text(series.name, style = stageText(12f, 400), color = palette.muted, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 2.dp))
+    }
     // Specials are not counted as a season, as on Home and the TV.
     val numbered = seasons.count { it > 0 }
     Box(Modifier.padding(top = 8.dp)) {

@@ -801,8 +801,10 @@ private fun SeriesGrid(
                         ) {
                             items(count = series.itemCount, key = series.itemKey { it.id }, contentType = series.itemContentType { "series" }) { index ->
                                 val show = series[index] ?: return@items
+                                val displayTitle = show.canonicalTitle.ifBlank { show.name }
                                 VodListRow(
-                                    title = show.name,
+                                    title = displayTitle,
+                                    originalTitle = show.name.takeIf { it.trim() != displayTitle.trim() },
                                     line = vodLine(show.year, show.rating, null),
                                     posterUrl = posterOf(show),
                                     placeholder = OwnTVIcon.SERIES,
@@ -1182,8 +1184,10 @@ private fun buildSeriesDetails(
     val rating = if (tmdbWins) meta?.rating?.takeIf { it > 0 } ?: s.rating?.takeIf { it > 0 }
         else s.rating?.takeIf { it > 0 } ?: meta?.rating?.takeIf { it > 0 }
     val metaLine = listOfNotNull(year?.let { localizedInteger(it, grouping = false) }, rating?.let { stringResource(R.string.content_rating, it) }).joinToString(stringResource(R.string.content_metadata_separator))
+    val displayTitle = if (tmdbWins && !meta?.title.isNullOrBlank()) meta.title else s.canonicalTitle.ifBlank { s.name }
     return tv.own.owntv.features.shell.components.MediaDetailsUi(
-        title = s.name,
+        title = displayTitle,
+        originalTitle = s.name.takeIf { it.trim() != displayTitle.trim() },
         backdropUrl = backdrop,
         logoUrl = tv.own.owntv.core.metadata.MetadataImages.logo(meta?.logoPath),
         posterUrl = poster,
@@ -1191,6 +1195,7 @@ private fun buildSeriesDetails(
         genres = jsonStringList(meta?.genresJson),
         plot = plot,
         cast = tv.own.owntv.core.metadata.MetadataCast.parse(meta?.castJson),
+        year = year,
     )
 }
 

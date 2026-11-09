@@ -377,14 +377,22 @@ fun ManageSourcesScreen(
         nameCleanup?.let { src -> ChannelNameCleanupHost(src, onNeedsResync = { vm.resync(it) }, onDismiss = { nameCleanup = null }) }
 
         resyncChoice?.let { src ->
-            ResyncChoiceDialog(
-                sourceName = src.name,
-                onNormal = { vm.resync(src); resyncChoice = null },
-                onClean = { vm.resync(src, clean = true); resyncChoice = null },
+            val quickActionsSync: tv.own.owntv.core.sync.QuickActionsSync = org.koin.compose.koinInject()
+            val scope = rememberCoroutineScope()
+            tv.own.owntv.extras.portal.PortalResyncDialog(
+                source = src,
+                onSelectOption = { option ->
+                    scope.launch {
+                        when (option) {
+                            tv.own.owntv.extras.portal.PortalResyncOption.ALL -> quickActionsSync.refreshAll(src)
+                            tv.own.owntv.extras.portal.PortalResyncOption.CHANNELS_ONLY -> quickActionsSync.refreshChannelsOnly(src)
+                            tv.own.owntv.extras.portal.PortalResyncOption.EPG_ONLY -> quickActionsSync.refreshEpg(src)
+                            tv.own.owntv.extras.portal.PortalResyncOption.CHANNELS_AND_EPG -> quickActionsSync.refreshChannelsAndEpg(src)
+                            tv.own.owntv.extras.portal.PortalResyncOption.VOD_ONLY -> quickActionsSync.refreshVod(src)
+                        }
+                    }
+                },
                 onDismiss = { resyncChoice = null },
-                onClearStalker = if (src.type == tv.own.owntv.core.model.SourceType.STALKER) {
-                    { vm.clearStalkerData(src); resyncChoice = null }
-                } else null,
             )
         }
 

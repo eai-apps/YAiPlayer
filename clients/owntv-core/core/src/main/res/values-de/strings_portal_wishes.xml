@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="portal_resync_submenu_title">Synchronisierung</string>
+    <string name="portal_resync_all">Alles synchronisieren</string>
+    <string name="portal_resync_channels_only">Nur Fernsehkanäle</string>
+    <string name="portal_resync_epg_only">Nur Programmführer</string>
+    <string name="portal_resync_channels_and_epg">Kanäle und Programm</string>
+    <string name="portal_resync_vod_only">Filme und Serien</string>
+    <string name="portal_details_genre">Genre</string>
+    <string name="portal_details_year">Jahr</string>
+    <string name="portal_details_country">Land</string>
+    <string name="portal_details_duration">Dauer</string>
+    <string name="portal_details_director">Regie</string>
+    <string name="portal_details_cast">Besetzung</string>
+</resources>

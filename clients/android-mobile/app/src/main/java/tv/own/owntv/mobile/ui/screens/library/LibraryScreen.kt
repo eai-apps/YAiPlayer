@@ -448,7 +448,12 @@ private fun VodListRow(
             modifier = Modifier.size(52.dp, 78.dp).clip(RoundedCornerShape(9.dp)).background(palette.cardSolid),
         )
         Column(Modifier.weight(1f)) {
-            Text(item.name, style = stageText(14.5f, 700), color = palette.text, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            val displayTitle = item.canonicalTitle?.ifBlank { item.name } ?: item.name
+            val originalTitle = item.name.takeIf { it.trim() != displayTitle.trim() }
+            Text(displayTitle, style = stageText(14.5f, 700), color = palette.text, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            if (!originalTitle.isNullOrBlank()) {
+                Text(originalTitle, style = stageText(11.5f, 400), color = palette.muted, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 1.dp))
+            }
             if (line.isNotEmpty()) {
                 Text(line, style = stageText(12f, 400), color = palette.muted, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 1.dp))
             }

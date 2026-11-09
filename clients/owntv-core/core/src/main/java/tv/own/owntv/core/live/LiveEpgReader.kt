@@ -58,7 +58,8 @@ private const val PORTAL_PAST_DAYS = 7
  * feed carrying the channel interleaves its own rows, and the lower-priority ones are dropped
  * afterwards ([tv.own.owntv.core.epg.GuidePriority]) and would otherwise eat the list.
  */
-private const val UPCOMING_LIMIT = 18
+private const val UPCOMING_LIMIT = 120
+private const val UPCOMING_HORIZON_MS = 24L * 60 * 60 * 1000
 
 /**
  * Every guide read Live TV performs: now/next for the focused channel, the batched "what's on now" for a
@@ -116,9 +117,10 @@ class LiveEpgReader(
                 // the same title in Next AND at the head of Later, and Now came from whichever feed's
                 // block started last. Now is read from the same resolved rows, so it is the
                 // higher-priority feed's programme too.
+                val horizon = at + UPCOMING_HORIZON_MS
                 val rows = epgSourceStore.priority().resolve(epgDao.upcoming(epgKey, at, UPCOMING_LIMIT).first())
                 val nowProg = rows.onAirAt(at)
-                val future = rows.filter { it.startMs > (nowProg?.startMs ?: 0) }
+                val future = rows.filter { it.startMs > (nowProg?.startMs ?: 0) && it.startMs <= horizon }
                 val nextProg = future.firstOrNull()
                 if (nowProg != null || nextProg != null) {
                     val prevProg = epgDao.previousProgramme(epgKey, nowProg?.startMs ?: at)
@@ -126,7 +128,7 @@ class LiveEpgReader(
                     // leaves this null, since its ~8 entries only span a few hours).
                     val days = runCatching { epgDao.coverageDays(epgKey) }.getOrNull()?.takeIf { it > 0 }
                     fun EpgProgrammeEntity.shifted() = EpgShift.apply(this, shift).toXt()
-                    val result = EpgNowNext(nowProg?.shifted(), nextProg?.shifted(), future.drop(1).take(4).map { it.shifted() }, previous = prevProg?.shifted(), coverageDays = days, nowDetails = nowProg?.details)
+                    val result = EpgNowNext(nowProg?.shifted(), nextProg?.shifted(), future.drop(1).map { it.shifted() }, previous = prevProg?.shifted(), coverageDays = days, nowDetails = nowProg?.details)
                     cache[ch.id] = CachedEpg(now, result)
                     return@withContext result
                 }
@@ -139,10 +141,10 @@ class LiveEpgReader(
             // programme as live. "Next"/"Later" are computed independently below, so a genuine
             // gap correctly shows no "Now" while the upcoming programme still appears as "Next".
             val current = entries.firstOrNull { it.startMs <= now && it.stopMs > now }
-            val future = entries.filter { it.startMs > (current?.startMs ?: now) }.sortedBy { it.startMs }
+            val future = entries.filter { it.startMs > (current?.startMs ?: now) && it.startMs <= now + UPCOMING_HORIZON_MS }.sortedBy { it.startMs }
             // Short-EPG responses sometimes include the just-finished programme — surface it as "Before".
             val previous = entries.filter { it.stopMs <= (current?.startMs ?: now) }.maxByOrNull { it.stopMs }
-            val result = EpgNowNext(current, future.firstOrNull(), future.drop(1).take(4), previous = previous)
+            val result = EpgNowNext(current, future.firstOrNull(), future.drop(1), previous = previous)
             cache[ch.id] = CachedEpg(now, result)
             result
         }
