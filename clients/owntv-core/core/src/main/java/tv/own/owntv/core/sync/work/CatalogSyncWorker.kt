@@ -164,7 +164,7 @@ class CatalogSyncWorker(
     }
 
     private fun enqueueRequestedGuide() {
-        inputData.getLongArray(KEY_AFTER_EPG_IDS).orEmpty().distinct().forEach { id ->
+        (inputData.getLongArray(KEY_AFTER_EPG_IDS) ?: longArrayOf()).distinct().forEach { id ->
             epgSyncScheduler.enqueueSync(id, "manual_resync", policy = androidx.work.ExistingWorkPolicy.KEEP)
         }
     }
