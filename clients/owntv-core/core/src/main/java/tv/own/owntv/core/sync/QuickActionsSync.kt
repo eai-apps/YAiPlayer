@@ -29,6 +29,27 @@ class QuickActionsSync(
         )
     }
 
+    suspend fun refreshChannelsOnly(source: SourceEntity) {
+        val counts = importFinalizer.contentCounts(source.id)
+        catalogSyncScheduler.enqueueSync(
+            source.id,
+            reason = "manual_resync",
+            contentTypes = SyncContentTypes(live = true, movies = false, series = false),
+            baseItemCount = counts.channels,
+            policy = ExistingWorkPolicy.KEEP,
+        )
+    }
+
+    suspend fun refreshChannelsAndEpg(source: SourceEntity) {
+        refreshChannelsOnly(source)
+        refreshEpg(source)
+    }
+
+    suspend fun refreshAll(source: SourceEntity) {
+        refreshPlaylist(source)
+        refreshEpg(source)
+    }
+
     suspend fun refreshVod(source: SourceEntity) {
         val counts = importFinalizer.contentCounts(source.id)
         catalogSyncScheduler.enqueueSync(

@@ -733,8 +733,10 @@ fun MoviesScreen(
                                 val movie = movies[index] ?: return@items
                                 val prog = movieProgress[movie.id]
                                 val done = prog?.let { vm.isMovieCompleted(it) } == true
+                                val displayTitle = movie.canonicalTitle.ifBlank { movie.name }
                                 VodListRow(
-                                    title = movie.name,
+                                    title = displayTitle,
+                                    originalTitle = movie.name.takeIf { it.trim() != displayTitle.trim() },
                                     line = vodLine(movie.year, movie.rating, movie.durationSecs),
                                     posterUrl = posterOf(movie),
                                     placeholder = OwnTVIcon.MOVIES,
@@ -1177,8 +1179,10 @@ private fun buildMovieDetails(
     val backdrop = tv.own.owntv.core.metadata.MetadataImages.backdrop(meta?.backdropPath)
         ?: movie.backdropUrl?.takeIf { it.isNotBlank() }
     val plot = if (tmdbWins) meta?.overview ?: movie.plot else movie.plot?.takeIf { it.isNotBlank() } ?: meta?.overview
+    val displayTitle = if (tmdbWins && !meta?.title.isNullOrBlank()) meta.title else movie.canonicalTitle.ifBlank { movie.name }
     return tv.own.owntv.features.shell.components.MediaDetailsUi(
-        title = movie.name,
+        title = displayTitle,
+        originalTitle = movie.name.takeIf { it.trim() != displayTitle.trim() },
         backdropUrl = backdrop,
         logoUrl = tv.own.owntv.core.metadata.MetadataImages.logo(meta?.logoPath),
         posterUrl = poster,
@@ -1186,6 +1190,8 @@ private fun buildMovieDetails(
         genres = jsonList(meta?.genresJson),
         plot = plot,
         cast = tv.own.owntv.core.metadata.MetadataCast.parse(meta?.castJson),
+        year = movie.year ?: meta?.year,
+        durationText = movie.durationSecs?.takeIf { it > 0 }?.let { tv.own.owntv.features.shell.components.vodRuntime(it) },
     )
 }
 

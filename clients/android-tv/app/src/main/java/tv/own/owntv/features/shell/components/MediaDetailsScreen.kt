@@ -69,6 +69,11 @@ data class MediaDetailsUi(
     val genres: List<String> = emptyList(),
     val plot: String? = null,
     val cast: List<tv.own.owntv.core.metadata.CastMember> = emptyList(),
+    val originalTitle: String? = null,
+    val year: Int? = null,
+    val durationText: String? = null,
+    val country: String? = null,
+    val director: String? = null,
 )
 
 /**
@@ -118,7 +123,7 @@ fun MediaDetailsScreen(details: MediaDetailsUi, onExit: () -> Unit, modifier: Mo
                 Row(horizontalArrangement = Arrangement.spacedBy(36.mpx), verticalAlignment = Alignment.Bottom) {
                     if (!details.posterUrl.isNullOrBlank()) {
                         AsyncImage(
-                            model = details.posterUrl, contentDescription = null, contentScale = ContentScale.Crop,
+                            model = details.posterUrl, contentDescription = null, contentScale = ContentScale.Fit,
                             modifier = Modifier.width(220.mpx).aspectRatio(2f / 3f).clip(RoundedCornerShape(20.mpx)),
                         )
                     }
@@ -127,12 +132,31 @@ fun MediaDetailsScreen(details: MediaDetailsUi, onExit: () -> Unit, modifier: Mo
                             Text(details.subtitle, style = stageText(18, 800, 0.08.em), color = stageAccent.accent, maxLines = 1, overflow = TextOverflow.Ellipsis)
                         }
                         Text(details.title, style = stageText(64, 800, (-1.5).mpxSp), color = StageColors.Text, maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 6.mpx))
+                        if (!details.originalTitle.isNullOrBlank() && details.originalTitle.trim() != details.title.trim()) {
+                            Text(details.originalTitle, style = stageText(20, 400), color = StageColors.Dim, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 4.mpx))
+                        }
                         if (details.metaLine.isNotBlank()) {
                             Text(details.metaLine, style = stageText(22, 600), color = StageColors.ItemText, modifier = Modifier.padding(top = 12.mpx))
                         }
                         if (details.genres.isNotEmpty()) {
                             FlowRow(Modifier.padding(top = 16.mpx), horizontalArrangement = Arrangement.spacedBy(10.mpx), verticalArrangement = Arrangement.spacedBy(10.mpx)) {
                                 details.genres.forEach { tv.own.owntv.ui.stage.StageTag(it) }
+                            }
+                        }
+                        val metaFields = listOfNotNull(
+                            details.year?.takeIf { it > 0 }?.let { stringResource(R.string.portal_details_year) to it.toString() },
+                            details.country?.takeIf { it.isNotBlank() }?.let { stringResource(R.string.portal_details_country) to it },
+                            details.durationText?.takeIf { it.isNotBlank() }?.let { stringResource(R.string.portal_details_duration) to it },
+                            details.director?.takeIf { it.isNotBlank() }?.let { stringResource(R.string.portal_details_director) to it },
+                        )
+                        if (metaFields.isNotEmpty()) {
+                            Column(Modifier.padding(top = 12.mpx), verticalArrangement = Arrangement.spacedBy(4.mpx)) {
+                                metaFields.forEach { (label, value) ->
+                                    Row(horizontalArrangement = Arrangement.spacedBy(10.mpx)) {
+                                        Text(label, style = stageText(17, 700), color = StageColors.Dim)
+                                        Text(value, style = stageText(17, 400), color = StageColors.ItemText)
+                                    }
+                                }
                             }
                         }
                     }

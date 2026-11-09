@@ -2017,19 +2017,24 @@ fun OwnTVShell(
     }
     if (showResync) {
         val resyncActiveSource = playlists.firstOrNull { it.id == activePlaylistId } ?: playlists.firstOrNull()
-        val resyncTitle = stringResource(if (resyncActiveSource?.type == tv.own.owntv.core.model.SourceType.STALKER) R.string.shell_resync_title_portal else R.string.shell_resync_title_playlist)
-        tv.own.owntv.ui.stage.StageConfirm(
-            title = resyncTitle,
-            body = stringResource(R.string.shell_resync_body),
-            confirm = stringResource(R.string.shell_resync_confirm),
-            onConfirm = {
-                showResync = false
-                shellVm.resync(playlists.filter { it.id == activePlaylistId }.ifEmpty { playlists })
+        val quickActionsSync: tv.own.owntv.core.sync.QuickActionsSync = org.koin.compose.koinInject()
+        val scope = rememberCoroutineScope()
+        tv.own.owntv.extras.portal.PortalResyncDialog(
+            source = resyncActiveSource,
+            onSelectOption = { option ->
+                resyncActiveSource?.let { src ->
+                    scope.launch {
+                        when (option) {
+                            tv.own.owntv.extras.portal.PortalResyncOption.ALL -> quickActionsSync.refreshAll(src)
+                            tv.own.owntv.extras.portal.PortalResyncOption.CHANNELS_ONLY -> quickActionsSync.refreshChannelsOnly(src)
+                            tv.own.owntv.extras.portal.PortalResyncOption.EPG_ONLY -> quickActionsSync.refreshEpg(src)
+                            tv.own.owntv.extras.portal.PortalResyncOption.CHANNELS_AND_EPG -> quickActionsSync.refreshChannelsAndEpg(src)
+                            tv.own.owntv.extras.portal.PortalResyncOption.VOD_ONLY -> quickActionsSync.refreshVod(src)
+                        }
+                    }
+                }
             },
-            onCancel = { showResync = false },
-            focusCancel = true,
-            eyebrow = null,
-            width = 560.mpx,
+            onDismiss = { showResync = false },
         )
     }
     if (showAvatarPicker) {

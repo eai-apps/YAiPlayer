@@ -18,6 +18,8 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -311,7 +313,16 @@ internal fun LiveStagePane(
             }
         }
         val now = nowNext?.now
-        Column(Modifier.fillMaxWidth().weight(1f, fill = false).clipToBounds().padding(start = 4.mpx, end = 4.mpx, top = 34.mpx)) {
+        val scheduleScroll = rememberScrollState()
+        LaunchedEffect(channel?.id) { scheduleScroll.scrollTo(0) }
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .weight(1f, fill = false)
+                .clipToBounds()
+                .padding(start = 4.mpx, end = 4.mpx, top = 34.mpx)
+                .verticalScroll(scheduleScroll),
+        ) {
             if (now != null) {
                 Text(now.title, style = stageText(42, 800, (-0.5).mpxSp), color = StageColors.Text, maxLines = 2, overflow = TextOverflow.Ellipsis)
                 Text(
@@ -332,7 +343,7 @@ internal fun LiveStagePane(
                 }
             }
             val next = nowNext?.next
-            val later = nowNext?.upcoming.orEmpty().take(10)
+            val later = nowNext?.upcoming.orEmpty()
             if (next != null) {
                 Column(
                     Modifier

@@ -156,10 +156,10 @@ interface SeriesDao {
     @Query("SELECT * FROM series WHERE categoryId = :categoryId ORDER BY addedAt DESC, sortOrder DESC, id DESC")
     fun pagingByCategoryDateAdded(categoryId: Long): PagingSource<Int, SeriesEntity>
 
-    @Query("SELECT * FROM series WHERE sourceId IN (:sourceIds) AND name LIKE '%' || :query || '%' ORDER BY addedAt DESC, sortOrder DESC, id DESC")
+    @Query("SELECT * FROM series WHERE sourceId IN (:sourceIds) AND (name LIKE '%' || :query || '%' OR canonicalTitle LIKE '%' || :query || '%' OR plot LIKE '%' || :query || '%' OR CAST(year AS TEXT) LIKE '%' || :query || '%' OR categoryId IN (SELECT id FROM categories WHERE name LIKE '%' || :query || '%')) ORDER BY addedAt DESC, sortOrder DESC, id DESC")
     fun searchAllDateAdded(query: String, sourceIds: List<Long>): PagingSource<Int, SeriesEntity>
 
-    @Query("SELECT * FROM series WHERE categoryId = :categoryId AND name LIKE '%' || :query || '%' ORDER BY addedAt DESC, sortOrder DESC, id DESC")
+    @Query("SELECT * FROM series WHERE categoryId = :categoryId AND (name LIKE '%' || :query || '%' OR canonicalTitle LIKE '%' || :query || '%' OR plot LIKE '%' || :query || '%' OR CAST(year AS TEXT) LIKE '%' || :query || '%') ORDER BY addedAt DESC, sortOrder DESC, id DESC")
     fun searchInCategoryDateAdded(query: String, categoryId: Long): PagingSource<Int, SeriesEntity>
 
     // --- Manual order (Move) — see ChannelDao for the join shape. ---
@@ -261,10 +261,10 @@ interface SeriesDao {
     fun search(query: String, sourceIds: List<Long>): PagingSource<Int, SeriesEntity>
 
     // --- Inline folder-scoped search (substring) ---
-    @Query("SELECT * FROM series WHERE sourceId IN (:sourceIds) AND name LIKE '%' || :query || '%' ORDER BY name ASC")
+    @Query("SELECT * FROM series WHERE sourceId IN (:sourceIds) AND (name LIKE '%' || :query || '%' OR canonicalTitle LIKE '%' || :query || '%' OR plot LIKE '%' || :query || '%' OR CAST(year AS TEXT) LIKE '%' || :query || '%' OR categoryId IN (SELECT id FROM categories WHERE name LIKE '%' || :query || '%')) ORDER BY name ASC")
     fun searchAll(query: String, sourceIds: List<Long>): PagingSource<Int, SeriesEntity>
 
-    @Query("SELECT * FROM series WHERE categoryId = :categoryId AND name LIKE '%' || :query || '%' ORDER BY sortOrder ASC, name ASC")
+    @Query("SELECT * FROM series WHERE categoryId = :categoryId AND (name LIKE '%' || :query || '%' OR canonicalTitle LIKE '%' || :query || '%' OR plot LIKE '%' || :query || '%' OR CAST(year AS TEXT) LIKE '%' || :query || '%') ORDER BY sortOrder ASC, name ASC")
     fun searchInCategory(query: String, categoryId: Long): PagingSource<Int, SeriesEntity>
 
     /** Bounded list for global search (across all of a profile's sources). */

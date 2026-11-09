@@ -1017,7 +1017,6 @@
 3	empty	app/src/main/java/tv/own/owntv/mobile/ui/setup/SetupWizardSteps.kt	\0
 2	technical	app/src/main/java/tv/own/owntv/mobile/ui/setup/WizardFrame.kt	sweep
 2	protocol	app/src/main/java/tv/own/owntv/mobile/ui/shell/MobileShell.kt	${it.route}/
-1	technical	app/src/main/java/tv/own/owntv/mobile/ui/shell/PlaylistSheet.kt	manual_resync
 2	empty	app/src/main/java/tv/own/owntv/mobile/ui/stage/StageControls.kt	\0
 1	log	app/src/main/java/tv/own/owntv/mobile/ui/stage/StageControls.kt	stageSwitch
 1	empty	app/src/main/java/tv/own/owntv/mobile/ui/stage/StageRows.kt	\0

@@ -95,32 +95,28 @@ fun PlaylistSheet(
         return
     }
     if (askResync) {
-        // Which playlists: the chosen one, or all of them when "All playlists" is on.
         val targets = playlists.filter { it.id == activeId }.ifEmpty { playlists }
         val activeSource = playlists.firstOrNull { it.id == activeId } ?: playlists.firstOrNull()
-        val ask = stringResource(if (activeSource?.type == tv.own.owntv.core.model.SourceType.STALKER) R.string.shell_resync_title_portal else R.string.shell_resync_title_playlist)
-        MobileBottomSheet(onDismissRequest = { askResync = false }, title = ask) {
-            StageSheetHeader(title = ask, subtitle = stringResource(R.string.shell_resync_body))
-            tv.own.owntv.mobile.ui.components.StageConfirmItems(
-                confirm = stringResource(R.string.shell_resync_confirm),
-                confirmEnabled = true,
-                onConfirm = {
-                    scope.launch {
-                        targets.forEach { source ->
-                            val counts = finalizer.contentCounts(source.id)
-                            scheduler.enqueueSync(
-                                source.id,
-                                reason = "manual_resync",
-                                contentTypes = tv.own.owntv.core.sync.SyncContentTypes.enabledOf(source),
-                                baseItemCount = counts.channels + counts.movies + counts.series,
-                                policy = androidx.work.ExistingWorkPolicy.KEEP,
-                            )
+        val quickActionsSync: tv.own.owntv.core.sync.QuickActionsSync = org.koin.compose.koinInject()
+        tv.own.owntv.extras.portal.PortalResyncSheet(
+            source = activeSource,
+            onSelectOption = { option ->
+                scope.launch {
+                    targets.forEach { source ->
+                        when (option) {
+                            tv.own.owntv.extras.portal.PortalResyncOption.ALL -> quickActionsSync.refreshAll(source)
+                            tv.own.owntv.extras.portal.PortalResyncOption.CHANNELS_ONLY -> quickActionsSync.refreshChannelsOnly(source)
+                            tv.own.owntv.extras.portal.PortalResyncOption.EPG_ONLY -> quickActionsSync.refreshEpg(source)
+                            tv.own.owntv.extras.portal.PortalResyncOption.CHANNELS_AND_EPG -> quickActionsSync.refreshChannelsAndEpg(source)
+                            tv.own.owntv.extras.portal.PortalResyncOption.VOD_ONLY -> quickActionsSync.refreshVod(source)
                         }
                     }
-                },
-                onDismiss = { askResync = false; onDismiss() },
-            )
-        }
+                }
+                askResync = false
+                onDismiss()
+            },
+            onDismiss = { askResync = false },
+        )
         return
     }
 

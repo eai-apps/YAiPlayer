@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="portal_resync_submenu_title">Синхронизация</string>
+    <string name="portal_resync_all">Синхронизировать всё</string>
+    <string name="portal_resync_channels_only">Только телеканалы</string>
+    <string name="portal_resync_epg_only">Только телепрограмму</string>
+    <string name="portal_resync_channels_and_epg">Каналы и телепрограмма</string>
+    <string name="portal_resync_vod_only">Фильмы и сериалы</string>
+    <string name="portal_details_genre">Жанр</string>
+    <string name="portal_details_year">Год</string>
+    <string name="portal_details_country">Страна</string>
+    <string name="portal_details_duration">Длительность</string>
+    <string name="portal_details_director">Режиссёр</string>
+    <string name="portal_details_cast">В ролях</string>
+</resources>

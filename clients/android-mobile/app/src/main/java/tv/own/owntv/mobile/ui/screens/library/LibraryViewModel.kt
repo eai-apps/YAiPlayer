@@ -107,6 +107,7 @@ data class VodItem(
     val categoryId: Long?,
     /** A film's length; null on a show. */
     val durationSecs: Int? = null,
+    val canonicalTitle: String? = null,
 )
 
 /**
@@ -455,6 +456,7 @@ class LibraryViewModel(
         sourceId = sourceId,
         categoryId = categoryId,
         durationSecs = durationSecs,
+        canonicalTitle = canonicalTitle,
     )
 
     private fun SeriesEntity.asItem(cust: SectionCustomizations) = VodItem(
@@ -465,6 +467,7 @@ class LibraryViewModel(
         rating = rating,
         sourceId = sourceId,
         categoryId = categoryId,
+        canonicalTitle = canonicalTitle,
     )
 
     val favoriteIds: StateFlow<Set<Long>> = combine(ctx, mediaType) { c, type -> c to type }
@@ -633,12 +636,20 @@ class LibraryViewModel(
 
     init {
         viewModelScope.launch {
-            if (settings.rememberCategoryMovies.first()) {
+            if (tv.own.owntv.extras.portal.SessionFirstEntryState.isFirstMoviesEntry) {
+                tv.own.owntv.extras.portal.SessionFirstEntryState.isFirstMoviesEntry = false
+                _selectedMovies.value = LiveKey.All
+                settings.setSortMovies(SettingsRepository.SortMode.DATE_ADDED)
+            } else if (settings.rememberCategoryMovies.first()) {
                 parseLiveKey(settings.lastMoviesCategory.first())?.let {
                     if (lockedKey == null) _selectedMovies.value = it
                 }
             }
-            if (settings.rememberCategorySeries.first()) {
+            if (tv.own.owntv.extras.portal.SessionFirstEntryState.isFirstSeriesEntry) {
+                tv.own.owntv.extras.portal.SessionFirstEntryState.isFirstSeriesEntry = false
+                _selectedSeries.value = LiveKey.All
+                settings.setSortSeries(SettingsRepository.SortMode.DATE_ADDED)
+            } else if (settings.rememberCategorySeries.first()) {
                 parseLiveKey(settings.lastSeriesCategory.first())?.let {
                     if (lockedKey == null) _selectedSeries.value = it
                 }

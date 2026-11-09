@@ -936,6 +936,11 @@ class LiveViewModel(
         // navigated). A saved folder is honoured only once it actually exists in this profile's rail.
         // Gated by "Remember last category — Live TV" (Settings → Browsing & lists), on by default.
         viewModelScope.launch {
+            if (tv.own.owntv.extras.portal.SessionFirstEntryState.isFirstLiveEntry) {
+                tv.own.owntv.extras.portal.SessionFirstEntryState.isFirstLiveEntry = false
+                _selected.value = LiveKey.All
+                return@launch
+            }
             if (!settings.rememberCategoryLive.first()) return@launch
             val saved = parseLiveKey(settings.lastLiveCategory.first()) ?: return@launch
             // A saved Folder/Custom is honoured only while it still exists in this profile's rail —

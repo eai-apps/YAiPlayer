@@ -449,6 +449,11 @@ class LiveViewModel(
 
     init {
         viewModelScope.launch {
+            if (tv.own.owntv.extras.portal.SessionFirstEntryState.isFirstLiveEntry) {
+                tv.own.owntv.extras.portal.SessionFirstEntryState.isFirstLiveEntry = false
+                _selected.value = LiveKey.All
+                return@launch
+            }
             if (settings.rememberCategoryLive.first()) {
                 parseLiveKey(settings.lastLiveCategory.first())?.let {
                     val ids = ctx.first { c -> c.profileId >= 0L }.liveSourceIds
