@@ -77,6 +77,10 @@ import tv.own.owntv.mobile.ui.components.ChannelLogoImage
 import tv.own.owntv.mobile.ui.components.ContentActionsMenu
 import tv.own.owntv.mobile.ui.components.ContentTarget
 import tv.own.owntv.mobile.ui.components.MobileIcons
+import androidx.compose.material3.Icon
+import tv.own.owntv.core.home.OnAirGenre
+import tv.own.owntv.core.home.OnAirItem
+import tv.own.owntv.mobile.ui.screens.live.LiveTuner
 import tv.own.owntv.mobile.ui.components.rememberClockTick
 import tv.own.owntv.mobile.ui.player.rememberResumeGate
 import tv.own.owntv.mobile.ui.screens.ObeyScrollToTop
@@ -425,6 +429,14 @@ fun HomeScreen(
                     )
                     // Sports: followed matches live or within the hour, in the user's
                     // order; a tap opens the match, where its channels are found.
+                    HomeRow.NOW_ON_AIR -> OnAirSection(
+                        items = state.onAirItems,
+                        onOpenChannel = onOpenChannel,
+                        onWatchFromStart = { ch, prog ->
+                            liveTuner.playCatchup(prog, ch)
+                            onOpenChannel(ch.id)
+                        },
+                    )
                     HomeRow.LIVE_SPORTS -> Column {
                         Text(
                             stringResource(R.string.sports_title), style = stageText(17f, 800), color = LocalStagePalette.current.text,
@@ -580,6 +592,7 @@ private fun HomeFeed.hasContent(row: HomeRow): Boolean = when (row) {
     // The television's own `rowHasData`, rule for rule. Trending needs enough titles to be worth a row,
     // and the two live rows in On now mode are decided by the guide, not the card list.
     HomeRow.TRENDING -> trendingItems.size >= TrendingDao.MIN_ELIGIBLE_ITEMS
+    HomeRow.NOW_ON_AIR -> onAirItems.isNotEmpty()
     HomeRow.HERO -> heroItems.isNotEmpty()
     HomeRow.RECENT_CHANNELS -> when (config.recentLiveMode) {
         HomeLiveRowMode.CARDS -> recentLive.isNotEmpty()
@@ -966,3 +979,191 @@ private val PostersTop = 170.dp
 
 /** The Library's rule: watched to 95% is watched. */
 private const val WATCHED_FRACTION = 0.95f
+
+@Composable
+private fun OnAirSection(
+    items: List<OnAirItem>,
+    onOpenChannel: (Long) -> Unit,
+    onWatchFromStart: (ChannelEntity, EpgProgrammeEntity) -> Unit,
+) {
+    if (items.isEmpty()) return
+
+    var selectedGenre by rememberSaveable { mutableStateOf(OnAirGenre.ALL) }
+    val availableGenres = remember(items) {
+        OnAirGenre.entries.filter { genre ->
+            genre == OnAirGenre.ALL || items.any { item -> genre in item.genres }
+        }
+    }
+    val visibleItems = remember(items, selectedGenre) {
+        if (selectedGenre == OnAirGenre.ALL) items else items.filter { selectedGenre in it.genres }
+    }
+    val timeFormatter = rememberSystemTimeFormatter()
+    val palette = LocalStagePalette.current
+
+    Column(Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
+        Text(
+            stringResource(R.string.home_row_now_on_air),
+            style = stageText(17f, 800),
+            color = palette.text,
+            modifier = Modifier.padding(start = 14.dp, bottom = 8.dp),
+        )
+
+        if (availableGenres.size > 1) {
+            LazyRow(
+                contentPadding = PaddingValues(horizontal = 14.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.padding(bottom = 10.dp),
+            ) {
+                items(availableGenres, key = { it.name }) { genre ->
+                    val selected = genre == selectedGenre
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(if (selected) palette.accent.copy(alpha = 0.2f) else palette.controlFill)
+                            .clickable { selectedGenre = genre }
+                            .padding(horizontal = 14.dp, vertical = 6.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            stringResource(genre.titleRes),
+                            style = stageText(13f, if (selected) 700 else 500),
+                            color = if (selected) palette.accent else palette.text,
+                        )
+                    }
+                }
+            }
+        }
+
+        LazyRow(
+            contentPadding = PaddingValues(horizontal = 14.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            items(visibleItems, key = { it.channel.id }) { item ->
+                MobileOnAirCard(
+                    item = item,
+                    timeFormatted = stringResource(R.string.on_air_ends_at, timeFormatter.format(item.programme.stopMs)),
+                    onClick = { onOpenChannel(item.channel.id) },
+                    onWatchFromStart = if (item.canWatchFromStart) { { onWatchFromStart(item.channel, item.programme) } } else null,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun MobileOnAirCard(
+    item: OnAirItem,
+    timeFormatted: String,
+    onClick: () -> Unit,
+    onWatchFromStart: (() -> Unit)?,
+) {
+    val palette = LocalStagePalette.current
+    val shape = RoundedCornerShape(16.dp)
+    val totalProgress = item.progress.coerceIn(0f, 1f)
+
+    Box(
+        modifier = Modifier
+            .width(260.dp)
+            .height(130.dp)
+            .clip(shape)
+            .background(palette.controlFill)
+            .clickable(onClick = onClick)
+            .padding(12.dp),
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                ChannelLogoTile(
+                    logoUrl = item.channel.displayLogoUrl,
+                    modifier = Modifier.size(44.dp, 32.dp).clip(RoundedCornerShape(8.dp)),
+                    fill = palette.cardFill,
+                ) {
+                    Text(
+                        item.channel.name.take(1).uppercase(),
+                        style = stageText(14f, 800),
+                        color = palette.text,
+                    )
+                }
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        item.channel.name,
+                        style = stageText(14f, 700),
+                        color = palette.text,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    Text(
+                        item.programme.title,
+                        style = stageText(12f, 500),
+                        color = palette.dim,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            }
+
+            // Progress bar
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(4.dp)
+                    .clip(RoundedCornerShape(2.dp))
+                    .background(palette.dim.copy(alpha = 0.2f)),
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(totalProgress)
+                        .height(4.dp)
+                        .clip(RoundedCornerShape(2.dp))
+                        .background(palette.accent),
+                )
+            }
+
+            // Bottom row: end time and optional "From start" button
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    timeFormatted,
+                    style = stageText(11f, 500),
+                    color = palette.dim,
+                )
+
+                if (onWatchFromStart != null) {
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(palette.accent.copy(alpha = 0.15f))
+                            .clickable(onClick = onWatchFromStart)
+                            .padding(horizontal = 8.dp, vertical = 4.dp),
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Icon(
+                                MobileIcons.Catchup,
+                                contentDescription = stringResource(R.string.on_air_from_start),
+                                tint = palette.accent,
+                                modifier = Modifier.size(12.dp),
+                            )
+                            Text(
+                                stringResource(R.string.on_air_from_start),
+                                style = stageText(11f, 700),
+                                color = palette.accent,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -163,6 +163,7 @@ fun PlayerHud(
     // computed against the moment the user asked, not the moment the HUD was composed.
     jumpBackOptions: (() -> List<Int>)? = null,
     onJumpBack: ((Int) -> Unit)? = null,
+    onPlayFromStart: (() -> Unit)? = null,
     // Back to the channel watched before this one. Null hides the button (no previous channel yet).
     onPreviousChannel: (() -> Unit)? = null,
     // Archive depth of the current channel, for the exact-time picker's day/HH:MM bounds.
@@ -715,6 +716,7 @@ fun PlayerHud(
                 CenterControls(
                     player, nav, isPlaying, isLive, onRewindLive, onForwardLive, timeshiftOffset, playFocus,
                     onOpenArchive = if (onJumpBack != null) { { dialog = HudDialog.JUMP_BACK } } else null,
+                    onPlayFromStart = onPlayFromStart,
                     onPrevInList = onChannelUp, onNextInList = onChannelDown,
                     onOpenRecent = onOpenHistoryList, onGoLive = onGoToLive,
                     modifier = Modifier.align(Alignment.Center),

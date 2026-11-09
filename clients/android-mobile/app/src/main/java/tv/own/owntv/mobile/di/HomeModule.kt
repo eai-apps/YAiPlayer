@@ -23,6 +23,7 @@ val homeModule = module {
             profileDao = get(),
             trendingDao = get(),
             guide = get(),
+            epgDao = get(),
         )
     }
     viewModelOf(::HomeViewModel)

@@ -701,4 +701,16 @@
     <string name="search_programme_now">Now</string>
     <string name="search_programme_today">Today</string>
     <string name="search_programme_tomorrow">Tomorrow</string>
+    <string name="home_row_now_on_air">On Air Now</string>
+    <string name="home_row_now_on_air_desc">Programmes currently broadcasting on live channels</string>
+    <string name="on_air_from_start">From start</string>
+    <string name="on_air_ends_at">until %s</string>
+    <string name="on_air_genre_all">All</string>
+    <string name="on_air_genre_movies">Movies</string>
+    <string name="on_air_genre_series">Series</string>
+    <string name="on_air_genre_sports">Sports</string>
+    <string name="on_air_genre_news">News</string>
+    <string name="on_air_genre_kids">Kids</string>
+    <string name="on_air_genre_music">Music</string>
+    <string name="on_air_genre_educational">Educational</string>
 </resources>

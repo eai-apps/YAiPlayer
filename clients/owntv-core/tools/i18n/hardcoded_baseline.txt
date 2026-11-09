@@ -119,7 +119,6 @@
 1	core/src/main/java/tv/own/owntv/core/database/dao/CustomCategoryDao.kt	WHERE profileId = :profileId AND mediaType = :type AND contextKey IN (:contextKeys) AND (
 1	core/src/main/java/tv/own/owntv/core/database/dao/CustomCategoryDao.kt	WHERE s.sourceId IN (:sourceIds) AND s.name LIKE '%' || :query || '%'
 1	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	FROM epg_programmes WHERE epgChannelId = :epgKey
-1	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	FROM epg_programmes WHERE epgChannelId IN (:epgKeys)
 1	core/src/main/java/tv/own/owntv/core/database/dao/PlaybackPrefsDao.kt	DELETE FROM playback_prefs WHERE zoomMode IS NULL AND volumeBoost IS NULL AND audioDelayMs IS NULL
 1	core/src/main/java/tv/own/owntv/core/database/dao/PlaybackPrefsDao.kt	UPDATE playback_prefs SET audioDelayMs = NULL
 1	core/src/main/java/tv/own/owntv/core/database/dao/SourceDao.kt	UPDATE sources SET liveEnginePreference = :preference WHERE id = :id
@@ -130,6 +129,190 @@
 1	core/src/main/java/tv/own/owntv/core/database/entity/UserDataEntities.kt	custom_category_members
 1	core/src/main/java/tv/own/owntv/core/database/entity/UserDataEntities.kt	itemId
 2	core/src/main/java/tv/own/owntv/core/database/entity/UserDataEntities.kt	mediaType
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	chart
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	child
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	children
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	cinema
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	classical music
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	comedy
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	concert
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	cricket
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	crime
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	culture
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	current affairs
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	discovery
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	doc
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	documentary
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	drama
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	education
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	educational
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	episode
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	family
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	feature film
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	film
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	football
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	for children
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	formula 1
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	geography
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	history
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	hockey
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	horror
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	information
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	investigation
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	jazz
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	kids
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	martial arts
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	mini-series
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	miniseries
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	mma
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	motorsport
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	movie
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	music
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	music video
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	musical
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	nature
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	news
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	olympics
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	opera
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	politics
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	pop
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	racing
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	report
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	rock
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	romance
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	rugby
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	sci-fi
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	science
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	science fiction
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	serial
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	series
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	sitcom
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	soap
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	soccer
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	sport
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	talk show
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	technology
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	telenovela
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	tennis
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	thriller
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	travel
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	tv series
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	tv show
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	volleyball
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	weather
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	western
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	wildlife
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	youth
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	автоспорт
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	актуально
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	аналитик
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	анимаци
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	атлетик
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	балет
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	баскетбол
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	биатлон
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	боевик
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	бокс
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	борьба
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	вестерн
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	вести
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	волейбол
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	время
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	гандбол
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	географи
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	гонк
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	д.ф
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	д/ф
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	детектив
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	детск
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	детям
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	джаз
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	дзюдо
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	дискавери
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	для детей
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	документальн
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	драм
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	дф
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	единоборств
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	животн
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	известия
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	интервью
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	информаци
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	информационн
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	исследовани
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	истори
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	кино
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	кинофильм
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	классическая музык
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	клип
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	комеди
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	концерт
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	криминал
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	культур
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	м.ф
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	м/ф
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	мелодрам
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	мини-сериал
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	мма
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	многосерийный
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	музык
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	мультик
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	мультсериал
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	мультфильм
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	мф
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	мыльная опера
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	наук
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	научно-популярн
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	новелла
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	новост
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	образовани
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	олимпиад
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	опера
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	песн
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	плавание
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	планета
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	познавательн
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	политик
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	поп
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	пресс
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	приключен
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	природ
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	путешестви
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	регби
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	репортаж
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	рок
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	сериал
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	ситком
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	сказк
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	событи
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	спокойной ночи
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	спорт
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	т.с
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	т/с
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	телесериал
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	теннис
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	технологи
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	ток-шоу
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	триллер
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	тс
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	ужас
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	факты
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	фантастик
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	фигурное катание
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	фильм
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	формула 1
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	формула-1
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	футбол
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	х.ф
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	х/ф
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	хит-парад
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	хоккей
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	худ.фильм
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	художественный фильм
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	хф
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	чарт
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	чемпионат
+1	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	эстрад
 1	core/src/main/java/tv/own/owntv/core/metadata/MetadataBudget.kt	day_count
 1	core/src/main/java/tv/own/owntv/core/metadata/MetadataBudget.kt	day_start
 1	core/src/main/java/tv/own/owntv/core/metadata/MetadataBudget.kt	hour_count

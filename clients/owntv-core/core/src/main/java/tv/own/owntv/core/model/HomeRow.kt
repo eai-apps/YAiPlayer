@@ -9,6 +9,9 @@ enum class HomeRow {
     TRENDING,
     HERO,
 
+    /** On Air Now: currently broadcasting programmes across genres with from-start catchup. */
+    NOW_ON_AIR,
+
     /** Sports Hub: followed matches, drawn only while one is live or kicks off within the hour. */
     LIVE_SPORTS,
     RECENT_CHANNELS,

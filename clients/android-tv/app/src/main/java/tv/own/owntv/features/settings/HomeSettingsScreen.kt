@@ -238,6 +238,7 @@ private fun HomeSwitchRow(icon: OwnTVIcon, titleRes: Int, descRes: Int, on: Bool
 private val HomeRow.icon: OwnTVIcon get() = when (this) {
     HomeRow.TRENDING -> OwnTVIcon.STAR
     HomeRow.HERO -> OwnTVIcon.PLAY_CIRCLE
+    HomeRow.NOW_ON_AIR -> OwnTVIcon.LIVE_TV
     HomeRow.LIVE_SPORTS -> OwnTVIcon.SPORTS
     HomeRow.RECENT_CHANNELS -> OwnTVIcon.LIVE_TV
     HomeRow.FAVORITE_CHANNELS -> OwnTVIcon.FAVORITE

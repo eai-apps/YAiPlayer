@@ -1945,6 +1945,12 @@ class LiveViewModel(
     }
 
     /** Jump the channel already on screen to [offsetSec] behind live. */
+    fun jumpToCurrentProgrammeStart() {
+        val prog = nowNext.value?.now ?: return
+        val offsetSec = ((System.currentTimeMillis() - prog.startMs) / 1000L).toInt().coerceAtLeast(0)
+        jumpBackTo(offsetSec)
+    }
+
     fun jumpBackTo(offsetSec: Int) {
         val ch = _previewChannel.value ?: return
         if (!timeshift.canRewind(ch)) return

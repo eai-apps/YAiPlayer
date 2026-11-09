@@ -103,6 +103,7 @@ data class HomeUiState(
     val allChannels: List<ChannelEntity> = emptyList(),
     val railGuide: GuideSliceState = GuideSliceState(),
     val recentMovies: List<MovieEntity> = emptyList(),
+    val onAirItems: List<tv.own.owntv.core.home.OnAirItem> = emptyList(),
     /**
      * True until the first [HomeViewModel.loadHomeData] completes. Home's queries are profile-scoped and
      * already indexed, but on a cold boot their first reads come off slow eMMC (pages not yet in the OS
@@ -195,6 +196,16 @@ class HomeViewModel(
         // the rows may show. drop(1): the shell asks for the first load.
         viewModelScope.launch {
             customize.sealedCategoryKeys(settings.activeProfileId).drop(1).collect { reloadRequests.emit(null) }
+        }
+        viewModelScope.launch {
+            while (true) {
+                delay(60_000L)
+                val pid = currentProfileId() ?: continue
+                try {
+                    val onAir = withContext(Dispatchers.IO) { feed.loadOnAir(pid) }
+                    _uiState.value = _uiState.value.copy(onAirItems = onAir)
+                } catch (_: Exception) {}
+            }
         }
     }
 
@@ -437,6 +448,7 @@ class HomeViewModel(
             allChannels = data.allChannels,
             railGuide = data.railGuide,
             recentMovies = data.recentMovies,
+            onAirItems = data.onAirItems,
             isLoading = false,
         )
         tv.own.owntv.core.util.Perf.stamp("home-data")

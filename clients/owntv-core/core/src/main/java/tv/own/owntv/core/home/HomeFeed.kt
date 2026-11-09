@@ -12,6 +12,9 @@ import tv.own.owntv.core.customize.CustomizeKeys
 import tv.own.owntv.core.customize.SectionCustomizations
 import tv.own.owntv.core.database.dao.CategoryDao
 import tv.own.owntv.core.database.dao.ChannelDao
+import tv.own.owntv.core.database.dao.EpgDao
+import tv.own.owntv.core.epg.EpgShift
+import tv.own.owntv.core.live.epgKeyOf
 import tv.own.owntv.core.database.dao.ChannelWithWatchedAt
 import tv.own.owntv.core.database.dao.MovieDao
 import tv.own.owntv.core.database.dao.ProfileDao
@@ -169,6 +172,7 @@ data class HomeFeed(
     /** The guide for the category rails and the "All channels" rail together: what is on now on each card. */
     val railGuide: GuideSliceState = GuideSliceState(),
     val recentMovies: List<MovieEntity> = emptyList(),
+    val onAirItems: List<OnAirItem> = emptyList(),
 )
 
 /**
@@ -196,6 +200,7 @@ class HomeFeedReader(
     private val profileDao: ProfileDao,
     private val trendingDao: TrendingDao,
     private val guide: GuideReader,
+    private val epgDao: EpgDao,
 ) {
     suspend fun load(profileId: Long): HomeFeed = withContext(Dispatchers.IO) {
         coroutineScope {
@@ -284,6 +289,10 @@ class HomeFeedReader(
                     rails
                 }
             }
+            val onAirItemsAsync = async {
+                if (HomeRow.NOW_ON_AIR !in config.visibleOrder || liveIds.isEmpty()) emptyList()
+                else buildOnAirItems(profileId, liveIds.toList(), hidden)
+            }
             val recentMoviesAsync = async {
                 if (HomeRow.RECENT_MOVIES !in config.visibleOrder || movieIds.isEmpty()) emptyList()
                 else movieDao.recentlyAddedSnapshot(movieIds.toList(), RECENT_MOVIES_ROW_LIMIT * 2)
@@ -336,8 +345,72 @@ class HomeFeedReader(
                 allChannels = allChannelsList.map { names.of(it) },
                 railGuide = railGuide,
                 recentMovies = recentMoviesAsync.await().map { names.of(it) },
+                onAirItems = onAirItemsAsync.await().map { it.copy(channel = names.of(it.channel)) },
             )
         }
+    }
+
+    suspend fun loadOnAir(profileId: Long): List<OnAirItem> = withContext(Dispatchers.IO) {
+        val liveIds = activeSourceIds(settings, sourceDao, profileId, MediaType.LIVE).toSet()
+        val allIds = sourceDao.sourceIdsForProfile(profileId).toSet()
+        val hidden = hiddenState(profileId, allIds.toList())
+        val names = Names(hidden.live, hidden.movie, hidden.series)
+        buildOnAirItems(profileId, liveIds.toList(), hidden).map { it.copy(channel = names.of(it.channel)) }
+    }
+
+    private suspend fun buildOnAirItems(
+        profileId: Long,
+        liveSourceIds: List<Long>,
+        hidden: HiddenState,
+    ): List<OnAirItem> {
+        if (liveSourceIds.isEmpty()) return emptyList()
+        val channels = channelDao.snapshotAll(liveSourceIds, ON_AIR_CHANNEL_LIMIT)
+            .filterNot { isChannelHidden(it, hidden) }
+        if (channels.isEmpty()) return emptyList()
+
+        val cust = customize.observeVisible(profileId, MediaType.LIVE).first()
+        val globalShiftMinutes = settings.epgOffsetMinutes.first()
+        val now = System.currentTimeMillis()
+
+        val keyed = channels.mapNotNull { ch ->
+            epgKeyOf(ch, cust)?.let { key -> Triple(ch, key, EpgShift.minutesFor(cust, ch, globalShiftMinutes)) }
+        }
+        if (keyed.isEmpty()) return emptyList()
+
+        val programmesByChannelId = HashMap<Long, EpgProgrammeEntity>()
+        for ((shift, group) in keyed.groupBy { it.third }) {
+            val shiftedNow = EpgShift.toStored(now, shift)
+            val channelByEpgKey = group.groupBy({ it.second }, { it.first })
+            val keys = channelByEpgKey.keys.toList()
+            for (chunk in keys.chunked(200)) {
+                val programmes = epgDao.programmesOnAirForChannels(chunk, shiftedNow)
+                val shifted = if (shift == 0) programmes else programmes.map { EpgShift.apply(it, shift) }
+                for (p in shifted) {
+                    channelByEpgKey[p.epgChannelId]?.forEach { ch ->
+                        programmesByChannelId[ch.id] = p
+                    }
+                }
+            }
+        }
+
+        val items = ArrayList<OnAirItem>()
+        for (ch in channels) {
+            val p = programmesByChannelId[ch.id] ?: continue
+            val genres = OnAirGenreClassifier.classify(p.categories)
+            val progress = OnAirItem.calculateProgress(p.startMs, p.stopMs, now)
+            val canCatchup = OnAirItem.canWatchFromStart(ch.catchup, p.startMs, p.stopMs, now)
+            val offsetSec = OnAirItem.startOffsetSec(p.startMs, now)
+            items += OnAirItem(
+                channel = ch,
+                programme = p,
+                genres = genres,
+                progress = progress,
+                canWatchFromStart = canCatchup,
+                startOffsetSec = offsetSec,
+            )
+        }
+
+        return OnAirItem.collapseDuplicates(items, liveSourceIds)
     }
 
     /** This profile's hide customizations across all three sections, with category keys resolved to ids. */
