@@ -127,7 +127,7 @@ fun ProfileGate(
         )
         // The guest ("no registration, no profile") is a tile of its own until its profile exists.
         val guestMissing = visibleProfiles.none { it.id == guestId }
-        val tiles: List<Any> = visibleProfiles + "add" + (if (guestMissing) listOf("guest") else emptyList()) + listOf("tv_optimizer")
+        val tiles: List<Any> = visibleProfiles + "add" + (if (guestMissing) listOf("guest") else emptyList()) + (if (TV_OPTIMIZER_READY) listOf("tv_optimizer") else emptyList())
         tiles.chunked(2).forEach { pair ->
             Row(Modifier.fillMaxWidth().padding(bottom = 26.dp), horizontalArrangement = Arrangement.spacedBy(20.dp)) {
                 pair.forEach { tile ->
@@ -331,3 +331,6 @@ private fun AddProfileTile(onClick: () -> Unit, label: String = stringResource(R
         )
     }
 }
+
+/** The "speed up the TV" tile stays hidden until the real ADB core works (see docs/codex/task-4). */
+private const val TV_OPTIMIZER_READY = false
