@@ -262,7 +262,8 @@ open class MainActivity : ComponentActivity() {
                 tv.own.owntv.extras.screensaver.ScreensaverTvManager.updatePlaybackState(
                     isActive = (playing || buffering) && failed == null,
                     isPaused = !playing && !buffering,
-                    isStalled = buffering || failed != null,
+                    // Buffering is NOT a stall for the screensaver: a film that rebuffers for a second must not start it.
+                    isStalled = false,
                 )
             }
 
