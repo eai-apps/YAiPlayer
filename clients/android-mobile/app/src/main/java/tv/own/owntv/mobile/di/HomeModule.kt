@@ -3,6 +3,7 @@ package tv.own.owntv.mobile.di
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 import tv.own.owntv.core.home.HomeFeedReader
+import tv.own.owntv.extras.favoriteshub.FavoritesHubViewModel
 import tv.own.owntv.mobile.ui.screens.home.HomeViewModel
 
 /**
@@ -27,4 +28,5 @@ val homeModule = module {
         )
     }
     viewModelOf(::HomeViewModel)
+    viewModelOf(::FavoritesHubViewModel)
 }

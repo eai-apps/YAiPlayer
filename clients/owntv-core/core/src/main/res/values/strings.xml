@@ -55,6 +55,8 @@
     <string name="common_nav_home">Home</string>
     <!-- Translators: Navigation label for the Live TV screen in the sidebar. -->
     <string name="common_nav_live_tv">Live TV</string>
+    <!-- Translators: Navigation label for the Favorites Hub screen in the sidebar. -->
+    <string name="common_nav_favorites">Favorites</string>
     <!-- Translators: Navigation label for the Movies screen in the sidebar. -->
     <string name="common_nav_movies">Movies</string>
     <!-- Translators: Navigation label for the Series screen in the sidebar. -->

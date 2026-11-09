@@ -123,7 +123,17 @@ internal fun OnNowCard(
         ) {
             ChannelPlate(channel, Modifier.size(84.mpx, 60.mpx))
             Column(Modifier.weight(1f).fillMaxHeight()) {
-                Text(channel.name, style = stageText(20, 700), color = StageColors.Text, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(channel.name, style = stageText(20, 700), color = StageColors.Text, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
+                    if (channel.catchup) {
+                        Spacer(Modifier.width(6.mpx))
+                        tv.own.owntv.extras.favoriteshub.ArchiveBadgeTv(catchupDays = channel.catchupDays)
+                    }
+                }
                 if (programme != null) {
                     val left = timeLeftText(((programme.stopMs - now).coerceAtLeast(0L) + 59_999L) / 60_000L)
                     Spacer(Modifier.height(3.mpx))

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="favorites_hub_title">Избранное</string>
+    <string name="favorites_hub_row_all">Все избранные</string>
+    <string name="favorites_hub_uncategorized">Без категории</string>
+    <string name="favorites_hub_empty_title">Пока нет избранных каналов</string>
+    <string name="favorites_hub_empty_tv">Добавляйте каналы в избранное (удерживайте OK на канале)</string>
+    <string name="favorites_hub_empty_mobile">Добавляйте каналы в избранное (нажмите ♥ на канале)</string>
+    <string name="favorites_hub_open_live">Открыть Прямой эфир</string>
+    <string name="favorites_hub_filter_all">Все плейлисты</string>
+    <string name="favorites_hub_filter_current">Только текущий</string>
+    <string name="favorites_hub_archive_days">Архив %1$d дн.</string>
+    <string name="favorites_hub_archive">Архив</string>
+    <string name="home_tile_favorites">Избранное</string>
+    <string name="home_tile_favorites_desc">Витрина любимых каналов</string>
+</resources>
