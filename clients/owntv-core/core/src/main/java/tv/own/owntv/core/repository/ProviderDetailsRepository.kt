@@ -38,7 +38,8 @@ class ProviderDetailsRepository(
 
     suspend fun movie(item: MovieEntity): MovieEntity = withContext(Dispatchers.IO) {
         if (listOf(item.originalTitle, item.genres, item.country, item.director, item.actors).all { !it.isNullOrBlank() }) return@withContext item
-        val details = fetch(false, item.id, item.sourceId, item.categoryId, item.remoteId, item.name) ?: return@withContext item
+        val details = fetch(false, item.id, item.sourceId, item.categoryId, item.remoteId, item.name)
+            ?: return@withContext movies.getById(item.id) ?: item
         database.useWriterConnection { connection ->
             connection.immediateTransaction {
                 val current = movies.getById(item.id) ?: return@immediateTransaction item
@@ -57,7 +58,8 @@ class ProviderDetailsRepository(
 
     suspend fun show(item: SeriesEntity): SeriesEntity = withContext(Dispatchers.IO) {
         if (listOf(item.originalTitle, item.genres, item.country, item.director, item.actors).all { !it.isNullOrBlank() }) return@withContext item
-        val details = fetch(true, item.id, item.sourceId, item.categoryId, item.remoteId, item.name) ?: return@withContext item
+        val details = fetch(true, item.id, item.sourceId, item.categoryId, item.remoteId, item.name)
+            ?: return@withContext series.getSeriesById(item.id) ?: item
         database.useWriterConnection { connection ->
             connection.immediateTransaction {
                 val current = series.getSeriesById(item.id) ?: return@immediateTransaction item

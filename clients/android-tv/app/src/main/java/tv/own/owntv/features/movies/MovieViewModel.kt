@@ -563,6 +563,7 @@ class MovieViewModel(
         }
     }
     fun setSearchQuery(query: String) { _search.value = query }
+    suspend fun loadProviderDetails(movie: MovieEntity): MovieEntity = providerDetails.movie(movie)
     fun onMovieFocused(movie: MovieEntity) {
         _selectedMovie.value = movie
         viewModelScope.launch {

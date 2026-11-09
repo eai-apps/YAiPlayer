@@ -928,7 +928,7 @@ fun MoviesScreen(
             }
             add(MenuAction("hide", stringResource(R.string.common_hide), OwnTVIcon.EYE_OFF, group = VodGroupOrganise) { vm.hideMovie(m); contextMovie = null })
             add(MenuAction("tmdb_details", stringResource(R.string.content_movie_details), OwnTVIcon.INFO, group = VodGroupDetails) {
-                if (cacheForM != null) { contextMovie = null; detailsMovie = m }
+                contextMovie = null; detailsMovie = m
             })
             // Update details and Set TMDB name: only while enrichment is on.
             if (metadataMode.enrich) {
@@ -958,7 +958,6 @@ fun MoviesScreen(
             disabled = setOfNotNull(
                 "play_trailer".takeIf { trailerKey == null },
                 "remove_history".takeIf { !inHistory },
-                "tmdb_details".takeIf { !(metadataMode.enrich && cacheForM != null) },
                 "delete_subtitles".takeIf { contextMovieSubs.isEmpty() },
             ),
             onDismiss = { contextMovie = null },
@@ -1026,9 +1025,11 @@ fun MoviesScreen(
 
     // Windowed TMDB details popup — read-only, Back exits.
     detailsMovie?.let { m ->
+        var providerMovie by remember(m.id) { mutableStateOf(m) }
+        LaunchedEffect(m.id, selectedMovie) { providerMovie = vm.loadProviderDetails(m) }
         val cache = selectedMovieMeta?.takeIf { it.movieId == m.id }?.cache
         MediaDetailsScreen(
-            details = buildMovieDetails(m, cache, metadataMode.tmdbWins),
+            details = buildMovieDetails(providerMovie, cache, metadataMode.tmdbWins),
             onExit = { detailsMovie = null },
         )
     }

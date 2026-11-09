@@ -931,6 +931,8 @@ class SeriesViewModel(
         }
     }
 
+    suspend fun loadProviderDetails(show: SeriesEntity): SeriesEntity = providerDetails.show(show)
+
     fun openSeriesById(seriesId: Long) {
         viewModelScope.launch {
             val show = seriesDao.getSeriesById(seriesId) ?: return@launch
