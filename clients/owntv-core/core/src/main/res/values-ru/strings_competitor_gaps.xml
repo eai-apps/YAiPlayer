@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="quick_categories">Категории</string>
+    <string name="quick_categories_hint">Скрыть и показать категории</string>
+    <string name="categories_search_hint">Поиск категорий…</string>
+    <string name="categories_select_all">Выбрать все</string>
+    <string name="categories_deselect_all">Снять все</string>
+    <string name="epg_time_shift_title">Смещение времени EPG</string>
+    <string name="epg_time_shift_description">Сдвиг телепрограммы от -12 до +12 часов шагом 30 минут</string>
+    <string name="epg_time_shift_reset">Сбросить</string>
+</resources>

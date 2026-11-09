@@ -41,6 +41,7 @@ fun StagePlaylistMenu(
     pillBounds: androidx.compose.ui.geometry.Rect?,
     onSelect: (Long) -> Unit,
     onResync: () -> Unit,
+    onManageCategories: (() -> Unit)? = null,
     onDismiss: () -> Unit,
 ) {
     val channelDao = org.koin.compose.koinInject<tv.own.owntv.core.database.dao.ChannelDao>()
@@ -112,6 +113,13 @@ fun StagePlaylistMenu(
                 value = activeSource?.name ?: stringResource(R.string.content_all_playlists),
                 onClick = { onResync(); onDismiss() },
             )
+            if (onManageCategories != null) {
+                tv.own.owntv.ui.stage.StageMenuItem(
+                    text = stringResource(R.string.quick_categories),
+                    icon = tv.own.owntv.ui.components.OwnTVIcon.FOLDER,
+                    onClick = { onManageCategories(); onDismiss() },
+                )
+            }
         }
     }
 }

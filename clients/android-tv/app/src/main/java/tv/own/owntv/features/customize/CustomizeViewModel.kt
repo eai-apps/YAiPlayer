@@ -46,6 +46,7 @@ data class CustomizeCatRow(
     val hidden: Boolean,
     val renamed: Boolean,
     val providerName: String? = null,
+    val locked: Boolean = false,
 )
 
 enum class CustomizeVisibilityFilter {
@@ -164,6 +165,7 @@ class CustomizeViewModel(
                             hidden = cc.id in cust.hiddenCategories,
                             renamed = cc.id in cust.categoryNames,
                             providerName = "Custom",
+                            locked = cc.id in cust.lockedCategories,
                         )
                     } + visibleProviderCategories.map { cat ->
                         val key = CustomizeKeys.category(cat)
@@ -175,6 +177,7 @@ class CustomizeViewModel(
                             hidden = key in cust.hiddenCategories,
                             renamed = key in cust.categoryNames,
                             providerName = providerNames?.get(cat.sourceId),
+                            locked = key in cust.lockedCategories,
                         )
                     }
                     // A moved category keeps its position; the rest stay in playlist order around it.
@@ -339,6 +342,14 @@ class CustomizeViewModel(
     fun setCategoryHidden(row: CustomizeCatRow, hidden: Boolean) {
         viewModelScope.launch {
             customize.setCategoryHidden(ctx.value.profileId, _section.value, row.key, hidden)
+        }
+    }
+
+    fun toggleCategoryLocked(row: CustomizeCatRow) {
+        val pid = ctx.value.profileId
+        if (pid < 0) return
+        viewModelScope.launch {
+            customize.setCategoryLocked(pid, _section.value, row.key, !row.locked)
         }
     }
 

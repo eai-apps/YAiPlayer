@@ -112,6 +112,7 @@ fun MoreScreen(
     // The log is a file, not a flow: read again whenever More comes back (an export or a clear on its page).
     val context = LocalContext.current
     var logVersion by remember { mutableStateOf(0) }
+    var showCategoriesSheet by remember { mutableStateOf(false) }
     LifecycleResumeEffect(Unit) { logVersion++; onPauseOrDispose { } }
     val logCount by produceState(0, logVersion) { value = withContext(Dispatchers.IO) { PlaybackErrorLog.read(context).size } }
 
@@ -190,6 +191,12 @@ fun MoreScreen(
                         height = 48.dp,
                     )
                     StageMenuItem(
+                        label = stringResource(R.string.quick_categories),
+                        onClick = { showCategoriesSheet = true },
+                        icon = MobileIcons.Folder,
+                        height = 48.dp,
+                    )
+                    StageMenuItem(
                         label = stringResource(R.string.quick_refresh_epg),
                         onClick = {
                             scope.launch {
@@ -240,6 +247,16 @@ fun MoreScreen(
                 Spacer(Modifier.width(10.dp))
                 tv.own.owntv.mobile.ui.components.Wordmark(90.dp)
             }
+        }
+    }
+    activeId?.let { pid ->
+        if (showCategoriesSheet) {
+            val catSourceIds = playlists.filter { it.id == activePlaylistId }.ifEmpty { playlists }.map { it.id }
+            tv.own.owntv.extras.categories.CategoriesVisibilitySheet(
+                profileId = pid,
+                sourceIds = catSourceIds,
+                onDismiss = { showCategoriesSheet = false },
+            )
         }
     }
 }

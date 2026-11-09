@@ -103,6 +103,7 @@ val dataModule = module {
     single { CustomizationStore(androidContext(), get()) }
     single { tv.own.owntv.core.customize.LockedNotificationTitles(get(), get(), get(), get(), get(), get()) }
     single { tv.own.owntv.core.epg.EpgSourceStore(androidContext()) }
+    single { tv.own.owntv.extras.epg.PlaylistEpgShiftStore(androidContext()) }
     single { tv.own.owntv.core.player.ForceMpvStore(androidContext(), get()) }
     // Per-channel "watched without a picture" memory, for the mobile audio-only mode.
     single { tv.own.owntv.core.player.AudioOnlyStore(androidContext(), get()) }

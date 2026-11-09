@@ -41,6 +41,7 @@
 1	file-path	app/src/main/java/tv/own/owntv/OwnTVApp.kt	image_cache
 1	performance	app/src/main/java/tv/own/owntv/OwnTVApp.kt	koin-started
 3	empty	app/src/main/java/tv/own/owntv/core/i18n/LocalizedContent.kt	\0
+1	empty	app/src/main/java/tv/own/owntv/extras/categories/CategoriesVisibilityDialog.kt	\0
 1	empty	app/src/main/java/tv/own/owntv/features/autostart/AutoStart.kt	\0
 1	file-path	app/src/main/java/tv/own/owntv/features/autostart/AutoStart.kt	/proc/self/cmdline
 1	technical	app/src/main/java/tv/own/owntv/features/autostart/AutoStart.kt	:autostart

@@ -156,6 +156,7 @@ fun StageRail(
     onNowPlaying: () -> Unit,
     /** The "Resync portal" button under the profile; null hides it. */
     onResync: (() -> Unit)? = null,
+    onManageCategories: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
     val open = (state == RailState.OPEN || state == RailState.PINNED) && size != NavSize.COMPACT
@@ -354,6 +355,18 @@ fun StageRail(
                     namesAlpha = namesAlpha,
                     active = false,
                     onClick = onResync,
+                )
+            }
+            if (onManageCategories != null) {
+                RailItem(
+                    icon = OwnTVIcon.FOLDER,
+                    label = stringResource(R.string.quick_categories),
+                    trailing = null,
+                    detail = stringResource(R.string.quick_categories_hint),
+                    open = shown,
+                    namesAlpha = namesAlpha,
+                    active = false,
+                    onClick = onManageCategories,
                 )
             }
         }

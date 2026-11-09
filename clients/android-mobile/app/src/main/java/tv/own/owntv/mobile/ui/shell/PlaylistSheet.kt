@@ -61,6 +61,16 @@ fun PlaylistSheet(
     val scope = androidx.compose.runtime.rememberCoroutineScope()
     var askResync by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
     var showQuickStartSheet by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+    var showCategoriesSheet by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+    if (showCategoriesSheet) {
+        val targets = playlists.filter { it.id == activeId }.ifEmpty { playlists }
+        tv.own.owntv.extras.categories.CategoriesVisibilitySheet(
+            profileId = activeProfileId,
+            sourceIds = targets.map { it.id },
+            onDismiss = { showCategoriesSheet = false },
+        )
+        return
+    }
     if (showQuickStartSheet) {
         val sheetTitle = stringResource(R.string.quick_start_title)
         MobileBottomSheet(onDismissRequest = { showQuickStartSheet = false }, title = sheetTitle) {
@@ -164,6 +174,11 @@ fun PlaylistSheet(
             label = resyncLabel,
             onClick = { askResync = true },
             icon = MobileIcons.Refresh,
+        )
+        StageMenuItem(
+            label = stringResource(R.string.quick_categories),
+            onClick = { showCategoriesSheet = true },
+            icon = MobileIcons.Folder,
         )
         Text(
             stringResource(R.string.quick_start_hint),

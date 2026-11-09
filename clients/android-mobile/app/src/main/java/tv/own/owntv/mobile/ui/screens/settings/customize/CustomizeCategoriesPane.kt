@@ -236,6 +236,7 @@ fun CustomizeCategoriesPane(
             onSpanHide = { menuFor = null; vm.beginRange(row) },
             onSpanMove = { menuFor = null; vm.beginMoveRange(row) },
             onSpanRename = { menuFor = null; vm.beginRenameRange(row) },
+            onToggleLock = { menuFor = null; vm.toggleCategoryLocked(row) },
         )
     }
 
@@ -380,6 +381,7 @@ private fun CategoryActionsSheet(
     onSpanHide: () -> Unit,
     onSpanMove: () -> Unit,
     onSpanRename: () -> Unit,
+    onToggleLock: () -> Unit,
 ) {
     RowActionsSheet(
         title = row.displayName,
@@ -392,6 +394,8 @@ private fun CategoryActionsSheet(
         onSpanMove = onSpanMove,
         onSpanRename = onSpanRename,
         onDelete = if (row.categoryId == null) onDelete else null,
+        onToggleLock = onToggleLock,
+        isLocked = row.locked,
     )
 }
 

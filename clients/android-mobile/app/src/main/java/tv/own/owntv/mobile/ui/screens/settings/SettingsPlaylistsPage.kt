@@ -90,6 +90,7 @@ fun SettingsPlaylistsPage(
     var editSource by remember { mutableStateOf<SourceEntity?>(null) }
     var refreshFor by remember { mutableStateOf<SourceEntity?>(null) }
     var namesFor by remember { mutableStateOf<SourceEntity?>(null) }
+    var epgShiftFor by remember { mutableStateOf<SourceEntity?>(null) }
     var confirmDelete by remember { mutableStateOf<SourceEntity?>(null) }
     // Set while the "this will stop playback and take a while" confirmation is on screen.
     var confirmRetest by remember { mutableStateOf<SourceEntity?>(null) }
@@ -156,6 +157,7 @@ fun SettingsPlaylistsPage(
             }
             StageMenuItem(stringResource(R.string.settings_sources_edit), onClick = { editSource = source; close() }, icon = MobileIcons.Edit)
             StageMenuItem(stringResource(R.string.settings_sources_clean_names), onClick = { namesFor = source; close() }, icon = MobileIcons.AutoAwesome)
+            StageMenuItem(stringResource(R.string.epg_time_shift_title), onClick = { epgShiftFor = source; close() }, icon = MobileIcons.Guide)
             StageMenuItem(
                 stringResource(R.string.settings_sources_guide_logos),
                 onClick = { vm.setGuideLogos(source, source.id !in guideLogoSources) },
@@ -228,6 +230,14 @@ fun SettingsPlaylistsPage(
             source = source,
             onSave = { enabled, text -> vm.saveChannelNameCleanup(source, enabled, text); namesFor = null },
             onDismiss = { namesFor = null },
+        )
+    }
+
+    epgShiftFor?.let { source ->
+        tv.own.owntv.extras.epg.EpgTimeShiftSheet(
+            sourceId = source.id,
+            sourceName = source.displayName(),
+            onDismiss = { epgShiftFor = null },
         )
     }
 

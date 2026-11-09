@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="quick_categories">Categories</string>
+    <string name="quick_categories_hint">Hide and show categories</string>
+    <string name="categories_search_hint">Search categories…</string>
+    <string name="categories_select_all">Select all</string>
+    <string name="categories_deselect_all">Deselect all</string>
+    <string name="epg_time_shift_title">EPG time shift</string>
+    <string name="epg_time_shift_description">Shift TV guide from -12 to +12 hours in 30-minute steps</string>
+    <string name="epg_time_shift_reset">Reset</string>
+</resources>

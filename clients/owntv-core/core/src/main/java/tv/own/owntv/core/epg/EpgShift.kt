@@ -20,13 +20,22 @@ import tv.own.owntv.core.database.entity.EpgProgrammeEntity
  */
 object EpgShift {
 
-    /** Minutes to move [ch]'s guide by: the per-channel override if set, else [globalMinutes]. */
-    fun minutesFor(cust: SectionCustomizations, ch: ChannelEntity, globalMinutes: Int): Int =
-        forKey(cust, CustomizeKeys.channel(ch), globalMinutes)
+    /** Minutes to move [ch]'s guide by: the per-channel override if set, else playlist shift, else [globalMinutes]. */
+    fun minutesFor(
+        cust: SectionCustomizations,
+        ch: ChannelEntity,
+        globalMinutes: Int,
+        playlistShiftMinutes: Int? = null,
+    ): Int {
+        val override = cust.epgShifts[CustomizeKeys.channel(ch)]?.toIntOrNull()
+        return tv.own.owntv.extras.epg.EpgTimeShift.effectiveShift(override, playlistShiftMinutes, globalMinutes)
+    }
 
     /** [minutesFor] for a pre-computed customization key. */
-    fun forKey(cust: SectionCustomizations, itemKey: String, globalMinutes: Int): Int =
-        cust.epgShifts[itemKey]?.toIntOrNull() ?: globalMinutes
+    fun forKey(cust: SectionCustomizations, itemKey: String, globalMinutes: Int, playlistShiftMinutes: Int? = null): Int {
+        val override = cust.epgShifts[itemKey]?.toIntOrNull()
+        return tv.own.owntv.extras.epg.EpgTimeShift.effectiveShift(override, playlistShiftMinutes, globalMinutes)
+    }
 
     /** The per-channel override alone (null = follow the global offset). */
     fun overrideFor(cust: SectionCustomizations, ch: ChannelEntity): Int? =

@@ -241,6 +241,12 @@ fun MoreScreen(
                     },
                 )
                 StageGroupItem(
+                    text = stringResource(R.string.quick_categories),
+                    icon = OwnTVIcon.FOLDER,
+                    selected = false,
+                    onClick = { showCategories = true },
+                )
+                StageGroupItem(
                     text = stringResource(R.string.quick_refresh_epg),
                     icon = OwnTVIcon.EPG,
                     selected = false,
@@ -269,6 +275,15 @@ fun MoreScreen(
                     )
                 }
             }
+    var showCategories by remember { mutableStateOf(false) }
+    if (showCategories) {
+        val catSourceIds = playlistSources.filter { it.id == activePlaylistId }.ifEmpty { playlistSources }.map { it.id }
+        tv.own.owntv.extras.categories.CategoriesVisibilityDialog(
+            profileId = activeProfileId,
+            sourceIds = catSourceIds,
+            onDismiss = { showCategories = false },
+        )
+    }
             GroupLabel(stringResource(R.string.settings_app_group))
             item(MoreItem.ERROR_LOG, OwnTVIcon.WARNING, stringResource(R.string.settings_playback_error_log), logCount.toString(), false)
             item(MoreItem.ABOUT, OwnTVIcon.INFO, stringResource(R.string.settings_about), BuildConfig.VERSION_NAME, false)
