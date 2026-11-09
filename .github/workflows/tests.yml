@@ -1,6 +1,6 @@
 name: Tests
-# Юнит-тесты ядра (Stalker и др.). Запускается вручную (Actions → Tests → Run workflow)
-# и при push в ветки test/** и helper-review. Отдельно от Build, чтобы не замедлять сборку APK.
+# Юнит-тесты ядра (Stalker и др.). Запуск: вручную (Actions → Tests → Run workflow)
+# и при push в ветки test/** и helper-review. Отдельно от Build, чтобы не собирать зря APK.
 on:
   workflow_dispatch:
   push:
@@ -29,11 +29,11 @@ jobs:
           gradle-home-cache-cleanup: true
       - name: Принять лицензии Android SDK
         run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
-      - name: Тесты Stalker
+      - name: Юнит-тесты ядра (Stalker, Subscription)
         working-directory: clients/owntv-core
         run: |
           chmod +x gradlew
-          ./gradlew :core:testDebugUnitTest --tests 'tv.own.owntv.core.stalker.*' --no-daemon --stacktrace
+          ./gradlew :core:testDebugUnitTest --tests 'tv.own.owntv.core.stalker.*' --tests 'tv.own.owntv.core.subscription.*' --no-daemon --stacktrace
       - uses: actions/upload-artifact@v4
         if: always()
         with:
