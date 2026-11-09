@@ -356,6 +356,7 @@
 1	preference-key	app/src/main/java/tv/own/owntv/mobile/ui/screens/live/ChannelActions.kt	move_to_category
 1	preference-key	app/src/main/java/tv/own/owntv/mobile/ui/screens/live/ChannelActions.kt	play_external
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/live/ChannelActions.kt	record
+1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/live/ChannelActions.kt	refresh_list_epg
 1	preference-key	app/src/main/java/tv/own/owntv/mobile/ui/screens/live/ChannelActions.kt	remove_from_category
 1	preference-key	app/src/main/java/tv/own/owntv/mobile/ui/screens/live/ChannelActions.kt	remove_history
 1	preference-key	app/src/main/java/tv/own/owntv/mobile/ui/screens/live/ChannelActions.kt	rename

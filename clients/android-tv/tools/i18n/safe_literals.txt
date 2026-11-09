@@ -165,8 +165,10 @@
 2	technical	app/src/main/java/tv/own/owntv/features/live/LiveScreen.kt	match_epg
 1	preference-key	app/src/main/java/tv/own/owntv/features/live/LiveScreen.kt	move
 1	preference-key	app/src/main/java/tv/own/owntv/features/live/LiveScreen.kt	move_to_category
+1	log	app/src/main/java/tv/own/owntv/features/live/LiveScreen.kt	perf_list_first_drawn items=${channels.itemCount} at=${android.os.SystemClock.elapsedRealtime()}
 1	preference-key	app/src/main/java/tv/own/owntv/features/live/LiveScreen.kt	play_external
 1	technical	app/src/main/java/tv/own/owntv/features/live/LiveScreen.kt	record
+1	technical	app/src/main/java/tv/own/owntv/features/live/LiveScreen.kt	refresh_list_epg
 1	preference-key	app/src/main/java/tv/own/owntv/features/live/LiveScreen.kt	remove_from_category
 1	preference-key	app/src/main/java/tv/own/owntv/features/live/LiveScreen.kt	remove_history
 1	preference-key	app/src/main/java/tv/own/owntv/features/live/LiveScreen.kt	rename
@@ -191,6 +193,8 @@
 1	log	app/src/main/java/tv/own/owntv/features/live/LiveViewModel.kt	catch-up external '${ch.name}' prog='${programme.title}'
 1	log	app/src/main/java/tv/own/owntv/features/live/LiveViewModel.kt	ensurePlaying history profile=$pid channelId=${channel.id}
 1	log	app/src/main/java/tv/own/owntv/features/live/LiveViewModel.kt	ensurePlaying history record failed channelId=${channel.id} profile=$pid
+1	log	app/src/main/java/tv/own/owntv/features/live/LiveViewModel.kt	perf_archive_closed at=${android.os.SystemClock.elapsedRealtime()}
+1	log	app/src/main/java/tv/own/owntv/features/live/LiveViewModel.kt	perf_preview_start channel=${channel.id} at=${android.os.SystemClock.elapsedRealtime()}
 1	log	app/src/main/java/tv/own/owntv/features/live/LiveViewModel.kt	stalker resolve failed channelId=${channel.id}
 1	log	app/src/main/java/tv/own/owntv/features/live/LiveViewModel.kt	tuneByNumber($number) failed
 1	log	app/src/main/java/tv/own/owntv/features/live/LiveViewModel.kt	zap: tune wait ${delayMs}ms — ${zapWaitReason(lastZapPressMs, now, singleConnection)}
@@ -352,7 +356,7 @@
 1	technical	app/src/main/java/tv/own/owntv/features/settings/LocalSyncScreen.kt	localSyncBusyAngle
 1	technical	app/src/main/java/tv/own/owntv/features/settings/LocalSyncScreen.kt	…
 5	empty	app/src/main/java/tv/own/owntv/features/settings/ManageSourcesScreen.kt	\0
-1	technical	app/src/main/java/tv/own/owntv/features/settings/ManageSourcesScreen.kt	:
+2	technical	app/src/main/java/tv/own/owntv/features/settings/ManageSourcesScreen.kt	:
 1	technical	app/src/main/java/tv/own/owntv/features/settings/ManageSourcesScreen.kt	▶
 10	technical	app/src/main/java/tv/own/owntv/features/settings/MetadataSettingsScreen.kt	\0
 2	locale	app/src/main/java/tv/own/owntv/features/settings/MetadataSettingsScreen.kt	ar
@@ -665,6 +669,8 @@
 3	technical	app/src/main/java/tv/own/owntv/features/shell/OwnTVShell.kt	\0
 1	protocol	app/src/main/java/tv/own/owntv/features/shell/OwnTVShell.kt	ass
 1	performance	app/src/main/java/tv/own/owntv/features/shell/OwnTVShell.kt	epg-preload
+1	log	app/src/main/java/tv/own/owntv/features/shell/OwnTVShell.kt	perf_back_player_pressed at=${android.os.SystemClock.elapsedRealtime()}
+1	log	app/src/main/java/tv/own/owntv/features/shell/OwnTVShell.kt	perf_exit_player_begin at=${android.os.SystemClock.elapsedRealtime()}
 1	performance	app/src/main/java/tv/own/owntv/features/shell/OwnTVShell.kt	shell-composed
 1	protocol	app/src/main/java/tv/own/owntv/features/shell/OwnTVShell.kt	srt
 1	protocol	app/src/main/java/tv/own/owntv/features/shell/OwnTVShell.kt	ssa
