@@ -4774,7 +4774,6 @@
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	ch_id
 5	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	cmd
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	cover
-1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	create_link inCmd=${redactForLog(cmd)} rawOut=${redactForLog(raw)} resolved=${redactForLog(resolved)}
 8	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	data
 3	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	descr
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	description
@@ -7273,3 +7272,5 @@
 1	protocol	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	text/plain
 3	protocol	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	text/plain; charset=utf-8
 1	protocol	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	token
+1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	create_link type=$type series=$episode inCmd=${redactForLog(cmd)} rawOut=${redactForLog(raw)} resolved=${redactForLog(resolved)}
+1	log	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	episode resolve sourceId=${source?.id} episodeId=${episode.id} season=${episode.seasonNumber} episode=${episode.episodeNumber}
