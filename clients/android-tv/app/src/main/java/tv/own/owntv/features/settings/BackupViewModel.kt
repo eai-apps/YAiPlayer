@@ -19,7 +19,38 @@ class BackupViewModel(
     private val profileDao: tv.own.owntv.core.database.dao.ProfileDao,
     private val settings: tv.own.owntv.core.settings.SettingsRepository,
     private val companion: tv.own.owntv.core.companion.CompanionController,
+    val settingsBackupManager: tv.own.owntv.core.backup.SettingsBackupManager? = null,
+    val settingsTransferServer: tv.own.owntv.core.backup.SettingsTransferServer? = null,
 ) : ViewModel() {
+
+    val settingsTransferState get() = settingsTransferServer?.state
+
+    fun startSettingsExport() {
+        val manager = settingsBackupManager ?: return
+        val server = settingsTransferServer ?: return
+        viewModelScope.launch {
+            val json = manager.exportJson()
+            val filename = manager.formatFilename()
+            server.startExport(json, filename)
+        }
+    }
+
+    fun startSettingsRestore(onReceived: (String) -> Unit) {
+        val server = settingsTransferServer ?: return
+        server.startRestore(onBackupReceived = onReceived)
+    }
+
+    fun stopSettingsTransfer() {
+        settingsTransferServer?.stop()
+    }
+
+    fun applySettingsBackup(json: String, onDone: (Result<tv.own.owntv.core.backup.SettingsBackupManager.BackupSummary>) -> Unit) {
+        val manager = settingsBackupManager ?: return
+        viewModelScope.launch {
+            val res = manager.restoreFromJson(json)
+            onDone(res)
+        }
+    }
 
     // ---- Remote restore: another device uploads a backup JSON to the TV over the LAN companion server. ----
     /** Server lifecycle (Idle / Starting / Listening with PIN+QR / Failed) for the remote-restore panel. */

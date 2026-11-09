@@ -209,6 +209,15 @@
 1	technical	core/src/main/java/tv/own/owntv/core/backup/DeviceIdentity.kt	SHA-256
 2	json	core/src/main/java/tv/own/owntv/core/backup/DeviceIdentity.kt	id
 2	json	core/src/main/java/tv/own/owntv/core/backup/DeviceIdentity.kt	name
+1	technical	core/src/main/java/tv/own/owntv/core/backup/SettingsBackupManager.kt	EPG
+1	technical	core/src/main/java/tv/own/owntv/core/backup/SettingsBackupManager.kt	LAST_CHANNEL
+1	technical	core/src/main/java/tv/own/owntv/core/backup/SettingsBackupManager.kt	_
+2	technical	core/src/main/java/tv/own/owntv/core/backup/SettingsBackupManager.kt	app
+2	technical	core/src/main/java/tv/own/owntv/core/backup/SettingsBackupManager.kt	avatarId
+2	technical	core/src/main/java/tv/own/owntv/core/backup/SettingsBackupManager.kt	avatarPath
+2	technical	core/src/main/java/tv/own/owntv/core/backup/SettingsBackupManager.kt	backupSourceId
+1	technical	core/src/main/java/tv/own/owntv/core/backup/SettingsBackupManager.kt	backup_invalid_format
+1	technical	core/src/main/java/tv/own/owntv/core/backup/SettingsBackupManager.kt	backup_newer_version
 9	json	core/src/main/java/tv/own/owntv/core/backup/UserDataResolver.kt	at
 12	json	core/src/main/java/tv/own/owntv/core/backup/UserDataResolver.kt	ctx
 3	json	core/src/main/java/tv/own/owntv/core/backup/UserDataResolver.kt	dur
@@ -2146,6 +2155,55 @@
 1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	breaking news
 1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	bulletin
 1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	cartoon
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	chart
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	child
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	children
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	cinema
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	classical music
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	comedy
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	concert
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	cricket
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	crime
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	culture
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	current affairs
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	discovery
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	doc
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	documentary
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	drama
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	education
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	educational
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	episode
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	family
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	feature film
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	film
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	football
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	for children
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	formula 1
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	geography
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	history
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	hockey
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	horror
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	information
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	investigation
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	jazz
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	kids
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	martial arts
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	mini-series
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	miniseries
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	mma
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	motorsport
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	movie
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	music
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	music video
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	musical
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	nature
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	news
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	olympics
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	opera
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	politics
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	pop
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	racing
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	report
 1	empty	core/src/main/java/tv/own/owntv/core/i18n/AppLocale.kt	\0
 1	empty	core/src/main/java/tv/own/owntv/core/i18n/LocaleStore.kt	\0
 1	technical	core/src/main/java/tv/own/owntv/core/i18n/LocaleStore.kt	Failed to persist application locale

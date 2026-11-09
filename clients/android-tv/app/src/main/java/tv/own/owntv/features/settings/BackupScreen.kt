@@ -114,6 +114,8 @@ fun BackupScreen(
     var exportToRemote by remember { mutableStateOf(false) }
     var showRemoteExportPassword by remember { mutableStateOf(false) }
     var showRemoteExport by remember { mutableStateOf(false) }
+    var showSettingsExport by remember { mutableStateOf(false) }
+    var showSettingsRestore by remember { mutableStateOf(false) }
     // If the remote export fails to prepare, drop the panel so the base screen shows the error.
     LaunchedEffect(state) {
         if (state is BackupViewModel.State.Error && showRemoteExport) {
@@ -132,7 +134,7 @@ fun BackupScreen(
     // is not worth betting on that ordering.
     var dialogReturn by remember { mutableStateOf<FocusRequester?>(null) }
     val anyDialogOpen = showBrowser || showExportPicker || showProfilePicker || pendingFolderBrowser || exportFolder != null ||
-        showRemoteRestore || showRemoteExportPassword || showRemoteExport ||
+        showRemoteRestore || showRemoteExportPassword || showRemoteExport || showSettingsExport || showSettingsRestore ||
         state is BackupViewModel.State.ChooseRestore || state is BackupViewModel.State.NeedPassword
     LaunchedEffect(anyDialogOpen) {
         if (!anyDialogOpen) {
@@ -241,6 +243,7 @@ fun BackupScreen(
                 Text(stringResource(R.string.more_backup_now), style = stageText(24, 800), color = StageColors.Text, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 10.mpx))
                 Text(stringResource(R.string.more_backup_now_body), style = stageText(16, 500), color = if (focused) StageColors.Text.copy(alpha = 0.8f) else StageColors.Muted, modifier = Modifier.padding(top = 6.mpx))
                 Row(Modifier.padding(top = 16.mpx), horizontalArrangement = Arrangement.spacedBy(8.mpx)) {
+                    BackupTool(stringResource(R.string.backup_save_copy), OwnTVIcon.DOWNLOADS) { showSettingsExport = true }
                     BackupTool(stringResource(R.string.more_backup_file_tv), OwnTVIcon.FOLDER, Modifier.focusRequester(firstFocus)) { startExport(false, firstFocus) }
                     BackupTool(stringResource(R.string.settings_backup_remote), OwnTVIcon.NETWORK, Modifier.focusRequester(phoneFocus)) { startExport(true, phoneFocus) }
                 }
@@ -256,6 +259,7 @@ fun BackupScreen(
                 Text(stringResource(R.string.settings_backup_restore_action), style = stageText(24, 800), color = StageColors.Text, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 10.mpx))
                 Text(stringResource(R.string.more_restore_body), style = stageText(16, 500), color = if (focused) StageColors.Text.copy(alpha = 0.8f) else StageColors.Muted, modifier = Modifier.padding(top = 6.mpx))
                 Row(Modifier.padding(top = 16.mpx), horizontalArrangement = Arrangement.spacedBy(8.mpx)) {
+                    BackupTool(stringResource(R.string.backup_restore_copy), OwnTVIcon.REFRESH) { showSettingsRestore = true }
                     BackupTool(stringResource(R.string.more_backup_file_tv), OwnTVIcon.FOLDER, Modifier.focusRequester(restoreBtnFocus)) {
                         if (!working) { dialogReturn = restoreBtnFocus; browser = BrowseMode.FILE; showBrowser = true }
                     }
@@ -456,6 +460,20 @@ fun BackupScreen(
                 onBack = { vm.stopRemoteRestore(); showRemoteRestore = false },
             )
         }
+    }
+
+    if (showSettingsExport) {
+        SettingsExportDialog(
+            vm = vm,
+            onDismiss = { showSettingsExport = false },
+        )
+    }
+
+    if (showSettingsRestore) {
+        SettingsRestoreDialog(
+            vm = vm,
+            onDismiss = { showSettingsRestore = false },
+        )
     }
 }
 

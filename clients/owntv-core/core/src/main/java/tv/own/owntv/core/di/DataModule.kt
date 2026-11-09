@@ -246,7 +246,7 @@ val dataModule = module {
     // the delete in the same transaction. db, favoriteDao, historyDao, progressDao, customCategoryDao, userData
     single { tv.own.owntv.core.backup.UserDataWriter(get(), get(), get(), get(), get(), get()) }
     // sourceDao, syncManager, userDataResolver, channelDao, movieDao, seriesDao, categoryDao
-    single { SourceRepository(get(), get(), get(), get(), get(), get(), get(), playbackQuirkDao = get(), playbackPrefsDao = get()) }
+    single { SourceRepository(get(), get(), get(), get(), get(), get(), get(), playbackQuirkDao = get(), playbackPrefsDao = get(), settingsBackup = getOrNull()) }
     // sourceDao, stalkerAuthManager, catalogSyncScheduler, importFinalizer
     single { tv.own.owntv.core.repository.SourceEditor(get(), get(), get(), get()) }
     // settings, sourceRepository, channelDao, movieDao, seriesDao
@@ -391,6 +391,21 @@ val dataModule = module {
             get(),
         )
     }
+    single {
+        tv.own.owntv.core.backup.SettingsBackupManager(
+            profileDao = get(),
+            sourceDao = get(),
+            settingsRepository = get(),
+            customizationStore = get(),
+            epgSourceStore = get(),
+            userDataResolver = get(),
+            contentOrderDao = get(),
+            favoriteDao = get(),
+            db = get(),
+            storageDir = androidContext().filesDir,
+        )
+    }
+    single { tv.own.owntv.core.backup.SettingsTransferServer() }
     // profileDao, sourceDao, settings, launcherIntegration, openSubtitlesAccounts — creating,
     // editing, switching and deleting a profile, shared by both apps' profile gates.
     single { tv.own.owntv.core.profile.ProfileAvatarStore(androidContext()) }
