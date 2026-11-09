@@ -31,7 +31,9 @@ data class ProviderMediaDetails(
         }
 
         private fun durationSeconds(raw: String): Int? {
-            val parts = raw.split(':').map { it.toLongOrNull() ?: return null }
+            val parts = raw.split(':').map { it.toLongOrNull()?.takeIf { n -> n in 0..Int.MAX_VALUE.toLong() } ?: return null }
+            if (parts.size > 1 && parts.last() >= 60) return null
+            if (parts.size == 3 && parts[1] >= 60) return null
             val seconds = when (parts.size) {
                 1 -> parts[0]
                 2 -> parts[0] * 60 + parts[1]

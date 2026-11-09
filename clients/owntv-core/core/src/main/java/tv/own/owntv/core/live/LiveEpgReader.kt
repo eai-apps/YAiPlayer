@@ -176,21 +176,29 @@ class LiveEpgReader(
         val streamId = ch.remoteId ?: return null
         val source = sourceDao.getById(ch.sourceId) ?: return null
         val raw = when (source.type) {
-            SourceType.XTREAM -> runCatching { xtreamClient.getShortEpg(source, streamId, limit = SHORT_EPG_LIMIT) }
-                .getOrNull().orEmpty()
-            SourceType.STALKER -> runCatching {
+            SourceType.XTREAM -> providerOrEmpty { xtreamClient.getShortEpg(source, streamId, limit = SHORT_EPG_LIMIT) }
+            SourceType.STALKER -> providerOrEmpty {
                 streamUrlResolver.scheduleDays(source, streamId, listOf(0, 1))
+                    .filter { it.title.isNotBlank() && it.stopMs > it.startMs }
                     .map { XtEpgEntry(title = it.title, description = it.description, startMs = it.startMs, stopMs = it.stopMs) }
-            }.getOrNull().orEmpty().ifEmpty { runCatching {
+            }.ifEmpty { providerOrEmpty {
                 streamUrlResolver.shortEpg(source, streamId)
                     .map { XtEpgEntry(title = it.title, description = it.description, startMs = it.startMs, stopMs = it.stopMs) }
-            }.getOrNull().orEmpty() }
+            } }
             else -> return null
         }
         // The provider's own guide needs the same shift as the stored one — same channel, same clock.
         return if (shift == 0) raw else raw.map {
             it.copy(startMs = it.startMs + shift * 60_000L, stopMs = it.stopMs + shift * 60_000L)
         }
+    }
+
+    private suspend fun <T> providerOrEmpty(block: suspend () -> List<T>): List<T> = try {
+        block()
+    } catch (c: kotlinx.coroutines.CancellationException) {
+        throw c
+    } catch (_: Exception) {
+        emptyList()
     }
 
     /**

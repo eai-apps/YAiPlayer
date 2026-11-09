@@ -63,7 +63,7 @@ class ProviderDetailsRepository(
             year = current.year ?: d.year, durationSecs = current.durationSecs ?: d.durationSecs, plot = current.plot ?: details.plot)
         val searchable = updated.copy(searchText = providerSearchText(updated.name, updated.originalTitle, updated.genres,
             updated.year, updated.country, updated.director, updated.actors, updated.plot))
-        if (searchable != current) series.updateAll(listOf(searchable))
+        if (searchable != current) series.updateSeries(listOf(searchable))
         searchable
         } }
     }

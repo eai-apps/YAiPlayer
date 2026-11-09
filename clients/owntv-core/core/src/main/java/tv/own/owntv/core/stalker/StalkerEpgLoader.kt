@@ -75,7 +75,7 @@ class StalkerEpgLoader(
             val fetched = coroutineScope {
                 chunk.map { (channelId, pastDays) -> async {
                     val rows = resolver.scheduleDays(source, channelId, (-pastDays.coerceIn(1, 14)..1).toList())
-                    channelId to rows.filter { it.stopMs > from && it.startMs < to }
+                    channelId to rows.filter { it.title.isNotBlank() && it.stopMs > it.startMs && it.stopMs > from && it.startMs < to }
                 } }.awaitAll()
             }
             for ((channelId, entries) in fetched) {
