@@ -24,7 +24,7 @@ data class ScreensaverItem(
 )
 
 data class ScreensaverConfig(
-    val enabled: Boolean = true,
+    val enabled: Boolean = false,
     val timeoutMinutes: Int = 5,
     val mode: ScreensaverMode = ScreensaverMode.MIX,
     val showCornerClock: Boolean = true,

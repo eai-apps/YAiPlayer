@@ -36,7 +36,7 @@ object ScreensaverTvManager {
     fun init(context: Context) {
         val sp = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         prefs = sp
-        val enabled = sp.getBoolean(KEY_ENABLED, true)
+        val enabled = sp.getBoolean(KEY_ENABLED, false)
         val timeout = sp.getInt(KEY_TIMEOUT, 5)
         val modeStr = sp.getString(KEY_MODE, ScreensaverMode.MIX.name) ?: ScreensaverMode.MIX.name
         val cornerClock = sp.getBoolean(KEY_CORNER_CLOCK, true)
