@@ -241,6 +241,16 @@ fun MoreScreen(
                         }
                     },
                 )
+                val lightMode by settings.lightModeEnabled.collectAsStateWithLifecycle(initialValue = false)
+                StageGroupItem(
+                    text = stringResource(R.string.light_mode_title),
+                    icon = OwnTVIcon.MOTION,
+                    value = stringResource(if (lightMode) R.string.common_on else R.string.common_off),
+                    selected = false,
+                    onClick = {
+                        scope.launch { settings.setLightModeEnabled(!lightMode) }
+                    },
+                )
                 StageGroupItem(
                     text = stringResource(R.string.quick_categories),
                     icon = OwnTVIcon.FOLDER,

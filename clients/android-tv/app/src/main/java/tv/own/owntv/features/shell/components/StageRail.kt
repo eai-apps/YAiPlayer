@@ -357,6 +357,20 @@ fun StageRail(
                     onClick = onResync,
                 )
             }
+            val lightMode by settings.lightModeEnabled.collectAsStateWithLifecycle(initialValue = false)
+            RailItem(
+                icon = OwnTVIcon.MOTION,
+                label = stringResource(R.string.light_mode_title),
+                trailing = stringResource(if (lightMode) R.string.common_on else R.string.common_off),
+                detail = null,
+                open = shown,
+                namesAlpha = namesAlpha,
+                active = lightMode,
+                accentIcon = lightMode,
+                onClick = {
+                    scope.launch { settings.setLightModeEnabled(!lightMode) }
+                },
+            )
             if (onManageCategories != null) {
                 RailItem(
                     icon = OwnTVIcon.FOLDER,

@@ -2143,6 +2143,36 @@ fun OwnTVShell(
         }
         tv.own.owntv.features.update.SubscriptionExpiryHost(enabled = selectedSection != MainSection.SETTINGS && playerMode == PlayerMode.NONE)
         tv.own.owntv.features.update.VersionGateHost()
+
+        val lightModePromptDismissed by settingsRepo.lightModePromptDismissed.collectAsStateWithLifecycle(initialValue = null)
+        val lightModeOn by settingsRepo.lightModeEnabled.collectAsStateWithLifecycle(initialValue = false)
+        var lightModeDismissedLocally by remember { mutableStateOf(false) }
+        val tvContext = androidx.compose.ui.platform.LocalContext.current
+        lightModePromptDismissed?.let { dismissed ->
+            if (!lightModeDismissedLocally && !lightModeOn && playerMode == PlayerMode.NONE &&
+                tv.own.owntv.extras.lightmode.LightModePolicy.shouldPromptLightMode(
+                    isLowRam = tv.own.owntv.extras.multiview.DeviceMemory.isLowRam(tvContext),
+                    promptDismissed = dismissed,
+                    lightModeEnabled = lightModeOn,
+                )
+            ) {
+                tv.own.owntv.extras.lightmode.LightModeTvPrompt(
+                    onEnable = {
+                        lightModeDismissedLocally = true
+                        scope.launch {
+                            settingsRepo.setLightModePromptDismissed(true)
+                            settingsRepo.setLightModeEnabled(true)
+                        }
+                    },
+                    onDismiss = {
+                        lightModeDismissedLocally = true
+                        scope.launch {
+                            settingsRepo.setLightModePromptDismissed(true)
+                        }
+                    },
+                )
+            }
+        }
         if (showChangelog) {
             // Full "What's New" changelog (same dialog the manual Settings check uses), shown when
             // the startup card's "What's New" is pressed. No re-check — the release is already loaded.

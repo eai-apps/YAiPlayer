@@ -426,6 +426,37 @@ fun MobileShell(
     }
     tv.own.owntv.mobile.ui.screens.settings.SubscriptionExpiryHost(enabled = !fullscreen && !updateSheetOpen)
     tv.own.owntv.mobile.ui.screens.settings.VersionGateHost()
+
+    val lightScope = androidx.compose.runtime.rememberCoroutineScope()
+    val lightModePromptDismissed by settings.lightModePromptDismissed.collectAsStateWithLifecycle(initialValue = null)
+    val lightModeOn by settings.lightModeEnabled.collectAsStateWithLifecycle(initialValue = false)
+    var lightModeDismissedLocally by remember { mutableStateOf(false) } 
+    val isMobileLowRam = remember { tv.own.owntv.extras.multiview.DeviceMemory.isLowRam(startupContext) }
+    lightModePromptDismissed?.let { dismissed ->
+        if (!lightModeDismissedLocally && !lightModeOn && !fullscreen &&
+            tv.own.owntv.extras.lightmode.LightModePolicy.shouldPromptLightMode(
+                isLowRam = isMobileLowRam,
+                promptDismissed = dismissed,
+                lightModeEnabled = lightModeOn,
+            )
+        ) {
+            tv.own.owntv.extras.lightmode.LightModeMobilePrompt(
+                onEnable = {
+                    lightModeDismissedLocally = true
+                    lightScope.launch {
+                        settings.setLightModePromptDismissed(true)
+                        settings.setLightModeEnabled(true)
+                    }
+                },
+                onDismiss = {
+                    lightModeDismissedLocally = true
+                    lightScope.launch {
+                        settings.setLightModePromptDismissed(true)
+                    }
+                },
+            )
+        }
+    }
     // Not over the player, and not over setup: both own the whole screen for a reason.
     if (updateSheetOpen && !fullscreen) {
         UpdateSheet(

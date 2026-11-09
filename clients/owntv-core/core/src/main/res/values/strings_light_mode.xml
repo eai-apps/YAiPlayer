@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Copyright (C) 2026 YAiPlayer authors. Original code, written for YAiPlayer. -->
+    <string name="light_mode_title">Light mode</string>
+    <string name="light_mode_description">Optimization for low-end devices: disables video previews in menus and reduces motion.</string>
+    <string name="light_mode_prompt_title">Enable light mode?</string>
+    <string name="light_mode_prompt_body">Menus will be faster on this device.</string>
+    <string name="light_mode_action_enable">Enable</string>
+    <string name="light_mode_action_not_now">Not now</string>
+</resources>

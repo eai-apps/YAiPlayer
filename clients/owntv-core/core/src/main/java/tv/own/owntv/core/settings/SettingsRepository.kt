@@ -367,6 +367,8 @@ class SettingsRepository(private val context: Context, private val localeStore: 
         // Whether the expanded Home hero plays its video. Unset means "device default" — see
         // heroPreviewEnabled.
         val HERO_PREVIEW = booleanPreferencesKey("hero_preview")
+        val LIGHT_MODE = booleanPreferencesKey("light_mode")
+        val LIGHT_MODE_PROMPT_DISMISSED = booleanPreferencesKey("light_mode_prompt_dismissed")
         // Docked mini-player: size (% of screen width) and screen corner/edge.
         val MINI_PLAYER_SIZE_PCT = intPreferencesKey("mini_player_size_pct")
         val MINI_PLAYER_POSITION = stringPreferencesKey("mini_player_position")
@@ -913,8 +915,10 @@ class SettingsRepository(private val context: Context, private val localeStore: 
 
     // --- Appearance: animation level (perf control for low-end boxes) ---
     val animationLevel: Flow<tv.own.owntv.core.theme.AnimationLevel> = prefsFlow { prefs ->
-        prefs[Keys.ANIMATION_LEVEL]?.let { runCatching { tv.own.owntv.core.theme.AnimationLevel.valueOf(it) }.getOrNull() }
+        val raw = prefs[Keys.ANIMATION_LEVEL]?.let { runCatching { tv.own.owntv.core.theme.AnimationLevel.valueOf(it) }.getOrNull() }
             ?: tv.own.owntv.core.theme.AnimationLevel.FULL
+        val light = prefs[Keys.LIGHT_MODE] ?: false
+        tv.own.owntv.extras.lightmode.LightModePolicy.isEffectiveAnimationLevel(raw, light)
     }
 
     suspend fun setAnimationLevel(level: tv.own.owntv.core.theme.AnimationLevel) {
@@ -2479,7 +2483,11 @@ class SettingsRepository(private val context: Context, private val localeStore: 
     }
 
     /** Whether focusing a channel auto-plays it in the Live preview pane. */
-    val livePreviewEnabled: Flow<Boolean> = prefsFlow { it[Keys.LIVE_PREVIEW] ?: tv.own.owntv.core.CoreBuildInfo.livePreviewDefault }
+    val livePreviewEnabled: Flow<Boolean> = prefsFlow {
+        val raw = it[Keys.LIVE_PREVIEW] ?: tv.own.owntv.core.CoreBuildInfo.livePreviewDefault
+        val light = it[Keys.LIGHT_MODE] ?: false
+        tv.own.owntv.extras.lightmode.LightModePolicy.isEffectiveLivePreview(raw, light)
+    }
 
     /** False only while a saved, enabled Live layout has intentionally hidden its preview panel. */
     val livePreviewPanelActive: Flow<Boolean> = prefsFlow { !livePreviewPanelHidden(it) }
@@ -2496,7 +2504,23 @@ class SettingsRepository(private val context: Context, private val localeStore: 
      * switch. Defaults on, but off on a low-RAM device — the same test [PlayerBudget] already uses to
      * decide the player's memory budget, and the devices where a second video pipeline hurts most.
      */
-    val heroPreviewEnabled: Flow<Boolean> = prefsFlow { it[Keys.HERO_PREVIEW] ?: heroPreviewDefault }
+    val heroPreviewEnabled: Flow<Boolean> = prefsFlow {
+        val raw = it[Keys.HERO_PREVIEW] ?: heroPreviewDefault
+        val light = it[Keys.LIGHT_MODE] ?: false
+        tv.own.owntv.extras.lightmode.LightModePolicy.isEffectiveHeroPreview(raw, light)
+    }
+
+    val lightModeEnabled: Flow<Boolean> = prefsFlow { it[Keys.LIGHT_MODE] ?: false }
+
+    suspend fun setLightModeEnabled(enabled: Boolean) {
+        context.dataStore.edit { it[Keys.LIGHT_MODE] = enabled }
+    }
+
+    val lightModePromptDismissed: Flow<Boolean> = prefsFlow { it[Keys.LIGHT_MODE_PROMPT_DISMISSED] ?: false }
+
+    suspend fun setLightModePromptDismissed(dismissed: Boolean) {
+        context.dataStore.edit { it[Keys.LIGHT_MODE_PROMPT_DISMISSED] = dismissed }
+    }
 
     /** The value [heroPreviewEnabled] reports until the user picks one; also the settings row's
      *  initial value, so the chip does not read "On" for a frame on a device where it is off. */

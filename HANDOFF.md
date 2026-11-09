@@ -322,5 +322,5 @@ Antigravity идёт по порядку: task-quick-actions, task-site-landing,
 | ЗАДАНИЕ 7 | test/extra-features | 7.1-7.4 | «Вчера в эфире», таймер сна, мульти-вид 2–4, подготовка к ребрендингу (task-extra-features.md) | ❌ не сделано |
 | ЗАДАНИЕ 6 | test/competitor-gaps | 6.1-6.3 | Категории ближе к «Обновить плейлист», смещение EPG, замок PIN на категории (task-competitor-gaps.md) | ❌ не сделано |
 | ЗАДАНИЕ 7 | test/extra-features | 7.1-7.4 | «Вчера в эфире» (прошлые дни архива), таймер сна, мульти-вид 2–4 (low-RAM лимит, разворот по OK), ребрендинг docs/REBRAND.md + apply_brand.py (task-extra-features.md) | ✅ готово (ветка test/extra-features) |
-| ЗАДАНИЕ 8 | test/tv-optimizer-ui | 8.1 | «Ускорь телевизор»: мастер на телефоне, ADB-заглушка (task-tv-optimizer-ui.md); настоящий ADB — Opus | ❌ не сделано |
-| ЗАДАНИЕ 9 | test/light-mode | 9.1 | «Лёгкий режим»: одним переключателем отключить превью/видео на Главной для слабых приставок (task-light-mode.md) | ❌ не сделано |
+| ЗАДАНИЕ 8 | test/tv-optimizer-ui | 8.1 | «Ускорь телевизор»: мастер на телефоне, ADB-заглушка (task-tv-optimizer-ui.md) | ✅ готово (ветка test/tv-optimizer-ui, CI зелёный) |
+| ЗАДАНИЕ 9 | test/light-mode | 9.1 | «Лёгкий режим»: переключатель для слабых устройств (отключение превью и анимаций), диалог первого запуска на low-RAM (ТВ + телефон, task-light-mode.md) | ✅ готово (ветка test/light-mode) |
