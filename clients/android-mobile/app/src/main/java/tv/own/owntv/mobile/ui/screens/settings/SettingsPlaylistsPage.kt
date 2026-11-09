@@ -18,6 +18,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -163,6 +165,15 @@ fun SettingsPlaylistsPage(
                 onClick = { vm.setGuideLogos(source, source.id !in guideLogoSources) },
                 icon = MobileIcons.AutoAwesome,
                 value = stringResource(if (source.id in guideLogoSources) R.string.common_on else R.string.common_off),
+            )
+            val settings = org.koin.compose.koinInject<tv.own.owntv.core.settings.SettingsRepository>()
+            val livePreview by settings.livePreviewEnabled.collectAsStateWithLifecycle(initialValue = true)
+            val scope = rememberCoroutineScope()
+            StageMenuItem(
+                stringResource(tv.own.owntv.core.R.string.channel_preview),
+                onClick = { scope.launch { settings.setLivePreviewEnabled(!livePreview) } },
+                icon = MobileIcons.Tv,
+                value = stringResource(if (livePreview) R.string.common_on else R.string.common_off),
             )
             // "Info", not "Test": the expensive measurement lives behind Re-test inside the sheet.
             StageMenuItem(stringResource(R.string.settings_sources_info), onClick = { vm.testSource(source); close() }, icon = MobileIcons.Info)

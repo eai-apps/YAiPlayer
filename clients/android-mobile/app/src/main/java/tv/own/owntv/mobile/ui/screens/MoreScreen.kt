@@ -190,6 +190,16 @@ fun MoreScreen(
                         icon = MobileIcons.Refresh,
                         height = 48.dp,
                     )
+                    val livePreview by settings.livePreviewEnabled.collectAsStateWithLifecycle(initialValue = true)
+                    StageMenuItem(
+                        label = stringResource(tv.own.owntv.core.R.string.channel_preview),
+                        onClick = {
+                            scope.launch { settings.setLivePreviewEnabled(!livePreview) }
+                        },
+                        icon = MobileIcons.Tv,
+                        value = stringResource(if (livePreview) R.string.common_on else R.string.common_off),
+                        height = 48.dp,
+                    )
                     val lightMode by settings.lightModeEnabled.collectAsStateWithLifecycle(initialValue = false)
                     StageMenuItem(
                         label = stringResource(R.string.light_mode_title),

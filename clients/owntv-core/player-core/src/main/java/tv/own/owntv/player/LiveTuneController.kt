@@ -346,6 +346,7 @@ class LiveTuneController(
 
     /** Stop ExoPlayer (the preview, or a detached stream) without touching mpv. */
     fun stopExo() {
+        tv.own.owntv.core.CorePerf.log { "perf_live_exo_stop at=${android.os.SystemClock.elapsedRealtime()}" }
         previewJob?.cancel()
         exoResolveJob?.cancel()
         exoWatchJob?.cancel()
@@ -379,6 +380,7 @@ class LiveTuneController(
 
     /** Stop everything: both engines, every watcher. */
     fun stop() {
+        tv.own.owntv.core.CorePerf.log { "perf_live_stop at=${android.os.SystemClock.elapsedRealtime()}" }
         cancelTune()
         releaseForArchive()
         engines.mpvStop()

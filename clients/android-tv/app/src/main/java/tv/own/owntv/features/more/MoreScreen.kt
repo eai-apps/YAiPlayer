@@ -241,6 +241,16 @@ fun MoreScreen(
                         }
                     },
                 )
+                val livePreview by settings.livePreviewEnabled.collectAsStateWithLifecycle(initialValue = true)
+                StageGroupItem(
+                    text = stringResource(tv.own.owntv.core.R.string.channel_preview),
+                    icon = OwnTVIcon.PIP,
+                    value = stringResource(if (livePreview) R.string.common_on else R.string.common_off),
+                    selected = false,
+                    onClick = {
+                        scope.launch { settings.setLivePreviewEnabled(!livePreview) }
+                    },
+                )
                 val lightMode by settings.lightModeEnabled.collectAsStateWithLifecycle(initialValue = false)
                 StageGroupItem(
                     text = stringResource(R.string.light_mode_title),

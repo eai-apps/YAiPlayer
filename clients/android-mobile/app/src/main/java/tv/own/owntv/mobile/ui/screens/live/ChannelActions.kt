@@ -165,6 +165,7 @@ fun ChannelMenu(
             }
             add(SheetAction("match_epg", stringResource(R.string.content_match_epg), MobileIcons.Guide, group = guide, value = matchValue) { dialog = ChannelDialog.MATCH_EPG })
             add(SheetAction("epg_offset", stringResource(R.string.content_epg_time_offset), MobileIcons.Schedule, group = guide, value = offsetValue) { dialog = ChannelDialog.EPG_OFFSET })
+            add(SheetAction("refresh_list_epg", stringResource(tv.own.owntv.core.R.string.refresh_list_epg), MobileIcons.Refresh, group = guide) { vm.refreshListEpg() })
             if (canMove) {
                 add(SheetAction("move", stringResource(R.string.content_move), MobileIcons.Move, group = organise) { dialog = ChannelDialog.MOVE })
                 add(SheetAction("move_to_category", stringResource(R.string.content_move_to_category), MobileIcons.Folder, group = organise) { dialog = ChannelDialog.MOVE_TO_CATEGORY })

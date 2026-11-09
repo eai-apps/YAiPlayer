@@ -2476,6 +2476,7 @@ class OwnTVPlayer(
     /** Tear down the Exo handoff and give the surface back to mpv (does NOT reload — caller decides). */
     private fun deactivateExo() {
         if (!exoActive) return
+        tv.own.owntv.core.CorePerf.log { "perf_exo_stop at=${android.os.SystemClock.elapsedRealtime()}" }
         exoActive = false
         item.exoVodFallback = false
         mpvFailureBeforeFallback = null
@@ -3936,6 +3937,7 @@ class OwnTVPlayer(
     }
 
     fun stop() {
+        tv.own.owntv.core.CorePerf.log { "perf_player_stop at=${android.os.SystemClock.elapsedRealtime()}" }
         clearToast()
         deactivateExo() // give the surface back to mpv before tearing down
         load.pendingExoStart = false
@@ -3944,7 +3946,10 @@ class OwnTVPlayer(
         errorCheckJob?.cancel()
         videoCheckJob?.cancel()
         liveStallJob?.cancel()
-        if (initialized) mpvAsync { stopWithStopClassification("stop") }
+        if (initialized) mpvAsync {
+            tv.own.owntv.core.CorePerf.log { "perf_mpv_stop at=${android.os.SystemClock.elapsedRealtime()}" }
+            stopWithStopClassification("stop")
+        }
         currentUrl = null
         pendingUrl = null
         _isPlaying.value = false

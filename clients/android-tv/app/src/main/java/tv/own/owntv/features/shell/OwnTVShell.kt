@@ -605,18 +605,20 @@ fun OwnTVShell(
     // Every other mode change (the mini player opening, the player closing) reaches Live TV here.
     LaunchedEffect(playerMode) { liveVm.onPlayerMode(mini = playerMode == PlayerMode.MINI, open = playerMode != PlayerMode.NONE) }
     val exitPlayer = {
+        tv.own.owntv.core.CorePerf.log { "perf_exit_player_begin at=${android.os.SystemClock.elapsedRealtime()}" }
         // Flush the resume position BEFORE the stream is torn down — stop() drops the loaded item's
         // identity, after which neither view model can tell the position was theirs. Both calls are
         // no-ops unless the player is on that section's item.
         movieVm.saveProgressNow()
         seriesVm.saveEpisodeProgressNow()
         resumeVideo() // restore mpv `vid=auto` before stop so the next played item isn't left video-less
-        playerMode = PlayerMode.NONE
+        liveVm.stopCatchup()
         showChannelList = false
         showHistoryList = false
         liveVm.hideCategoryBrowser()
-        liveVm.onFullscreenExited() // no longer full-screen on ExoPlayer → let the preview re-take the engine
         player.stop()
+        playerMode = PlayerMode.NONE
+        liveVm.onFullscreenExited() // no longer full-screen on ExoPlayer → let the preview re-take the engine
         subtitleController.clear() // leaving the player drops the OpenSubtitles item context
         if (selectedSection != MainSection.LIVE_TV) liveVm.clearLiveOnExo()
         // Closing back into a guide: it focuses the channel that was playing (zapped-to included).
@@ -945,7 +947,10 @@ fun OwnTVShell(
 
     BackHandler {
         when {
-            playerMode == PlayerMode.FULLSCREEN -> exitPlayer()
+            playerMode == PlayerMode.FULLSCREEN -> {
+                tv.own.owntv.core.CorePerf.log { "perf_back_player_pressed at=${android.os.SystemClock.elapsedRealtime()}" }
+                exitPlayer()
+            }
             showResync -> showResync = false
             showAvatarPicker -> showAvatarPicker = false
             showPlaylistPicker -> showPlaylistPicker = false

@@ -20,6 +20,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.launch
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
@@ -112,6 +115,15 @@ fun StagePlaylistMenu(
                 icon = tv.own.owntv.ui.components.OwnTVIcon.REFRESH,
                 value = activeSource?.name ?: stringResource(R.string.content_all_playlists),
                 onClick = { onResync(); onDismiss() },
+            )
+            val settings = org.koin.compose.koinInject<tv.own.owntv.core.settings.SettingsRepository>()
+            val livePreview by settings.livePreviewEnabled.collectAsStateWithLifecycle(initialValue = true)
+            val scope = rememberCoroutineScope()
+            tv.own.owntv.ui.stage.StageMenuItem(
+                text = stringResource(tv.own.owntv.core.R.string.channel_preview),
+                icon = tv.own.owntv.ui.components.OwnTVIcon.PIP,
+                value = stringResource(if (livePreview) R.string.common_on else R.string.common_off),
+                onClick = { scope.launch { settings.setLivePreviewEnabled(!livePreview) } },
             )
             if (onManageCategories != null) {
                 tv.own.owntv.ui.stage.StageMenuItem(

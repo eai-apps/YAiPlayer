@@ -357,6 +357,20 @@ fun StageRail(
                     onClick = onResync,
                 )
             }
+            val livePreview by settings.livePreviewEnabled.collectAsStateWithLifecycle(initialValue = true)
+            RailItem(
+                icon = OwnTVIcon.PIP,
+                label = stringResource(tv.own.owntv.core.R.string.channel_preview),
+                trailing = stringResource(if (livePreview) R.string.common_on else R.string.common_off),
+                detail = null,
+                open = shown,
+                namesAlpha = namesAlpha,
+                active = livePreview,
+                accentIcon = livePreview,
+                onClick = {
+                    scope.launch { settings.setLivePreviewEnabled(!livePreview) }
+                },
+            )
             val lightMode by settings.lightModeEnabled.collectAsStateWithLifecycle(initialValue = false)
             RailItem(
                 icon = OwnTVIcon.MOTION,
