@@ -618,6 +618,28 @@
 1	regex	core/src/main/java/tv/own/owntv/core/content/EpisodeTitles.kt	^[\\s\\-–—:|.·]+
 1	empty	core/src/main/java/tv/own/owntv/core/content/ProgrammeSearchMatcher.kt	\0
 1	technical	core/src/main/java/tv/own/owntv/core/content/ProgrammeSearchMatcher.kt	EEE
+1	protocol	core/src/main/java/tv/own/owntv/core/content/ProviderFieldReader.kt	,
+1	protocol	core/src/main/java/tv/own/owntv/core/content/ProviderFieldReader.kt	name
+1	protocol	core/src/main/java/tv/own/owntv/core/content/ProviderFieldReader.kt	title
+1	protocol	core/src/main/java/tv/own/owntv/core/content/ProviderMediaDetails.kt	\0
+1	protocol	core/src/main/java/tv/own/owntv/core/content/ProviderMediaDetails.kt	actors
+1	protocol	core/src/main/java/tv/own/owntv/core/content/ProviderMediaDetails.kt	cast
+1	protocol	core/src/main/java/tv/own/owntv/core/content/ProviderMediaDetails.kt	country
+1	protocol	core/src/main/java/tv/own/owntv/core/content/ProviderMediaDetails.kt	director
+1	protocol	core/src/main/java/tv/own/owntv/core/content/ProviderMediaDetails.kt	duration
+1	protocol	core/src/main/java/tv/own/owntv/core/content/ProviderMediaDetails.kt	duration_seconds
+1	protocol	core/src/main/java/tv/own/owntv/core/content/ProviderMediaDetails.kt	duration_secs
+1	protocol	core/src/main/java/tv/own/owntv/core/content/ProviderMediaDetails.kt	genre
+1	protocol	core/src/main/java/tv/own/owntv/core/content/ProviderMediaDetails.kt	genres
+1	protocol	core/src/main/java/tv/own/owntv/core/content/ProviderMediaDetails.kt	genres_str
+1	protocol	core/src/main/java/tv/own/owntv/core/content/ProviderMediaDetails.kt	null
+1	protocol	core/src/main/java/tv/own/owntv/core/content/ProviderMediaDetails.kt	o_name
+1	protocol	core/src/main/java/tv/own/owntv/core/content/ProviderMediaDetails.kt	original_name
+1	protocol	core/src/main/java/tv/own/owntv/core/content/ProviderMediaDetails.kt	original_title
+1	protocol	core/src/main/java/tv/own/owntv/core/content/ProviderMediaDetails.kt	release_date
+1	protocol	core/src/main/java/tv/own/owntv/core/content/ProviderMediaDetails.kt	releasedate
+1	protocol	core/src/main/java/tv/own/owntv/core/content/ProviderMediaDetails.kt	time
+1	protocol	core/src/main/java/tv/own/owntv/core/content/ProviderMediaDetails.kt	year
 1	empty	core/src/main/java/tv/own/owntv/core/content/SearchReader.kt	\0
 1	sql	core/src/main/java/tv/own/owntv/core/content/SearchReader.kt	$it*
 1	technical	core/src/main/java/tv/own/owntv/core/content/SearchReader.kt	[^\\p{L}\\p{Nd}]+
@@ -697,6 +719,20 @@
 1	sql	core/src/main/java/tv/own/owntv/core/database/Migration52To53.kt	ALTER TABLE `sources` ADD COLUMN `ignoreConnectionLimit` INTEGER NOT NULL DEFAULT 0
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/Migration52To53.kt	ignoreConnectionLimit
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/Migration52To53.kt	sources
+1	sql	core/src/main/java/tv/own/owntv/core/database/Migration53To54.kt	ALTER TABLE `$table` ADD COLUMN `$column` TEXT
+1	sql	core/src/main/java/tv/own/owntv/core/database/Migration53To54.kt	ALTER TABLE `$table` ADD COLUMN `searchText` TEXT NOT NULL DEFAULT ''
+1	sql	core/src/main/java/tv/own/owntv/core/database/Migration53To54.kt	ALTER TABLE `series` ADD COLUMN `durationSecs` INTEGER
+1	sql	core/src/main/java/tv/own/owntv/core/database/Migration53To54.kt	SELECT id, name, year, plot FROM `$table` WHERE id > ? ORDER BY id LIMIT 500
+1	sql	core/src/main/java/tv/own/owntv/core/database/Migration53To54.kt	UPDATE `$table` SET searchText = ? WHERE id = ?
+1	sql	core/src/main/java/tv/own/owntv/core/database/Migration53To54.kt	actors
+1	sql	core/src/main/java/tv/own/owntv/core/database/Migration53To54.kt	country
+1	sql	core/src/main/java/tv/own/owntv/core/database/Migration53To54.kt	director
+1	sql	core/src/main/java/tv/own/owntv/core/database/Migration53To54.kt	durationSecs
+1	sql	core/src/main/java/tv/own/owntv/core/database/Migration53To54.kt	genres
+1	sql	core/src/main/java/tv/own/owntv/core/database/Migration53To54.kt	movies
+1	sql	core/src/main/java/tv/own/owntv/core/database/Migration53To54.kt	originalTitle
+1	sql	core/src/main/java/tv/own/owntv/core/database/Migration53To54.kt	searchText
+2	sql	core/src/main/java/tv/own/owntv/core/database/Migration53To54.kt	series
 18	sql	core/src/main/java/tv/own/owntv/core/database/OwnTVDatabase.kt	)
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/OwnTVDatabase.kt	,
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/OwnTVDatabase.kt	?
@@ -1258,8 +1294,10 @@
 2	sql	core/src/main/java/tv/own/owntv/core/database/dao/CustomCategoryDao.kt	WHERE c.sourceId IN (:sourceIds)),
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/CustomCategoryDao.kt	WHERE m.profileId = :profileId AND m.mediaType = 'LIVE' AND m.contextKey = :contextKey
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/CustomCategoryDao.kt	WHERE m.profileId = :profileId AND m.mediaType = :type AND m.contextKey = :contextKey
+1	sql	core/src/main/java/tv/own/owntv/core/database/dao/CustomCategoryDao.kt	WHERE mv.sourceId IN (:sourceIds) AND mv.searchText LIKE '%' || :query || '%'
 2	sql	core/src/main/java/tv/own/owntv/core/database/dao/CustomCategoryDao.kt	WHERE mv.sourceId IN (:sourceIds)),
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/CustomCategoryDao.kt	WHERE profileId = :profileId AND mediaType = :type AND contextKey IN (:contextKeys) AND (
+1	sql	core/src/main/java/tv/own/owntv/core/database/dao/CustomCategoryDao.kt	WHERE s.sourceId IN (:sourceIds) AND s.searchText LIKE '%' || :query || '%'
 2	sql	core/src/main/java/tv/own/owntv/core/database/dao/CustomCategoryDao.kt	WHERE s.sourceId IN (:sourceIds)),
 2	sql	core/src/main/java/tv/own/owntv/core/database/dao/CustomCategoryDao.kt	WITH base AS (SELECT c.id AS id, c.sortOrder AS so, c.name AS nm, m.position AS mp, o.position AS pos
 2	sql	core/src/main/java/tv/own/owntv/core/database/dao/CustomCategoryDao.kt	WITH base AS (SELECT mv.id AS id, mv.sortOrder AS so, mv.name AS nm, m.position AS mp, o.position AS pos
@@ -1418,6 +1456,8 @@
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/MovieDao.kt	ORDER BY (CASE WHEN o.position IS NULL THEN 1 ELSE 0 END), o.position, f.addedAt DESC LIMIT :limit
 1	sql	core/src/main/java/tv/own/owntv/core/database/dao/MovieDao.kt	ORDER BY sortOrder ASC, name ASC, id ASC
 1	sql	core/src/main/java/tv/own/owntv/core/database/dao/MovieDao.kt	ORDER BY sortOrder ASC, name ASC, id ASC LIMIT :limit
+1	sql	core/src/main/java/tv/own/owntv/core/database/dao/MovieDao.kt	SELECT * FROM movies WHERE categoryId = :categoryId AND searchText LIKE '%' || :query || '%' ORDER BY addedAt DESC, sortOrder DESC, id DESC
+1	sql	core/src/main/java/tv/own/owntv/core/database/dao/MovieDao.kt	SELECT * FROM movies WHERE categoryId = :categoryId AND searchText LIKE '%' || :query || '%' ORDER BY sortOrder ASC, name ASC
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/MovieDao.kt	SELECT * FROM movies WHERE categoryId = :categoryId ORDER BY addedAt DESC, sortOrder DESC, id DESC
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/MovieDao.kt	SELECT * FROM movies WHERE categoryId = :categoryId ORDER BY name ASC
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/MovieDao.kt	SELECT * FROM movies WHERE categoryId = :categoryId ORDER BY rating DESC, name ASC
@@ -1430,6 +1470,8 @@
 1	sql	core/src/main/java/tv/own/owntv/core/database/dao/MovieDao.kt	SELECT * FROM movies WHERE sourceId = :sourceId AND titleSignature = '' LIMIT :limit
 2	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/MovieDao.kt	SELECT * FROM movies WHERE sourceId IN (:sourceIds)
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/MovieDao.kt	SELECT * FROM movies WHERE sourceId IN (:sourceIds) AND name LIKE '%' || :query || '%' ORDER BY name ASC LIMIT :limit
+1	sql	core/src/main/java/tv/own/owntv/core/database/dao/MovieDao.kt	SELECT * FROM movies WHERE sourceId IN (:sourceIds) AND searchText LIKE '%' || :query || '%' ORDER BY addedAt DESC, sortOrder DESC, id DESC
+1	sql	core/src/main/java/tv/own/owntv/core/database/dao/MovieDao.kt	SELECT * FROM movies WHERE sourceId IN (:sourceIds) AND searchText LIKE '%' || :query || '%' ORDER BY name ASC
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/MovieDao.kt	SELECT * FROM movies WHERE sourceId IN (:sourceIds) ORDER BY addedAt DESC, sortOrder DESC, id DESC
 1	sql	core/src/main/java/tv/own/owntv/core/database/dao/MovieDao.kt	SELECT * FROM movies WHERE sourceId IN (:sourceIds) ORDER BY addedAt DESC, sortOrder DESC, id DESC LIMIT :limit
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/MovieDao.kt	SELECT * FROM movies WHERE sourceId IN (:sourceIds) ORDER BY name ASC
@@ -1461,10 +1503,10 @@
 1	sql	core/src/main/java/tv/own/owntv/core/database/dao/MovieDao.kt	UPDATE movies SET sortOrder = sortOrder - :parked WHERE sourceId = :sourceId AND sortOrder >= :parked / 2
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/MovieDao.kt	WHERE f.profileId = :profileId AND f.mediaType = 'MOVIE' AND m.sourceId IN (:sourceIds)
 2	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/MovieDao.kt	WHERE f.profileId = :profileId AND m.sourceId IN (:sourceIds)
-1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/MovieDao.kt	WHERE f.profileId = :profileId AND m.sourceId IN (:sourceIds) AND m.name LIKE '%' || :query || '%' ORDER BY f.addedAt DESC
+1	sql	core/src/main/java/tv/own/owntv/core/database/dao/MovieDao.kt	WHERE f.profileId = :profileId AND m.sourceId IN (:sourceIds) AND m.searchText LIKE '%' || :query || '%' ORDER BY f.addedAt DESC
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/MovieDao.kt	WHERE f.profileId = :profileId ORDER BY f.addedAt DESC
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/MovieDao.kt	WHERE h.profileId = :profileId AND h.mediaType = 'MOVIE' AND m.sourceId IN (:sourceIds)
-1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/MovieDao.kt	WHERE h.profileId = :profileId AND m.sourceId IN (:sourceIds) AND m.name LIKE '%' || :query || '%' ORDER BY h.watchedAt DESC
+1	sql	core/src/main/java/tv/own/owntv/core/database/dao/MovieDao.kt	WHERE h.profileId = :profileId AND m.sourceId IN (:sourceIds) AND m.searchText LIKE '%' || :query || '%' ORDER BY h.watchedAt DESC
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/MovieDao.kt	WHERE h.profileId = :profileId AND m.sourceId IN (:sourceIds) ORDER BY h.watchedAt DESC
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/MovieDao.kt	WHERE h.profileId = :profileId AND m.sourceId IN (:sourceIds) ORDER BY h.watchedAt DESC LIMIT :limit
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/MovieDao.kt	WHERE h.profileId = :profileId ORDER BY h.watchedAt DESC LIMIT :limit
@@ -1602,6 +1644,8 @@
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	SELECT * FROM episodes WHERE seriesId = :seriesId AND seasonNumber = :season AND episodeNumber = :episode LIMIT 1
 2	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	SELECT * FROM episodes WHERE seriesId = :seriesId ORDER BY seasonNumber ASC, episodeNumber ASC
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	SELECT * FROM seasons WHERE seriesId = :seriesId ORDER BY seasonNumber ASC
+1	sql	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	SELECT * FROM series WHERE categoryId = :categoryId AND searchText LIKE '%' || :query || '%' ORDER BY addedAt DESC, sortOrder DESC, id DESC
+1	sql	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	SELECT * FROM series WHERE categoryId = :categoryId AND searchText LIKE '%' || :query || '%' ORDER BY sortOrder ASC, name ASC
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	SELECT * FROM series WHERE categoryId = :categoryId ORDER BY addedAt DESC, sortOrder DESC, id DESC
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	SELECT * FROM series WHERE categoryId = :categoryId ORDER BY name ASC
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	SELECT * FROM series WHERE categoryId = :categoryId ORDER BY rating DESC, name ASC
@@ -1613,6 +1657,8 @@
 1	sql	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	SELECT * FROM series WHERE sourceId = :sourceId AND titleSignature = '' LIMIT :limit
 2	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	SELECT * FROM series WHERE sourceId IN (:sourceIds)
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	SELECT * FROM series WHERE sourceId IN (:sourceIds) AND name LIKE '%' || :query || '%' ORDER BY name ASC LIMIT :limit
+1	sql	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	SELECT * FROM series WHERE sourceId IN (:sourceIds) AND searchText LIKE '%' || :query || '%' ORDER BY addedAt DESC, sortOrder DESC, id DESC
+1	sql	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	SELECT * FROM series WHERE sourceId IN (:sourceIds) AND searchText LIKE '%' || :query || '%' ORDER BY name ASC
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	SELECT * FROM series WHERE sourceId IN (:sourceIds) ORDER BY addedAt DESC, sortOrder DESC, id DESC
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	SELECT * FROM series WHERE sourceId IN (:sourceIds) ORDER BY name ASC
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	SELECT * FROM series WHERE sourceId IN (:sourceIds) ORDER BY rating DESC, name ASC
@@ -1648,10 +1694,10 @@
 1	sql	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	UPDATE series SET sortOrder = sortOrder - :parked WHERE sourceId = :sourceId AND sortOrder >= :parked / 2
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	WHERE f.profileId = :profileId AND f.mediaType = 'SERIES' AND s.sourceId IN (:sourceIds)
 2	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	WHERE f.profileId = :profileId AND s.sourceId IN (:sourceIds)
-1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	WHERE f.profileId = :profileId AND s.sourceId IN (:sourceIds) AND s.name LIKE '%' || :query || '%' ORDER BY f.addedAt DESC
+1	sql	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	WHERE f.profileId = :profileId AND s.sourceId IN (:sourceIds) AND s.searchText LIKE '%' || :query || '%' ORDER BY f.addedAt DESC
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	WHERE f.profileId = :profileId ORDER BY f.addedAt DESC
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	WHERE h.profileId = :profileId AND h.mediaType = 'SERIES' AND s.sourceId IN (:sourceIds)
-1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	WHERE h.profileId = :profileId AND s.sourceId IN (:sourceIds) AND s.name LIKE '%' || :query || '%' ORDER BY h.watchedAt DESC
+1	sql	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	WHERE h.profileId = :profileId AND s.sourceId IN (:sourceIds) AND s.searchText LIKE '%' || :query || '%' ORDER BY h.watchedAt DESC
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	WHERE h.profileId = :profileId AND s.sourceId IN (:sourceIds) ORDER BY h.watchedAt DESC
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	WHERE h.profileId = :profileId AND s.sourceId IN (:sourceIds) ORDER BY h.watchedAt DESC LIMIT :limit
 2	sql	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	WHERE s.categoryId = :categoryId),
@@ -1751,7 +1797,7 @@
 2	room-schema	core/src/main/java/tv/own/owntv/core/database/entity/CatalogBackfillEntities.kt	mediaType
 4	room-schema	core/src/main/java/tv/own/owntv/core/database/entity/CatalogBackfillEntities.kt	sourceId
 4	empty	core/src/main/java/tv/own/owntv/core/database/entity/ContentEntities.kt	\0
-4	room-schema	core/src/main/java/tv/own/owntv/core/database/entity/ContentEntities.kt	''
+6	room-schema	core/src/main/java/tv/own/owntv/core/database/entity/ContentEntities.kt	''
 7	room-schema	core/src/main/java/tv/own/owntv/core/database/entity/ContentEntities.kt	0
 4	room-schema	core/src/main/java/tv/own/owntv/core/database/entity/ContentEntities.kt	addedAt
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/entity/ContentEntities.kt	categories
@@ -2897,22 +2943,32 @@
 6	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	UTF-8
 1	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	XtreamClient
 1	json	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	active_cons
+2	json	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	actors
 3	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	added
 2	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	air_date
 2	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	airdate
 1	json	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	auth
+2	json	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	cast
 4	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	category_id
 1	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	category_name
 2	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	container_extension
+2	json	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	country
 1	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	cover
 2	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	description
 1	json	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	direct_source
+2	json	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	director
+2	json	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	duration
+2	json	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	duration_seconds
+2	json	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	duration_secs
 1	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	epg_channel_id
 2	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	epg_listings
 1	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	episode_num
 1	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	episodes
 1	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	exp_date
 1	log	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	firstLiveStreamId failed for source ${s.id}
+2	json	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	genre
+2	json	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	genres
+2	json	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	genres_str
 1	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	get_live_categories
 2	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	get_live_streams
 2	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	get_series
@@ -2932,7 +2988,10 @@
 2	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	mp4
 3	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	name
 1	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	num
+2	json	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	o_name
 1	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	objects
+2	json	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	original_name
+2	json	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	original_title
 1	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	parseOrReadMs=$parseOrReadDelta callbackMs=$callbackDelta
 1	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	parseOrReadMs=${metrics.parseOrReadMs} callbackMs=${metrics.callbackMs}
 2	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	plot
@@ -2940,8 +2999,8 @@
 1	log	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	probeTsPlayable failed for source ${s.id}
 2	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	rating
 2	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	releaseDate
-2	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	release_date
-2	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	releasedate
+4	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	release_date
+4	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	releasedate
 1	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	season
 1	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	series_id
 1	json	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	server_info
@@ -2954,6 +3013,7 @@
 1	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	streamArray start label=$label
 2	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	stream_icon
 2	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	stream_id
+2	json	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	time
 1	json	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	time_now
 1	json	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	timestamp_now
 1	json	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	timezone
@@ -2964,7 +3024,7 @@
 1	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	tv_archive
 1	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	tv_archive_duration
 1	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	user_info
-1	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	year
+2	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	year
 1	technical	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	yyyy-MM-dd HH:mm:ss
 1	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	yyyy-MM-dd:HH-mm
 1	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	—
@@ -4765,10 +4825,12 @@
 1	regex	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	\\bspecials?\\b
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	\\d{4}
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	action=
+1	json	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	actors
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	added
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	archive
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	auto
 2	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	block_msg
+1	json	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	cast
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	category
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	category_id
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	ch_id
@@ -4786,6 +4848,8 @@
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	ffrt2
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	ffrt3
 1	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	fields
+1	json	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	genre
+1	json	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	genres
 1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	get_profile device conflict — retrying once with stb_type=$model
 1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	guide download url=$safeUrl bytes=$written ms=${SystemClock.elapsedRealtime() - startedAt}
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	handshake candidate failed apiBase=$apiBase message=${e.message}
@@ -5124,7 +5188,7 @@
 1	preference-key	core/src/main/java/tv/own/owntv/core/sync/PortalCeilingStore.kt	clean_runs_$sourceId
 1	preference-key	core/src/main/java/tv/own/owntv/core/sync/PortalCeilingStore.kt	owntv_portal_ceiling
 1	technical	core/src/main/java/tv/own/owntv/core/sync/QuickActionsSync.kt	manual_builtin
-3	technical	core/src/main/java/tv/own/owntv/core/sync/QuickActionsSync.kt	manual_resync
+2	technical	core/src/main/java/tv/own/owntv/core/sync/QuickActionsSync.kt	manual_resync
 2	empty	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	\0
 1	log	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	$label backfill cat=${row.categoryRemoteId} page=$p
 1	log	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	$label backfill cat=${row.categoryRemoteId} page=$p failed (${e.message})
@@ -5415,6 +5479,7 @@
 1	log	core/src/main/java/tv/own/owntv/core/sync/work/CatalogSyncWorker.kt	contentTypes=$contentTypes effective=$effective baseItemCount=$baseItemCount forcePrune=$forcePrune
 1	preference-key	core/src/main/java/tv/own/owntv/core/sync/work/CatalogSyncWorker.kt	forcePrune
 1	technical	core/src/main/java/tv/own/owntv/core/sync/work/CatalogSyncWorker.kt	fresh_sync
+1	protocol	core/src/main/java/tv/own/owntv/core/sync/work/CatalogSyncWorker.kt	includeGuide
 1	preference-key	core/src/main/java/tv/own/owntv/core/sync/work/CatalogSyncWorker.kt	live
 1	preference-key	core/src/main/java/tv/own/owntv/core/sync/work/CatalogSyncWorker.kt	liveActive
 1	preference-key	core/src/main/java/tv/own/owntv/core/sync/work/CatalogSyncWorker.kt	liveProcessed

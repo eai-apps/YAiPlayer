@@ -63,13 +63,13 @@ fun moviePagingSource(
     } else {
         when (key) {
             LiveKey.All, LiveKey.Catchup ->
-                if (dateAdded) movieDao.searchAllDateAdded(query, ids) else movieDao.searchAll(query, ids)
-            LiveKey.Favorites -> movieDao.searchFavorites(query, profileId, ids)
-            LiveKey.History -> movieDao.searchHistory(query, profileId, ids)
-            is LiveKey.Custom -> customCategoryDao.searchMovies(query, profileId, key.id, ids)
+                if (dateAdded) movieDao.searchAllDateAdded(providerSearchText(query), ids) else movieDao.searchAll(providerSearchText(query), ids)
+            LiveKey.Favorites -> movieDao.searchFavorites(providerSearchText(query), profileId, ids)
+            LiveKey.History -> movieDao.searchHistory(providerSearchText(query), profileId, ids)
+            is LiveKey.Custom -> customCategoryDao.searchMovies(providerSearchText(query), profileId, key.id, ids)
             is LiveKey.Folder ->
-                if (dateAdded) movieDao.searchInCategoryDateAdded(query, key.id)
-                else movieDao.searchInCategory(query, key.id)
+                if (dateAdded) movieDao.searchInCategoryDateAdded(providerSearchText(query), key.id)
+                else movieDao.searchInCategory(providerSearchText(query), key.id)
         }
     }
 }
@@ -115,13 +115,13 @@ fun seriesPagingSource(
     } else {
         when (key) {
             LiveKey.All, LiveKey.Catchup ->
-                if (dateAdded) seriesDao.searchAllDateAdded(query, ids) else seriesDao.searchAll(query, ids)
-            LiveKey.Favorites -> seriesDao.searchFavorites(query, profileId, ids)
-            LiveKey.History -> seriesDao.searchHistory(query, profileId, ids)
-            is LiveKey.Custom -> customCategoryDao.searchSeries(query, profileId, key.id, ids)
+                if (dateAdded) seriesDao.searchAllDateAdded(providerSearchText(query), ids) else seriesDao.searchAll(providerSearchText(query), ids)
+            LiveKey.Favorites -> seriesDao.searchFavorites(providerSearchText(query), profileId, ids)
+            LiveKey.History -> seriesDao.searchHistory(providerSearchText(query), profileId, ids)
+            is LiveKey.Custom -> customCategoryDao.searchSeries(providerSearchText(query), profileId, key.id, ids)
             is LiveKey.Folder ->
-                if (dateAdded) seriesDao.searchInCategoryDateAdded(query, key.id)
-                else seriesDao.searchInCategory(query, key.id)
+                if (dateAdded) seriesDao.searchInCategoryDateAdded(providerSearchText(query), key.id)
+                else seriesDao.searchInCategory(providerSearchText(query), key.id)
         }
     }
 }

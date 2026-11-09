@@ -118,9 +118,17 @@ class LiveEpgReader(
                 // block started last. Now is read from the same resolved rows, so it is the
                 // higher-priority feed's programme too.
                 val horizon = at + UPCOMING_HORIZON_MS
-                val rows = epgSourceStore.priority().resolve(epgDao.upcoming(epgKey, at, UPCOMING_LIMIT).first())
+                var rows = epgSourceStore.priority().resolve(epgDao.programmesForChannel(epgKey, at, horizon))
+                if ((rows.maxOfOrNull { it.stopMs } ?: at) < horizon && sourceDao.getById(ch.sourceId)?.type == SourceType.STALKER) {
+                    val supplement = providerEntries(ch, shift).orEmpty().map {
+                        EpgProgrammeEntity(id = -it.startMs, sourceId = ch.sourceId, epgChannelId = epgKey,
+                            startMs = EpgShift.toStored(it.startMs, shift), stopMs = EpgShift.toStored(it.stopMs, shift),
+                            title = it.title, description = it.description)
+                    }
+                    rows = previewGuideWindow(rows, supplement, at, horizon)
+                }
                 val nowProg = rows.onAirAt(at)
-                val future = rows.filter { it.startMs > (nowProg?.startMs ?: 0) && it.startMs <= horizon }
+                val future = rows.filter { it.startMs > (nowProg?.startMs ?: 0) && it.startMs < horizon }
                 val nextProg = future.firstOrNull()
                 if (nowProg != null || nextProg != null) {
                     val prevProg = epgDao.previousProgramme(epgKey, nowProg?.startMs ?: at)
@@ -141,7 +149,7 @@ class LiveEpgReader(
             // programme as live. "Next"/"Later" are computed independently below, so a genuine
             // gap correctly shows no "Now" while the upcoming programme still appears as "Next".
             val current = entries.firstOrNull { it.startMs <= now && it.stopMs > now }
-            val future = entries.filter { it.startMs > (current?.startMs ?: now) && it.startMs <= now + UPCOMING_HORIZON_MS }.sortedBy { it.startMs }
+            val future = entries.filter { it.startMs > (current?.startMs ?: now) && it.startMs < now + UPCOMING_HORIZON_MS }.sortedBy { it.startMs }
             // Short-EPG responses sometimes include the just-finished programme — surface it as "Before".
             val previous = entries.filter { it.stopMs <= (current?.startMs ?: now) }.maxByOrNull { it.stopMs }
             val result = EpgNowNext(current, future.firstOrNull(), future.drop(1), previous = previous)
@@ -171,9 +179,12 @@ class LiveEpgReader(
             SourceType.XTREAM -> runCatching { xtreamClient.getShortEpg(source, streamId, limit = SHORT_EPG_LIMIT) }
                 .getOrNull().orEmpty()
             SourceType.STALKER -> runCatching {
+                streamUrlResolver.scheduleDays(source, streamId, listOf(0, 1))
+                    .map { XtEpgEntry(title = it.title, description = it.description, startMs = it.startMs, stopMs = it.stopMs) }
+            }.getOrNull().orEmpty().ifEmpty { runCatching {
                 streamUrlResolver.shortEpg(source, streamId)
                     .map { XtEpgEntry(title = it.title, description = it.description, startMs = it.startMs, stopMs = it.stopMs) }
-            }.getOrNull().orEmpty()
+            }.getOrNull().orEmpty() }
             else -> return null
         }
         // The provider's own guide needs the same shift as the stored one — same channel, same clock.

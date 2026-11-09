@@ -736,7 +736,7 @@ fun MoviesScreen(
                                 val displayTitle = movie.canonicalTitle.ifBlank { movie.name }
                                 VodListRow(
                                     title = displayTitle,
-                                    originalTitle = movie.name.takeIf { it.trim() != displayTitle.trim() },
+                                    originalTitle = movie.originalTitle?.takeIf { it.trim() != displayTitle.trim() },
                                     line = vodLine(movie.year, movie.rating, movie.durationSecs),
                                     posterUrl = posterOf(movie),
                                     placeholder = OwnTVIcon.MOVIES,
@@ -1182,14 +1182,15 @@ private fun buildMovieDetails(
     val displayTitle = if (tmdbWins && !meta?.title.isNullOrBlank()) meta.title else movie.canonicalTitle.ifBlank { movie.name }
     return tv.own.owntv.features.shell.components.MediaDetailsUi(
         title = displayTitle,
-        originalTitle = movie.name.takeIf { it.trim() != displayTitle.trim() },
+        originalTitle = movie.originalTitle?.takeIf { it.trim() != displayTitle.trim() },
         backdropUrl = backdrop,
         logoUrl = tv.own.owntv.core.metadata.MetadataImages.logo(meta?.logoPath),
         posterUrl = poster,
         metaLine = metaLine(movie, meta, tmdbWins),
-        genres = jsonList(meta?.genresJson),
+        genres = movie.genres?.split(',')?.map(String::trim)?.filter(String::isNotEmpty) ?: jsonList(meta?.genresJson),
         plot = plot,
         cast = tv.own.owntv.core.metadata.MetadataCast.parse(meta?.castJson),
+        country = movie.country, director = movie.director, actorsText = movie.actors,
         year = movie.year ?: meta?.year,
         durationText = movie.durationSecs?.takeIf { it > 0 }?.let { tv.own.owntv.features.shell.components.vodRuntime(it) },
     )
@@ -1223,7 +1224,7 @@ internal fun movieTitleInfo(
             ?: movie.backdropUrl?.takeIf { it.isNotBlank() },
         posterUrl = if (tmdbWins) tmdbPoster ?: providerPoster else providerPoster ?: tmdbPoster,
         year = if (tmdbWins) meta?.year ?: movie.year else movie.year ?: meta?.year,
-        genres = jsonList(meta?.genresJson),
+        genres = movie.genres?.split(',')?.map(String::trim)?.filter(String::isNotEmpty) ?: jsonList(meta?.genresJson),
         runtimeSecs = movie.durationSecs?.takeIf { it > 0 },
         rating = if (tmdbWins) meta?.rating?.takeIf { it > 0 } ?: movie.rating?.takeIf { it > 0 }
             else movie.rating?.takeIf { it > 0 } ?: meta?.rating?.takeIf { it > 0 },

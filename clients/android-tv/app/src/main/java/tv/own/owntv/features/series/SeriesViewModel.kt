@@ -1379,14 +1379,14 @@ class SeriesViewModel(
             }
         } else when (key) {
             LiveKey.All, LiveKey.Catchup ->
-                if (dateAdded) seriesDao.searchAllDateAdded(query, ids)
-                else seriesDao.searchAll(query, ids)
-            LiveKey.Favorites -> seriesDao.searchFavorites(query, c.profileId, ids)
-            LiveKey.History -> seriesDao.searchHistory(query, c.profileId, ids)
-            is LiveKey.Custom -> customCategoryDao.searchSeries(query, c.profileId, key.id, ids)
+                if (dateAdded) seriesDao.searchAllDateAdded(tv.own.owntv.core.content.providerSearchText(query), ids)
+                else seriesDao.searchAll(tv.own.owntv.core.content.providerSearchText(query), ids)
+            LiveKey.Favorites -> seriesDao.searchFavorites(tv.own.owntv.core.content.providerSearchText(query), c.profileId, ids)
+            LiveKey.History -> seriesDao.searchHistory(tv.own.owntv.core.content.providerSearchText(query), c.profileId, ids)
+            is LiveKey.Custom -> customCategoryDao.searchSeries(tv.own.owntv.core.content.providerSearchText(query), c.profileId, key.id, ids)
             is LiveKey.Folder ->
-                if (dateAdded) seriesDao.searchInCategoryDateAdded(query, key.id)
-                else seriesDao.searchInCategory(query, key.id)
+                if (dateAdded) seriesDao.searchInCategoryDateAdded(tv.own.owntv.core.content.providerSearchText(query), key.id)
+                else seriesDao.searchInCategory(tv.own.owntv.core.content.providerSearchText(query), key.id)
         }
     }
 

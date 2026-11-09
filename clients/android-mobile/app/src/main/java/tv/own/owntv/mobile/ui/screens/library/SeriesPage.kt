@@ -442,8 +442,8 @@ private fun SeriesHeader(series: SeriesEntity, page: DetailViewModel.TitlePage, 
         overflow = TextOverflow.Ellipsis,
         modifier = Modifier.padding(top = 6.dp),
     )
-    if (series.name.trim() != headline.trim() && series.name.isNotBlank()) {
-        Text(series.name, style = stageText(12f, 400), color = palette.muted, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 2.dp))
+    if (!series.originalTitle.isNullOrBlank() && series.originalTitle.trim() != headline.trim()) {
+        Text(series.originalTitle, style = stageText(12f, 400), color = palette.muted, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 2.dp))
     }
     // Specials are not counted as a season, as on Home and the TV.
     val numbered = seasons.count { it > 0 }
@@ -451,7 +451,7 @@ private fun SeriesHeader(series: SeriesEntity, page: DetailViewModel.TitlePage, 
         MovieMeta(
             parts = listOfNotNull(
                 (series.year ?: meta?.year)?.takeIf { it > 0 }?.let(::formatYear),
-                jsonList(meta?.genresJson).take(3).takeIf { it.isNotEmpty() }?.joinToString(stringResource(R.string.content_epg_bits_separator)),
+                (series.genres?.split(',') ?: jsonList(meta?.genresJson)).take(3).takeIf { it.isNotEmpty() }?.joinToString(stringResource(R.string.content_epg_bits_separator)),
                 numbered.takeIf { it > 0 }?.let { pluralStringResource(R.plurals.home_trending_seasons, it, it) },
             ),
             rating = listOf(meta?.rating, series.rating).let { if (tmdbWins) it else it.reversed() }
@@ -465,8 +465,6 @@ private fun SeriesHeader(series: SeriesEntity, page: DetailViewModel.TitlePage, 
             it,
             style = stageText(12.5f, 500, lineHeight = 1.5f),
             color = palette.body,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
             modifier = Modifier.padding(top = 8.dp),
         )
     }

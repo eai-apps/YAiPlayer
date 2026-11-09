@@ -18,50 +18,24 @@ class QuickActionsSync(
     private val epgRepository: EpgRepository,
     private val importFinalizer: ImportFinalizer,
 ) {
-    suspend fun refreshPlaylist(source: SourceEntity) {
-        val counts = importFinalizer.contentCounts(source.id)
-        catalogSyncScheduler.enqueueSync(
-            source.id,
-            reason = "manual_resync",
-            contentTypes = SyncContentTypes.enabledOf(source),
-            baseItemCount = counts.channels + counts.movies + counts.series,
-            policy = ExistingWorkPolicy.KEEP,
-        )
+    suspend fun refreshPlaylist(source: SourceEntity) = refresh(source, QuickSyncAction.PLAYLIST)
+    suspend fun refreshChannelsOnly(source: SourceEntity) = refresh(source, QuickSyncAction.CHANNELS)
+    suspend fun refreshChannelsAndEpg(source: SourceEntity) = refresh(source, QuickSyncAction.CHANNELS_AND_EPG)
+    suspend fun refreshAll(source: SourceEntity) = refresh(source, QuickSyncAction.ALL)
+    suspend fun refreshVod(source: SourceEntity) = refresh(source, QuickSyncAction.VOD)
+    suspend fun refreshEpg(source: SourceEntity) = refresh(source, QuickSyncAction.EPG)
+
+    private suspend fun refresh(source: SourceEntity, action: QuickSyncAction) {
+        dispatchSelectiveSync(selectiveSyncPlan(action, source), catalog = { contentTypes ->
+            val counts = importFinalizer.contentCounts(source.id)
+            val base = (if (contentTypes.live) counts.channels else 0) +
+                (if (contentTypes.movies) counts.movies else 0) + (if (contentTypes.series) counts.series else 0)
+            catalogSyncScheduler.enqueueSync(source.id, reason = "manual_resync", contentTypes = contentTypes,
+                baseItemCount = base, policy = ExistingWorkPolicy.APPEND_OR_REPLACE, includeGuide = false)
+        }, epg = { refreshEpgOnly(source) })
     }
 
-    suspend fun refreshChannelsOnly(source: SourceEntity) {
-        val counts = importFinalizer.contentCounts(source.id)
-        catalogSyncScheduler.enqueueSync(
-            source.id,
-            reason = "manual_resync",
-            contentTypes = SyncContentTypes(live = true, movies = false, series = false),
-            baseItemCount = counts.channels,
-            policy = ExistingWorkPolicy.KEEP,
-        )
-    }
-
-    suspend fun refreshChannelsAndEpg(source: SourceEntity) {
-        refreshChannelsOnly(source)
-        refreshEpg(source)
-    }
-
-    suspend fun refreshAll(source: SourceEntity) {
-        refreshPlaylist(source)
-        refreshEpg(source)
-    }
-
-    suspend fun refreshVod(source: SourceEntity) {
-        val counts = importFinalizer.contentCounts(source.id)
-        catalogSyncScheduler.enqueueSync(
-            source.id,
-            reason = "manual_resync",
-            contentTypes = SyncContentTypes(live = false, movies = source.syncMovies, series = source.syncSeries),
-            baseItemCount = counts.movies + counts.series,
-            policy = ExistingWorkPolicy.KEEP,
-        )
-    }
-
-    suspend fun refreshEpg(source: SourceEntity) {
+    private suspend fun refreshEpgOnly(source: SourceEntity) {
         val allEpg = epgSourceStore.getAll()
         val urls = epgRepository.guideUrls(source).toSet()
         val stalkerUrl = EpgRepository.stalkerGuideUrl(source.id)

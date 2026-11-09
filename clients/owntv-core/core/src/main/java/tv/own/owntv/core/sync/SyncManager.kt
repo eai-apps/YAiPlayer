@@ -151,7 +151,7 @@ class SyncManager(
                     // Finish it in the background now that every list is browsable. Gated on the plan
                     // itself, so a pass that drained the catalogue eagerly (and cleared its plan)
                     // enqueues nothing, and no other source type ever does.
-                    if (source.type == SourceType.STALKER) {
+                    if (source.type == SourceType.STALKER && (effective.movies || effective.series)) {
                         val pending = catalogBackfillDao.pendingCount(source.id, tv.own.owntv.core.model.MediaType.MOVIE) +
                             catalogBackfillDao.pendingCount(source.id, tv.own.owntv.core.model.MediaType.SERIES)
                         if (pending > 0) catalogSyncScheduler.enqueueCatalogBackfill(source.id)

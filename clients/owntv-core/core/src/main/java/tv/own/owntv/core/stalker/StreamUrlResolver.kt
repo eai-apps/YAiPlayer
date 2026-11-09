@@ -252,9 +252,17 @@ class StreamUrlResolver(
                 dayOffsets.map { offset ->
                     async {
                         gate.withPermit {
-                            val date = fmt.format(java.util.Date(now + offset * 24L * 60 * 60 * 1000))
-                            runCatching { readWholeDay(session.apiBase, mac, session.token, creds.userAgent, channelRemoteId, date) }
-                                .getOrDefault(emptyList())
+                            val date = fmt.format(java.util.Calendar.getInstance().apply {
+                                timeInMillis = now
+                                add(java.util.Calendar.DAY_OF_MONTH, offset)
+                            }.time)
+                            try {
+                                readWholeDay(session.apiBase, mac, session.token, creds.userAgent, channelRemoteId, date)
+                            } catch (c: kotlinx.coroutines.CancellationException) {
+                                throw c
+                            } catch (_: Exception) {
+                                emptyList()
+                            }
                         }
                     }
                 }.awaitAll().flatten()

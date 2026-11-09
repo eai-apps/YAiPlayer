@@ -99,6 +99,7 @@ open class StalkerClient(okHttpClient: OkHttpClient) {
         // `is_series` on a `type=vod` row: a show filed in the film catalogue. Portals with no series
         // section of their own list every show this way.
         val isSeries: Boolean = false,
+        val details: tv.own.owntv.core.content.ProviderMediaDetails = tv.own.owntv.core.content.ProviderMediaDetails(),
     )
 
     /** One page of `get_ordered_list`: the items plus the totals needed to page through the rest. */
@@ -714,6 +715,7 @@ open class StalkerClient(okHttpClient: OkHttpClient) {
             addedAt = parseAddedAt(f["added"]),
             // Some portals never set `is_series` and instead name each season row "Title [S01]".
             isSeries = isFlagSet(f["is_series"]) || hasSeasonTag(title),
+            details = tv.own.owntv.core.content.ProviderMediaDetails.from(f),
         )
     }
 
@@ -1041,6 +1043,9 @@ open class StalkerClient(okHttpClient: OkHttpClient) {
                 JsonToken.NUMBER -> fields[name] = reader.nextString()
                 JsonToken.BOOLEAN -> fields[name] = reader.nextBoolean().toString()
                 JsonToken.NULL -> reader.nextNull()
+                JsonToken.BEGIN_ARRAY -> if (name in listOf("actors", "cast", "genres", "genre")) {
+                    tv.own.owntv.core.content.readProviderField(reader)?.let { fields[name] = it }
+                } else reader.skipValue()
                 else -> reader.skipValue()
             }
         }

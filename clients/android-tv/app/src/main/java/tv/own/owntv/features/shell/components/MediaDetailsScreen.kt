@@ -74,6 +74,7 @@ data class MediaDetailsUi(
     val durationText: String? = null,
     val country: String? = null,
     val director: String? = null,
+    val actorsText: String? = null,
 )
 
 /**
@@ -148,6 +149,7 @@ fun MediaDetailsScreen(details: MediaDetailsUi, onExit: () -> Unit, modifier: Mo
                             details.country?.takeIf { it.isNotBlank() }?.let { stringResource(R.string.portal_details_country) to it },
                             details.durationText?.takeIf { it.isNotBlank() }?.let { stringResource(R.string.portal_details_duration) to it },
                             details.director?.takeIf { it.isNotBlank() }?.let { stringResource(R.string.portal_details_director) to it },
+                            details.actorsText?.takeIf { it.isNotBlank() }?.let { stringResource(R.string.portal_details_cast) to it },
                         )
                         if (metaFields.isNotEmpty()) {
                             Column(Modifier.padding(top = 12.mpx), verticalArrangement = Arrangement.spacedBy(4.mpx)) {

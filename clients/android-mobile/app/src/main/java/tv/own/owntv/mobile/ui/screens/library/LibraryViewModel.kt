@@ -108,6 +108,7 @@ data class VodItem(
     /** A film's length; null on a show. */
     val durationSecs: Int? = null,
     val canonicalTitle: String? = null,
+    val originalTitle: String? = null,
 )
 
 /**
@@ -457,6 +458,7 @@ class LibraryViewModel(
         categoryId = categoryId,
         durationSecs = durationSecs,
         canonicalTitle = canonicalTitle,
+        originalTitle = originalTitle,
     )
 
     private fun SeriesEntity.asItem(cust: SectionCustomizations) = VodItem(
@@ -468,6 +470,7 @@ class LibraryViewModel(
         sourceId = sourceId,
         categoryId = categoryId,
         canonicalTitle = canonicalTitle,
+        originalTitle = originalTitle,
     )
 
     val favoriteIds: StateFlow<Set<Long>> = combine(ctx, mediaType) { c, type -> c to type }

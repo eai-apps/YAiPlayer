@@ -1053,14 +1053,14 @@ class MovieViewModel(
             }
         } else when (key) {
             LiveKey.All, LiveKey.Catchup ->
-                if (dateAdded) movieDao.searchAllDateAdded(query, ids)
-                else movieDao.searchAll(query, ids)
-            LiveKey.Favorites -> movieDao.searchFavorites(query, c.profileId, ids)
-            LiveKey.History -> movieDao.searchHistory(query, c.profileId, ids)
-            is LiveKey.Custom -> customCategoryDao.searchMovies(query, c.profileId, key.id, ids)
+                if (dateAdded) movieDao.searchAllDateAdded(tv.own.owntv.core.content.providerSearchText(query), ids)
+                else movieDao.searchAll(tv.own.owntv.core.content.providerSearchText(query), ids)
+            LiveKey.Favorites -> movieDao.searchFavorites(tv.own.owntv.core.content.providerSearchText(query), c.profileId, ids)
+            LiveKey.History -> movieDao.searchHistory(tv.own.owntv.core.content.providerSearchText(query), c.profileId, ids)
+            is LiveKey.Custom -> customCategoryDao.searchMovies(tv.own.owntv.core.content.providerSearchText(query), c.profileId, key.id, ids)
             is LiveKey.Folder ->
-                if (dateAdded) movieDao.searchInCategoryDateAdded(query, key.id)
-                else movieDao.searchInCategory(query, key.id)
+                if (dateAdded) movieDao.searchInCategoryDateAdded(tv.own.owntv.core.content.providerSearchText(query), key.id)
+                else movieDao.searchInCategory(tv.own.owntv.core.content.providerSearchText(query), key.id)
         }
     }
 
