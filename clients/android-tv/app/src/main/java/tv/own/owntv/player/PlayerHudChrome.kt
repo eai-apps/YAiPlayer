@@ -427,7 +427,7 @@ internal fun BottomBar(
                         // Favorite the current channel/movie/series without leaving the stream (coral
                         // heart = on, the same colour the marker has on posters and in browse rows).
                         PlayerControl.FAVOURITE -> if (onToggleFavorite != null) {
-                            CtrlButton(OwnTVIcon.FAVORITE, active = favorite, activeTint = OwnTVTheme.colors.favorite, label = stringResource(R.string.player_tool_favorite)) { onToggleFavorite() }
+                            CtrlButton(OwnTVIcon.FAVORITE, active = favorite, glow = true, label = stringResource(R.string.player_tool_favorite)) { onToggleFavorite() }
                         }
                         // "Go back to…" — jump straight to a time in this channel's archive. Only on
                         // catch-up channels. CATCHUP (a TV with a replay loop): REWIND is already the

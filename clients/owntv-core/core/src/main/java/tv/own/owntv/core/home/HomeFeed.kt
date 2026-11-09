@@ -202,7 +202,13 @@ class HomeFeedReader(
     private val guide: GuideReader,
     private val epgDao: EpgDao,
 ) {
-    suspend fun load(profileId: Long): HomeFeed = withContext(Dispatchers.IO) {
+    /**
+     * [withGuide] false builds the rails WITHOUT anything read from the programme guide (the guide
+     * slices, the rail captions and the on-air cards). Those are the reads that wait on a busy EPG
+     * database during a sync, and Home used to appear only once ALL of them had returned, which left it
+     * blank for minutes. Callers paint this result first and then fetch the full one.
+     */
+    suspend fun load(profileId: Long, withGuide: Boolean = true): HomeFeed = withContext(Dispatchers.IO) {
         coroutineScope {
             val configAsync = async { settings.homeConfig(profileId).first() }
             val metadataAsync = async { settings.metadataConfig() }
@@ -290,7 +296,7 @@ class HomeFeedReader(
                 }
             }
             val onAirItemsAsync = async {
-                if (HomeRow.NOW_ON_AIR !in config.visibleOrder || liveIds.isEmpty()) emptyList()
+                if (!withGuide || HomeRow.NOW_ON_AIR !in config.visibleOrder || liveIds.isEmpty()) emptyList()
                 else buildOnAirItems(profileId, liveIds.toList(), hidden)
             }
             val recentMoviesAsync = async {
@@ -302,14 +308,14 @@ class HomeFeedReader(
             val heroItems = buildHeroItems(items, liveWithTs, config)
             // The two guide slices read different channel sets and never depend on each other.
             val recentGuideAsync = async {
-                if (HomeRow.RECENT_CHANNELS in config.visibleOrder && config.recentLiveMode == HomeLiveRowMode.ON_NOW) {
+                if (withGuide && HomeRow.RECENT_CHANNELS in config.visibleOrder && config.recentLiveMode == HomeLiveRowMode.ON_NOW) {
                     liveGuide(profileId, liveIds, live)
                 } else {
                     GuideSliceState()
                 }
             }
             val favoriteGuideAsync = async {
-                if (HomeRow.FAVORITE_CHANNELS in config.visibleOrder && config.favoriteLiveMode == HomeLiveRowMode.ON_NOW) {
+                if (withGuide && HomeRow.FAVORITE_CHANNELS in config.visibleOrder && config.favoriteLiveMode == HomeLiveRowMode.ON_NOW) {
                     liveGuide(profileId, liveIds, favLive)
                 } else {
                     GuideSliceState()
@@ -321,7 +327,7 @@ class HomeFeedReader(
             val allChannelsList = allChannelsAsync.await()
             val railGuide = run {
                 val drawn = (categoryRails.flatMap { it.channels } + allChannelsList).distinctBy { it.id }
-                if (drawn.isEmpty()) GuideSliceState() else liveGuide(profileId, liveIds, drawn)
+                if (!withGuide || drawn.isEmpty()) GuideSliceState() else liveGuide(profileId, liveIds, drawn)
             }
 
             // Customize renames go on last: every key and guide lookup above ran on the provider's name,

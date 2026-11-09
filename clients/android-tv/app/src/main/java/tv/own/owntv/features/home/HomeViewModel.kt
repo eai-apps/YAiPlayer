@@ -424,7 +424,8 @@ class HomeViewModel(
      */
     private suspend fun loadHomeData(profileId: Long) {
         val previous = _uiState.value
-        val data = feed.load(profileId)
+        // Rails first, without the guide reads that wait on a busy EPG database; the guide follows below.
+        val data = feed.load(profileId, withGuide = false)
         _uiState.value = HomeUiState(
             trendingItems = data.trendingItems,
             activeTrendingIndex = previous.activeTrendingIndex
@@ -442,19 +443,28 @@ class HomeViewModel(
             favoriteMovies = data.favoriteMovies,
             favoriteSeries = data.favoriteSeries,
             config = data.config,
-            recentGuide = data.recentGuide,
-            favoriteGuide = data.favoriteGuide,
+            recentGuide = previous.recentGuide,
+            favoriteGuide = previous.favoriteGuide,
             liveCategoryRails = data.liveCategoryRails,
             allChannels = data.allChannels,
-            railGuide = data.railGuide,
+            railGuide = previous.railGuide,
             recentMovies = data.recentMovies,
-            onAirItems = data.onAirItems,
+            onAirItems = previous.onAirItems,
             isLoading = false,
         )
         tv.own.owntv.core.util.Perf.stamp("home-data")
         _uiState.value.trendingItems.getOrNull(_uiState.value.activeTrendingIndex)?.let(::resolveTrendingExtras)
         // Keep watching shows every card as a still, so each needs its artwork up front, not on focus.
         _uiState.value.heroItems.indices.forEach { resolveHeroMetadata(it) }
+        // Second pass: what is on now. Only the guide fields are taken, so nothing the user already sees
+        // (the hero position, the focused rail) is reset when it lands.
+        val full = feed.load(profileId)
+        _uiState.value = _uiState.value.copy(
+            recentGuide = full.recentGuide,
+            favoriteGuide = full.favoriteGuide,
+            railGuide = full.railGuide,
+            onAirItems = full.onAirItems,
+        )
     }
 
     private fun resolveHeroMetadata(index: Int) {

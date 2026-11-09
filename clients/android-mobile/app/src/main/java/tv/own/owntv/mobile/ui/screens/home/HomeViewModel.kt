@@ -116,9 +116,25 @@ class HomeViewModel(
             // The playlist picker too: its rows are that playlist's, and without it a switch kept showing
             // the previous playlist's rows until something else asked for a reload.
             combine(profileId, settings.defaultSourceId.distinctUntilChanged(), reloads) { pid, _, _ -> pid }.collectLatest { pid ->
-                val feed = if (pid < 0) HomeFeed() else reader.load(pid)
-                _feed.value = feed
+                // Rails first, without the guide reads that wait on a busy EPG database.
+                val feed = if (pid < 0) HomeFeed() else reader.load(pid, withGuide = false)
+                val before = _feed.value
+                _feed.value = if (before == null) feed else feed.copy(
+                    recentGuide = before.recentGuide,
+                    favoriteGuide = before.favoriteGuide,
+                    railGuide = before.railGuide,
+                    onAirItems = before.onAirItems,
+                )
                 resolveHeroBackdrops(feed.heroItems)
+                if (pid >= 0) {
+                    val full = reader.load(pid)
+                    _feed.value = _feed.value?.copy(
+                        recentGuide = full.recentGuide,
+                        favoriteGuide = full.favoriteGuide,
+                        railGuide = full.railGuide,
+                        onAirItems = full.onAirItems,
+                    )
+                }
             }
         }
         // A lock closing or opening (the relock on leaving the app, a PIN entry) changes which titles

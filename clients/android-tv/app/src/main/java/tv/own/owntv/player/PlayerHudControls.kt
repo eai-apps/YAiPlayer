@@ -369,9 +369,10 @@ internal fun CtrlButton(
     icon: OwnTVIcon,
     badge: Int? = null,
     active: Boolean = false,
-    // The favourite heart stays coral here instead of taking the accent, so one colour means
-    // "favourite" everywhere in the app — browse rows, posters and the player alike.
     activeTint: Color = hudAccent,
+    // A soft disc of [activeTint] behind the icon while [active]: the favourite heart lights up in the
+    // player's accent instead of being a slightly different grey.
+    glow: Boolean = false,
     label: String,
     // Shown after the label while focused, in place of the count: the current setting a press changes.
     value: String? = null,
@@ -394,7 +395,11 @@ internal fun CtrlButton(
         val tint = if (active) activeTint else if (focused) hudInk else hudInk.copy(alpha = 0.78f)
         Row(Modifier.padding(horizontal = pad), verticalAlignment = Alignment.CenterVertically) {
             Box(contentAlignment = Alignment.Center) {
-                OwnTVIcon(icon, tint = tint, filled = true, modifier = Modifier.size(22.dp))
+                if (glow && active) {
+                    Box(Modifier.size(34.dp).clip(CircleShape).background(activeTint.copy(alpha = 0.28f)))
+                }
+                // The heart is an outline until it is a favourite, so "on" is unmistakable.
+                OwnTVIcon(icon, tint = tint, filled = !glow || active, modifier = Modifier.size(22.dp))
                 // Collapsed, the count sits on the icon's corner; expanded it moves inline after the
                 // label instead, where it no longer covers a third of the glyph.
                 if (badge != null && !focused) {
