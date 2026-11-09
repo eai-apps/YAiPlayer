@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- Copyright (C) 2026 YAiPlayer authors. Original code, written for YAiPlayer. -->
+    <string name="tv_optimizer_tile">Ускорь телевизор</string>
+    <string name="tv_optimizer_title">Мастер ускорения ТВ</string>
+    <string name="tv_optimizer_subtitle">Ускорение ТВ отключением лишних предустановленных приложений</string>
+    <string name="tv_optimizer_welcome_title">Ускорьте ваш телевизор</string>
+    <string name="tv_optimizer_welcome_body">Ускорьте старый телевизор: отключим лишние предустановленные приложения. Ничего не удаляется, всё можно вернуть одной кнопкой.</string>
+    <string name="tv_optimizer_start">Начать</string>
+    <string name="tv_optimizer_debug_title">Включение отладки на ТВ</string>
+    <string name="tv_optimizer_debug_subtitle">Выполните эти шаги на телевизоре с пульта:</string>
+    <string name="tv_optimizer_debug_step1">Настройки → Об устройстве (или «О устройстве»)</string>
+    <string name="tv_optimizer_debug_step2">7 раз нажмите «Номер сборки» до открытия режима разработчика</string>
+    <string name="tv_optimizer_debug_step3">Вернитесь назад → Для разработчиков</string>
+    <string name="tv_optimizer_debug_step4">Включите «Отладка по USB» и «Отладка по сети» (или по Wi-Fi)</string>
+    <string name="tv_optimizer_debug_step5">Посмотрите IP-адрес телевизора в настройках сети</string>
+    <string name="tv_optimizer_cant_find">Не нашёл</string>
+    <string name="tv_optimizer_cant_find_hint">На некоторых моделях пункт «Номер сборки» находится в подразделе «Справка» или «Сведения об ОС Android TV».</string>
+    <string name="tv_optimizer_connect_title">Подключение к ТВ</string>
+    <string name="tv_optimizer_searching">Ищем ТВ в сети\u2026</string>
+    <string name="tv_optimizer_ip_hint">IP-адрес телевизора (напр. 192.168.1.50)</string>
+    <string name="tv_optimizer_port_hint">Порт (по умолчанию 5555)</string>
+    <string name="tv_optimizer_connect_btn">Подключиться</string>
+    <string name="tv_optimizer_status_connected">Подключено к ТВ</string>
+    <string name="tv_optimizer_status_prompt">Нажмите «Разрешить» на экране ТВ</string>
+    <string name="tv_optimizer_model_title">Выбор модели ТВ</string>
+    <string name="tv_optimizer_model_detected">Определено автоматически</string>
+    <string name="tv_optimizer_model_search">Поиск модели\u2026</string>
+    <string name="tv_optimizer_packages_title">Что отключим</string>
+    <string name="tv_optimizer_packages_subtitle">Предустановленные приложения, которые можно безопасно отключить для освобождения памяти.</string>
+    <string name="tv_optimizer_select_recommended">Выбрать рекомендуемое</string>
+    <string name="tv_optimizer_risk_safe">Безопасно</string>
+    <string name="tv_optimizer_risk_moderate">Осторожно</string>
+    <string name="tv_optimizer_confirm_title">Подтверждение</string>
+    <string name="tv_optimizer_confirm_warning">Изменения вы делаете на свой страх и риск. Приложения только отключаются, состояние сохраняется, откат доступен в любой момент. После обновления прошивки ТВ часть изменений может вернуться.</string>
+    <string name="tv_optimizer_understand_checkbox">Понимаю</string>
+    <string name="tv_optimizer_apply_btn">Применить</string>
+    <string name="tv_optimizer_applying">Применяем оптимизацию\u2026</string>
+    <string name="tv_optimizer_result_title">Готово</string>
+    <string name="tv_optimizer_result_disabled_count">Отключено приложений: <xliff:g id="count">%1$d</xliff:g></string>
+    <string name="tv_optimizer_rollback_btn">Откатить всё</string>
+    <string name="tv_optimizer_rollback_title">Откат изменений</string>
+    <string name="tv_optimizer_rollback_selected">Откатить выбранные</string>
+    <string name="tv_optimizer_nav_next">Далее</string>
+    <string name="tv_optimizer_nav_back">Назад</string>
+    <string name="tv_optimizer_done">Завершить</string>
+    <string name="tv_optimizer_error_host_required">Укажите IP-адрес телевизора</string>
+    <string name="tv_optimizer_error_failed">Не удалось подключиться</string>
+    <string name="tv_optimizer_progress_format"><xliff:g id="index">%1$d</xliff:g> / <xliff:g id="total">%2$d</xliff:g></string>
+    <string name="tv_optimizer_rollback_past">Откатить прошлые изменения</string>
+    <string name="tv_optimizer_rollback_empty">Нет ранее отключённых приложений</string>
+    <string name="tv_optimizer_packages_count">Выбрано <xliff:g id="selected">%1$d</xliff:g> из <xliff:g id="total">%2$d</xliff:g></string>
+    <string name="tv_optimizer_risk_high">Высокий риск</string>
+    <string name="tv_optimizer_vendor_generic">Android TV (Универсально)</string>
+    <string name="tv_optimizer_vendor_generic_steps">Настройки → Настройки устройства → Об устройстве → 7 раз нажать «Сборка» → Назад → Для разработчиков → Отладка по USB / сети</string>
+    <string name="tv_optimizer_vendor_xiaomi">Xiaomi Mi TV / TV Box</string>
+    <string name="tv_optimizer_vendor_xiaomi_steps">Настройки → Настройки устройства → Об устройстве → Сборка (7 раз) → Назад → Дополнительные настройки → Для разработчиков → Отладка по USB</string>
+    <string name="tv_optimizer_vendor_sony">Sony BRAVIA</string>
+    <string name="tv_optimizer_vendor_sony_steps">Настройки → Система → Об устройстве → Сборка ОС Android TV (7 раз) → Назад → Система → Для разработчиков → Отладка</string>
+    <string name="tv_optimizer_vendor_tcl">TCL Android TV</string>
+    <string name="tv_optimizer_vendor_tcl_steps">Настройки → Настройки устройства → О системе → Сборка (7 раз) → Назад → Для разработчиков → Отладка по USB</string>
+    <string name="tv_optimizer_vendor_philips">Philips Android TV</string>
+    <string name="tv_optimizer_vendor_philips_steps">Все настройки → Настройки Android → Настройки устройства → Об устройстве → Сборка (7 раз) → Назад → Для разработчиков</string>
+    <string name="tv_optimizer_vendor_google">Google TV Streamer / Chromecast</string>
+    <string name="tv_optimizer_vendor_google_steps">Настройки → Система → Об устройстве → Сборка ОС Android TV (7 раз) → Назад → Система → Для разработчиков → Отладка по сети</string>
+
+    <string name="pkg_youtube_tv_title">YouTube TV</string>
+    <string name="pkg_youtube_tv_desc">Приложение сервиса YouTube TV (не обычный YouTube). Можно безопасно отключать.</string>
+    <string name="pkg_play_games_title">Google Play Игры</string>
+    <string name="pkg_play_games_desc">Фоновая синхронизация игр Google Play. Можно отключать, если не играете на ТВ.</string>
+    <string name="pkg_patchwall_title">Xiaomi PatchWall</string>
+    <string name="pkg_patchwall_desc">Тяжёлая витрина рекомендаций Xiaomi. Отключение заметно ускоряет ТВ.</string>
+    <string name="pkg_xiaomi_upgrade_title">Обновления Xiaomi</string>
+    <string name="pkg_xiaomi_upgrade_desc">Фоновое обновление компонентов Xiaomi. Отключать с осторожностью.</string>
+    <string name="pkg_sony_sync_title">Sony Bravia Sync</string>
+    <string name="pkg_sony_sync_desc">HDMI-CEC служба синхронизации для звуковых панелей и аксессуаров Sony.</string>
+    <string name="pkg_tcl_manager_title">TCL TV Manager</string>
+    <string name="pkg_tcl_manager_desc">Фоновое служебное приложение и баннеры на телевизорах TCL.</string>
+    <string name="pkg_print_spooler_title">Диспетчер печати</string>
+    <string name="pkg_print_spooler_desc">Служба печати документов. Телевизору печать не требуется.</string>
+    <string name="pkg_google_music_title">Google Play Музыка</string>
+    <string name="pkg_google_music_desc">Устаревший неработающий музыкальный сервис Google. Безопасно отключать.</string>
+</resources>

@@ -8,6 +8,7 @@ All original code in YAiPlayer is licensed under GPL-3.0 as part of the YAiPlaye
 
 ## Documented Third-Party Components
 - **OwnTV base components**: Upstream GPL-3.0 foundation (Android TV, Mobile, Core).
+- **CleanYourTV**: Concept and package recommendations by Gathin23/cleanyourtv (MIT License).
 - **Icons & Material Design**: Material Symbols / Material Icons (Apache-2.0).
 - **Screensaver Curated Images**:
   - NASA Jet Propulsion Laboratory / Space Telescope Science Institute (Carina Nebula PIA15415, Pillars of Creation PIA18224, Jupiter PIA21985) — Public Domain (NASA material not protected by copyright).

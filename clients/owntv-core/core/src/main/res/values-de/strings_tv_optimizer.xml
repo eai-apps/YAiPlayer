@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- Copyright (C) 2026 YAiPlayer authors. Original code, written for YAiPlayer. -->
+    <string name="tv_optimizer_tile">Fernseher beschleunigen</string>
+    <string name="tv_optimizer_title">TV-Optimierung</string>
+    <string name="tv_optimizer_subtitle">TV beschleunigen durch sicheres Deaktivieren unnötiger Apps</string>
+    <string name="tv_optimizer_welcome_title">Optimieren Sie Ihren Fernseher</string>
+    <string name="tv_optimizer_welcome_body">Beschleunigen Sie Ihren Fernseher: Wir deaktivieren überflüssige vorinstallierte Apps. Nichts wird gelöscht, alles kann mit einem Klick wiederhergestellt werden.</string>
+    <string name="tv_optimizer_start">Starten</string>
+    <string name="tv_optimizer_debug_title">ADB-Debugging aktivieren</string>
+    <string name="tv_optimizer_debug_subtitle">Folgen Sie diesen Schritten auf Ihrem Fernseher:</string>
+    <string name="tv_optimizer_debug_step1">Einstellungen → Über das Gerät</string>
+    <string name="tv_optimizer_debug_step2">Klicken Sie 7 Mal auf \"Build-Nummer\", um Entwickleroptionen freizuschalten</string>
+    <string name="tv_optimizer_debug_step3">Zurück → Entwickleroptionen</string>
+    <string name="tv_optimizer_debug_step4">\"USB-Debugging\" und \"Netzwerk-Debugging / WLAN-Debugging\" aktivieren</string>
+    <string name="tv_optimizer_debug_step5">IP-Adresse des Fernsehers in den Netzwerkeinstellungen prüfen</string>
+    <string name="tv_optimizer_cant_find">Nicht gefunden?</string>
+    <string name="tv_optimizer_cant_find_hint">Bei einigen Modellen befindet sich die Build-Nummer unter \"System\" oder \"Android TV OS-Build\".</string>
+    <string name="tv_optimizer_connect_title">Mit Fernseher verbinden</string>
+    <string name="tv_optimizer_searching">Suche Fernseher im Netzwerk\u2026</string>
+    <string name="tv_optimizer_ip_hint">IP-Adresse des Fernsehers (z. B. 192.168.1.50)</string>
+    <string name="tv_optimizer_port_hint">Port (Standard 5555)</string>
+    <string name="tv_optimizer_connect_btn">Verbinden</string>
+    <string name="tv_optimizer_status_connected">Verbunden mit Fernseher</string>
+    <string name="tv_optimizer_status_prompt">Drücken Sie \"Zulassen\" auf dem Fernseher</string>
+    <string name="tv_optimizer_model_title">TV-Modell auswählen</string>
+    <string name="tv_optimizer_model_detected">Automatisch erkannt</string>
+    <string name="tv_optimizer_model_search">Modell suchen\u2026</string>
+    <string name="tv_optimizer_packages_title">Zu deaktivierende Apps</string>
+    <string name="tv_optimizer_packages_subtitle">Vorinstallierte Apps, die gefahrlos deaktiviert werden können, um RAM freizugeben.</string>
+    <string name="tv_optimizer_select_recommended">Empfohlene auswählen</string>
+    <string name="tv_optimizer_risk_safe">Sicher</string>
+    <string name="tv_optimizer_risk_moderate">Vorsicht</string>
+    <string name="tv_optimizer_confirm_title">Bestätigung</string>
+    <string name="tv_optimizer_confirm_warning">Änderungen erfolgen auf eigene Gefahr. Anwendungen werden nur deaktiviert. Der Zustand wird gespeichert, Rollback ist jederzeit möglich. Nach einem Firmware-Update können Änderungen zurückgesetzt werden.</string>
+    <string name="tv_optimizer_understand_checkbox">Ich verstehe</string>
+    <string name="tv_optimizer_apply_btn">Anwenden</string>
+    <string name="tv_optimizer_applying">Wende Optimierung an\u2026</string>
+    <string name="tv_optimizer_result_title">Optimierung abgeschlossen</string>
+    <string name="tv_optimizer_result_disabled_count"><xliff:g id="count">%1$d</xliff:g> Apps deaktiviert</string>
+    <string name="tv_optimizer_rollback_btn">Alles zurücksetzen</string>
+    <string name="tv_optimizer_rollback_title">Änderungen rückgängig machen</string>
+    <string name="tv_optimizer_rollback_selected">Ausgewählte zurücksetzen</string>
+    <string name="tv_optimizer_nav_next">Weiter</string>
+    <string name="tv_optimizer_nav_back">Zurück</string>
+    <string name="tv_optimizer_done">Fertig</string>
+    <string name="tv_optimizer_error_host_required">IP-Adresse ist erforderlich</string>
+    <string name="tv_optimizer_error_failed">Verbindung fehlgeschlagen</string>
+    <string name="tv_optimizer_progress_format"><xliff:g id="index">%1$d</xliff:g> / <xliff:g id="total">%2$d</xliff:g></string>
+    <string name="tv_optimizer_rollback_past">Frühere Änderungen rückgängig machen</string>
+    <string name="tv_optimizer_rollback_empty">Keine zuvor deaktivierten Apps gefunden</string>
+    <string name="tv_optimizer_packages_count"><xliff:g id="selected">%1$d</xliff:g> von <xliff:g id="total">%2$d</xliff:g> ausgewählt</string>
+    <string name="tv_optimizer_risk_high">Hohes Risiko</string>
+    <string name="tv_optimizer_vendor_generic">Android TV (Allgemein)</string>
+    <string name="tv_optimizer_vendor_generic_steps">Einstellungen → Geräteeinstellungen → Über das Gerät → 7x auf \"Build\" tippen → Zurück → Entwickleroptionen → USB-/Netzwerk-Debugging</string>
+    <string name="tv_optimizer_vendor_xiaomi">Xiaomi Mi TV / TV Box</string>
+    <string name="tv_optimizer_vendor_xiaomi_steps">Einstellungen → Geräteeinstellungen → Über das Gerät → 7x auf \"Build\" tippen → Zurück → Zusätzliche Einstellungen → Entwickleroptionen → USB-Debugging</string>
+    <string name="tv_optimizer_vendor_sony">Sony BRAVIA</string>
+    <string name="tv_optimizer_vendor_sony_steps">Einstellungen → System → Über das Gerät → 7x auf \"Android TV OS-Build\" tippen → Zurück → System → Entwickleroptionen → Debugging</string>
+    <string name="tv_optimizer_vendor_tcl">TCL Android TV</string>
+    <string name="tv_optimizer_vendor_tcl_steps">Einstellungen → Geräteeinstellungen → Über das System → 7x auf \"Build\" tippen → Zurück → Entwickleroptionen → USB-Debugging</string>
+    <string name="tv_optimizer_vendor_philips">Philips Android TV</string>
+    <string name="tv_optimizer_vendor_philips_steps">Alle Einstellungen → Android-Einstellungen → Geräteeinstellungen → Über das Gerät → 7x auf \"Build\" tippen → Zurück → Entwickleroptionen</string>
+    <string name="tv_optimizer_vendor_google">Google TV Streamer / Chromecast</string>
+    <string name="tv_optimizer_vendor_google_steps">Einstellungen → System → Über das Gerät → 7x auf \"Android TV OS-Build\" tippen → Zurück → System → Entwickleroptionen → Netzwerk-Debugging</string>
+
+    <string name="pkg_youtube_tv_title">YouTube TV</string>
+    <string name="pkg_youtube_tv_desc">Kostenpflichtige YouTube TV-App, nicht Standard-YouTube. Sicher zu deaktivieren.</string>
+    <string name="pkg_play_games_title">Google Play Spiele</string>
+    <string name="pkg_play_games_desc">Hintergrundsynchronisierung für Spiele. Sicher zu deaktivieren.</string>
+    <string name="pkg_patchwall_title">Xiaomi PatchWall</string>
+    <string name="pkg_patchwall_desc">Schwere Empfehlungsleiste auf Xiaomi-Fernsehern. Deaktivieren beschleunigt das System spürbar.</string>
+    <string name="pkg_xiaomi_upgrade_title">Xiaomi Systemaktualisierung</string>
+    <string name="pkg_xiaomi_upgrade_desc">Hintergrund-Updater für Xiaomi-Apps. Mit Vorsicht deaktivieren.</string>
+    <string name="pkg_sony_sync_title">Sony Bravia Sync</string>
+    <string name="pkg_sony_sync_desc">HDMI-CEC-Dienst für Soundbars und Zubehör von Sony.</string>
+    <string name="pkg_tcl_manager_title">TCL TV Manager</string>
+    <string name="pkg_tcl_manager_desc">Hintergrunddienst und Banner-Telemetrie auf TCL-Fernsehern.</string>
+    <string name="pkg_print_spooler_title">Druckwarteschlange</string>
+    <string name="pkg_print_spooler_desc">Druckdienst. Fernseher benötigen keine Druckfunktionen.</string>
+    <string name="pkg_google_music_title">Google Play Musik</string>
+    <string name="pkg_google_music_desc">Veralteter Musikdienst. Gefahrlos zu deaktivieren.</string>
+</resources>
