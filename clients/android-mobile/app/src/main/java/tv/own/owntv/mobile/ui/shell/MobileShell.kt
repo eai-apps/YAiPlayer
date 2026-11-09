@@ -616,6 +616,7 @@ fun MobileShell(
                             // It appears only when there is a receiver to send to; which way round it is
                             // drawn follows the app's own theme, not the phone's night mode.
                             CastRouteButton(light = onSurfaceLight)
+                            StagePill(onClick = { navController.navigate(MoreLeaf.REMOTE.route) { launchSingleTop = true } }, icon = MobileIcons.Tv, contentDescription = stringResource(tv.own.owntv.core.R.string.remote_title))
                         },
                     )
                 }

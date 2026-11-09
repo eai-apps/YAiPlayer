@@ -260,6 +260,10 @@
             android:exported="false"
             android:foregroundServiceType="mediaPlayback" />
 
+        <receiver
+            android:name="tv.own.owntv.extras.remote.RemoteActionReceiver"
+            android:exported="false" />
+
     </application>
 
 </manifest>

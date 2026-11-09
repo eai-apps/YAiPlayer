@@ -730,6 +730,48 @@ fun OwnTVShell(
         )
         else -> null
     }
+    val remoteTvManager = remember { tv.own.owntv.extras.remote.RemoteTvManager.get(shellContext) }
+    LaunchedEffect(dockedEngine, previewChannel, liveVm, playerMode, dockedPlaying) {
+        val activity = shellContext as? android.app.Activity
+        remoteTvManager.keyEventDispatcher = { keyCode ->
+            activity?.let { act ->
+                android.os.Handler(android.os.Looper.getMainLooper()).post {
+                    act.dispatchKeyEvent(android.view.KeyEvent(android.view.KeyEvent.ACTION_DOWN, keyCode))
+                    act.dispatchKeyEvent(android.view.KeyEvent(android.view.KeyEvent.ACTION_UP, keyCode))
+                }
+                true
+            } ?: false
+        }
+        remoteTvManager.togglePlayPause = { dockedEngine.togglePlayPause() }
+        remoteTvManager.seekBy = { delta -> dockedEngine.seekBy(delta) }
+        remoteTvManager.zap = { dir -> liveVm.zap(dir) }
+        remoteTvManager.toLive = { liveVm.toLive() }
+        remoteTvManager.tuneByNumber = { num -> scope.launch { liveVm.tuneByNumber(num) } }
+        remoteTvManager.onSearchText = { query ->
+            searchVm.setQuery(query)
+            onSelectSection(MainSection.SEARCH)
+        }
+        remoteTvManager.onTune = { chId, streamUrl, _ ->
+            if (chId != null) {
+                scope.launch { liveVm.ensurePlayingByIdAsync(chId) }
+            } else if (!streamUrl.isNullOrBlank()) {
+                player.load(streamUrl)
+            }
+        }
+        remoteTvManager.stateSupplier = {
+            tv.own.owntv.extras.remote.RemoteState(
+                title = previewChannel?.name ?: dockedEngine.currentMeta.value.title.takeIf { it.isNotBlank() },
+                channelName = previewChannel?.name,
+                isPlaying = dockedPlaying,
+                positionMs = dockedEngine.position.value,
+                durationMs = dockedEngine.duration.value,
+                volumePct = dockedEngine.volume.value,
+            )
+        }
+        remoteTvManager.logsSupplier = {
+            tv.own.owntv.player.diagnostic.DiagnosticLogExporter.buildReport(shellContext)
+        }
+    }
     // Auto-hide: once focus has been in the content for the chosen delay, the capsule slides away.
     var railIdleHidden by remember { mutableStateOf(false) }
     // Focus on a top-right pill (reached from the rail) is not "in the rail": the rail closes, so its

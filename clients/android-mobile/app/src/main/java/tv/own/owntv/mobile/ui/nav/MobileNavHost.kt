@@ -318,6 +318,7 @@ fun MobileNavHost(
                             },
                             onOpenPlayer = { navController.navigate(PLAYER_ROUTE) },
                             onOpenLanguage = { navController.navigate(tv.own.owntv.mobile.ui.screens.settings.SettingsLeaf.LANGUAGE.route) },
+                            onBack = { navController.popBackStack() },
                         )
                     }
                 }

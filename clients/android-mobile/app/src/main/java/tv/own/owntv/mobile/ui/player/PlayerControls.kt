@@ -323,6 +323,20 @@ private fun TopRow(
         // It shows itself only when a receiver is actually within reach — the SDK's own behaviour,
         // and the reason the bar does not carry a permanently dead button.
         CastRouteButton(light = true)
+        val remoteVm: tv.own.owntv.extras.remote.RemoteViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+        val remoteSelectedTv by remoteVm.selectedTv.collectAsStateWithLifecycle()
+        if (remoteSelectedTv != null) {
+            val sendToTvLabel = stringResource(tv.own.owntv.core.R.string.remote_send_to_tv)
+            StagePill(
+                onClick = {
+                    val meta = player.currentMeta.value
+                    remoteVm.sendTune(title = meta.title)
+                    android.widget.Toast.makeText(context, sendToTvLabel, android.widget.Toast.LENGTH_SHORT).show()
+                },
+                icon = MobileIcons.Tv,
+                contentDescription = sendToTvLabel,
+            )
+        }
     }
 }
 

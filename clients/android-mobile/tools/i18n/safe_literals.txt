@@ -20,6 +20,48 @@
 # category technical: Reviewed non-user-facing technical literal.
 
 1	empty	app/src/main/java/tv/own/owntv/extras/categories/CategoriesVisibilitySheet.kt	\0
+1	technical	app/src/main/java/tv/own/owntv/extras/remote/RemoteNotificationHelper.kt	CH +
+1	technical	app/src/main/java/tv/own/owntv/extras/remote/RemoteNotificationHelper.kt	CH -
+1	technical	app/src/main/java/tv/own/owntv/extras/remote/RemoteNotificationHelper.kt	Connected to TV
+1	technical	app/src/main/java/tv/own/owntv/extras/remote/RemoteNotificationHelper.kt	Pause
+1	technical	app/src/main/java/tv/own/owntv/extras/remote/RemoteNotificationHelper.kt	Persistent remote control notification
+1	technical	app/src/main/java/tv/own/owntv/extras/remote/RemoteNotificationHelper.kt	Play
+1	technical	app/src/main/java/tv/own/owntv/extras/remote/RemoteNotificationHelper.kt	YAiPlayer Remote
+1	preference-key	app/src/main/java/tv/own/owntv/extras/remote/RemoteNotificationHelper.kt	mobile_remote_prefs
+1	technical	app/src/main/java/tv/own/owntv/extras/remote/RemoteNotificationHelper.kt	phone_remote_notification
+1	technical	app/src/main/java/tv/own/owntv/extras/remote/RemoteNotificationHelper.kt	saved_tvs
+1	technical	app/src/main/java/tv/own/owntv/extras/remote/RemoteNotificationHelper.kt	tv.own.owntv.extras.remote.ACTION_CHANNEL_DOWN
+1	technical	app/src/main/java/tv/own/owntv/extras/remote/RemoteNotificationHelper.kt	tv.own.owntv.extras.remote.ACTION_CHANNEL_UP
+1	technical	app/src/main/java/tv/own/owntv/extras/remote/RemoteNotificationHelper.kt	tv.own.owntv.extras.remote.ACTION_PLAY_PAUSE
+6	empty	app/src/main/java/tv/own/owntv/extras/remote/RemoteScreen.kt	\0
+1	json	app/src/main/java/tv/own/owntv/extras/remote/RemoteScreen.kt	${tv.host}:${tv.port}
+1	technical	app/src/main/java/tv/own/owntv/extras/remote/RemoteScreen.kt	INVALID
+1	technical	app/src/main/java/tv/own/owntv/extras/remote/RemoteScreen.kt	LOCKED
+1	technical	app/src/main/java/tv/own/owntv/extras/remote/RemoteScreen.kt	TV ($ipInput)
+1	empty	app/src/main/java/tv/own/owntv/extras/remote/RemoteViewModel.kt	\0
+1	technical	app/src/main/java/tv/own/owntv/extras/remote/RemoteViewModel.kt	${Build.MANUFACTURER} ${Build.MODEL}
+1	technical	app/src/main/java/tv/own/owntv/extras/remote/RemoteViewModel.kt	-
+1	protocol	app/src/main/java/tv/own/owntv/extras/remote/RemoteViewModel.kt	.share
+1	technical	app/src/main/java/tv/own/owntv/extras/remote/RemoteViewModel.kt	INVALID
+1	json	app/src/main/java/tv/own/owntv/extras/remote/RemoteViewModel.kt	Invalid PIN
+1	technical	app/src/main/java/tv/own/owntv/extras/remote/RemoteViewModel.kt	LOCKED
+1	technical	app/src/main/java/tv/own/owntv/extras/remote/RemoteViewModel.kt	Phone
+1	technical	app/src/main/java/tv/own/owntv/extras/remote/RemoteViewModel.kt	Rate limited
+1	log	app/src/main/java/tv/own/owntv/extras/remote/RemoteViewModel.kt	Share TV Log
+1	json	app/src/main/java/tv/own/owntv/extras/remote/RemoteViewModel.kt	YAiPlayer TV Diagnostic Report
+2	preference-key	app/src/main/java/tv/own/owntv/extras/remote/RemoteViewModel.kt	client_device_id
+2	preference-key	app/src/main/java/tv/own/owntv/extras/remote/RemoteViewModel.kt	haptic_feedback
+2	preference-key	app/src/main/java/tv/own/owntv/extras/remote/RemoteViewModel.kt	hardware_volume
+2	json	app/src/main/java/tv/own/owntv/extras/remote/RemoteViewModel.kt	host
+2	json	app/src/main/java/tv/own/owntv/extras/remote/RemoteViewModel.kt	id
+1	preference-key	app/src/main/java/tv/own/owntv/extras/remote/RemoteViewModel.kt	mobile_remote_prefs
+2	json	app/src/main/java/tv/own/owntv/extras/remote/RemoteViewModel.kt	name
+2	json	app/src/main/java/tv/own/owntv/extras/remote/RemoteViewModel.kt	port
+2	technical	app/src/main/java/tv/own/owntv/extras/remote/RemoteViewModel.kt	saved_tvs
+1	protocol	app/src/main/java/tv/own/owntv/extras/remote/RemoteViewModel.kt	text/plain
+2	json	app/src/main/java/tv/own/owntv/extras/remote/RemoteViewModel.kt	token
+1	log	app/src/main/java/tv/own/owntv/extras/remote/RemoteViewModel.kt	tv_logs
+1	log	app/src/main/java/tv/own/owntv/extras/remote/RemoteViewModel.kt	yaiplayer_tv_log_${System.currentTimeMillis()}.txt
 2	assertion	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbCommandHelper.kt	Package name must not be blank
 1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbCommandHelper.kt	pm disable-user --user 0
 1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbCommandHelper.kt	pm disable-user --user 0 ${packageName.trim()}
@@ -244,6 +286,7 @@
 1	uri	app/src/main/java/tv/own/owntv/mobile/ui/profiles/ProfileAvatar.kt	content:
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/profiles/ProfileGate.kt	add
 2	technical	app/src/main/java/tv/own/owntv/mobile/ui/profiles/ProfileGate.kt	guest
+2	technical	app/src/main/java/tv/own/owntv/mobile/ui/profiles/ProfileGate.kt	remote
 2	technical	app/src/main/java/tv/own/owntv/mobile/ui/profiles/ProfileGate.kt	tv_optimizer
 5	technical	app/src/main/java/tv/own/owntv/mobile/ui/profiles/ProfileSheets.kt	\0
 1	file-path	app/src/main/java/tv/own/owntv/mobile/ui/screens/ContentActions.kt	${StorageAccess.sanitize(movie.name)}.
@@ -259,6 +302,7 @@
 1	uri	app/src/main/java/tv/own/owntv/mobile/ui/screens/MoreLeaf.kt	history
 1	uri	app/src/main/java/tv/own/owntv/mobile/ui/screens/MoreLeaf.kt	localsync
 1	uri	app/src/main/java/tv/own/owntv/mobile/ui/screens/MoreLeaf.kt	more/$slug
+1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/MoreLeaf.kt	remote
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/MoreScreen.kt	Rebuild Now Trending
 1	empty	app/src/main/java/tv/own/owntv/mobile/ui/screens/downloads/DownloadsScreen.kt	\0
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/downloads/DownloadsScreen.kt	

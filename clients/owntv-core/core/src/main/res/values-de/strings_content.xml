@@ -381,7 +381,7 @@
     <string name="home_row_now_on_air">Jetzt im TV</string>
     <string name="home_row_now_on_air_desc">Sendungen, die gerade live ausgestrahlt werden</string>
     <string name="on_air_from_start">Von Beginn</string>
-    <string name="on_air_ends_at">bis %s</string>
+    <string name="on_air_ends_at">bis %1$s</string>
     <string name="on_air_genre_all">Alle</string>
     <string name="on_air_genre_movies">Filme</string>
     <string name="on_air_genre_series">Serien</string>
