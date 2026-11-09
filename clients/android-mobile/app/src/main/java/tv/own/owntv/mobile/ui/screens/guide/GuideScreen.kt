@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items as lazyItems
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
@@ -109,6 +110,7 @@ import tv.own.owntv.mobile.ui.stage.StageGroupLabel
 import tv.own.owntv.mobile.ui.stage.StageIcon
 import tv.own.owntv.mobile.ui.stage.StageLiveBadge
 import tv.own.owntv.mobile.ui.stage.StageMenuItem
+import tv.own.owntv.mobile.ui.stage.StageSegmented
 import tv.own.owntv.mobile.ui.stage.StageProgress
 import tv.own.owntv.mobile.ui.stage.StageRadii
 import tv.own.owntv.mobile.ui.stage.StageRow
@@ -316,7 +318,7 @@ fun GuideScreen(
                     )
                 }
                 StageSegmented(
-                    options = listOf(stringResource(R.string.common_nav_live), stringResource(R.string.search_on_tv)),
+                    options = listOf(stringResource(R.string.common_nav_live_tv), stringResource(R.string.search_on_tv)),
                     selected = searchTab,
                     onSelect = { searchTab = it },
                     fill = true,
@@ -355,14 +357,14 @@ fun GuideScreen(
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Text(
                             if (query.trim().length < 3) stringResource(R.string.content_epg_search_hint)
-                            else stringResource(R.string.common_empty),
+                            else stringResource(R.string.search_nothing_found, query.trim()),
                             color = LocalStagePalette.current.muted,
                             style = stageText(14f, 500),
                         )
                     }
                 } else {
                     androidx.compose.foundation.lazy.LazyColumn(Modifier.fillMaxSize()) {
-                        items(programmeResults, key = { it.programme.id * 1_000_000L + it.channel.id }) { found ->
+                        lazyItems(programmeResults, key = { it.programme.id * 1_000_000L + it.channel.id }) { found ->
                             tv.own.owntv.mobile.ui.screens.search.ProgrammeResult(
                                 channel = found.channel,
                                 title = found.programme.title,

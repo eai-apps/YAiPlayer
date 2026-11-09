@@ -55,6 +55,61 @@ class SettingsBackupManager(
         const val CURRENT_FORMAT_VERSION = 1
         const val MAX_BACKUP_SIZE_BYTES = 5 * 1024 * 1024L // 5 MB
         private const val PENDING_FILE_NAME = "pending_backup_playlists.json"
+
+    /** Pure format check; no database or settings involved, so it can be called (and tested) on its own. */
+    fun validate(raw: String): ValidationResult {
+        if (raw.isBlank() || raw.length > MAX_BACKUP_SIZE_BYTES) {
+            return ValidationResult.InvalidFormat
+        }
+        val json = runCatching { JSONObject(raw) }.getOrNull() ?: return ValidationResult.InvalidFormat
+
+        val app = json.optString("app")
+        if (app != APP_ID) return ValidationResult.InvalidFormat
+
+        val version = json.optInt("formatVersion", 0)
+        if (version <= 0) return ValidationResult.InvalidFormat
+        if (version > CURRENT_FORMAT_VERSION) return ValidationResult.NewerVersion(version)
+
+        val profileCount = json.optJSONArray("profiles")?.length() ?: 0
+        val playlistCount = json.optJSONArray("playlists")?.length() ?: 0
+        val epgSourceCount = json.optJSONArray("epgSources")?.length() ?: 0
+
+        var favoriteCount = 0
+        val userDataArr = json.optJSONArray("userData")
+        if (userDataArr != null) {
+            for (i in 0 until userDataArr.length()) {
+                val item = userDataArr.optJSONObject(i) ?: continue
+                if (item.optString("kind") == "fav") {
+                    favoriteCount++
+                }
+            }
+        }
+
+        var categoryCount = 0
+        val custObj = json.optJSONObject("customizations")
+        if (custObj != null) {
+            custObj.keys().forEach { k ->
+                val v = custObj.optString(k)
+                if (v.isNotBlank()) {
+                    runCatching {
+                        val o = JSONObject(v)
+                        categoryCount += o.optJSONArray("hiddenCats")?.length() ?: 0
+                        categoryCount += o.optJSONArray("catOrder")?.length() ?: 0
+                        categoryCount += o.optJSONObject("catPos")?.length() ?: 0
+                    }
+                }
+            }
+        }
+
+        val summary = BackupSummary(
+            profileCount = profileCount,
+            playlistCount = playlistCount,
+            favoriteCount = favoriteCount,
+            categoryCount = categoryCount,
+            epgSourceCount = epgSourceCount,
+        )
+        return ValidationResult.Success(summary, json)
+    }
     }
 
     sealed interface ValidationResult {
@@ -147,59 +202,7 @@ class SettingsBackupManager(
         return root.toString(2)
     }
 
-    fun validateJson(raw: String): ValidationResult {
-        if (raw.isBlank() || raw.length > MAX_BACKUP_SIZE_BYTES) {
-            return ValidationResult.InvalidFormat
-        }
-        val json = runCatching { JSONObject(raw) }.getOrNull() ?: return ValidationResult.InvalidFormat
-
-        val app = json.optString("app")
-        if (app != APP_ID) return ValidationResult.InvalidFormat
-
-        val version = json.optInt("formatVersion", 0)
-        if (version <= 0) return ValidationResult.InvalidFormat
-        if (version > CURRENT_FORMAT_VERSION) return ValidationResult.NewerVersion(version)
-
-        val profileCount = json.optJSONArray("profiles")?.length() ?: 0
-        val playlistCount = json.optJSONArray("playlists")?.length() ?: 0
-        val epgSourceCount = json.optJSONArray("epgSources")?.length() ?: 0
-
-        var favoriteCount = 0
-        val userDataArr = json.optJSONArray("userData")
-        if (userDataArr != null) {
-            for (i in 0 until userDataArr.length()) {
-                val item = userDataArr.optJSONObject(i) ?: continue
-                if (item.optString("kind") == "fav") {
-                    favoriteCount++
-                }
-            }
-        }
-
-        var categoryCount = 0
-        val custObj = json.optJSONObject("customizations")
-        if (custObj != null) {
-            custObj.keys().forEach { k ->
-                val v = custObj.optString(k)
-                if (v.isNotBlank()) {
-                    runCatching {
-                        val o = JSONObject(v)
-                        categoryCount += o.optJSONArray("hiddenCats")?.length() ?: 0
-                        categoryCount += o.optJSONArray("catOrder")?.length() ?: 0
-                        categoryCount += o.optJSONObject("catPos")?.length() ?: 0
-                    }
-                }
-            }
-        }
-
-        val summary = BackupSummary(
-            profileCount = profileCount,
-            playlistCount = playlistCount,
-            favoriteCount = favoriteCount,
-            categoryCount = categoryCount,
-            epgSourceCount = epgSourceCount,
-        )
-        return ValidationResult.Success(summary, json)
-    }
+    fun validateJson(raw: String): ValidationResult = validate(raw)
 
     suspend fun restoreFromJson(raw: String): Result<BackupSummary> = runCatching {
         val validation = validateJson(raw)
