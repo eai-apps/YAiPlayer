@@ -659,6 +659,9 @@ private const val SLICE_WINDOW_MS = 360 * 60_000L
 private const val HALF_HOUR_MS = 30 * 60_000L
 private const val RECENT_LIVE_ROW_LIMIT = 20
 private const val ALL_CHANNELS_ROW_LIMIT = 30
+
+/** How many channels the "now on air" feed looks at before it picks the ones with a programme running. */
+private const val ON_AIR_CHANNEL_LIMIT = 3000
 private const val CATEGORY_RAIL_LIMIT = 8
 private const val CATEGORY_RAIL_CHANNELS = 20
 private const val RECENT_MOVIES_ROW_LIMIT = 30

@@ -91,7 +91,7 @@ data class OnAirItem(
 
             return groups.map { group ->
                 group.maxWithOrNull(
-                    compareBy<OnAirItem> { ChannelFacets.qualityRank(it.channel.name) }
+                    compareBy<OnAirItem> { ChannelFacets.of(it.channel.matchName).qualityRank }
                         .thenBy { if (it.channel.catchup) 1 else 0 }
                         .thenByDescending {
                             val idx = sourceOrder.indexOf(it.channel.sourceId)
