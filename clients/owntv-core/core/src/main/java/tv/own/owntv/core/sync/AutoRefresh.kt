@@ -58,6 +58,7 @@ class AutoRefresh(
                 lastResumeCheckAtElapsed = now
             }
         }
+        if (includeStartup && !settings.autoRefreshOnStartup.first()) return
         val nowMs = System.currentTimeMillis()
         val pid = profileDao.resolveExistingProfileId(settings.activeProfileId.first()) ?: return
         // --- Playlist sources ---

@@ -1,5 +1,12 @@
 package tv.own.owntv.features.more
 
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
+import tv.own.owntv.features.shell.ShellViewModel
+import tv.own.owntv.core.settings.SettingsRepository
 import androidx.compose.foundation.layout.size
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -105,6 +112,7 @@ fun MoreScreen(
     vm: MoreCountsViewModel = koinViewModel(),
     settingsVm: SettingsViewModel = koinViewModel(),
     pinVm: SettingsPinViewModel = koinViewModel(),
+    shellVm: ShellViewModel = koinViewModel(),
 ) {
     // Backup & Restore, Local sync and Developer can restore or copy settings, so the Settings PIN
     // guards them too; one unlock holds until More is left.
@@ -152,6 +160,19 @@ fun MoreScreen(
     val lastBackup by vm.lastBackup.collectAsStateWithLifecycle()
     val playlists by vm.playlistCount.collectAsStateWithLifecycle()
     val pinned by settingsVm.quickPinnedKeys.collectAsStateWithLifecycle()
+    val playlistSources by shellVm.playlists.collectAsStateWithLifecycle()
+    val activePlaylistId by shellVm.activePlaylistId.collectAsStateWithLifecycle()
+    val settings: SettingsRepository = koinInject()
+    val activeProfileId by settings.activeProfileId.collectAsStateWithLifecycle(-1L)
+    val quickStartFlow = remember(activeProfileId) {
+        if (activeProfileId >= 0L) settings.quickStart(activeProfileId) else kotlinx.coroutines.flow.flowOf(false)
+    }
+    val quickStart by quickStartFlow.collectAsStateWithLifecycle(false)
+    val quickActionsSync: tv.own.owntv.core.sync.QuickActionsSync = koinInject()
+    val scope = rememberCoroutineScope()
+    val activeSource = playlistSources.firstOrNull { it.id == activePlaylistId } ?: playlistSources.firstOrNull()
+    val hasLibrary = (activeSource?.type == tv.own.owntv.core.model.SourceType.STALKER || activeSource?.type == tv.own.owntv.core.model.SourceType.XTREAM) ||
+        (activePlaylistId <= 0L && playlistSources.any { it.type == tv.own.owntv.core.model.SourceType.STALKER || it.type == tv.own.owntv.core.model.SourceType.XTREAM })
     val context = LocalContext.current
     var logVersion by remember { mutableIntStateOf(0) }
     val logCount by produceState(0, logVersion) { value = withContext(Dispatchers.IO) { PlaybackErrorLog.read(context).size } }
@@ -165,6 +186,7 @@ fun MoreScreen(
                 .fillMaxHeight()
                 .stageGlass(32.mpx, overContent = true)
                 .padding(horizontal = 16.mpx, vertical = 26.mpx)
+                .verticalScroll(rememberScrollState())
                 // ◀ back from the page lands on the item that page belongs to.
                 .focusProperties { onEnter = { runCatching { itemFocus.getValue(selected).requestFocus() } } }
                 .onPreviewKeyEvent { e ->
@@ -191,12 +213,68 @@ fun MoreScreen(
                 lastBackup?.let { relativeShort(it.at) } ?: stringResource(R.string.common_never), lastBackup == null,
             )
             item(MoreItem.LOCAL_SYNC, OwnTVIcon.PHONE, stringResource(R.string.local_sync_title), stringResource(if (sync.listening) R.string.common_on else R.string.common_off), false)
+            GroupLabel(stringResource(R.string.more_group_quick_actions))
+            StageGroupItem(
+                text = stringResource(R.string.quick_start_title),
+                icon = OwnTVIcon.PLAY_CIRCLE,
+                value = stringResource(if (quickStart) R.string.common_on else R.string.common_off),
+                selected = false,
+                onClick = {
+                    scope.launch {
+                        if (activeProfileId >= 0L) {
+                            settings.setQuickStart(activeProfileId, !quickStart)
+                        }
+                    }
+                },
+            )
+            if (playlistSources.isNotEmpty()) {
+                val refreshLabel = stringResource(if (activeSource?.type == tv.own.owntv.core.model.SourceType.STALKER) R.string.quick_refresh_portal else R.string.quick_refresh_playlist)
+                StageGroupItem(
+                    text = refreshLabel,
+                    icon = OwnTVIcon.REFRESH,
+                    selected = false,
+                    onClick = {
+                        scope.launch {
+                            val targets = playlistSources.filter { it.id == activePlaylistId }.ifEmpty { playlistSources }
+                            targets.forEach { quickActionsSync.refreshPlaylist(it) }
+                        }
+                    },
+                )
+                StageGroupItem(
+                    text = stringResource(R.string.quick_refresh_epg),
+                    icon = OwnTVIcon.EPG,
+                    selected = false,
+                    onClick = {
+                        scope.launch {
+                            val targets = playlistSources.filter { it.id == activePlaylistId }.ifEmpty { playlistSources }
+                            targets.forEach { quickActionsSync.refreshEpg(it) }
+                        }
+                    },
+                )
+                if (hasLibrary) {
+                    StageGroupItem(
+                        text = stringResource(R.string.quick_refresh_vod),
+                        icon = OwnTVIcon.MOVIES,
+                        selected = false,
+                        onClick = {
+                            scope.launch {
+                                val targets = playlistSources.filter { it.id == activePlaylistId }.ifEmpty { playlistSources }
+                                targets.forEach {
+                                    if (it.type == tv.own.owntv.core.model.SourceType.STALKER || it.type == tv.own.owntv.core.model.SourceType.XTREAM) {
+                                        quickActionsSync.refreshVod(it)
+                                    }
+                                }
+                            }
+                        },
+                    )
+                }
+            }
             GroupLabel(stringResource(R.string.settings_app_group))
             item(MoreItem.ERROR_LOG, OwnTVIcon.WARNING, stringResource(R.string.settings_playback_error_log), logCount.toString(), false)
             item(MoreItem.ABOUT, OwnTVIcon.INFO, stringResource(R.string.settings_about), BuildConfig.VERSION_NAME, false)
             // Maintainer-only; DEV_TOOLS is a compile-time constant, so R8 removes it from published APKs.
             if (BuildConfig.DEV_TOOLS) item(MoreItem.DEVELOPER, OwnTVIcon.GEAR, "Developer", "DEV", false)
-            Spacer(Modifier.weight(1f))
+            Spacer(Modifier.height(16.mpx))
             StageKeyHints(
                 listOf(
                     stringResource(R.string.common_ok) to stringResource(R.string.content_key_select),

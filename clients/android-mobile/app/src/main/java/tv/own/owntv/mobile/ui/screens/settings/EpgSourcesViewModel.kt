@@ -54,6 +54,13 @@ class EpgSourcesViewModel(
         viewModelScope.launch { store.setBuiltinEnabled(enabled) }
     }
 
+    val autoRefreshOnStartup: StateFlow<Boolean> = settings.autoRefreshOnStartup
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
+
+    fun setAutoRefreshOnStartup(enabled: Boolean) {
+        viewModelScope.launch { settings.setAutoRefreshOnStartup(enabled) }
+    }
+
     private val builtinGuide = tv.own.owntv.core.sync.BuiltinGuide(store, settings, epgSync)
 
     /** State of the hidden built-in guides, for the status line under the refresh button. */

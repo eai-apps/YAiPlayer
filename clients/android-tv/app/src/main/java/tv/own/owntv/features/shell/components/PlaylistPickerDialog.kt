@@ -104,10 +104,12 @@ fun StagePlaylistMenu(
                     )
                 }
             }
+            val activeSource = playlists.firstOrNull { it.id == activeId }
+            val resyncText = stringResource(if (activeSource?.type == tv.own.owntv.core.model.SourceType.STALKER) R.string.quick_refresh_portal else R.string.quick_refresh_playlist)
             tv.own.owntv.ui.stage.StageMenuItem(
-                text = stringResource(R.string.settings_sources_resync_now_full),
+                text = resyncText,
                 icon = tv.own.owntv.ui.components.OwnTVIcon.REFRESH,
-                value = playlists.firstOrNull { it.id == activeId }?.name ?: stringResource(R.string.content_all_playlists),
+                value = activeSource?.name ?: stringResource(R.string.content_all_playlists),
                 onClick = { onResync(); onDismiss() },
             )
         }

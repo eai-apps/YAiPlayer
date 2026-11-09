@@ -2016,8 +2016,10 @@ fun OwnTVShell(
         ExitDialog(onConfirm = onExitApp, onDismiss = { showExit = false })
     }
     if (showResync) {
+        val resyncActiveSource = playlists.firstOrNull { it.id == activePlaylistId } ?: playlists.firstOrNull()
+        val resyncTitle = stringResource(if (resyncActiveSource?.type == tv.own.owntv.core.model.SourceType.STALKER) R.string.shell_resync_title_portal else R.string.shell_resync_title_playlist)
         tv.own.owntv.ui.stage.StageConfirm(
-            title = stringResource(R.string.shell_resync_title),
+            title = resyncTitle,
             body = stringResource(R.string.shell_resync_body),
             confirm = stringResource(R.string.shell_resync_confirm),
             onConfirm = {
