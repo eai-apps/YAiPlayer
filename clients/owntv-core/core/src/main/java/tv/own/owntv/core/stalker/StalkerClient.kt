@@ -811,7 +811,7 @@ open class StalkerClient(okHttpClient: OkHttpClient) {
         val raw = js["cmd"]?.takeIf { it.isNotBlank() }
             ?: throw StalkerAuthException("Portal create_link returned no cmd — token may have expired")
         val resolved = stripCmdPrefix(raw)
-        Log.i(TAG, "create_link inCmd=${redactForLog(cmd)} rawOut=${redactForLog(raw)} resolved=${redactForLog(resolved)}")
+        Log.i(TAG, "create_link type=$type series=$episode inCmd=${redactForLog(cmd)} rawOut=${redactForLog(raw)} resolved=${redactForLog(resolved)}")
         return resolved
     }
 
