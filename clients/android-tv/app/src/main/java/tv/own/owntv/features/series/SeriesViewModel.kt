@@ -977,7 +977,7 @@ class SeriesViewModel(
         val source = show?.let { sourceDao.getById(it.sourceId) }
         if (!streamUrlResolver.needsResolve(source)) return episode.streamUrl
         return try {
-            streamUrlResolver.resolve(source!!, episode.streamUrl, vod = true, episode = episode.episodeNumber)
+            streamUrlResolver.resolveEpisode(source, episode)
         } catch (e: Exception) {
             Log.w(TAG, "stalker resolve failed episodeId=${episode.id}", e)
             null
@@ -1055,7 +1055,11 @@ class SeriesViewModel(
                 }
                 return@launch
             }
-            val startIndex = queue.indexOfFirst { it.id == episode.id }.coerceAtLeast(0)
+            val startIndex = tv.own.owntv.core.content.episodePlaybackIndex(queue, episode)
+            if (startIndex < 0) {
+                Log.w(TAG, "selected episode missing from queue seriesId=${show.id} season=${episode.seasonNumber} episode=${episode.episodeNumber}")
+                return@launch
+            }
             Log.d(TAG, "playEpisodeQueue seriesId=${show.id} episodeId=${episode.id} profile=$pid queue=${queue.size} startIndex=$startIndex startPositionMs=$startPositionMs")
             val source = sourceDao.getById(show.sourceId)
             val sourceUa = source?.userAgent
@@ -1084,7 +1088,7 @@ class SeriesViewModel(
                             trackKey = tv.own.owntv.core.player.enginePinKey(show.sourceId, "SERIES", show.remoteId),
                         ),
                         resolveUrl = if (needsResolve && source != null) {
-                            { streamUrlResolver.resolve(source, ep.streamUrl, vod = true, episode = ep.episodeNumber) }
+                            { streamUrlResolver.resolveEpisode(source, ep) }
                         } else null,
                         httpHeaders = tv.own.owntv.core.settings.SourceOverrides.headersWithReferer(ep.httpHeaders, source),
                         drmConfig = ep.drmConfig,

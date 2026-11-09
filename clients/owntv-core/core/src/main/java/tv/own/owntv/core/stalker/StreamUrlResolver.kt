@@ -5,6 +5,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.sync.withPermit
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import tv.own.owntv.core.database.entity.SourceEntity
+import tv.own.owntv.core.database.entity.EpisodeEntity
 import tv.own.owntv.core.model.SourceType
 
 /**
@@ -25,6 +26,14 @@ class StreamUrlResolver(
 ) {
     /** True when this source needs play-time resolution (so callers can skip the work entirely). */
     fun needsResolve(source: SourceEntity?): Boolean = source?.type == SourceType.STALKER
+
+    /** Keep the selected episode attached to its season command on every playback route. */
+    suspend fun resolveEpisode(source: SourceEntity?, episode: EpisodeEntity): String {
+        android.util.Log.i(TAG, "episode resolve sourceId=${source?.id} episodeId=${episode.id} season=${episode.seasonNumber} episode=${episode.episodeNumber}")
+        return if (source == null) episode.streamUrl else resolve(
+            source, episode.streamUrl, vod = true, episode = episode.episodeNumber,
+        )
+    }
 
     /**
      * Resolve [storedUrl] to a playable URL. For Stalker this is a fresh `create_link`; for anything
