@@ -185,7 +185,10 @@ class RemoteTvManager(private val context: Context) : RemoteCommandHandler, Remo
                 }
             }
             is RemoteCommand.Number -> {
-                tuneByNumber?.invoke(command.digit) ?: run {
+                if (tuneByNumber != null) {
+                    tuneByNumber?.invoke(command.digit)
+                    true
+                } else {
                     val keyCode = KeyEvent.KEYCODE_0 + command.digit.coerceIn(0, 9)
                     keyEventDispatcher?.invoke(keyCode) ?: false
                 }

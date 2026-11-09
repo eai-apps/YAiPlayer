@@ -745,22 +745,22 @@ fun OwnTVShell(
         remoteTvManager.togglePlayPause = { dockedEngine.togglePlayPause() }
         remoteTvManager.seekBy = { delta -> dockedEngine.seekBy(delta) }
         remoteTvManager.zap = { dir -> liveVm.zap(dir) }
-        remoteTvManager.toLive = { liveVm.toLive() }
+        remoteTvManager.toLive = { liveVm.goToLive() }
         remoteTvManager.tuneByNumber = { num -> scope.launch { liveVm.tuneByNumber(num) } }
         remoteTvManager.onSearchText = { query ->
             searchVm.setQuery(query)
             onSelectSection(MainSection.SEARCH)
         }
-        remoteTvManager.onTune = { chId, streamUrl, _ ->
+        remoteTvManager.onTune = { chId, streamUrl, title ->
             if (chId != null) {
                 scope.launch { liveVm.ensurePlayingByIdAsync(chId) }
             } else if (!streamUrl.isNullOrBlank()) {
-                player.load(streamUrl)
+                player.play(url = streamUrl, title = title)
             }
         }
         remoteTvManager.stateSupplier = {
             tv.own.owntv.extras.remote.RemoteState(
-                title = previewChannel?.name ?: dockedEngine.currentMeta.value.title.takeIf { it.isNotBlank() },
+                title = previewChannel?.name ?: dockedEngine.currentMeta.value.title?.takeIf { it.isNotBlank() },
                 channelName = previewChannel?.name,
                 isPlaying = dockedPlaying,
                 positionMs = dockedEngine.position.value,

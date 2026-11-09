@@ -22,22 +22,17 @@ class RemoteActionReceiver : BroadcastReceiver() {
             if (arr.length() > 0) RemoteSavedTv.fromJsonObject(arr.getJSONObject(0)) else null
         }.getOrNull() ?: return
 
-        kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launchAction {
-            when (action) {
-                ACTION_PLAY_PAUSE -> remoteClient.sendCommand(saved.host, saved.port, saved.token, RemoteCommand.Media(RemoteMediaKey.PLAY_PAUSE))
-                ACTION_CHANNEL_UP -> remoteClient.sendCommand(saved.host, saved.port, saved.token, RemoteCommand.Media(RemoteMediaKey.CHANNEL_UP))
-                ACTION_CHANNEL_DOWN -> remoteClient.sendCommand(saved.host, saved.port, saved.token, RemoteCommand.Media(RemoteMediaKey.CHANNEL_DOWN))
+        val pendingResult = goAsync()
+        kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+            try {
+                when (action) {
+                    ACTION_PLAY_PAUSE -> remoteClient.sendCommand(saved.host, saved.port, saved.token, RemoteCommand.Media(RemoteMediaKey.PLAY_PAUSE))
+                    ACTION_CHANNEL_UP -> remoteClient.sendCommand(saved.host, saved.port, saved.token, RemoteCommand.Media(RemoteMediaKey.CHANNEL_UP))
+                    ACTION_CHANNEL_DOWN -> remoteClient.sendCommand(saved.host, saved.port, saved.token, RemoteCommand.Media(RemoteMediaKey.CHANNEL_DOWN))
+                }
+            } finally {
+                pendingResult.finish()
             }
-        }
-    }
-
-    private fun kotlinx.coroutines.CoroutineScope.launchAction(block: suspend () -> Unit) {
-        kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launchActionInternal(block)
-    }
-
-    private fun kotlinx.coroutines.CoroutineScope.launchActionInternal(block: suspend () -> Unit) {
-        kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).run {
-            kotlinx.coroutines.launch { runCatching { block() } }
         }
     }
 

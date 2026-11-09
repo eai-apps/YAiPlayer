@@ -41,7 +41,7 @@ fun PhoneRemoteSettingsScreen(onBack: () -> Unit, modifier: Modifier = Modifier)
     val desc = stringResource(tv.own.owntv.core.R.string.remote_desc)
 
     StageFullPage(
-        parents = listOf(stringResource(R.string.settings_group_advanced)),
+        parents = listOf(stringResource(R.string.settings_group_network)),
         title = title,
         count = pluralStringResource(R.plurals.settings_setting_count, 3 + pairedDevices.size, 3 + pairedDevices.size),
         onBack = onBack,
