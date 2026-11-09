@@ -175,6 +175,7 @@ fun MoreScreen(
         (activePlaylistId <= 0L && playlistSources.any { it.type == tv.own.owntv.core.model.SourceType.STALKER || it.type == tv.own.owntv.core.model.SourceType.XTREAM })
     val context = LocalContext.current
     var logVersion by remember { mutableIntStateOf(0) }
+    var showCategories by remember { mutableStateOf(false) }
     val logCount by produceState(0, logVersion) { value = withContext(Dispatchers.IO) { PlaybackErrorLog.read(context).size } }
 
     Box(modifier.fillMaxSize().onFocusChanged { if (it.hasFocus) onChildFocused() }) {
@@ -275,15 +276,6 @@ fun MoreScreen(
                     )
                 }
             }
-    var showCategories by remember { mutableStateOf(false) }
-    if (showCategories) {
-        val catSourceIds = playlistSources.filter { it.id == activePlaylistId }.ifEmpty { playlistSources }.map { it.id }
-        tv.own.owntv.extras.categories.CategoriesVisibilityDialog(
-            profileId = activeProfileId,
-            sourceIds = catSourceIds,
-            onDismiss = { showCategories = false },
-        )
-    }
             GroupLabel(stringResource(R.string.settings_app_group))
             item(MoreItem.ERROR_LOG, OwnTVIcon.WARNING, stringResource(R.string.settings_playback_error_log), logCount.toString(), false)
             item(MoreItem.ABOUT, OwnTVIcon.INFO, stringResource(R.string.settings_about), BuildConfig.VERSION_NAME, false)
@@ -331,6 +323,14 @@ fun MoreScreen(
                 MoreItem.DEVELOPER -> Box(Modifier.focusRequester(pageTarget).focusGroup()) { DeveloperScreen(onBack = backToSheet) }
             }
         }
+    }
+    if (showCategories) {
+        val catSourceIds = playlistSources.filter { it.id == activePlaylistId }.ifEmpty { playlistSources }.map { it.id }
+        tv.own.owntv.extras.categories.CategoriesVisibilityDialog(
+            profileId = activeProfileId,
+            sourceIds = catSourceIds,
+            onDismiss = { showCategories = false },
+        )
     }
     val pinItem = askPinFor
     val pin = pinLock.pin

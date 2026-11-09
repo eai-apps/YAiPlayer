@@ -154,7 +154,7 @@ fun CategoriesVisibilitySheet(
                                     tint = if (isLocked) accent.accent else palette.dim.copy(alpha = 0.35f),
                                 )
                             }
-                            StageSwitch(on = !isHidden)
+                            StageSwitch(checked = !isHidden)
                         }
                     }
                 }

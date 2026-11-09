@@ -39,7 +39,7 @@ import tv.own.owntv.ui.stage.StageButton
 import tv.own.owntv.ui.stage.StagePopup
 import tv.own.owntv.ui.stage.StagePopupCheck
 import tv.own.owntv.ui.stage.StagePopupOption
-import tv.own.owntv.ui.stage.StageSearchPill
+import tv.own.owntv.ui.stage.StageSearchField
 import tv.own.owntv.ui.theme.StageColors
 import tv.own.owntv.ui.theme.mpx
 import tv.own.owntv.ui.theme.stageAccent
@@ -83,7 +83,7 @@ fun CategoriesVisibilityDialog(
         },
     ) {
         Column(Modifier.fillMaxWidth()) {
-            StageSearchPill(
+            StageSearchField(
                 query = searchQuery,
                 onQueryChange = { searchQuery = it },
                 placeholder = stringResource(R.string.categories_search_hint),
