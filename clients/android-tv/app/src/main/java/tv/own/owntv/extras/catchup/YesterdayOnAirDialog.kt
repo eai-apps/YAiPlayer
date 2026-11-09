@@ -32,9 +32,9 @@ import tv.own.owntv.ui.components.OwnTVSpinner
 import tv.own.owntv.ui.stage.StageButton
 import tv.own.owntv.ui.stage.StagePopup
 import tv.own.owntv.ui.stage.StagePopupOption
-import tv.own.owntv.ui.stage.mpx
+import tv.own.owntv.ui.theme.mpx
 import tv.own.owntv.ui.theme.StageColors
-import tv.own.owntv.ui.theme.rememberSystemTimeFormatter
+import tv.own.owntv.ui.format.rememberSystemTimeFormatter
 import tv.own.owntv.ui.theme.stageText
 
 @Composable
@@ -101,9 +101,9 @@ fun YesterdayOnAirDialog(
                             else -> stringResource(R.string.yesterday_day_ago, day.daysAgo)
                         }
                         StageButton(
-                            label = label,
+                            text = label,
                             onClick = { selectedDayIndex = index },
-                            selected = selected,
+                            tinted = selected,
                             height = 42.mpx,
                             textSize = 16,
                         )
