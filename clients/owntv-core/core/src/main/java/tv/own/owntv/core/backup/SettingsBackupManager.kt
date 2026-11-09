@@ -12,6 +12,7 @@ import tv.own.owntv.core.database.entity.ProfileEntity
 import tv.own.owntv.core.database.entity.SourceEntity
 import tv.own.owntv.core.epg.EpgSourceStore
 import tv.own.owntv.core.settings.SettingsRepository
+import tv.own.owntv.core.settings.StartupMode
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -240,7 +241,8 @@ class SettingsBackupManager(
             }
             profileIdMap[backupId] = localId
             if (quickStart != null) {
-                settingsRepository.setStartupMode(localId, quickStart)
+                runCatching { StartupMode.valueOf(quickStart) }.getOrNull()
+                    ?.let { settingsRepository.setStartupMode(localId, it) }
             }
         }
 
@@ -450,3 +452,6 @@ class SettingsBackupManager(
         }.getOrNull()
     }
 }
+
+private fun JSONObject.optStringOrNull(key: String): String? =
+    if (isNull(key)) null else optString(key).takeIf { it.isNotEmpty() }
