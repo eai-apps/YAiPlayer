@@ -287,7 +287,7 @@ class VodTuner(
         val subtitle = episodeLabel(episode)
 
         if (settings.externalPlayerSeries.first() && episode.drmConfig == null) {
-            return handOver(title, source, episode.streamUrl, episode.httpHeaders, pid, MediaType.EPISODE, episode.id, startPositionMs)
+            return handOver(title, source, episode.streamUrl, episode.httpHeaders, pid, MediaType.EPISODE, episode.id, startPositionMs, episode)
         }
 
         if (!dataSaver.allowsStreaming()) return false
@@ -297,13 +297,14 @@ class VodTuner(
         val episodes = withContext(Dispatchers.IO) { seriesDao.episodesBySeriesOnce(show.id) }
             .sortedWith(tv.own.owntv.core.content.EpisodeOrder.episodes)
             .ifEmpty { listOf(episode) }
-        val startIndex = episodes.indexOfFirst { it.id == episode.id }.coerceAtLeast(0)
+        val startIndex = tv.own.owntv.core.content.episodePlaybackIndex(episodes, episode)
+        if (startIndex < 0) return false
         val needsResolve = streamUrlResolver.needsResolve(source)
 
         // The receiver takes one item, not the season. Auto-advance to the next episode is one of the
         // things casting costs, along with the fallback ladder and the subtitle rendering — there is
         // no queue on a default receiver to hand the rest of the series to.
-        val castUrl = resolve(source, episode.streamUrl)
+        val castUrl = streamUrlResolver.resolveEpisode(source, episode)
         val handedOver = castUrl != null && cast.offer(
             this,
             CastRequest(
@@ -334,7 +335,7 @@ class VodTuner(
                     // Stalker mints a link per episode, and it is short-lived — so it is minted as
                     // that episode loads, not once for the whole queue.
                     resolveUrl = if (needsResolve && source != null) {
-                        { streamUrlResolver.resolve(source, ep.streamUrl, vod = true, episode = ep.episodeNumber) }
+                        { streamUrlResolver.resolveEpisode(source, ep) }
                     } else {
                         null
                     },
@@ -494,7 +495,7 @@ class VodTuner(
         val pid = currentProfileId() ?: return false
         if (!allows(pid, show.categoryId)) return false
         val source = withContext(Dispatchers.IO) { sourceDao.getById(show.sourceId) }
-        return handOver(show.name, source, episode.streamUrl, episode.httpHeaders, pid, MediaType.EPISODE, episode.id, savedPositionMs(pid, MediaType.EPISODE, episode.id))
+        return handOver(show.name, source, episode.streamUrl, episode.httpHeaders, pid, MediaType.EPISODE, episode.id, savedPositionMs(pid, MediaType.EPISODE, episode.id), episode)
     }
 
     private suspend fun savedPositionMs(profileId: Long, mediaType: MediaType, itemId: Long): Long =
@@ -601,8 +602,11 @@ class VodTuner(
         mediaType: MediaType,
         itemId: Long,
         startPositionMs: Long,
+        episode: EpisodeEntity? = null,
     ): Boolean {
-        val url = runCatching { resolve(source, streamUrl) }.getOrNull() ?: return false
+        val url = runCatching {
+            if (episode != null) streamUrlResolver.resolveEpisode(source, episode) else resolve(source, streamUrl)
+        }.getOrNull() ?: return false
         externalPlayerLauncher.launch(
             url = url,
             title = title,
