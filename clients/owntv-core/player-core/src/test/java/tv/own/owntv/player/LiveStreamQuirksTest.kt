@@ -280,4 +280,20 @@ class LiveStreamQuirksTest {
         // …but a wedged mpv core must never freeze the engine toggle for that long.
         assertTrue(OwnTVPlayer.MPV_RELEASE_TIMEOUT_MS < LivePreviewEngine.SESSION_RELEASE_MS)
     }
+
+    @Test fun oneExoFailureDoesNotMoveAChannelToMpv() {
+        LiveStreamQuirks.rememberExoFailedChannel(7L)
+        assertFalse(LiveStreamQuirks.exoFailedChannel(7L))
+        LiveStreamQuirks.rememberExoFailedChannel(7L)
+        assertTrue(LiveStreamQuirks.exoFailedChannel(7L))
+        assertFalse(LiveStreamQuirks.exoFailedChannel(8L))
+    }
+
+    @Test fun serverSideStatusesAreNotAboutExoPlayer() {
+        assertTrue(LiveStreamQuirks.isServerSideFailure(404))
+        assertTrue(LiveStreamQuirks.isServerSideFailure(504))
+        assertTrue(LiveStreamQuirks.isServerSideFailure(500))
+        assertFalse(LiveStreamQuirks.isServerSideFailure(403))
+        assertFalse(LiveStreamQuirks.isServerSideFailure(200))
+    }
 }

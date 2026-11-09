@@ -849,7 +849,9 @@ class LiveTuneController(
         }
         val label = ladder.label(next)
         // ExoPlayer has spent both of its formats here: open this channel on mpv straight away next time.
-        if (_liveOnExo.value && next.onMpv && aboutFormat) LiveStreamQuirks.rememberExoFailedChannel(channel.id)
+        // Not when the server answered 404/5xx: that says the channel is down, not that ExoPlayer cannot play it.
+        val serverSide = PlayerErrors.httpStatusIn(reason)?.let { LiveStreamQuirks.isServerSideFailure(it) } == true
+        if (_liveOnExo.value && next.onMpv && aboutFormat && !serverSide) LiveStreamQuirks.rememberExoFailedChannel(channel.id)
         engineLog("'${channel.name}' falling back to $label ($reason)")
         // Before the switch, so the record still names the engine that failed.
         host.recordLadderEvent(_liveOnExo.value, PlayerFailureReason.LIVE_FALLBACK, "'${channel.name}': $label — $reason")

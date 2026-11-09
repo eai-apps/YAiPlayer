@@ -134,6 +134,7 @@ object LiveStreamQuirks {
     private val nonIdrStreams = urlLessonSet()
     private val softwareVideoStreams = urlLessonSet()
     private val exoFailedChannels = urlLessonSet()
+    private val exoFailStrikes = ConcurrentHashMap<Long, Int>()
     private val softwareArchiveHosts = ConcurrentHashMap.newKeySet<String>()
     private val uaBlockingHosts = ConcurrentHashMap.newKeySet<String>()
     private val providerMessages = ConcurrentHashMap<String, Pair<Int, String>>()
@@ -357,10 +358,27 @@ object LiveStreamQuirks {
 
     fun needsSoftwareVideo(key: String): Boolean = key in softwareVideoStreams
 
-    /** ExoPlayer tried every format it has on this channel and failed; mpv took it. Session only. */
-    fun rememberExoFailedChannel(channelId: Long) { exoFailedChannels += channelId.toString() }
+    /**
+     * ExoPlayer tried every format it has on this channel and failed; mpv took it. Session only.
+     *
+     * One failure is not a lesson: a single slow open or a provider hiccup used to pin the channel to
+     * the slower engine until the app restarted. It takes [EXO_FAIL_STRIKES] failed tunes this session
+     * to move the channel.
+     */
+    fun rememberExoFailedChannel(channelId: Long) {
+        val strikes = (exoFailStrikes[channelId] ?: 0) + 1
+        exoFailStrikes[channelId] = strikes
+        if (strikes >= EXO_FAIL_STRIKES) exoFailedChannels += channelId.toString()
+    }
 
     fun exoFailedChannel(channelId: Long): Boolean = channelId.toString() in exoFailedChannels
+
+    /**
+     * A status that says the provider's server, not the stream's format, is at fault: the channel is gone
+     * (404/410) or the server is erroring (5xx). Switching to mpv cannot fix either, so it is no lesson.
+     */
+    fun isServerSideFailure(responseCode: Int): Boolean =
+        responseCode == 404 || responseCode == 410 || responseCode in 500..599
 
     fun defeatsPreroll(url: String): Boolean = url in prerollDefeatedStreams
 
@@ -424,8 +442,10 @@ object LiveStreamQuirks {
     internal fun clearForTest() {
         hlsRedirectHosts.clear(); mixedHlsHosts.clear(); segmentRefusingHosts.clear(); singleSessionHosts.clear()
         brokenTimestampStreams.clear(); softwareArchiveHosts.clear()
-        noHlsVariantStreams.clear(); noHlsVariantMpvStreams.clear(); prerollDefeatedStreams.clear(); nonIdrStreams.clear(); softwareVideoStreams.clear(); exoFailedChannels.clear()
+        noHlsVariantStreams.clear(); noHlsVariantMpvStreams.clear(); prerollDefeatedStreams.clear(); nonIdrStreams.clear(); softwareVideoStreams.clear(); exoFailedChannels.clear(); exoFailStrikes.clear()
         tolerantDemuxStreams.clear()
         uaBlockingHosts.clear(); providerMessages.clear()
     }
+
+    private const val EXO_FAIL_STRIKES = 2
 }
