@@ -178,7 +178,7 @@ class M3uParser {
                                     tvgChno = p.tvgChno,
                                     type = p.type,
                                     tvgType = p.tvgType,
-                                    catchup = p.catchup ?: p.tvgRec?.let { impliedCatchupType(url) },
+                                    catchup = p.catchup ?: p.tvgRec?.let { IMPLIED_CATCHUP_TYPE },
                                     catchupSource = p.catchupSource,
                                     catchupDays = p.catchupDays ?: p.tvgRec,
                                     headers = pendingHeaders ?: emptyMap(),
@@ -243,14 +243,12 @@ class M3uParser {
     )
 
     /**
-     * `tvg-rec="N"` says the channel keeps N days of archive but not how to ask for it. Flussonic-style
-     * `…/index.m3u8` and `mpegts` URLs take `timeshift_abs-<start>`; anything else gets the common
-     * `?utc=&lutc=` form. An explicit `catchup` attribute always wins over this guess.
+     * `tvg-rec="N"` says the channel keeps N days of archive but not how to ask for it. The common
+     * convention (the Kodi and TiviMate default) is the `?utc=&lutc=` query on the live URL. It must NOT
+     * be guessed from the URL shape: a `…/index.m3u8` link looks like Flussonic but a provider can still
+     * want `?utc=` there (confirmed on a real playlist). An explicit `catchup` attribute always wins.
      */
-    private fun impliedCatchupType(url: String): String {
-        val path = url.substringBefore('?').substringBefore('#').lowercase()
-        return if (path.endsWith("/index.m3u8") || path.endsWith("/mpegts")) "flussonic" else "shift"
-    }
+    private val IMPLIED_CATCHUP_TYPE get() = "shift"
 
     /** `catchup-correction` is in hours and may be fractional or negative ("-1.5"); null when it is
      *  not a number. Rounded to whole minutes, which is all a guide time ever needs. */

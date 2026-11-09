@@ -15,11 +15,11 @@ class M3uTvgRecTest {
     }
 
     @Test
-    fun tvgRecWithFlussonicUrlMeansFlussonicArchive() {
+    fun tvgRecWithIndexM3u8UrlStillMeansShift() {
         val e = parse(
             "#EXTM3U\n#EXTINF:-1 tvg-id=\"r1\" tvg-rec=\"7\",Channel One\nhttp://h/ch1/index.m3u8?token=x\n",
         ).single()
-        assertEquals("flussonic", e.catchup)
+        assertEquals("shift", e.catchup)
         assertEquals(7, e.catchupDays)
     }
 
