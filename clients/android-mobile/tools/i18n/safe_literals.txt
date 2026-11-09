@@ -19,6 +19,11 @@
 # category protocol: Stable protocol or comparison identifier.
 # category technical: Reviewed non-user-facing technical literal.
 
+1	mime	app/src/main/java/tv/own/owntv/extras/remote/RemoteScreen.kt	text/plain
+2	preference-key	app/src/main/java/tv/own/owntv/extras/remote/RemoteScreen.kt	token_${activeDev.id}
+1	preference-key	app/src/main/java/tv/own/owntv/extras/remote/RemoteScreen.kt	token_${dev.id}
+1	preference-key	app/src/main/java/tv/own/owntv/extras/remote/RemoteScreen.kt	token_${first.id}
+1	preference-key	app/src/main/java/tv/own/owntv/extras/remote/RemoteScreen.kt	tv_phone_remote_tokens
 1	technical	app/src/main/java/tv/own/owntv/mobile/MainActivity.kt	back
 1	technical	app/src/main/java/tv/own/owntv/mobile/MainActivity.kt	forward
 1	uri	app/src/main/java/tv/own/owntv/mobile/MainActivity.kt	open_player
@@ -78,6 +83,7 @@
 1	protocol	app/src/main/java/tv/own/owntv/mobile/ui/nav/MobileDestination.kt	live
 1	protocol	app/src/main/java/tv/own/owntv/mobile/ui/nav/MobileDestination.kt	more
 1	protocol	app/src/main/java/tv/own/owntv/mobile/ui/nav/MobileDestination.kt	movies
+1	technical	app/src/main/java/tv/own/owntv/mobile/ui/nav/MobileDestination.kt	remote
 1	protocol	app/src/main/java/tv/own/owntv/mobile/ui/nav/MobileDestination.kt	series
 1	protocol	app/src/main/java/tv/own/owntv/mobile/ui/nav/MobileDestination.kt	settings
 1	protocol	app/src/main/java/tv/own/owntv/mobile/ui/nav/MobileDestination.kt	sports

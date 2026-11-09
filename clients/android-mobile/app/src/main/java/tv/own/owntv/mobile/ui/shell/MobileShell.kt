@@ -191,6 +191,14 @@ fun MobileShell(
     // With no chooser needed (one profile, no PIN) the person using the app has entered as that profile;
     // so adding a second profile keeps them in rather than throwing them to "Who's watching?".
     LaunchedEffect(gateRequired, activeId) { if (!gateRequired) gateSession.unlock(activeId) }
+    var showRemoteFromGate by remember { mutableStateOf(false) }
+    if (showRemoteFromGate) {
+        tv.own.owntv.extras.remote.RemoteScreen(
+            onBack = { showRemoteFromGate = false },
+            modifier = modifier,
+        )
+        return
+    }
     if (!shellMayCompose(
             profiles = loadedProfiles,
             activeProfileId = activeId,
@@ -203,6 +211,7 @@ fun MobileShell(
             onEntered = { gateSession.unlock(it.id) },
             modifier = modifier,
             vm = profilesViewModel,
+            onOpenRemote = { showRemoteFromGate = true },
         )
         return
     }

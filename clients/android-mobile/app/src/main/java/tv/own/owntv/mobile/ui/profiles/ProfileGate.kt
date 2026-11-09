@@ -69,6 +69,7 @@ fun ProfileGate(
     onEntered: (ProfileEntity) -> Unit,
     modifier: Modifier = Modifier,
     vm: ProfilesViewModel,
+    onOpenRemote: () -> Unit = {},
 ) {
     var pinFor by remember { mutableStateOf<ProfileEntity?>(null) }
     var menuFor by remember { mutableStateOf<ProfileEntity?>(null) }
@@ -153,6 +154,31 @@ fun ProfileGate(
                     }
                 }
                 if (pair.size == 1) Spacer(Modifier.weight(1f))
+            }
+        }
+        Spacer(Modifier.size(24.dp))
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(16.dp))
+                .background(palette.card)
+                .stageClickable(onClick = onOpenRemote)
+                .padding(horizontal = 20.dp, vertical = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            StageIcon(MobileIcons.Tv, size = 28.dp, tint = palette.accent)
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(R.string.remote_launch_btn),
+                    style = stageText(16f, 700),
+                    color = palette.text,
+                )
+                Text(
+                    text = stringResource(R.string.remote_launch_desc),
+                    style = stageText(12f, 400),
+                    color = palette.muted,
+                )
             }
         }
     }

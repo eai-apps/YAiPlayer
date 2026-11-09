@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="remote_title">Fernbedienung</string>
+    <string name="remote_subtitle">TV mit dem Smartphone steuern</string>
+    <string name="remote_launch_btn">Fernbedienung für Ihre TV-Box</string>
+    <string name="remote_launch_desc">Ohne Registrierung über das Heim-WLAN</string>
+    <string name="remote_tv_settings_title">Smartphone-Fernbedienung</string>
+    <string name="remote_tv_settings_desc">Steuerung der TV-Box über lokales WLAN erlauben</string>
+    <string name="remote_pairing_pin_title">Kopplungscode</string>
+    <string name="remote_pairing_pin_desc">Diesen 6-stelligen Code auf dem Smartphone eingeben (2 Min. gültig)</string>
+    <string name="remote_mode_buttons">Tasten</string>
+    <string name="remote_mode_touchpad">Touchpad</string>
+    <string name="remote_touchpad_hint">Wischen zum Navigieren, Tippen für OK</string>
+    <string name="remote_text_input_hint">Suchbegriff für TV eingeben…</string>
+    <string name="remote_send_text_btn">Senden</string>
+    <string name="remote_send_to_tv">Auf TV</string>
+    <string name="remote_send_to_tv_toast">Wiedergabe an TV gesendet</string>
+    <string name="remote_pull_from_tv">Auf Smartphone holen</string>
+    <string name="remote_export_log_btn">Protokoll vom TV exportieren</string>
+    <string name="remote_device_connecting">Verbindung wird hergestellt…</string>
+    <string name="remote_device_connected">Verbunden</string>
+    <string name="remote_device_disconnected">Getrennt</string>
+    <string name="remote_device_search">Suche nach TV im Netzwerk…</string>
+    <string name="remote_enter_pin_title">Kopplungscode vom TV eingeben</string>
+    <string name="remote_enter_pin_btn">Verbinden</string>
+    <string name="remote_pair_failed">Falscher Code</string>
+    <string name="remote_pair_blocked">Zu viele Versuche. Bitte 5 Minuten warten.</string>
+    <string name="remote_now_playing">Läuft gerade auf dem TV</string>
+    <string name="remote_paired_devices">Gekoppelte Geräte</string>
+    <string name="remote_unpair">Entfernen</string>
+    <string name="remote_no_devices_found">Kein TV im Netzwerk gefunden</string>
+    <string name="remote_btn_back">Zurück</string>
+    <string name="remote_btn_home">Home</string>
+    <string name="remote_btn_menu">Menü</string>
+    <string name="remote_btn_mute">Stumm</string>
+    <string name="remote_btn_rewind_10">-10s</string>
+    <string name="remote_btn_forward_10">+10s</string>
+    <string name="remote_btn_channel_prev">Kanal -</string>
+    <string name="remote_btn_channel_next">Kanal +</string>
+    <string name="remote_report_subject">YAiPlayer TV Diagnosebericht</string>
+    <string name="remote_pin_placeholder">123456</string>
+</resources>

@@ -5907,6 +5907,103 @@
 1	log	core/src/main/java/tv/own/owntv/core/weather/WeatherRepository.kt	results
 1	log	core/src/main/java/tv/own/owntv/core/weather/WeatherRepository.kt	temperature_2m
 1	log	core/src/main/java/tv/own/owntv/core/weather/WeatherRepository.kt	weather_code
+1	empty	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	\0
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	$host:$port
+2	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	Content-Type
+2	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	GET
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	Mobile
+2	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	POST
+2	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	_yaiplayer._tcp
+2	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	application/json; charset=utf-8
+1	json	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	deviceName
+1	url	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	http://${device.host}:${device.port}${RemoteProtocol.PATH_COMMAND}
+1	url	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	http://${device.host}:${device.port}${RemoteProtocol.PATH_LOG}
+1	url	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	http://${device.host}:${device.port}${RemoteProtocol.PATH_PAIR}
+1	url	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	http://${device.host}:${device.port}${RemoteProtocol.PATH_STATE}
+1	json	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	pin
+1	json	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	token
+1	json	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	tvName
+1	json	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	waitSeconds
+2	empty	core/src/main/java/tv/own/owntv/extras/remote/RemoteModels.kt	\0
+2	empty	core/src/main/java/tv/own/owntv/extras/remote/RemotePairingManager.kt	\0
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemotePairingManager.kt	%06d
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemotePairingManager.kt	-
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemotePairingManager.kt	YAiPlayer TV
+5	empty	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	\0
+1	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	/command
+1	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	/log
+1	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	/pair
+1	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	/state
+2	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	ARCHIVE
+2	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	BACK
+2	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	CHANNEL_NEXT
+2	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	CHANNEL_PREV
+2	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	DIGIT
+2	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	DOWN
+2	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	EXPORT_LOG
+2	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	HOME
+2	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	INSERT_TEXT
+2	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	LEFT
+2	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	LIVE
+2	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	MENU
+2	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	OK
+2	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	PLAY_PAUSE
+2	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	PULL_FROM_TV
+2	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	RIGHT
+2	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	SEEK_BACK_10
+2	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	SEEK_BACK_60
+2	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	SEEK_FWD_10
+2	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	SEEK_FWD_60
+2	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	SEND_TO_TV
+2	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	UP
+2	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	VOLUME_DOWN
+2	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	VOLUME_MUTE
+2	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	VOLUME_UP
+1	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	X-Remote-Token
+26	json	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	action
+4	json	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	catchupUrl
+3	json	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	channelId
+2	json	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	channelOrMovieName
+2	json	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	digit
+2	json	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	durationMs
+2	json	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	isMuted
+2	json	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	isPlaying
+2	json	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	positionMs
+4	json	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	streamUrl
+2	json	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	text
+4	json	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	title
+2	json	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	volume
+3	empty	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	\0
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	127.0.0.1
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	?
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	Android TV
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	Bad Request
+3	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	Connection: close
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	Content-Length
+2	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	Content-Length: ${bytes.size}
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	Content-Length: 0
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	Content-Type: application/json; charset=utf-8
+2	json	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	Content-Type: text/plain; charset=utf-8
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	Diagnostic report not available.
+1	json	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	HTTP/1.1 $code $text
+2	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	HTTP/1.1 $code OK
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	Method Not Allowed
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	Mobile
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	Not Found
+1	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	POST
+2	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	Unauthorized
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	YAiPlayer ($model)
+1	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	_yaiplayer._tcp
+1	json	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	blocked
+1	json	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	deviceName
+3	json	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	error
+1	json	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	expired
+1	json	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	invalid_pin
+1	json	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	pin
+1	json	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	token
+1	json	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	tvName
+1	json	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	waitSeconds
+1	json	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	{"status":"ok"}
 1	assertion	player-core/src/main/java/tv/own/owntv/core/drm/DrmMediaItem.kt	FairPlay has no Android CDM
 1	uri	player-core/src/main/java/tv/own/owntv/core/drm/DrmMediaItem.kt	data:application/json;base64,
 1	json	player-core/src/main/java/tv/own/owntv/core/drm/DrmMediaItem.kt	k

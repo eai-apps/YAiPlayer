@@ -41,7 +41,8 @@ enum class MobileDestination(
         MobileIcons.Download,
         setOf(MainSection.DOWNLOADS),
     ),
-    SETTINGS("settings", R.string.common_nav_settings, MobileIcons.Settings, emptySet());
+    SETTINGS("settings", R.string.common_nav_settings, MobileIcons.Settings, emptySet()),
+    REMOTE("remote", R.string.remote_title, MobileIcons.Tv, emptySet());
 
     companion object {
         /**

@@ -121,6 +121,7 @@ open class MainActivity : ComponentActivity() {
 
     override fun onStop() {
         super.onStop()
+        tv.own.owntv.extras.remote.RemoteTvManager.detachActivity(this)
         // Backgrounded (Home / another app), exited, logged out, or the picture-in-picture window closed:
         // stop playback and free the demuxer cache + decoder buffers — holding them while invisible got
         // the process LMK-killed on real TVs. Every engine: mpv, the Live engine (its audio must stop
@@ -134,6 +135,7 @@ open class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
+        tv.own.owntv.extras.remote.RemoteTvManager.attachActivity(this)
         handOff.onActivityResumed()
     }
 
@@ -187,6 +189,7 @@ open class MainActivity : ComponentActivity() {
         // postSplashScreenTheme (Theme.OwnTV), so the activity ends up in the same theme as before.
         val splash = installSplashScreen()
         super.onCreate(savedInstanceState)
+        tv.own.owntv.extras.remote.RemoteTvManager.init(this)
         tv.own.owntv.features.pip.PictureInPictureWindow.attach(this, get())
         // The window only pauses the activity, so onStop's relock never runs while it is open: going into
         // it is leaving the app, and a channel from a category the PIN opened stops there too.

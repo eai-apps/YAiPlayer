@@ -194,6 +194,10 @@ fun MobileNavHost(
                     MobileDestination.SETTINGS -> tv.own.owntv.mobile.ui.categorylock.SettingsPinGate(leaveGuarded) {
                         SettingsScreen(onOpenRoute = { navController.navigate(it) })
                     }
+                    MobileDestination.REMOTE -> tv.own.owntv.extras.remote.RemoteScreen(
+                        onBack = { navController.popBackStack() },
+                        modifier = Modifier.fillMaxSize(),
+                    )
                 }
                 }
             }
