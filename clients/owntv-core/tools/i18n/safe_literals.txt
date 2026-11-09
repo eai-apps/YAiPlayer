@@ -5907,6 +5907,38 @@
 1	log	core/src/main/java/tv/own/owntv/core/weather/WeatherRepository.kt	results
 1	log	core/src/main/java/tv/own/owntv/core/weather/WeatherRepository.kt	temperature_2m
 1	log	core/src/main/java/tv/own/owntv/core/weather/WeatherRepository.kt	weather_code
+1	technical	core/src/main/java/tv/own/owntv/extras/screensaver/ScreensaverManifest.kt	Aurora Borealis over Tromsø
+2	technical	core/src/main/java/tv/own/owntv/extras/screensaver/ScreensaverManifest.kt	CC0 / Public Domain
+1	technical	core/src/main/java/tv/own/owntv/extras/screensaver/ScreensaverManifest.kt	Carina Nebula Cosmic Cliffs
+1	technical	core/src/main/java/tv/own/owntv/extras/screensaver/ScreensaverManifest.kt	Jupiter in True Color
+1	technical	core/src/main/java/tv/own/owntv/extras/screensaver/ScreensaverManifest.kt	Matterhorn at Sunrise
+3	technical	core/src/main/java/tv/own/owntv/extras/screensaver/ScreensaverManifest.kt	NASA
+1	technical	core/src/main/java/tv/own/owntv/extras/screensaver/ScreensaverManifest.kt	NASA / ESA / CSA / STScI
+1	technical	core/src/main/java/tv/own/owntv/extras/screensaver/ScreensaverManifest.kt	NASA / ESA / Hubble Heritage
+1	technical	core/src/main/java/tv/own/owntv/extras/screensaver/ScreensaverManifest.kt	NASA / JPL-Caltech / SwRI / MSSS
+1	technical	core/src/main/java/tv/own/owntv/extras/screensaver/ScreensaverManifest.kt	Nature
+1	technical	core/src/main/java/tv/own/owntv/extras/screensaver/ScreensaverManifest.kt	Pillars of Creation
+3	technical	core/src/main/java/tv/own/owntv/extras/screensaver/ScreensaverManifest.kt	Public Domain
+4	technical	core/src/main/java/tv/own/owntv/extras/screensaver/ScreensaverManifest.kt	Wikimedia Commons
+1	url	core/src/main/java/tv/own/owntv/extras/screensaver/ScreensaverManifest.kt	https://images-assets.nasa.gov/image/PIA15415/PIA15415~orig.jpg
+1	url	core/src/main/java/tv/own/owntv/extras/screensaver/ScreensaverManifest.kt	https://images-assets.nasa.gov/image/PIA18224/PIA18224~orig.jpg
+1	url	core/src/main/java/tv/own/owntv/extras/screensaver/ScreensaverManifest.kt	https://images-assets.nasa.gov/image/PIA21985/PIA21985~orig.jpg
+1	url	core/src/main/java/tv/own/owntv/extras/screensaver/ScreensaverManifest.kt	https://upload.wikimedia.org/wikipedia/commons/6/66/Matterhorn_sunrise_2019.jpg
+1	url	core/src/main/java/tv/own/owntv/extras/screensaver/ScreensaverManifest.kt	https://upload.wikimedia.org/wikipedia/commons/a/aa/Northern_Lights_Troms%C3%B8_Norway.jpg
+1	json	core/src/main/java/tv/own/owntv/extras/screensaver/ScreensaverManifest.kt	id
+1	technical	core/src/main/java/tv/own/owntv/extras/screensaver/ScreensaverManifest.kt	item_$i
+1	json	core/src/main/java/tv/own/owntv/extras/screensaver/ScreensaverManifest.kt	items
+1	json	core/src/main/java/tv/own/owntv/extras/screensaver/ScreensaverManifest.kt	license
+1	technical	core/src/main/java/tv/own/owntv/extras/screensaver/ScreensaverManifest.kt	nasa_carina
+1	technical	core/src/main/java/tv/own/owntv/extras/screensaver/ScreensaverManifest.kt	nasa_jupiter
+1	technical	core/src/main/java/tv/own/owntv/extras/screensaver/ScreensaverManifest.kt	nasa_pillars
+1	technical	core/src/main/java/tv/own/owntv/extras/screensaver/ScreensaverManifest.kt	nature_aurora
+1	technical	core/src/main/java/tv/own/owntv/extras/screensaver/ScreensaverManifest.kt	nature_mountains
+1	json	core/src/main/java/tv/own/owntv/extras/screensaver/ScreensaverManifest.kt	source
+1	json	core/src/main/java/tv/own/owntv/extras/screensaver/ScreensaverManifest.kt	subtitle
+1	json	core/src/main/java/tv/own/owntv/extras/screensaver/ScreensaverManifest.kt	title
+1	json	core/src/main/java/tv/own/owntv/extras/screensaver/ScreensaverManifest.kt	url
+2	empty	core/src/main/java/tv/own/owntv/extras/screensaver/ScreensaverModels.kt	\0
 1	assertion	player-core/src/main/java/tv/own/owntv/core/drm/DrmMediaItem.kt	FairPlay has no Android CDM
 1	uri	player-core/src/main/java/tv/own/owntv/core/drm/DrmMediaItem.kt	data:application/json;base64,
 1	json	player-core/src/main/java/tv/own/owntv/core/drm/DrmMediaItem.kt	k

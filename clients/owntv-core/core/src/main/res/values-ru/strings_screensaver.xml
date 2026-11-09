@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="screensaver_title">Заставка</string>
+    <string name="screensaver_desc">Фотографии и часы в режиме ожидания</string>
+    <string name="screensaver_enable">Включить заставку</string>
+    <string name="screensaver_timeout">Время до включения</string>
+    <string name="screensaver_timeout_1m">1 минута</string>
+    <string name="screensaver_timeout_3m">3 минуты</string>
+    <string name="screensaver_timeout_5m">5 минут</string>
+    <string name="screensaver_timeout_10m">10 минут</string>
+    <string name="screensaver_timeout_15m">15 минут</string>
+    <string name="screensaver_timeout_30m">30 минут</string>
+    <string name="screensaver_mode">Режим отображения</string>
+    <string name="screensaver_mode_posters">Постеры каталога</string>
+    <string name="screensaver_mode_nature">Природа и космос</string>
+    <string name="screensaver_mode_clock">Часы</string>
+    <string name="screensaver_mode_mix">Микс</string>
+    <string name="screensaver_corner_clock">Часы в углу</string>
+    <string name="screensaver_corner_clock_desc">Небольшие часы поверх фотографий</string>
+    <string name="screensaver_preview">Предпросмотр</string>
+    <string name="screensaver_preview_desc">Запустить заставку сейчас</string>
+    <string name="screensaver_dismiss_hint">Нажмите любую кнопку для возврата</string>
+</resources>

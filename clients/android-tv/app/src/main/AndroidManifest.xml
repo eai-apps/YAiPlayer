@@ -393,6 +393,17 @@
                 android:value="Listens for the screen turning on so the app can open when the TV wakes from sleep, a setting the user turns on." />
         </service>
 
+        <service
+            android:name="tv.own.owntv.extras.screensaver.DaydreamService"
+            android:exported="true"
+            android:label="@string/screensaver_title"
+            android:permission="android.permission.BIND_DREAM_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.dreams.DreamService" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
+
     </application>
 
 </manifest>

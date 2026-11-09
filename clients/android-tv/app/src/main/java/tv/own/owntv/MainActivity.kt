@@ -119,6 +119,21 @@ open class MainActivity : ComponentActivity() {
         Log.d(TAG, "onNewIntent deepLinkHost=${intent.data?.host} deepLinkType=${pendingDeepLink?.javaClass?.simpleName ?: "none"}")
     }
 
+    override fun dispatchKeyEvent(event: android.view.KeyEvent): Boolean {
+        if (event.action == android.view.KeyEvent.ACTION_DOWN) {
+            val isPlayKey = event.keyCode == android.view.KeyEvent.KEYCODE_MEDIA_PLAY || event.keyCode == android.view.KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE
+            val (consumed, resumePlayback) = tv.own.owntv.extras.screensaver.ScreensaverTvManager.onKeyEvent(event.keyCode, isPlayKey)
+            if (consumed) {
+                if (resumePlayback) {
+                    return super.dispatchKeyEvent(event)
+                }
+                return true
+            }
+            tv.own.owntv.extras.screensaver.ScreensaverTvManager.onUserActivity()
+        }
+        return super.dispatchKeyEvent(event)
+    }
+
     override fun onStop() {
         super.onStop()
         // Backgrounded (Home / another app), exited, logged out, or the picture-in-picture window closed:
@@ -187,6 +202,7 @@ open class MainActivity : ComponentActivity() {
         // postSplashScreenTheme (Theme.OwnTV), so the activity ends up in the same theme as before.
         val splash = installSplashScreen()
         super.onCreate(savedInstanceState)
+        tv.own.owntv.extras.screensaver.ScreensaverTvManager.init(this)
         tv.own.owntv.features.pip.PictureInPictureWindow.attach(this, get())
         // The window only pauses the activity, so onStop's relock never runs while it is open: going into
         // it is leaving the app, and a channel from a category the PIN opened stops there too.
@@ -241,6 +257,13 @@ open class MainActivity : ComponentActivity() {
             LaunchedEffect(keepAwake) {
                 if (keepAwake) window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
                 else window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            }
+            LaunchedEffect(playing, buffering, failed) {
+                tv.own.owntv.extras.screensaver.ScreensaverTvManager.updatePlaybackState(
+                    isActive = (playing || buffering) && failed == null,
+                    isPaused = !playing && !buffering,
+                    isStalled = buffering || failed != null,
+                )
             }
 
             val viewModel: ShellViewModel = koinViewModel()
@@ -500,6 +523,7 @@ open class MainActivity : ComponentActivity() {
                             else -> Unit
                         }
                         } // end foreground Box (above the background layer)
+                        tv.own.owntv.extras.screensaver.ScreensaverOverlay()
                         tv.own.owntv.ui.BrandIntro(enabled = animationLevel != tv.own.owntv.core.theme.AnimationLevel.OFF)
                     }
                     } // end LocalizedContent
