@@ -63,6 +63,14 @@ class OperatorFixesTest {
         }
     }
 
+    @Test fun invalidProviderValuesDoNotHideValidFallbackFields() {
+        val details = ProviderMediaDetails.from(mapOf("duration_secs" to "0", "time" to "01:30:00",
+            "year" to "0", "releasedate" to "2024-05-01"))
+        assertEquals(5400, details.durationSecs)
+        assertEquals(2024, details.year)
+        assertNull(ProviderMediaDetails.from(mapOf("duration" to "-1:61:99")).durationSecs)
+    }
+
     @Test fun previewIncludesExactlyTheNext24HoursAndStoredSourceWins() {
         val hour = 3_600_000L
         val now = 1_800_000_000_000L

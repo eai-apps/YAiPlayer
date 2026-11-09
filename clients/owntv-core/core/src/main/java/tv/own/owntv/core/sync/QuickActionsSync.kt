@@ -26,31 +26,29 @@ class QuickActionsSync(
     suspend fun refreshEpg(source: SourceEntity) = refresh(source, QuickSyncAction.EPG)
 
     private suspend fun refresh(source: SourceEntity, action: QuickSyncAction) {
-        dispatchSelectiveSync(selectiveSyncPlan(action, source), catalog = { contentTypes ->
+        val plan = selectiveSyncPlan(action, source)
+        dispatchSelectiveSync(plan, catalog = { contentTypes ->
             val counts = importFinalizer.contentCounts(source.id)
             val base = (if (contentTypes.live) counts.channels else 0) +
                 (if (contentTypes.movies) counts.movies else 0) + (if (contentTypes.series) counts.series else 0)
             catalogSyncScheduler.enqueueSync(source.id, reason = "manual_resync", contentTypes = contentTypes,
-                baseItemCount = base, policy = ExistingWorkPolicy.APPEND_OR_REPLACE, includeGuide = false)
-        }, epg = { refreshEpgOnly(source) })
+                baseItemCount = base, policy = ExistingWorkPolicy.APPEND_OR_REPLACE, includeGuide = false,
+                afterEpgSourceIds = if (plan.epg) selectedGuideSources(source).map { it.id } else emptyList())
+        }, epg = { if (plan.catalog?.hasAny != true) refreshEpgOnly(source) })
     }
 
     private suspend fun refreshEpgOnly(source: SourceEntity) {
+        selectedGuideSources(source).forEach { src ->
+            val base = epgDao.countForSources(listOf(src.id))
+            epgSyncScheduler.enqueueSync(src.id, if (src.builtin) "manual_builtin" else "manual_resync", base, ExistingWorkPolicy.KEEP)
+        }
+    }
+
+    private suspend fun selectedGuideSources(source: SourceEntity): List<tv.own.owntv.core.epg.EpgSource> {
         val allEpg = epgSourceStore.getAll()
         val urls = epgRepository.guideUrls(source).toSet()
         val stalkerUrl = EpgRepository.stalkerGuideUrl(source.id)
         val matched = allEpg.filter { it.url in urls || (source.type == SourceType.STALKER && it.url == stalkerUrl) }
-        if (matched.isNotEmpty()) {
-            matched.forEach { src ->
-                val base = epgDao.countForSources(listOf(src.id))
-                epgSyncScheduler.enqueueSync(src.id, "manual_resync", base, ExistingWorkPolicy.KEEP)
-            }
-        } else {
-            // No guide of its own: only the built-in one. The EPG sources are global (every profile's),
-            // and a shortcut on one playlist must not re-download the others'.
-            allEpg.firstOrNull { it.builtin }?.let {
-                epgSyncScheduler.enqueueSync(it.id, "manual_builtin", policy = ExistingWorkPolicy.KEEP)
-            }
-        }
+        return matched.ifEmpty { allEpg.firstOrNull { it.builtin }?.let { listOf(it) }.orEmpty() }
     }
 }

@@ -32,6 +32,7 @@ class CatalogSyncWorker(
     private val epgRepository: tv.own.owntv.core.repository.EpgRepository,
     private val settings: SettingsRepository,
     private val watchSession: tv.own.owntv.core.live.WatchSession,
+    private val epgSyncScheduler: EpgSyncScheduler,
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
@@ -79,6 +80,7 @@ class CatalogSyncWorker(
         if (!effective.hasAny) {
             progressPublisher.flush()
             Log.i(TAG, "Sync no-op empty effective sourceId=${source.id} reason=$reason")
+            enqueueRequestedGuide()
             return Result.success()
         }
 
@@ -143,6 +145,7 @@ class CatalogSyncWorker(
                     catalogSyncScheduler.enqueueTrendingRefresh(source.id)
                     Log.i(TAG, "Trending refresh enqueued sourceId=${source.id}")
                 }
+                enqueueRequestedGuide()
                 Result.success()
             }
             is SyncResult.Failed -> {
@@ -157,6 +160,12 @@ class CatalogSyncWorker(
                 }
             }
             SyncResult.Cancelled -> Result.failure()
+        }
+    }
+
+    private fun enqueueRequestedGuide() {
+        inputData.getLongArray(KEY_AFTER_EPG_IDS).orEmpty().distinct().forEach { id ->
+            epgSyncScheduler.enqueueSync(id, "manual_resync", policy = androidx.work.ExistingWorkPolicy.KEEP)
         }
     }
 
@@ -256,6 +265,7 @@ class CatalogSyncWorker(
         const val KEY_COMPLETES_INITIAL_SYNC = "completesInitialSync"
         const val KEY_FORCE_PRUNE = "forcePrune"
         const val KEY_INCLUDE_GUIDE = "includeGuide"
+        const val KEY_AFTER_EPG_IDS = "afterEpgSourceIds"
         const val KEY_PROGRESS_LIVE_PROCESSED = "liveProcessed"
         const val KEY_PROGRESS_MOVIES_PROCESSED = "moviesProcessed"
         const val KEY_PROGRESS_SERIES_PROCESSED = "seriesProcessed"

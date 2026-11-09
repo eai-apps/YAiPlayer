@@ -115,7 +115,33 @@ val appModule = module {
     viewModelOf(::SportsViewModel)
     viewModelOf(::SportsSettingsViewModel)
     viewModelOf(::PlayerButtonsSettingsViewModel)
-    viewModelOf(::SeriesViewModel)
+    viewModel {
+        SeriesViewModel(
+            seriesDao = get(),
+            catalogPriority = get(),
+            categoryDao = get(),
+            favoriteDao = get(),
+            historyDao = get(),
+            userDataWriter = get(),
+            progressDao = get(),
+            profileDao = get(),
+            sourceDao = get(),
+            seriesRepository = get(),
+            settings = get(),
+            customize = get(),
+            player = get(),
+            downloadManager = get(),
+            launcherIntegrationRepository = get(),
+            contentOrderDao = get(),
+            customCategoryDao = get(),
+            seriesSortOrderDao = get(),
+            metadata = get(),
+            externalPlayerLauncher = get(),
+            streamUrlResolver = get(),
+            subtitleController = get(),
+            providerDetails = get(),
+        )
+    }
     viewModelOf(::SearchViewModel)
     viewModelOf(::ProfilesViewModel)
     // Activity-scoped session state for the profile gate (configuration-only retention, no saved

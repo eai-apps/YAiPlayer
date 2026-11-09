@@ -32,6 +32,7 @@ class CatalogSyncScheduler(private val context: Context) {
         forcePrune: Boolean = false,
         policy: ExistingWorkPolicy = ExistingWorkPolicy.REPLACE,
         includeGuide: Boolean = true,
+        afterEpgSourceIds: List<Long> = emptyList(),
     ) {
         val request = OneTimeWorkRequestBuilder<CatalogSyncWorker>()
             .setInputData(workDataOf(
@@ -44,6 +45,7 @@ class CatalogSyncScheduler(private val context: Context) {
                 CatalogSyncWorker.KEY_COMPLETES_INITIAL_SYNC to completesInitialSync,
                 CatalogSyncWorker.KEY_FORCE_PRUNE to forcePrune,
                 CatalogSyncWorker.KEY_INCLUDE_GUIDE to includeGuide,
+                CatalogSyncWorker.KEY_AFTER_EPG_IDS to afterEpgSourceIds.toLongArray(),
             ))
             .setConstraints(
                 Constraints.Builder()

@@ -707,7 +707,7 @@ open class StalkerClient(okHttpClient: OkHttpClient) {
         return Page(total, maxPer, items)
     }
 
-    private fun readVodItem(reader: JsonReader, apiBase: String): VodItem? {
+    internal fun readVodItem(reader: JsonReader, apiBase: String): VodItem? {
         if (reader.peek() != JsonToken.BEGIN_OBJECT) { reader.skipValue(); return null }
         // Nested fields (the series episode list, actors arrays) are skipped by readScalarFields — the
         // show/movie row only needs the scalar metadata; episodes are fetched lazily on open.

@@ -17,15 +17,20 @@ data class ProviderMediaDetails(
             fun value(vararg keys: String) = keys.firstNotNullOfOrNull { key ->
                 fields[key]?.trim()?.takeIf { it.isNotEmpty() && it != "null" }
             }
-            val duration = value("duration_secs", "duration_seconds")?.toIntOrNull()
+            val duration = value("duration_secs", "duration_seconds")?.toIntOrNull()?.takeIf { it > 0 }
                 ?: value("duration")?.let(::durationSeconds)
-                ?: value("time")?.toIntOrNull()?.takeIf { it > 0 && it <= Int.MAX_VALUE / 60 }?.times(60)
+                ?: value("time")?.let { time ->
+                    if (':' in time) durationSeconds(time)
+                    else time.toIntOrNull()?.takeIf { it > 0 && it <= Int.MAX_VALUE / 60 }?.times(60)
+                }
             return ProviderMediaDetails(
                 originalTitle = value("o_name", "original_title", "original_name"),
                 genres = value("genres_str", "genre", "genres"),
                 country = value("country"), director = value("director"),
                 actors = value("actors", "cast"),
-                year = value("year", "releasedate", "release_date")?.take(4)?.toIntOrNull()?.takeIf { it in 1800..3000 },
+                year = listOf("year", "releasedate", "release_date").firstNotNullOfOrNull { key ->
+                    fields[key]?.trim()?.take(4)?.toIntOrNull()?.takeIf { it in 1800..3000 }
+                },
                 durationSecs = duration?.takeIf { it > 0 },
             )
         }

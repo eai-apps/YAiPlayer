@@ -5481,6 +5481,7 @@
 1	log	core/src/main/java/tv/own/owntv/core/sync/work/CatalogSyncWorker.kt	Trending Home visibility read failed sourceId=${source.id}; skip enqueue
 1	log	core/src/main/java/tv/own/owntv/core/sync/work/CatalogSyncWorker.kt	Trending refresh enqueued sourceId=${source.id}
 1	log	core/src/main/java/tv/own/owntv/core/sync/work/CatalogSyncWorker.kt	Trending settings read failed sourceId=${source.id}; skip enqueue
+1	protocol	core/src/main/java/tv/own/owntv/core/sync/work/CatalogSyncWorker.kt	afterEpgSourceIds
 1	log	core/src/main/java/tv/own/owntv/core/sync/work/CatalogSyncWorker.kt	auto refresh waiting for playback to stop sourceId=$sourceId
 1	preference-key	core/src/main/java/tv/own/owntv/core/sync/work/CatalogSyncWorker.kt	baseItemCount
 1	preference-key	core/src/main/java/tv/own/owntv/core/sync/work/CatalogSyncWorker.kt	completesInitialSync
@@ -5492,6 +5493,7 @@
 1	preference-key	core/src/main/java/tv/own/owntv/core/sync/work/CatalogSyncWorker.kt	liveActive
 1	preference-key	core/src/main/java/tv/own/owntv/core/sync/work/CatalogSyncWorker.kt	liveProcessed
 1	technical	core/src/main/java/tv/own/owntv/core/sync/work/CatalogSyncWorker.kt	manual
+1	protocol	core/src/main/java/tv/own/owntv/core/sync/work/CatalogSyncWorker.kt	manual_resync
 1	preference-key	core/src/main/java/tv/own/owntv/core/sync/work/CatalogSyncWorker.kt	movies
 1	log	core/src/main/java/tv/own/owntv/core/sync/work/CatalogSyncWorker.kt	movies=${stage.moviesProcessed} series=${stage.seriesProcessed}
 1	preference-key	core/src/main/java/tv/own/owntv/core/sync/work/CatalogSyncWorker.kt	moviesActive

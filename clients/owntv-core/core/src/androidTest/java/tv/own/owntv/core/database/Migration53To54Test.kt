@@ -3,6 +3,7 @@ package tv.own.owntv.core.database
 
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
+import android.util.JsonReader
 import androidx.paging.PagingSource
 import androidx.room.Room
 import androidx.room.useWriterConnection
@@ -14,11 +15,28 @@ import org.json.JSONObject
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.io.StringReader
+import okhttp3.OkHttpClient
+import tv.own.owntv.core.stalker.StalkerClient
 import tv.own.owntv.core.content.providerSearchText
 import tv.own.owntv.core.database.entity.MovieEntity
 
 @RunWith(AndroidJUnit4::class)
 class Migration53To54Test {
+    @Test fun stalkerCatalogueParserKeepsScalarAndArrayMetadata() {
+        val json = """{"id":"7","name":"Название","o_name":"Original","genres_str":"Драма","country":"Германия","year":"2024","time":"95","director":"Режиссёр","actors":["Актёр",{"name":"Actor"}]}"""
+        val item = JsonReader(StringReader(json)).use {
+            StalkerClient(OkHttpClient()).readVodItem(it, "http://example.test/portal.php")
+        }!!
+        assertEquals("Название", item.name)
+        assertEquals("Original", item.details.originalTitle)
+        assertEquals("Драма", item.details.genres)
+        assertEquals("Германия", item.details.country)
+        assertEquals("Режиссёр", item.details.director)
+        assertEquals("Актёр, Actor", item.details.actors)
+        assertEquals(5700, item.details.durationSecs)
+    }
+
     @Test fun migrationPreservesRowsAndSearchMatchesProviderFieldsInBothAlphabets() = runBlocking {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val context = instrumentation.targetContext

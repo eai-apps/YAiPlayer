@@ -3,9 +3,6 @@ package tv.own.owntv.core.stalker
 import android.util.Log
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
 import tv.own.owntv.core.database.entity.SourceEntity
 import java.io.File
 import java.io.IOException
@@ -71,22 +68,17 @@ class StalkerEpgLoader(
         val resolver = StreamUrlResolver(auth, client)
         var written = 0
         var empty = 0
-        for (chunk in channels.distinctBy { it.first }.chunked(2)) {
-            val fetched = coroutineScope {
-                chunk.map { (channelId, pastDays) -> async {
-                    val rows = resolver.scheduleDays(source, channelId, (-pastDays.coerceIn(1, 14)..1).toList())
-                    channelId to rows.filter { it.title.isNotBlank() && it.stopMs > it.startMs && it.stopMs > from && it.startMs < to }
-                } }.awaitAll()
+        // scheduleDays already bounds parallel day requests to four. Do not multiply that by channels.
+        for ((channelId, pastDays) in channels.distinctBy { it.first }) {
+            val entries = resolver.scheduleDays(source, channelId, (-pastDays.coerceIn(1, 14)..1).toList())
+                .filter { it.title.isNotBlank() && it.stopMs > it.startMs && it.stopMs > from && it.startMs < to }
+            if (entries.isEmpty()) {
+                if (++empty >= PER_CHANNEL_GIVE_UP && written == 0) return written
+                continue
             }
-            for ((channelId, entries) in fetched) {
-                if (entries.isEmpty()) {
-                    if (++empty >= PER_CHANNEL_GIVE_UP && written == 0) return written
-                    continue
-                }
-                val rows = entries.map { Row(channelId, it.title, it.description, it.startMs, it.stopMs) }
-                rows.chunked(250).forEach { onBatch(it) }
-                written += rows.size
-            }
+            val rows = entries.map { Row(channelId, it.title, it.description, it.startMs, it.stopMs) }
+            rows.chunked(250).forEach { onBatch(it) }
+            written += rows.size
         }
         return written
     }

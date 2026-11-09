@@ -39,33 +39,39 @@ class ProviderDetailsRepository(
     suspend fun movie(item: MovieEntity): MovieEntity = withContext(Dispatchers.IO) {
         if (listOf(item.originalTitle, item.genres, item.country, item.director, item.actors).all { !it.isNullOrBlank() }) return@withContext item
         val details = fetch(false, item.id, item.sourceId, item.categoryId, item.remoteId, item.name) ?: return@withContext item
-        database.useWriterConnection { connection -> connection.immediateTransaction {
-        val current = movies.getById(item.id) ?: return@immediateTransaction item
-        val d = details.metadata
-        val updated = current.copy(originalTitle = current.originalTitle ?: d.originalTitle, genres = current.genres ?: d.genres,
-            country = current.country ?: d.country, director = current.director ?: d.director, actors = current.actors ?: d.actors,
-            year = current.year ?: d.year, durationSecs = current.durationSecs ?: d.durationSecs, plot = current.plot ?: details.plot)
-        val searchable = updated.copy(searchText = providerSearchText(updated.name, updated.originalTitle, updated.genres,
-            updated.year, updated.country, updated.director, updated.actors, updated.plot))
-        if (searchable != current) movies.updateAll(listOf(searchable))
-        searchable
-        } }
+        database.useWriterConnection { connection ->
+            connection.immediateTransaction {
+                val current = movies.getById(item.id) ?: return@immediateTransaction item
+                if (current.sourceId != item.sourceId || current.remoteId != item.remoteId) return@immediateTransaction current
+                val d = details.metadata
+                val updated = current.copy(originalTitle = current.originalTitle ?: d.originalTitle, genres = current.genres ?: d.genres,
+                    country = current.country ?: d.country, director = current.director ?: d.director, actors = current.actors ?: d.actors,
+                    year = current.year ?: d.year, durationSecs = current.durationSecs ?: d.durationSecs, plot = current.plot ?: details.plot)
+                val searchable = updated.copy(searchText = providerSearchText(updated.name, updated.originalTitle, updated.genres,
+                    updated.year, updated.country, updated.director, updated.actors, updated.plot))
+                if (searchable != current) movies.updateAll(listOf(searchable))
+                searchable
+            }
+        }
     }
 
     suspend fun show(item: SeriesEntity): SeriesEntity = withContext(Dispatchers.IO) {
         if (listOf(item.originalTitle, item.genres, item.country, item.director, item.actors).all { !it.isNullOrBlank() }) return@withContext item
         val details = fetch(true, item.id, item.sourceId, item.categoryId, item.remoteId, item.name) ?: return@withContext item
-        database.useWriterConnection { connection -> connection.immediateTransaction {
-        val current = series.getSeriesById(item.id) ?: return@immediateTransaction item
-        val d = details.metadata
-        val updated = current.copy(originalTitle = current.originalTitle ?: d.originalTitle, genres = current.genres ?: d.genres,
-            country = current.country ?: d.country, director = current.director ?: d.director, actors = current.actors ?: d.actors,
-            year = current.year ?: d.year, durationSecs = current.durationSecs ?: d.durationSecs, plot = current.plot ?: details.plot)
-        val searchable = updated.copy(searchText = providerSearchText(updated.name, updated.originalTitle, updated.genres,
-            updated.year, updated.country, updated.director, updated.actors, updated.plot))
-        if (searchable != current) series.updateSeries(listOf(searchable))
-        searchable
-        } }
+        database.useWriterConnection { connection ->
+            connection.immediateTransaction {
+                val current = series.getSeriesById(item.id) ?: return@immediateTransaction item
+                if (current.sourceId != item.sourceId || current.remoteId != item.remoteId) return@immediateTransaction current
+                val d = details.metadata
+                val updated = current.copy(originalTitle = current.originalTitle ?: d.originalTitle, genres = current.genres ?: d.genres,
+                    country = current.country ?: d.country, director = current.director ?: d.director, actors = current.actors ?: d.actors,
+                    year = current.year ?: d.year, durationSecs = current.durationSecs ?: d.durationSecs, plot = current.plot ?: details.plot)
+                val searchable = updated.copy(searchText = providerSearchText(updated.name, updated.originalTitle, updated.genres,
+                    updated.year, updated.country, updated.director, updated.actors, updated.plot))
+                if (searchable != current) series.updateSeries(listOf(searchable))
+                searchable
+            }
+        }
     }
 
     private suspend fun fetch(show: Boolean, localId: Long, sourceId: Long, categoryId: Long?, remoteId: String?, title: String): Details? {
