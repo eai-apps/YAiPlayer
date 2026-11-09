@@ -406,6 +406,7 @@ val dataModule = module {
         )
     }
     single { tv.own.owntv.core.backup.SettingsTransferServer() }
+    single { tv.own.owntv.extras.favoriteshub.FavoritesHubFeed(get(), get(), get(), get(), get(), get(), get()) }
     // profileDao, sourceDao, settings, launcherIntegration, openSubtitlesAccounts — creating,
     // editing, switching and deleting a profile, shared by both apps' profile gates.
     single { tv.own.owntv.core.profile.ProfileAvatarStore(androidContext()) }

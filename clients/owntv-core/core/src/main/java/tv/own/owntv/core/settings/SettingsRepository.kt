@@ -665,6 +665,7 @@ class SettingsRepository(private val context: Context, private val localeStore: 
         val LAST_BACKUP_BYTES = longPreferencesKey("last_backup_bytes")
         val LAST_BACKUP_ENCRYPTED = booleanPreferencesKey("last_backup_encrypted")
         val LAST_BACKUP_PATH = stringPreferencesKey("last_backup_path")
+        val FAVORITES_HUB_ALL_PLAYLISTS = booleanPreferencesKey("favorites_hub_all_playlists")
 
         // When an update check last got an answer from GitHub (About's "Checked today, 20:12").
         val LAST_UPDATE_CHECK_AT = longPreferencesKey("last_update_check_at")
@@ -703,6 +704,12 @@ class SettingsRepository(private val context: Context, private val localeStore: 
 
     /** The last update check that got an answer (up to date or a new version); `null` until one has. */
     val lastUpdateCheckAt: Flow<Long?> = prefsFlow { it[Keys.LAST_UPDATE_CHECK_AT]?.takeIf { at -> at > 0 } }
+
+    val favoritesHubAllPlaylists: Flow<Boolean> = prefsFlow { it[Keys.FAVORITES_HUB_ALL_PLAYLISTS] ?: true }
+
+    suspend fun setFavoritesHubAllPlaylists(all: Boolean) {
+        context.dataStore.edit { it[Keys.FAVORITES_HUB_ALL_PLAYLISTS] = all }
+    }
 
     /** Called by [tv.own.owntv.core.update.UpdateManager] only when a check succeeded. */
     suspend fun recordUpdateCheck(at: Long) {

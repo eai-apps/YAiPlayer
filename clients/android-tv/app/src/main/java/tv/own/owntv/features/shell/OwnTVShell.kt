@@ -225,6 +225,7 @@ fun OwnTVShell(
     var downloadsEntry by remember { mutableStateOf<(() -> Boolean)?>(null) }
     var moreEntry by remember { mutableStateOf<(() -> Boolean)?>(null) }
     var sportsEntry by remember { mutableStateOf<(() -> Boolean)?>(null) }
+    var favoritesEntry by remember { mutableStateOf<(() -> Boolean)?>(null) }
     // Home's Live sports row opens a match page through the same request the player's Match button uses.
     val sportsMatchRequests = koinInject<tv.own.owntv.features.sports.SportsPlayback>()
     // More › Settings opens Settings at a group, or with its search open.
@@ -1400,6 +1401,20 @@ fun OwnTVShell(
                             modifier = Modifier.fillMaxSize(),
                         )
 
+                        selectedSection == MainSection.FAVORITES -> tv.own.owntv.extras.favoriteshub.FavoritesHubTvScreen(
+                            onPlayChannel = { ch ->
+                                scope.launch {
+                                    if (liveVm.ensurePlayingByIdAsync(ch.id)) openFullscreen(MainSection.LIVE_TV)
+                                }
+                            },
+                            onPlayCatchup = guidePlayCatchup,
+                            onOpenLive = { onSelectSection(MainSection.LIVE_TV) },
+                            onChildFocused = { focusedLayer = ShellLayer.CONTENT },
+                            onEntryHook = { favoritesEntry = it },
+                            contentStart = if (navStyle == tv.own.owntv.core.settings.SettingsRepository.NavStyle.DOCKED) 64.mpx else 150.mpx,
+                            modifier = Modifier.fillMaxSize(),
+                        )
+
                         selectedSection == MainSection.SPORTS -> tv.own.owntv.features.sports.SportsScreen(
                             onPlayChannel = { ch, zap -> scope.launch { if (liveVm.ensurePlayingByIdAsync(ch.id, zap)) openFullscreen(MainSection.LIVE_TV) } },
                             onAddPlaylist = { onSelectSection(MainSection.SETTINGS) },
@@ -1483,6 +1498,7 @@ fun OwnTVShell(
                     MainSection.MOVIES, MainSection.SERIES -> vodEntry
                     MainSection.DOWNLOADS -> downloadsEntry
                     MainSection.MORE -> moreEntry
+                    MainSection.FAVORITES -> favoritesEntry
                     MainSection.SPORTS -> sportsEntry
                     else -> null
                 },

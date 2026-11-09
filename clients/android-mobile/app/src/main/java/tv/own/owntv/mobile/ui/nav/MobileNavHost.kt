@@ -146,6 +146,7 @@ fun MobileNavHost(
                         onOpenSearch = { query -> navController.navigate(searchRoute(query)) },
                         onOpenMatch = { sportsPlayback.opening = it; navController.navigate(sportsMatchRoute(it.key)) },
                         onAddSource = { navController.navigate(setupRoute(SetupEntry.FORM)) },
+                        onOpenFavorites = { navController.navigateToTab(MobileDestination.FAVORITES) },
                     )
                     MobileDestination.GUIDE -> GuideScreen(
                         scrollToTop = scrollToTop,
@@ -155,6 +156,18 @@ fun MobileNavHost(
                     MobileDestination.LIVE -> LiveScreen(
                         scrollToTop = scrollToTop,
                         onOpenPlayer = { navController.navigate(PLAYER_ROUTE) },
+                    )
+                    MobileDestination.FAVORITES -> tv.own.owntv.extras.favoriteshub.FavoritesHubMobileScreen(
+                        scrollToTop = scrollToTop,
+                        onPlayChannel = { ch ->
+                            tuner.tune(ch.id)
+                            navController.navigate(PLAYER_ROUTE)
+                        },
+                        onPlayCatchup = { ch, _ ->
+                            tuner.tune(ch.id)
+                            navController.navigate(PLAYER_ROUTE)
+                        },
+                        onOpenLive = { navController.navigateToTab(MobileDestination.LIVE) },
                     )
                     MobileDestination.DOWNLOADS -> DownloadsScreen(
                         onPlayerOpened = { navController.navigate(PLAYER_ROUTE) },

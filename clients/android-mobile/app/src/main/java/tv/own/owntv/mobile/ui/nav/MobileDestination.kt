@@ -27,6 +27,7 @@ enum class MobileDestination(
 ) {
     HOME("home", R.string.common_nav_home, MobileIcons.Home, setOf(MainSection.HOME)),
     LIVE("live", R.string.common_nav_live_tv, MobileIcons.LiveTv, setOf(MainSection.LIVE_TV)),
+    FAVORITES("favorites", R.string.common_nav_favorites, MobileIcons.Favorite, setOf(MainSection.FAVORITES)),
     SPORTS("sports", R.string.sports_title, MobileIcons.Sports, setOf(MainSection.SPORTS)),
     GUIDE("guide", R.string.common_nav_guide, MobileIcons.Guide, setOf(MainSection.EPG), R.string.common_nav_guide_short),
     MOVIES("movies", R.string.common_nav_movies, MobileIcons.Movie, setOf(MainSection.MOVIES)),
@@ -48,14 +49,14 @@ enum class MobileDestination(
          * Library so Sports fits in five. More is not on it: the avatar at the top right opens it, as the
          * TV rail ends in the profile.
          */
-        val bottomBar: List<MobileDestination> = listOf(HOME, LIVE, SPORTS, GUIDE, LIBRARY)
+        val bottomBar: List<MobileDestination> = listOf(HOME, LIVE, FAVORITES, SPORTS, GUIDE, LIBRARY)
 
         /**
          * The rail (`railH`), in order: the places, Downloads, then More as the last
          * item. Settings is not on it — it is what More is for, on every width.
          */
         val rail: List<MobileDestination> =
-            listOf(HOME, LIVE, SPORTS, GUIDE, MOVIES, SERIES, DOWNLOADS, MORE)
+            listOf(HOME, LIVE, FAVORITES, SPORTS, GUIDE, MOVIES, SERIES, DOWNLOADS, MORE)
 
         /**
          * The place selected for [route] when its own is not shown: a film under Movies keeps Library lit on

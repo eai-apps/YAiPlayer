@@ -101,7 +101,7 @@ data class NowPlayingRail(val logoUrl: String?, val audioMode: Boolean, val play
 
 /** The rail order: Search first, Sports then the Guide right after Live TV, More last. */
 private val StageRailOrder = listOf(
-    MainSection.SEARCH, MainSection.HOME, MainSection.LIVE_TV, MainSection.SPORTS, MainSection.EPG,
+    MainSection.SEARCH, MainSection.HOME, MainSection.LIVE_TV, MainSection.FAVORITES, MainSection.SPORTS, MainSection.EPG,
     MainSection.MOVIES, MainSection.SERIES, MainSection.DOWNLOADS,
 )
 
@@ -362,6 +362,7 @@ private val MainSection.stageIcon: OwnTVIcon
         MainSection.SEARCH -> OwnTVIcon.SEARCH
         MainSection.HOME -> OwnTVIcon.HOME
         MainSection.LIVE_TV -> OwnTVIcon.LIVE_TV
+        MainSection.FAVORITES -> OwnTVIcon.FAVORITE
         MainSection.EPG -> OwnTVIcon.EPG
         MainSection.SPORTS -> OwnTVIcon.SPORTS
         MainSection.MOVIES -> OwnTVIcon.MOVIES

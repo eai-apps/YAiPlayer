@@ -15,6 +15,7 @@ enum class MainSection(@param:StringRes val labelRes: Int) {
     SEARCH(R.string.common_nav_search),
     HOME(R.string.common_nav_home),
     LIVE_TV(R.string.common_nav_live_tv),
+    FAVORITES(R.string.common_nav_favorites),
 
     /** Scores need no playlist, so DYNAMIC mode always shows it, like [HOME]. */
     SPORTS(R.string.sports_title),
@@ -39,7 +40,7 @@ enum class MainSection(@param:StringRes val labelRes: Int) {
 
     companion object {
         /** Fixed order of the browse items (Settings is pinned separately). */
-        val browseOrder: List<MainSection> = listOf(HOME, LIVE_TV, SPORTS, MOVIES, SERIES, DOWNLOADS, EPG)
+        val browseOrder: List<MainSection> = listOf(HOME, LIVE_TV, FAVORITES, SPORTS, MOVIES, SERIES, DOWNLOADS, EPG)
 
         /** All seven browse items — the default value, so a cold start shows a full nav rather than
          *  flickering through an empty one before the first real emission lands. */
@@ -58,7 +59,7 @@ enum class MainSection(@param:StringRes val labelRes: Int) {
         fun dynamicVisible(hasLive: Boolean, hasMovies: Boolean, hasSeries: Boolean): Set<MainSection> = buildSet {
             add(HOME)
             add(SPORTS)
-            if (hasLive) { add(LIVE_TV); add(EPG) }
+            if (hasLive) { add(LIVE_TV); add(FAVORITES); add(EPG) }
             if (hasMovies) add(MOVIES)
             if (hasSeries) add(SERIES)
             if (hasMovies || hasSeries) add(DOWNLOADS)

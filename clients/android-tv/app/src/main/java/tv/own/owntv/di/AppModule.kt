@@ -41,6 +41,7 @@ import tv.own.owntv.features.settings.SettingsViewModel
 import tv.own.owntv.features.setup.DisplaySizeViewModel
 import tv.own.owntv.features.setup.SetupViewModel
 import tv.own.owntv.features.shell.ShellViewModel
+import tv.own.owntv.extras.favoriteshub.FavoritesHubViewModel
 import tv.own.owntv.features.subtitles.SubtitleSearchViewModel
 
 /**
@@ -55,6 +56,7 @@ import tv.own.owntv.features.subtitles.SubtitleSearchViewModel
  */
 val appModule = module {
     viewModelOf(::ShellViewModel)
+    viewModelOf(::FavoritesHubViewModel)
     // Home's rails are core's, shared with the phone app; the view model only decorates them.
     // LiveEpgReader is registered because GuideReader now needs one: a guide row whose stored data
     // has run out falls back to the provider's short-EPG, which is this reader's to fetch. One

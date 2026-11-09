@@ -119,6 +119,7 @@ fun HomeScreen(
     onOpenSearch: (String) -> Unit,
     onOpenMatch: (tv.own.owntv.core.sports.model.Match) -> Unit,
     onAddSource: (() -> Unit)? = null,
+    onOpenFavorites: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
     vm: HomeViewModel = koinViewModel(),
     sportsVm: tv.own.owntv.mobile.ui.screens.sports.SportsViewModel = koinViewModel(),
@@ -306,6 +307,12 @@ fun HomeScreen(
             tv.own.owntv.mobile.ui.YaiBadge(Modifier.padding(horizontal = 16.dp))
         }
         loadingNote?.let { note -> item("library-loading") { note() } }
+        if (onOpenFavorites != null) item {
+            FavoritesQuickTile(
+                onClick = onOpenFavorites,
+                modifier = Modifier.padding(horizontal = 16.dp),
+            )
+        }
         if (showGuestHook) item("guest_hook") {
             GuestHookCard(
                 onClick = { showLimitSheet = true },
@@ -843,7 +850,17 @@ private fun OnNowCard(channel: ChannelEntity, guide: GuideSliceState, onClick: (
             modifier = Modifier.size(46.dp, 34.dp),
         )
         Column(Modifier.weight(1f)) {
-            Text(channel.name, style = stageText(12.5f, 700), color = palette.text, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(channel.name, style = stageText(12.5f, 700), color = palette.text, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
+                if (channel.catchup) {
+                    Spacer(Modifier.width(4.dp))
+                    tv.own.owntv.extras.favoriteshub.ArchiveBadgeMobile(catchupDays = channel.catchupDays)
+                }
+            }
             Text(
                 now?.title ?: stringResource(R.string.content_no_epg),
                 style = stageText(11f, 500),
@@ -1178,6 +1195,54 @@ private fun MobileOnAirCard(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun FavoritesQuickTile(onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val palette = LocalStagePalette.current
+    val accent = stageAccent
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(palette.glassOff)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(accent.accent.copy(alpha = 0.15f)),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    StageIcon(MobileIcons.Favorite, size = 20.dp, tint = accent.accent)
+                }
+                Column {
+                    Text(
+                        text = stringResource(R.string.home_tile_favorites),
+                        style = stageText(15f, 700),
+                        color = palette.text,
+                    )
+                    Text(
+                        text = stringResource(R.string.home_tile_favorites_desc),
+                        style = stageText(12f, 400),
+                        color = palette.muted,
+                    )
+                }
+            }
+            StageIcon(MobileIcons.KeyboardArrowRight, size = 16.dp, tint = palette.muted)
         }
     }
 }

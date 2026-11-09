@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- Translators: Title of the Favorites Hub screen. -->
+    <string name="favorites_hub_title">Favorites</string>
+    <!-- Translators: Top row header in the Favorites Hub containing all favorite channels. -->
+    <string name="favorites_hub_row_all">All favorites</string>
+    <!-- Translators: Category row header for channels without an assigned category. -->
+    <string name="favorites_hub_uncategorized">No category</string>
+    <!-- Translators: Empty state title on Favorites Hub. -->
+    <string name="favorites_hub_empty_title">No favorite channels yet</string>
+    <!-- Translators: TV empty state instructions on how to add channels to favorites. -->
+    <string name="favorites_hub_empty_tv">Add channels to favorites (hold OK on a channel)</string>
+    <!-- Translators: Mobile empty state instructions on how to add channels to favorites. -->
+    <string name="favorites_hub_empty_mobile">Add channels to favorites (tap ♥ on a channel)</string>
+    <!-- Translators: Button to open Live TV from empty favorites state. -->
+    <string name="favorites_hub_open_live">Open Live TV</string>
+    <!-- Translators: Filter switch: all playlists option. -->
+    <string name="favorites_hub_filter_all">All playlists</string>
+    <!-- Translators: Filter switch: current playlist only option. -->
+    <string name="favorites_hub_filter_current">Current only</string>
+    <!-- Translators: Badge text indicating catchup/archive with days count. -->
+    <string name="favorites_hub_archive_days">Archive %1$d d.</string>
+    <!-- Translators: Badge text indicating catchup/archive when days count is unknown. -->
+    <string name="favorites_hub_archive">Archive</string>
+    <!-- Translators: Home screen quick tile title for Favorites Hub. -->
+    <string name="home_tile_favorites">Favorites</string>
+    <!-- Translators: Home screen quick tile description for Favorites Hub. -->
+    <string name="home_tile_favorites_desc">Favorite channels showcase</string>
+</resources>

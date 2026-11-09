@@ -71,6 +71,7 @@
 1	empty	app/src/main/java/tv/own/owntv/mobile/ui/components/MoveSheets.kt	\0
 1	empty	app/src/main/java/tv/own/owntv/mobile/ui/components/TmdbDetailsSheet.kt	\0
 1	protocol	app/src/main/java/tv/own/owntv/mobile/ui/nav/MobileDestination.kt	downloads
+1	technical	app/src/main/java/tv/own/owntv/mobile/ui/nav/MobileDestination.kt	favorites
 1	protocol	app/src/main/java/tv/own/owntv/mobile/ui/nav/MobileDestination.kt	guide
 1	protocol	app/src/main/java/tv/own/owntv/mobile/ui/nav/MobileDestination.kt	home
 1	protocol	app/src/main/java/tv/own/owntv/mobile/ui/nav/MobileDestination.kt	library

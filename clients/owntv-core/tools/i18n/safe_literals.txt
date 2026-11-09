@@ -3485,6 +3485,7 @@
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	external_player_live
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	external_player_movies
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	external_player_series
+1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	favorites_hub_all_playlists
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	font_jakarta_migrated
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	font_size_percent
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	gesture_sensitivity_pct

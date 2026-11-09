@@ -27,6 +27,7 @@
     <string name="common_nav_search">Поиск</string>
     <string name="common_nav_home">Главная</string>
     <string name="common_nav_live_tv">Прямой эфир</string>
+    <string name="common_nav_favorites">Избранное</string>
     <string name="common_nav_movies">Фильмы</string>
     <string name="common_nav_series">Сериалы</string>
     <string name="common_nav_downloads">Загрузки</string>
