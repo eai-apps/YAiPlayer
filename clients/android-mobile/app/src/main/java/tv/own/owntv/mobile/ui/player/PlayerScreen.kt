@@ -774,6 +774,10 @@ fun PlayerScreen(
             },
             // Only a live channel whose provider keeps an archive has anything to go back into.
             onCatchup = if (catchup != null) ({ sheet = PlayerSheet.CATCHUP }) else null,
+            onPlayFromStart = if (isLive && (channel?.catchup == true) && (tuner.nowNext.collectAsStateWithLifecycle().value?.now?.let { p ->
+                val now = System.currentTimeMillis()
+                now - p.startMs >= 120_000L && now < p.stopMs
+            } == true)) { { tuner.jumpToCurrentProgrammeStart() } } else null,
             replaying = replaying,
             onPreviousChannel = if (isLive && previousChannel != null) tuner::tunePrevious else null,
             // The previous/next channel of the same category, wrapping at both ends. Offered only

@@ -1253,6 +1253,7 @@ fun OwnTVShell(
                             onPlayMovie = { id, pos -> scope.launch { if (movieVm.playByIdAsync(id, pos) && !movieVm.externalPlayerOn.value) openFullscreen(MainSection.MOVIES) } },
                             onPlayEpisode = { seriesId, epId, pos -> scope.launch { if (seriesVm.playFromHomeAsync(seriesId, epId, pos) && !seriesVm.externalPlayerOn.value) openFullscreen(MainSection.SERIES) } },
                             onPlayChannel = { id, zap -> scope.launch { if (liveVm.ensurePlayingByIdAsync(id, zap)) openFullscreen(MainSection.LIVE_TV) } },
+                            onPlayCatchup = { ch, prog -> scope.launch { liveVm.playCatchupProgramme(ch, prog); openFullscreen(MainSection.LIVE_TV) } },
                             onActivateTrending = { selected, onUnavailable ->
                                 scope.launch {
                                     when (val current = homeVm.revalidateTrendingItem(selected)) {
@@ -1749,6 +1750,10 @@ fun OwnTVShell(
                     onPreviousChannel = if (isTunedLive && previousLiveChannel != null) liveVm::previousChannel else null,
                     jumpBackWindowSec = if ((isTunedLive || archiveChannel) && previewChannel?.catchup == true) liveVm::currentCatchupWindowSec else null,
                     jumpBackProgrammeStart = if ((isTunedLive || archiveChannel) && previewChannel?.catchup == true) liveVm::currentProgrammeStart else null,
+                    onPlayFromStart = if (isTunedLive && previewChannel?.catchup == true && (liveVm.nowNext.collectAsStateWithLifecycle().value?.now?.let { p ->
+                        val now = System.currentTimeMillis()
+                        now - p.startMs >= 120_000L && now < p.stopMs
+                    } == true)) { { liveVm.jumpToCurrentProgrammeStart() } } else null,
                     jumpBackProgrammes = if ((isTunedLive || archiveChannel) && previewChannel?.catchup == true) liveVm::currentCatchupProgrammes else null,
                     onPlayProgramme = if ((isTunedLive || archiveChannel) && previewChannel?.catchup == true) liveVm::playCurrentCatchupProgramme else null,
                     // Non-null only while an archive is on screen, so movies, episodes and live TV get

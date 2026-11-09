@@ -131,6 +131,7 @@ fun PlayerControls(
     onToggleFavorite: () -> Unit,
     /** Opens "Go back to…", or null when this channel's provider keeps no archive. */
     onCatchup: (() -> Unit)?,
+    onPlayFromStart: (() -> Unit)? = null,
     /** Back to the channel watched before this one; null hides the button. */
     onPreviousChannel: (() -> Unit)? = null,
     /**
@@ -253,6 +254,7 @@ fun PlayerControls(
                         favorite = favorite,
                         onToggleFavorite = onToggleFavorite,
                         onCatchup = onCatchup,
+                    onPlayFromStart = onPlayFromStart,
                         onPreviousChannel = onPreviousChannel,
                         onMultiview = onMultiview,
                         onReport = onReport,
@@ -331,6 +333,7 @@ private fun TransportRow(
     onSkipLive: ((forward: Boolean) -> Unit)?,
     behindLive: Boolean,
     onCatchup: (() -> Unit)? = null,
+    onPlayFromStart: (() -> Unit)? = null,
     onGoLive: (() -> Unit)? = null,
     /** Step within the channel list; null hides the button (live only). */
     onChannelPrevious: (() -> Unit)? = null,
@@ -351,6 +354,9 @@ private fun TransportRow(
             }
             if (liveLike && onCatchup != null) {
                 LabelledRoundControl(MobileIcons.Catchup, R.string.player_tool_catchup, size = 80.dp, onClick = onCatchup)
+            }
+            if (liveLike && onPlayFromStart != null) {
+                LabelledRoundControl(MobileIcons.Catchup, R.string.on_air_from_start, size = 80.dp, onClick = onPlayFromStart)
             }
             if (!isLive) {
                 RoundControl(MobileIcons.FastRewind, R.string.player_skip_back) { player.seekBy(-step) }
@@ -543,6 +549,7 @@ private fun ToolBar(
     favorite: Boolean,
     onToggleFavorite: () -> Unit,
     onCatchup: (() -> Unit)?,
+    onPlayFromStart: (() -> Unit)? = null,
     onPreviousChannel: (() -> Unit)? = null,
     // Live only, and only once Multiview is switched on in Settings. Null hides the button.
     onMultiview: (() -> Unit)? = null,

@@ -285,6 +285,7 @@ internal fun CenterControls(
     // Play, and the recent-channels list. Archive stays on screen while an archive plays, so another
     // day or time can be picked without going back to live first.
     onOpenArchive: (() -> Unit)? = null,
+    onPlayFromStart: (() -> Unit)? = null,
     onPrevInList: (() -> Unit)? = null, onNextInList: (() -> Unit)? = null,
     onOpenRecent: (() -> Unit)? = null,
     /** Back to the live edge, shown while an archive is playing. */
@@ -312,6 +313,7 @@ internal fun CenterControls(
             if (liveLike && onPrevInList != null) LabelledCircleButton(OwnTVIcon.SKIP_PREVIOUS, stringResource(R.string.player_btn_prev_channel), size = 100) { onPrevInList() }
             if (nav.hasPrev) CircleButton(OwnTVIcon.SKIP_PREVIOUS, size = 44) { player.previous() }
             if (liveLike && onOpenArchive != null) LabelledCircleButton(OwnTVIcon.CATCHUP, stringResource(R.string.player_tool_catchup), size = 112) { onOpenArchive() }
+            if (liveLike && onPlayFromStart != null) LabelledCircleButton(OwnTVIcon.REWIND, stringResource(R.string.on_air_from_start), size = 100) { onPlayFromStart() }
             when {
                 // Seeking inside a running archive only; at the live edge the Archive button is the way back.
                 rewindMode -> if (timeshifting || onOpenArchive == null) CircleButton(OwnTVIcon.REWIND, size = 44) { onRewindLive() }

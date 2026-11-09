@@ -148,6 +148,7 @@ fun HomeScreen(
     onOpenSeries: (SeriesEntity) -> Unit,
     onOpenTrendingSearch: (String) -> Unit,
     onChildFocused: () -> Unit,
+    onPlayCatchup: ((ChannelEntity, EpgProgrammeEntity) -> Unit)? = null,
     restoreFocus: Boolean = false,
     restoreTrendingSearchFocus: Boolean = false,
     onRestored: () -> Unit = {},
@@ -571,6 +572,16 @@ fun HomeScreen(
                                 )
                             }
 
+                            HomeRow.NOW_ON_AIR -> HomeOnAirRow(
+                                items = state.onAirItems,
+                                firstItemFocusRequester = firstItemFocusRequester,
+                                start = contentStart,
+                                track = track,
+                                onChannelClick = { ch -> onPlayChannel(ch.id, emptyList()) },
+                                onWatchFromStartClick = { ch, prog -> onPlayCatchup?.invoke(ch, prog) ?: onPlayChannel(ch.id, emptyList()) },
+                                modifier = rowModifier,
+                            )
+
                             HomeRow.LIVE_SPORTS -> tv.own.owntv.features.sports.LiveSportsRow(
                                 cards = sportsCards,
                                 config = sportsVm.sportsConfig.collectAsStateWithLifecycle().value,
@@ -865,6 +876,7 @@ private fun GuestFootnote(
 
 private fun rowHasData(row: HomeRow, state: HomeUiState, sportsCards: Int): Boolean = when (row) {
     HomeRow.TRENDING -> state.trendingItems.size >= TrendingDao.MIN_ELIGIBLE_ITEMS
+    HomeRow.NOW_ON_AIR -> state.onAirItems.isNotEmpty()
     HomeRow.LIVE_SPORTS -> sportsCards > 0
     HomeRow.HERO -> state.heroItems.isNotEmpty()
     HomeRow.RECENT_CHANNELS -> when (state.config.recentLiveMode) {

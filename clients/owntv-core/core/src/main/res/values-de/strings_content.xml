@@ -378,4 +378,16 @@
     <string name="search_programme_now">Jetzt</string>
     <string name="search_programme_today">Heute</string>
     <string name="search_programme_tomorrow">Morgen</string>
+    <string name="home_row_now_on_air">Jetzt im TV</string>
+    <string name="home_row_now_on_air_desc">Sendungen, die gerade live ausgestrahlt werden</string>
+    <string name="on_air_from_start">Von Beginn</string>
+    <string name="on_air_ends_at">bis %s</string>
+    <string name="on_air_genre_all">Alle</string>
+    <string name="on_air_genre_movies">Filme</string>
+    <string name="on_air_genre_series">Serien</string>
+    <string name="on_air_genre_sports">Sport</string>
+    <string name="on_air_genre_news">Nachrichten</string>
+    <string name="on_air_genre_kids">Kinder</string>
+    <string name="on_air_genre_music">Musik</string>
+    <string name="on_air_genre_educational">Wissen</string>
 </resources>

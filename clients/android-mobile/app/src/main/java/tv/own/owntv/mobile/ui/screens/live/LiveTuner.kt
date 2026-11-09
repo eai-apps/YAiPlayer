@@ -1010,6 +1010,12 @@ class LiveTuner(
      * Not a replay — this is still the channel, just behind, so the live bar and the way back to now
      * stay. That is why it goes through the timeshift rather than through [playCatchup].
      */
+    fun jumpToCurrentProgrammeStart() {
+        val prog = _nowNext.value?.now ?: return
+        val offsetSec = ((System.currentTimeMillis() - prog.startMs) / 1000L).toInt().coerceAtLeast(0)
+        jumpBackTo(offsetSec)
+    }
+
     fun jumpBackTo(offsetSec: Int) {
         if (casting()) return
         val ch = _channel.value?.takeIf { timeshift.canRewind(it) } ?: return

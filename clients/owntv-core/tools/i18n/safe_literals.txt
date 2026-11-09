@@ -1197,6 +1197,7 @@
 1	sql	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	AND (title LIKE '%' || :query1 || '%' OR title LIKE '%' || :query2 || '%' OR title LIKE '%' || :query3 || '%' OR title LIKE '%' || :query4 || '%')
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	AND startMs > :from - 86400000 AND stopMs > :from AND startMs < :to ORDER BY epgChannelId ASC, startMs ASC
 2	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	AND startMs > :from - 86400000 AND stopMs > :from AND startMs < :to ORDER BY startMs ASC
+1	sql	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	AND stopMs > :now AND startMs <= :now
 1	sql	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	AND title LIKE '%' || :query || '%' ORDER BY startMs ASC LIMIT :limit
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	DELETE FROM epg_channels WHERE sourceId = :sourceId
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	DELETE FROM epg_channels WHERE sourceId = :sourceId AND epgChannelId IN (:epgChannelIds)
@@ -1207,6 +1208,7 @@
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	DELETE FROM epg_programmes WHERE sourceId = :sourceId AND epgChannelId IN (:epgChannelIds)
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	DELETE FROM epg_programmes WHERE startMs > :after
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	DELETE FROM epg_programmes WHERE stopMs < :before
+2	sql	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	FROM epg_programmes WHERE epgChannelId IN (:epgKeys)
 2	sql	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	FROM epg_programmes WHERE startMs > :from - 86400000 AND startMs < :to AND stopMs > :from
 4	sql	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	NULL AS categories, NULL AS year, NULL AS rating, NULL AS lengthMin, NULL AS episode
 1	sql	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	ORDER BY startMs ASC LIMIT :limit
@@ -1231,8 +1233,9 @@
 1	sql	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	SELECT id, description FROM epg_programmes WHERE id IN (:ids) AND description IS NOT NULL
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	SELECT id, epgChannelId, startMs, contentHash FROM epg_programmes WHERE sourceId = :sourceId AND epgChannelId = :epgChannelId
 1	sql	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	SELECT id, epgChannelId, startMs, stopMs, title, categories FROM epg_programmes
-4	sql	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	SELECT id, sourceId, epgChannelId, startMs, stopMs, title, NULL AS description, 0 AS contentHash,
+5	sql	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	SELECT id, sourceId, epgChannelId, startMs, stopMs, title, NULL AS description, 0 AS contentHash,
 1	sql	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	WHERE startMs >= :from AND startMs < :to AND +stopMs > :minStop LIMIT :limit
+1	sql	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	categories, year, rating, lengthMin, episode
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/FavoriteDao.kt	(:type = 'LIVE' AND itemId NOT IN (SELECT id FROM channels)) OR
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/FavoriteDao.kt	(:type = 'MOVIE' AND itemId NOT IN (SELECT id FROM movies)) OR
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/FavoriteDao.kt	(:type = 'SERIES' AND itemId NOT IN (SELECT id FROM series))
@@ -2129,6 +2132,20 @@
 1	technical	core/src/main/java/tv/own/owntv/core/home/HomeFeed.kt	episode:${episode.id}
 1	technical	core/src/main/java/tv/own/owntv/core/home/HomeFeed.kt	live:${channel.id}
 1	technical	core/src/main/java/tv/own/owntv/core/home/HomeFeed.kt	movie:${movie.id}
+1	regex	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	[${EpgDetails.CATEGORY_SEPARATOR},;/|]
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	action
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	adventure
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	animals
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	animated
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	animation
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	anime
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	athletics
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	basketball
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	biathlon
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	boxing
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	breaking news
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	bulletin
+1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	cartoon
 1	empty	core/src/main/java/tv/own/owntv/core/i18n/AppLocale.kt	\0
 1	empty	core/src/main/java/tv/own/owntv/core/i18n/LocaleStore.kt	\0
 1	technical	core/src/main/java/tv/own/owntv/core/i18n/LocaleStore.kt	Failed to persist application locale

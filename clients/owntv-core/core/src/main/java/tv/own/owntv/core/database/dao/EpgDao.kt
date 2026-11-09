@@ -134,6 +134,15 @@ interface EpgDao {
     )
     suspend fun programmeSummariesForChannels(epgKeys: List<String>, from: Long, to: Long): List<EpgProgrammeEntity>
 
+    /** Programmes currently on air for a list of channels, with categories preserved for genre classification. */
+    @Query(
+        "SELECT id, sourceId, epgChannelId, startMs, stopMs, title, NULL AS description, 0 AS contentHash, " +
+            "categories, year, rating, lengthMin, episode " +
+            "FROM epg_programmes WHERE epgChannelId IN (:epgKeys) " +
+            "AND stopMs > :now AND startMs <= :now",
+    )
+    suspend fun programmesOnAirForChannels(epgKeys: List<String>, now: Long): List<EpgProgrammeEntity>
+
     /**
      * Programmes whose title contains [query] and that are on between [from] and [to] — what Search's
      * "On TV" group is drawn from. Bounded by start time, so it reads through the `(startMs, stopMs)`

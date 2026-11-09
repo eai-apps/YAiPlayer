@@ -126,6 +126,18 @@ class HomeViewModel(
         viewModelScope.launch {
             customize.sealedCategoryKeys(settings.activeProfileId).drop(1).collect { reloads.tryEmit(Unit) }
         }
+        viewModelScope.launch {
+            while (true) {
+                delay(60_000L)
+                val pid = profileId.value
+                if (pid >= 0) {
+                    try {
+                        val onAir = reader.loadOnAir(pid)
+                        _feed.value = _feed.value?.copy(onAirItems = onAir)
+                    } catch (_: Exception) {}
+                }
+            }
+        }
     }
 
     fun refresh() {
