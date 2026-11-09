@@ -127,6 +127,7 @@ class M3uParser {
                         catchup = catchup ?: timeshiftDays?.let { "shift" },
                         catchupSource = attrs.attr("catchup-source"),
                         catchupDays = attrs.attr("catchup-days")?.toIntOrNull() ?: timeshiftDays,
+                        tvgRec = attrs.attr("tvg-rec")?.toIntOrNull()?.takeIf { it > 0 },
                         catchupCorrectionMin = correctionMinutes(attrs.attr("catchup-correction")) ?: headerCorrectionMin,
                     )
                 }
@@ -177,9 +178,9 @@ class M3uParser {
                                     tvgChno = p.tvgChno,
                                     type = p.type,
                                     tvgType = p.tvgType,
-                                    catchup = p.catchup,
+                                    catchup = p.catchup ?: p.tvgRec?.let { impliedCatchupType(url) },
                                     catchupSource = p.catchupSource,
-                                    catchupDays = p.catchupDays,
+                                    catchupDays = p.catchupDays ?: p.tvgRec,
                                     headers = pendingHeaders ?: emptyMap(),
                                     drm = pendingKodiProps?.let { tv.own.owntv.core.drm.DrmConfig.fromKodiProps(it) },
                                     manifestType = pendingKodiProps?.let {
@@ -237,8 +238,19 @@ class M3uParser {
         val catchup: String?,
         val catchupSource: String?,
         val catchupDays: Int?,
+        val tvgRec: Int?,
         val catchupCorrectionMin: Int,
     )
+
+    /**
+     * `tvg-rec="N"` says the channel keeps N days of archive but not how to ask for it. Flussonic-style
+     * `…/index.m3u8` and `mpegts` URLs take `timeshift_abs-<start>`; anything else gets the common
+     * `?utc=&lutc=` form. An explicit `catchup` attribute always wins over this guess.
+     */
+    private fun impliedCatchupType(url: String): String {
+        val path = url.substringBefore('?').substringBefore('#').lowercase()
+        return if (path.endsWith("/index.m3u8") || path.endsWith("/mpegts")) "flussonic" else "shift"
+    }
 
     /** `catchup-correction` is in hours and may be fractional or negative ("-1.5"); null when it is
      *  not a number. Rounded to whole minutes, which is all a guide time ever needs. */
