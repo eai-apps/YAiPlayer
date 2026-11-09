@@ -1,0 +1,90 @@
+{
+  "models": [
+    {
+      "id": "android_tv_generic",
+      "name": "Android TV (Универсальный)"
+    },
+    {
+      "id": "xiaomi_mitv",
+      "name": "Xiaomi Mi TV / TV Box"
+    },
+    {
+      "id": "sony_bravia",
+      "name": "Sony BRAVIA (Google TV)"
+    },
+    {
+      "id": "tcl_tv",
+      "name": "TCL Android TV"
+    },
+    {
+      "id": "philips_tv",
+      "name": "Philips Android TV"
+    }
+  ],
+  "packages": [
+    {
+      "package": "com.google.android.youtube.tvunplugged",
+      "titleKey": "pkg_youtube_tv_title",
+      "descriptionKey": "pkg_youtube_tv_desc",
+      "risk": "safe",
+      "recommended": true,
+      "models": ["android_tv_generic", "xiaomi_mitv", "sony_bravia", "tcl_tv", "philips_tv"]
+    },
+    {
+      "package": "com.google.android.play.games",
+      "titleKey": "pkg_play_games_title",
+      "descriptionKey": "pkg_play_games_desc",
+      "risk": "safe",
+      "recommended": true,
+      "models": ["android_tv_generic", "xiaomi_mitv", "sony_bravia", "tcl_tv", "philips_tv"]
+    },
+    {
+      "package": "com.mitv.tvhome",
+      "titleKey": "pkg_patchwall_title",
+      "descriptionKey": "pkg_patchwall_desc",
+      "risk": "moderate",
+      "recommended": true,
+      "models": ["xiaomi_mitv"]
+    },
+    {
+      "package": "com.xiaomi.mitv.upgrade",
+      "titleKey": "pkg_xiaomi_upgrade_title",
+      "descriptionKey": "pkg_xiaomi_upgrade_desc",
+      "risk": "moderate",
+      "recommended": false,
+      "models": ["xiaomi_mitv"]
+    },
+    {
+      "package": "com.sony.dtv.braviasync",
+      "titleKey": "pkg_sony_sync_title",
+      "descriptionKey": "pkg_sony_sync_desc",
+      "risk": "moderate",
+      "recommended": false,
+      "models": ["sony_bravia"]
+    },
+    {
+      "package": "com.tcl.tvmanager",
+      "titleKey": "pkg_tcl_manager_title",
+      "descriptionKey": "pkg_tcl_manager_desc",
+      "risk": "safe",
+      "recommended": true,
+      "models": ["tcl_tv"]
+    },
+    {
+      "package": "com.android.printspooler",
+      "titleKey": "pkg_print_spooler_title",
+      "descriptionKey": "pkg_print_spooler_desc",
+      "risk": "safe",
+      "recommended": true,
+      "models": ["android_tv_generic", "xiaomi_mitv", "sony_bravia", "tcl_tv", "philips_tv"]
+    },
+    {
+      "package": "com.google.android.music",
+      "titleKey": "pkg_google_music_title",
+      "descriptionKey": "pkg_google_music_desc",
+      "risk": "safe",
+      "recommended": true,
+      "models": ["android_tv_generic", "xiaomi_mitv", "sony_bravia", "tcl_tv", "philips_tv"]
+    }
+  ]
+}

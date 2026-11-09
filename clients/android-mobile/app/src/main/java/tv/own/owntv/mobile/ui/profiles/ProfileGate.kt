@@ -22,6 +22,9 @@ import tv.own.owntv.mobile.ui.stage.stageBackground
 import tv.own.owntv.mobile.ui.stage.stageClickable
 import tv.own.owntv.mobile.ui.stage.stageText
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import tv.own.owntv.extras.tvoptimizer.TvOptimizerScreen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -69,12 +72,14 @@ fun ProfileGate(
     onEntered: (ProfileEntity) -> Unit,
     modifier: Modifier = Modifier,
     vm: ProfilesViewModel,
+    onOpenTvOptimizer: (() -> Unit)? = null,
 ) {
     var pinFor by remember { mutableStateOf<ProfileEntity?>(null) }
     var menuFor by remember { mutableStateOf<ProfileEntity?>(null) }
     var confirmDelete by remember { mutableStateOf<ProfileEntity?>(null) }
     var pinForDelete by remember { mutableStateOf<ProfileEntity?>(null) }
     var addProfile by remember { mutableStateOf(false) }
+    var showTvOptimizer by remember { mutableStateOf(false) }
     val fallbackName = stringResource(R.string.profiles_default_name)
 
     fun enter(profile: ProfileEntity) = vm.switchTo(profile) { onEntered(profile) }
@@ -122,7 +127,7 @@ fun ProfileGate(
         )
         // The guest ("no registration, no profile") is a tile of its own until its profile exists.
         val guestMissing = visibleProfiles.none { it.id == guestId }
-        val tiles: List<Any> = visibleProfiles + "add" + (if (guestMissing) listOf("guest") else emptyList())
+        val tiles: List<Any> = visibleProfiles + "add" + (if (guestMissing) listOf("guest") else emptyList()) + listOf("tv_optimizer")
         tiles.chunked(2).forEach { pair ->
             Row(Modifier.fillMaxWidth().padding(bottom = 26.dp), horizontalArrangement = Arrangement.spacedBy(20.dp)) {
                 pair.forEach { tile ->
@@ -133,6 +138,12 @@ fun ProfileGate(
                                 onClick = { vm.enterGuest(onEntered) },
                                 label = stringResource(R.string.profiles_guest_name),
                                 icon = MobileIcons.Person,
+                            )
+                        } else if (tile == "tv_optimizer") {
+                            AddProfileTile(
+                                onClick = { onOpenTvOptimizer?.invoke() ?: run { showTvOptimizer = true } },
+                                label = stringResource(tv.own.owntv.core.R.string.tv_optimizer_tile),
+                                icon = MobileIcons.AutoAwesome,
                             )
                         } else if (profile == null) {
                             AddProfileTile(onClick = { addProfile = true })
@@ -209,6 +220,15 @@ fun ProfileGate(
             },
             onDismiss = { confirmDelete = null },
         )
+    }
+
+    if (showTvOptimizer) {
+        Dialog(
+            onDismissRequest = { showTvOptimizer = false },
+            properties = DialogProperties(usePlatformDefaultWidth = false),
+        ) {
+            TvOptimizerScreen(onDismiss = { showTvOptimizer = false })
+        }
     }
 
     pinForDelete?.let { locked ->
