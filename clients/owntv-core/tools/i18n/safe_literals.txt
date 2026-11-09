@@ -2786,6 +2786,8 @@
 1	technical	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	.manifest_headers
 1	technical	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	.stream_header
 1	technical	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	.stream_headers
+1	url	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	/index.m3u8
+1	url	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	/mpegts
 1	technical	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	://
 2	protocol	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	="
 1	protocol	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	M3uParser
@@ -2795,6 +2797,7 @@
 1	protocol	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	catchup-days
 1	protocol	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	catchup-source
 1	protocol	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	catchup-type
+1	protocol	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	flussonic
 1	protocol	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	group-title
 2	technical	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	http-
 2	protocol	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	movie
@@ -2803,7 +2806,7 @@
 1	protocol	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	parse start
 1	protocol	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	parseOrReadMs=$parseOrReadDelta callbackMs=$callbackDelta
 2	protocol	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	series
-1	protocol	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	shift
+2	protocol	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	shift
 1	protocol	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	timeshift
 1	protocol	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	totalMs=${now - startedAt}
 1	protocol	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	totalParseOrReadMs=${metrics.parseOrReadMs} totalCallbackMs=${metrics.callbackMs}
@@ -2811,6 +2814,7 @@
 1	protocol	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	tvg-id
 1	protocol	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	tvg-logo
 3	protocol	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	tvg-name
+1	protocol	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	tvg-rec
 1	protocol	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	tvg-type
 1	protocol	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	type
 1	protocol	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	url-tvg
