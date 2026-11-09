@@ -188,6 +188,8 @@ fun GuideScreen(
     var dayOpen by remember { mutableStateOf(false) }
     var orderOpen by remember { mutableStateOf(false) }
     var searching by remember { mutableStateOf(query.isNotEmpty()) }
+    var searchTab by remember { mutableStateOf(0) }
+    val programmeResults by vm.programmeResults.collectAsStateWithLifecycle()
 
     // A different category, day or search is a different list; the old scroll position means nothing.
     LaunchedEffect(selected, day, query, mode) { listState.scrollToItem(0) }
@@ -290,23 +292,34 @@ fun GuideScreen(
         val toolsTop = if (mode == SettingsRepository.GuideView.GRID) 12.dp else TOOLS_TOP
         if (searching) {
             val keyboard = LocalSoftwareKeyboardController.current
-            Row(
+            Column(
                 Modifier.fillMaxWidth().padding(start = 14.dp, end = 14.dp, top = toolsTop, bottom = 10.dp),
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalAlignment = Alignment.CenterVertically,
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                StageSearchField(
-                    value = query,
-                    onValueChange = vm::setQuery,
-                    placeholder = stringResource(R.string.content_epg_search_hint),
-                    inline = true,
-                    onSearch = { keyboard?.hide() },
-                    modifier = Modifier.weight(1f),
-                )
-                StageTool(
-                    onClick = { vm.setQuery(""); searching = false },
-                    icon = MobileIcons.Close,
-                    contentDescription = stringResource(R.string.content_close),
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    StageSearchField(
+                        value = query,
+                        onValueChange = vm::setQuery,
+                        placeholder = stringResource(R.string.content_epg_search_hint),
+                        inline = true,
+                        onSearch = { keyboard?.hide() },
+                        modifier = Modifier.weight(1f),
+                    )
+                    StageTool(
+                        onClick = { vm.setQuery(""); searching = false; searchTab = 0 },
+                        icon = MobileIcons.Close,
+                        contentDescription = stringResource(R.string.content_close),
+                    )
+                }
+                StageSegmented(
+                    options = listOf(stringResource(R.string.common_nav_live), stringResource(R.string.search_on_tv)),
+                    selected = searchTab,
+                    onSelect = { searchTab = it },
+                    fill = true,
                 )
             }
         } else {
@@ -337,7 +350,31 @@ fun GuideScreen(
         if (stats?.mismatchedIds == true) GuideNotice(stringResource(R.string.content_epg_mismatched_ids))
 
         Box(Modifier.weight(1f)) {
-            if (categories.firstOrNull { it.key == selected }?.sealed == true) {
+            if (searching && searchTab == 1) {
+                if (programmeResults.isEmpty()) {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(
+                            if (query.trim().length < 3) stringResource(R.string.content_epg_search_hint)
+                            else stringResource(R.string.common_empty),
+                            color = LocalStagePalette.current.muted,
+                            style = stageText(14f, 500),
+                        )
+                    }
+                } else {
+                    androidx.compose.foundation.lazy.LazyColumn(Modifier.fillMaxSize()) {
+                        items(programmeResults, key = { it.programme.id * 1_000_000L + it.channel.id }) { found ->
+                            tv.own.owntv.mobile.ui.screens.search.ProgrammeResult(
+                                channel = found.channel,
+                                title = found.programme.title,
+                                startMs = found.programme.startMs,
+                                stopMs = found.programme.stopMs,
+                                mark = marks[found.channel.sourceId],
+                                onClick = { sheetFor = found.channel to found.programme },
+                            )
+                        }
+                    }
+                }
+            } else if (categories.firstOrNull { it.key == selected }?.sealed == true) {
                 tv.own.owntv.mobile.ui.categorylock.LockedCategoryState(onEnterPin = { lock.enterPin(selected) })
             } else if (channels.itemCount == 0) {
                 EmptyGuide(

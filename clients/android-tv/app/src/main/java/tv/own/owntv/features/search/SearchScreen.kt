@@ -162,6 +162,7 @@ fun SearchScreen(
     /** False while the fullscreen or mini player owns the picture. */
     previewEnabled: Boolean,
     vm: SearchViewModel = koinViewModel(),
+    epgVm: tv.own.owntv.features.epg.EpgViewModel = koinViewModel(),
     returnToHomeOnBack: Boolean = false,
     onReturnToHome: () -> Unit = {},
     modifier: Modifier = Modifier,
@@ -197,6 +198,7 @@ fun SearchScreen(
     // ▼ from the field and ▲ out of the results land on the first button that is on, else the first.
     val filterEntry = filterFocus.getValue(kinds.minOrNull() ?: SearchKind.entries.first())
     var filterFocused by remember { mutableStateOf<SearchKind?>(null) }
+    var programmeMenuFor by remember { mutableStateOf<ProgrammeSearchResult?>(null) }
 
     // The focused row drives the right side; nothing focused yet = the first result.
     var focusedKey by remember { mutableStateOf<String?>(null) }
@@ -408,14 +410,23 @@ fun SearchScreen(
                         is Entry.Programme -> {
                             val ch = e.found.channel
                             val p = e.found.programme
+                            val badge = tv.own.owntv.core.content.ProgrammeSearchMatcher.programmeBadge(p.startMs, p.stopMs)
+                            val badgeText = when (badge.kind) {
+                                tv.own.owntv.core.content.ProgrammeSearchMatcher.ProgrammeTimeBadgeKind.NOW -> stringResource(R.string.search_programme_now)
+                                tv.own.owntv.core.content.ProgrammeSearchMatcher.ProgrammeTimeBadgeKind.TODAY -> stringResource(R.string.search_programme_today)
+                                tv.own.owntv.core.content.ProgrammeSearchMatcher.ProgrammeTimeBadgeKind.TOMORROW -> stringResource(R.string.search_programme_tomorrow)
+                                tv.own.owntv.core.content.ProgrammeSearchMatcher.ProgrammeTimeBadgeKind.DAY_OF_WEEK -> badge.dayOfWeek.orEmpty()
+                            }
                             SearchRow(
                                 title = p.title,
                                 line = AnnotatedString(
                                     ProviderTags.parse(ch.name).name + sep +
+                                        badgeText + sep +
                                         stringResource(R.string.content_live_time_range_plain, formatTime(p.startMs), formatTime(p.stopMs)),
                                 ),
-                                tags = emptyList(), mark = marks[ch.sourceId],
-                                onClick = { goTo(e) },
+                                tags = listOf(StageTag(badgeText, isNow = badge.kind == tv.own.owntv.core.content.ProgrammeSearchMatcher.ProgrammeTimeBadgeKind.NOW)),
+                                mark = marks[ch.sourceId],
+                                onClick = { programmeMenuFor = e.found },
                                 leading = { LivePlate(ch.displayLogoUrl, 76.mpx, 54.mpx) },
                                 modifier = rowModifier,
                             )
@@ -495,6 +506,36 @@ fun SearchScreen(
             }
         }
         StageKeyHints(hints, Modifier.align(Alignment.BottomStart).padding(start = fx(84), bottom = 40.mpx))
+
+        programmeMenuFor?.let { found ->
+            val ch = found.channel
+            val p = found.programme
+            val now = System.currentTimeMillis()
+            tv.own.owntv.features.epg.GuideProgrammeMenu(
+                title = p.title,
+                subtitle = ProviderTags.parse(ch.name).name + sep + stringResource(R.string.content_live_time_range_plain, formatTime(p.startMs), formatTime(p.stopMs)),
+                actions = tv.own.owntv.features.epg.guideProgrammeActions(
+                    vm = epgVm,
+                    ch = ch,
+                    p = p,
+                    now = now,
+                    onWatch = {
+                        goTo(Entry.Programme(found))
+                        programmeMenuFor = null
+                    },
+                    onPlayFromStart = {
+                        liveVm.playCatchupProgramme(ch, p)
+                        onGoToChannel(ch)
+                        programmeMenuFor = null
+                    },
+                    onPickEpg = {},
+                    onEpgOffset = {},
+                    autoMatch = false,
+                ),
+                leadMinutes = epgVm.reminderLeadMinutes.collectAsStateWithLifecycle().value,
+                onDismiss = { programmeMenuFor = null },
+            )
+        }
     }
 }
 

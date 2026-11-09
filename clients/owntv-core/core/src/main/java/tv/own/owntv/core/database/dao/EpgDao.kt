@@ -148,6 +148,26 @@ interface EpgDao {
     suspend fun searchTitles(query: String, from: Long, to: Long, limit: Int): List<EpgProgrammeEntity>
 
     /**
+     * Flexible title search matching any of the query variations, bounded by start and stop time.
+     */
+    @Query(
+        "SELECT id, sourceId, epgChannelId, startMs, stopMs, title, NULL AS description, 0 AS contentHash, " +
+            "NULL AS categories, NULL AS year, NULL AS rating, NULL AS lengthMin, NULL AS episode " +
+            "FROM epg_programmes WHERE startMs > :from - 86400000 AND startMs < :to AND stopMs > :from " +
+            "AND (title LIKE '%' || :query1 || '%' OR title LIKE '%' || :query2 || '%' OR title LIKE '%' || :query3 || '%' OR title LIKE '%' || :query4 || '%') " +
+            "ORDER BY startMs ASC LIMIT :limit",
+    )
+    suspend fun searchTitlesFlexible(
+        query1: String,
+        query2: String,
+        query3: String,
+        query4: String,
+        from: Long,
+        to: Long,
+        limit: Int,
+    ): List<EpgProgrammeEntity>
+
+    /**
      * Every programme *starting* in `[from, to)` and still running after [minStop] — the Sports hub's
      * one read per kick-off slot, and its "on now" read with `minStop = now`.
      *

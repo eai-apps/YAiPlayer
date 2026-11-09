@@ -125,6 +125,7 @@ class GuideViewModel(
     private val xtream: tv.own.owntv.core.parser.XtreamClient,
     private val reminders: tv.own.owntv.core.reminder.ReminderManager,
     private val archiveGuide: tv.own.owntv.core.epg.ArchiveGuideFiller,
+    private val searchReader: tv.own.owntv.core.content.SearchReader,
 ) : ViewModel() {
 
     /** The one candidate set the picker and auto-match read — filtered by no source. */
@@ -197,6 +198,23 @@ class GuideViewModel(
     val query: StateFlow<String> = _query
 
     fun setQuery(q: String) { _query.value = q }
+
+    val programmeResults: StateFlow<List<tv.own.owntv.core.content.ProgrammeSearchResult>> = _query
+        .map { it.trim() }
+        .debounce(SEARCH_DEBOUNCE_MS)
+        .distinctUntilChanged()
+        .flatMapLatest { q ->
+            if (q.length < 3) {
+                flowOf(emptyList())
+            } else {
+                flow {
+                    val c = tv.own.owntv.core.repository.activeProfileSources(settings, sourceDao).first()
+                    val res = searchReader.search(c.profileId, c, q)
+                    emit(res.programmes)
+                }
+            }
+        }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
     /** Which day is on screen: 0 is today, 1 tomorrow, and so on to the end of what the guide holds. */
     /**

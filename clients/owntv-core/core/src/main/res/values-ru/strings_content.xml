@@ -407,4 +407,7 @@
     <string name="content_season_specials">Спецвыпуски</string>
     <string name="content_poster_size">Размер постеров</string>
     <string name="content_vod_more_in">Ещё в категории «<xliff:g id="category">%1$s</xliff:g>»</string>
+    <string name="search_programme_now">Сейчас</string>
+    <string name="search_programme_today">Сегодня</string>
+    <string name="search_programme_tomorrow">Завтра</string>
 </resources>
