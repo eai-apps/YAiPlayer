@@ -370,7 +370,7 @@ fun GuideScreen(
                                 title = found.programme.title,
                                 startMs = found.programme.startMs,
                                 stopMs = found.programme.stopMs,
-                                mark = marks[found.channel.sourceId],
+                                mark = null,
                                 onClick = { sheetFor = found.channel to found.programme },
                             )
                         }
