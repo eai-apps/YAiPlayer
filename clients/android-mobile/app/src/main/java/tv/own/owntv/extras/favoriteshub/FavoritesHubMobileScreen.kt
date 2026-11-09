@@ -66,7 +66,7 @@ fun FavoritesHubMobileScreen(
     val uncategorizedLabel = stringResource(R.string.favorites_hub_uncategorized)
     val listState = rememberLazyListState()
 
-    ObeyScrollToTop(scrollToTop, tv.own.owntv.mobile.ui.nav.MobileDestination.FAVORITES.route, listState)
+    listState.ObeyScrollToTop(route = tv.own.owntv.mobile.ui.nav.MobileDestination.FAVORITES.route, scrollToTop = scrollToTop)
 
     LaunchedEffect(Unit) {
         vm.refresh(uncategorizedLabel)
@@ -137,17 +137,16 @@ private fun FavoritesHubHeaderMobile(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             val allActive = filter == FavoritesHubFilter.ALL_PLAYLISTS
-            StagePill(
-                onClick = { onFilterChanged(FavoritesHubFilter.ALL_PLAYLISTS) },
-                label = stringResource(R.string.favorites_hub_filter_all),
-                selected = allActive,
-                icon = MobileIcons.Layers,
-            )
-            StagePill(
-                onClick = { onFilterChanged(FavoritesHubFilter.CURRENT_ONLY) },
-                label = stringResource(R.string.favorites_hub_filter_current),
-                selected = !allActive,
-                icon = MobileIcons.LiveTv,
+            tv.own.owntv.mobile.ui.stage.StageSegmented(
+                options = listOf(
+                    stringResource(R.string.favorites_hub_filter_all),
+                    stringResource(R.string.favorites_hub_filter_current),
+                ),
+                selected = if (allActive) 0 else 1,
+                onSelect = {
+                    onFilterChanged(if (it == 0) FavoritesHubFilter.ALL_PLAYLISTS else FavoritesHubFilter.CURRENT_ONLY)
+                },
+                fill = true,
             )
         }
     }
@@ -219,10 +218,13 @@ internal fun FavoritesHubChannelCardMobile(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             ChannelLogoImage(
-                channel = item.channel,
+                url = item.channel.displayLogoUrl,
                 modifier = Modifier
                     .size(54.dp, 40.dp)
                     .clip(RoundedCornerShape(8.dp)),
+                fallback = {
+                    Text(item.channel.name.take(1).uppercase(), color = LocalStagePalette.current.text)
+                },
             )
 
             Column(
@@ -252,9 +254,10 @@ internal fun FavoritesHubChannelCardMobile(
                         }
                     }
 
-                    if (item.hasMultipleSources && !item.sourceName.isNullOrBlank()) {
+                    val sourceLabel = item.sourceName
+                    if (item.hasMultipleSources && !sourceLabel.isNullOrBlank()) {
                         Text(
-                            text = item.sourceName,
+                            text = sourceLabel,
                             fontSize = 11.sp,
                             color = accent.accent,
                             maxLines = 1,

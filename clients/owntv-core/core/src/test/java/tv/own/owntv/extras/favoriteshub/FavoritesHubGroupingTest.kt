@@ -193,7 +193,7 @@ class FavoritesHubGroupingTest {
         val ch = testChannel(1, "Movie Channel")
         val now = 1_000_000L
         val prog = EpgProgrammeEntity(
-            channelId = 1L,
+            sourceId = 1L,
             epgChannelId = "movie",
             title = "Inception",
             startMs = 900_000L,

@@ -51,7 +51,6 @@ import tv.own.owntv.features.home.HomeRowHeader
 import tv.own.owntv.features.home.timeLeftText
 import tv.own.owntv.ui.components.OwnTVIcon
 import tv.own.owntv.ui.stage.StageButton
-import tv.own.owntv.ui.stage.StageButtonStyle
 import tv.own.owntv.ui.stage.StageFocus
 import tv.own.owntv.ui.stage.StagePill
 import tv.own.owntv.ui.stage.StageSurface
@@ -169,16 +168,14 @@ private fun FavoritesHubHeaderTv(
                 val allActive = filter == FavoritesHubFilter.ALL_PLAYLISTS
                 StagePill(
                     onClick = { onFilterChanged(FavoritesHubFilter.ALL_PLAYLISTS) },
-                    label = stringResource(R.string.favorites_hub_filter_all),
-                    selected = allActive,
-                    icon = OwnTVIcon.LAYERS,
+                    text = stringResource(R.string.favorites_hub_filter_all),
+                    icon = if (allActive) OwnTVIcon.CHECK else OwnTVIcon.LAYERS,
                     modifier = Modifier.focusRequester(firstFocusRequester),
                 )
                 StagePill(
                     onClick = { onFilterChanged(FavoritesHubFilter.CURRENT_ONLY) },
-                    label = stringResource(R.string.favorites_hub_filter_current),
-                    selected = !allActive,
-                    icon = OwnTVIcon.PLAYLIST,
+                    text = stringResource(R.string.favorites_hub_filter_current),
+                    icon = if (!allActive) OwnTVIcon.CHECK else OwnTVIcon.PLAYLIST,
                 )
             }
         }
@@ -262,9 +259,10 @@ internal fun FavoritesHubChannelCardTv(
                         }
                     }
 
-                    if (item.hasMultipleSources && !item.sourceName.isNullOrBlank()) {
+                    val sourceLabel = item.sourceName
+                if (item.hasMultipleSources && !sourceLabel.isNullOrBlank()) {
                         Text(
-                            item.sourceName,
+                            sourceLabel,
                             style = stageText(12, 500),
                             color = a.accent,
                             maxLines = 1,
@@ -386,7 +384,6 @@ private fun FavoritesHubEmptyTv(
             text = stringResource(R.string.favorites_hub_open_live),
             onClick = onOpenLive,
             icon = OwnTVIcon.LIVE_TV,
-            style = StageButtonStyle.PRIMARY,
             modifier = Modifier.focusRequester(focusRequester),
         )
     }
