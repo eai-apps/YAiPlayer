@@ -165,23 +165,6 @@ fun LiveScreen(
         }
     }
 
-    val firstVisibleIndex = effectiveListState.firstVisibleItemIndex
-    val firstVisibleOffset = effectiveListState.firstVisibleItemScrollOffset
-    val currentFocusId = previewChannel?.id
-
-    LaunchedEffect(firstVisibleIndex, firstVisibleOffset, currentFocusId, channels.itemCount) {
-        kotlinx.coroutines.delay(400)
-        val info = effectiveListState.layoutInfo.visibleItemsInfo
-        if (info.isEmpty() || channels.itemCount <= 0) return@LaunchedEffect
-        val window = tv.own.owntv.extras.epg.VisibleEpgPrefetcher.visibleWindow(
-            visibleIndices = info.map { it.index },
-            totalCount = channels.itemCount,
-            buffer = 3,
-        )
-        if (window.isEmpty()) return@LaunchedEffect
-        val windowChannels = window.mapNotNull { channels.peek(it) }
-        vm.prefetchVisibleChannels(windowChannels)
-    }
     // Turnover happens on the minute, so wait for the next one rather than 60s from mount — otherwise
     // rows change late and at different instants from each other.
     LaunchedEffect(Unit) {
@@ -234,6 +217,23 @@ fun LiveScreen(
         else listState
     LaunchedEffect(selectedKey, rememberLive) {
         if (!rememberLive) runCatching { listState.scrollToItem(0) }
+    }
+    val firstVisibleIndex = effectiveListState.firstVisibleItemIndex
+    val firstVisibleOffset = effectiveListState.firstVisibleItemScrollOffset
+    val currentFocusId = previewChannel?.id
+
+    LaunchedEffect(firstVisibleIndex, firstVisibleOffset, currentFocusId, channels.itemCount) {
+        kotlinx.coroutines.delay(400)
+        val info = effectiveListState.layoutInfo.visibleItemsInfo
+        if (info.isEmpty() || channels.itemCount <= 0) return@LaunchedEffect
+        val window = tv.own.owntv.extras.epg.VisibleEpgPrefetcher.visibleWindow(
+            visibleIndices = info.map { it.index },
+            totalCount = channels.itemCount,
+            buffer = 3,
+        )
+        if (window.isEmpty()) return@LaunchedEffect
+        val windowChannels = window.mapNotNull { channels.peek(it) }
+        vm.prefetchVisibleChannels(windowChannels)
     }
     val catListState = androidx.compose.foundation.lazy.rememberLazyListState()
     val categoryQuery by vm.categoryQuery.collectAsStateWithLifecycle()
