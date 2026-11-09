@@ -5931,6 +5931,13 @@
 1	json	core/src/main/java/tv/own/owntv/extras/screensaver/ScreensaverManifest.kt	title
 1	json	core/src/main/java/tv/own/owntv/extras/screensaver/ScreensaverManifest.kt	url
 2	empty	core/src/main/java/tv/own/owntv/extras/screensaver/ScreensaverModels.kt	\0
+1	technical	core/src/main/java/tv/own/owntv/extras/epg/EpgTimeShift.kt	$sign$hours:${rem.toString().padStart(2, '0')}
+1	technical	core/src/main/java/tv/own/owntv/extras/epg/EpgTimeShift.kt	$sign${hours}h
+1	technical	core/src/main/java/tv/own/owntv/extras/epg/EpgTimeShift.kt	+
+1	technical	core/src/main/java/tv/own/owntv/extras/epg/EpgTimeShift.kt	-
+1	technical	core/src/main/java/tv/own/owntv/extras/epg/EpgTimeShift.kt	0
+1	technical	core/src/main/java/tv/own/owntv/extras/epg/EpgTimeShift.kt	owntv_playlist_epg_shifts
+1	preference-key	core/src/main/java/tv/own/owntv/extras/epg/EpgTimeShift.kt	playlist_epg_shifts
 1	assertion	player-core/src/main/java/tv/own/owntv/core/drm/DrmMediaItem.kt	FairPlay has no Android CDM
 1	uri	player-core/src/main/java/tv/own/owntv/core/drm/DrmMediaItem.kt	data:application/json;base64,
 1	json	player-core/src/main/java/tv/own/owntv/core/drm/DrmMediaItem.kt	k

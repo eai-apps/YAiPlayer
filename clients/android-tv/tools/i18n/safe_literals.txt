@@ -53,6 +53,7 @@
 1	preference-key	app/src/main/java/tv/own/owntv/extras/screensaver/ScreensaverTvManager.kt	screensaver_mode
 1	preference-key	app/src/main/java/tv/own/owntv/extras/screensaver/ScreensaverTvManager.kt	screensaver_timeout_minutes
 1	preference-key	app/src/main/java/tv/own/owntv/extras/screensaver/ScreensaverTvManager.kt	tv_screensaver_prefs
+1	empty	app/src/main/java/tv/own/owntv/extras/categories/CategoriesVisibilityDialog.kt	\0
 1	empty	app/src/main/java/tv/own/owntv/features/autostart/AutoStart.kt	\0
 1	file-path	app/src/main/java/tv/own/owntv/features/autostart/AutoStart.kt	/proc/self/cmdline
 1	technical	app/src/main/java/tv/own/owntv/features/autostart/AutoStart.kt	:autostart

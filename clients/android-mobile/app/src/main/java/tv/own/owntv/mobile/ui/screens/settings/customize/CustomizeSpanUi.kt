@@ -126,8 +126,17 @@ internal fun RowActionsSheet(
     onMoveTo: (() -> Unit)? = null,
     onRemoveFromCategory: (() -> Unit)? = null,
     onDelete: (() -> Unit)? = null,
+    onToggleLock: (() -> Unit)? = null,
+    isLocked: Boolean = false,
 ) {
     MobileBottomSheet(onDismissRequest = onDismiss) {
+        if (onToggleLock != null) {
+            tv.own.owntv.mobile.ui.stage.StageMenuItem(
+                stringResource(if (isLocked) R.string.settings_customize_remove_lock else R.string.content_category_lock),
+                onClick = onToggleLock,
+                icon = MobileIcons.Lock,
+            )
+        }
         tv.own.owntv.mobile.ui.stage.StageSheetHeader(title)
         if (onRename != null) {
             tv.own.owntv.mobile.ui.stage.StageMenuItem(stringResource(R.string.settings_customize_rename), onClick = onRename, icon = MobileIcons.Edit)

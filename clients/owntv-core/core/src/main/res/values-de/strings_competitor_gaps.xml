@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="quick_categories">Kategorien</string>
+    <string name="quick_categories_hint">Kategorien ausblenden und einblenden</string>
+    <string name="categories_search_hint">Kategorien durchsuchen…</string>
+    <string name="categories_select_all">Alle auswählen</string>
+    <string name="categories_deselect_all">Alle abwählen</string>
+    <string name="epg_time_shift_title">EPG-Zeitverschiebung</string>
+    <string name="epg_time_shift_description">Programmführer von -12 bis +12 Stunden in 30-Minuten-Schritten verschieben</string>
+    <string name="epg_time_shift_reset">Zurücksetzen</string>
+</resources>

@@ -175,6 +175,7 @@ fun MoreScreen(
         (activePlaylistId <= 0L && playlistSources.any { it.type == tv.own.owntv.core.model.SourceType.STALKER || it.type == tv.own.owntv.core.model.SourceType.XTREAM })
     val context = LocalContext.current
     var logVersion by remember { mutableIntStateOf(0) }
+    var showCategories by remember { mutableStateOf(false) }
     val logCount by produceState(0, logVersion) { value = withContext(Dispatchers.IO) { PlaybackErrorLog.read(context).size } }
 
     Box(modifier.fillMaxSize().onFocusChanged { if (it.hasFocus) onChildFocused() }) {
@@ -239,6 +240,12 @@ fun MoreScreen(
                             targets.forEach { quickActionsSync.refreshPlaylist(it) }
                         }
                     },
+                )
+                StageGroupItem(
+                    text = stringResource(R.string.quick_categories),
+                    icon = OwnTVIcon.FOLDER,
+                    selected = false,
+                    onClick = { showCategories = true },
                 )
                 StageGroupItem(
                     text = stringResource(R.string.quick_refresh_epg),
@@ -316,6 +323,14 @@ fun MoreScreen(
                 MoreItem.DEVELOPER -> Box(Modifier.focusRequester(pageTarget).focusGroup()) { DeveloperScreen(onBack = backToSheet) }
             }
         }
+    }
+    if (showCategories) {
+        val catSourceIds = playlistSources.filter { it.id == activePlaylistId }.ifEmpty { playlistSources }.map { it.id }
+        tv.own.owntv.extras.categories.CategoriesVisibilityDialog(
+            profileId = activeProfileId,
+            sourceIds = catSourceIds,
+            onDismiss = { showCategories = false },
+        )
     }
     val pinItem = askPinFor
     val pin = pinLock.pin

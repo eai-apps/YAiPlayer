@@ -158,6 +158,7 @@ fun OwnTVShell(
     var showExit by remember { mutableStateOf(false) }
     var showAvatarPicker by remember { mutableStateOf(false) }
     var showResync by remember { mutableStateOf(false) }
+    var showCategories by remember { mutableStateOf(false) }
     var showAvatarChooser by remember { mutableStateOf(false) }
     var showPlaylistPicker by remember { mutableStateOf(false) }
     // Held by the Activity-scoped ShellViewModel, so a recreation (a script-family language switch)
@@ -1506,6 +1507,7 @@ fun OwnTVShell(
                 nowPlaying = nowPlayingRail,
                 onNowPlaying = enterNowPlaying,
                 onResync = { showResync = true },
+                onManageCategories = { showCategories = true },
             )
           }
         }
@@ -2055,6 +2057,14 @@ fun OwnTVShell(
                 onDismiss = { showAvatarChooser = false },
             )
     }
+    if (showCategories) {
+        val catSourceIds = playlists.filter { it.id == activePlaylistId }.ifEmpty { playlists }.map { it.id }
+        tv.own.owntv.extras.categories.CategoriesVisibilityDialog(
+            profileId = activeProfileId ?: -1L,
+            sourceIds = catSourceIds,
+            onDismiss = { showCategories = false },
+        )
+    }
     if (showPlaylistPicker) {
         tv.own.owntv.ui.components.OwnTVPopup(onDismissRequest = { showPlaylistPicker = false }, stageLayout = true) {
             tv.own.owntv.features.shell.components.StagePlaylistMenu(
@@ -2064,6 +2074,7 @@ fun OwnTVShell(
                 pillBounds = playlistPillBounds,
                 onSelect = onSelectPlaylist,
                 onResync = { shellVm.resync(playlists.filter { it.id == activePlaylistId }.ifEmpty { playlists }) },
+                onManageCategories = { showCategories = true },
                 onDismiss = { showPlaylistPicker = false },
             )
         }

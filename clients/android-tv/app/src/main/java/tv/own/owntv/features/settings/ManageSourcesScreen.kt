@@ -97,6 +97,7 @@ fun ManageSourcesScreen(
     var editRemote by remember { mutableStateOf(false) }
     var confirmDelete by remember { mutableStateOf<SourceEntity?>(null) }
     var resyncChoice by remember { mutableStateOf<SourceEntity?>(null) }
+    var epgShiftSource by remember { mutableStateOf<SourceEntity?>(null) }
     var nameCleanup by remember { mutableStateOf<SourceEntity?>(null) }
     // Set while the "this will stop playback and take a while" confirmation is on screen.
     var confirmRetest by remember { mutableStateOf<SourceEntity?>(null) }
@@ -370,6 +371,7 @@ fun ManageSourcesScreen(
                         guideLogos = source.id in guideLogoSources,
                         onToggleGuideLogos = { vm.setGuideLogos(source, source.id !in guideLogoSources) },
                         onCancelSync = { contextId = source.id; contextIndex = index; vm.cancelResync(source) },
+                        onEpgShift = { contextId = source.id; contextIndex = index; epgShiftSource = source },
                         onDelete = { contextId = source.id; contextIndex = index; confirmDelete = source },
                     )
                 }
@@ -377,6 +379,14 @@ fun ManageSourcesScreen(
         }
 
         nameCleanup?.let { src -> ChannelNameCleanupHost(src, onNeedsResync = { vm.resync(it) }, onDismiss = { nameCleanup = null }) }
+
+        epgShiftSource?.let { src ->
+            tv.own.owntv.extras.epg.EpgTimeShiftDialog(
+                sourceId = src.id,
+                sourceName = src.name,
+                onDismiss = { epgShiftSource = null },
+            )
+        }
 
         resyncChoice?.let { src ->
             val quickActionsSync: tv.own.owntv.core.sync.QuickActionsSync = org.koin.compose.koinInject()
@@ -468,6 +478,7 @@ private fun SourceRow(
     guideLogos: Boolean,
     onToggleGuideLogos: () -> Unit,
     onCancelSync: () -> Unit,
+    onEpgShift: () -> Unit,
     onDelete: () -> Unit,
 ) {
     val activeSync = syncState as? CatalogSyncState.Syncing
@@ -508,6 +519,7 @@ private fun SourceRow(
             if (syncState.isActive) onCancelSync else onResync,
         ),
         StageAction(OwnTVIcon.SPARKLE, stringResource(R.string.settings_sources_clean_names), onCleanNames),
+        StageAction(OwnTVIcon.EPG, stringResource(R.string.epg_time_shift_title), onEpgShift),
         StageAction(
             OwnTVIcon.SPARKLE,
             stringResource(R.string.settings_sources_guide_logos) + ": " + stringResource(if (guideLogos) R.string.common_on else R.string.common_off),

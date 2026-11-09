@@ -347,6 +347,7 @@ fun CustomizeScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
                                 }
                             },
                             onToggleHidden = { vm.setCategoryHidden(row, !row.hidden) },
+                            onToggleLocked = { vm.toggleCategoryLocked(row) },
                             onHideLongPress = { dialogReturn = rowFocusers[row.key]; vm.beginRange(row) },
                             onPickRangeEnd = {
                                 if (row.key == rangeAnchorKey) vm.cancelRange()
@@ -603,6 +604,7 @@ private fun CategoryRow(
     onToggleHidden: () -> Unit,
     onHideLongPress: () -> Unit,
     onPickRangeEnd: () -> Unit,
+    onToggleLocked: () -> Unit,
     onOpenItems: () -> Unit,
 ) {
     val meta = listOfNotNull(
@@ -622,6 +624,11 @@ private fun CategoryRow(
             stringResource(if (row.hidden) R.string.settings_customize_show else R.string.settings_customize_hide),
             { if (inRangeMode) onPickRangeEnd() else onToggleHidden() },
             onHideLongPress,
+        ),
+        StageAction(
+            OwnTVIcon.LOCK,
+            stringResource(if (row.locked) R.string.settings_customize_remove_lock else R.string.content_category_lock),
+            onToggleLocked,
         ),
     )
     StageSettingRow(
