@@ -7,7 +7,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import tv.own.owntv.R
+import tv.own.owntv.core.R
 
 class YesterdayOnAirTest {
 

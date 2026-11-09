@@ -725,8 +725,8 @@ class LiveViewModel(
     }
 
     /** Past programmes for a channel in a specific time window [fromMs..toMs], for "Yesterday on air". */
-    suspend fun pastProgrammes(ch: ChannelEntity, fromMs: Long, toMs: Long): List<EpgProgrammeEntity> =
-        withContext(kotlinx.coroutines.Dispatchers.IO) {
+    suspend fun pastProgrammes(ch: ChannelEntity, fromMs: Long, toMs: Long): List<tv.own.owntv.core.database.entity.EpgProgrammeEntity> =
+        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
             val epgKey = (custom.value.epgMatchResolver.epgIdFor(ch) ?: ch.epgChannelId)
                 ?.trim()?.lowercase()?.takeIf { it.isNotEmpty() } ?: return@withContext emptyList()
             val shift = tv.own.owntv.core.epg.EpgShift.minutesFor(custom.value, ch, settings.epgOffsetMinutes.first())

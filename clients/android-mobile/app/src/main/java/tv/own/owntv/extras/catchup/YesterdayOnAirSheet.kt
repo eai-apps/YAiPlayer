@@ -27,7 +27,8 @@ import tv.own.owntv.core.database.entity.EpgProgrammeEntity
 import tv.own.owntv.mobile.R
 import tv.own.owntv.mobile.ui.components.MobileBottomSheet
 import tv.own.owntv.mobile.ui.components.MobileIcons
-import tv.own.owntv.mobile.ui.components.OwnTVSpinner
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.foundation.layout.size
 import tv.own.owntv.mobile.ui.components.sheetListHeight
 import tv.own.owntv.mobile.ui.stage.LocalStagePalette
 import tv.own.owntv.mobile.ui.stage.StageChoiceRow
@@ -83,7 +84,7 @@ fun YesterdayOnAirSheet(
         when (val list = programmes) {
             null -> {
                 Box(Modifier.fillMaxWidth().padding(24.dp), contentAlignment = Alignment.Center) {
-                    OwnTVSpinner(sizeDp = 28)
+                    CircularProgressIndicator(modifier = Modifier.size(28.dp))
                 }
             }
             else -> if (list.isEmpty()) {
