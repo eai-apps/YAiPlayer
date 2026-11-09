@@ -98,7 +98,7 @@ fun MoreScreen(
     val settings: SettingsRepository = koinInject()
     val scope = rememberCoroutineScope()
     val quickStartFlow = remember(activeId) {
-        if (activeId >= 0L) settings.quickStart(activeId) else kotlinx.coroutines.flow.flowOf(false)
+        if (activeId != null && activeId!! >= 0L) settings.quickStart(activeId!!) else kotlinx.coroutines.flow.flowOf(false)
     }
     val quickStart by quickStartFlow.collectAsStateWithLifecycle(false)
     val quickActionsSync: tv.own.owntv.core.sync.QuickActionsSync = koinInject()
@@ -169,9 +169,7 @@ fun MoreScreen(
                     label = stringResource(R.string.quick_start_title),
                     onClick = {
                         scope.launch {
-                            if (activeId >= 0L) {
-                                settings.setQuickStart(activeId, !quickStart)
-                            }
+                            activeId?.takeIf { it >= 0L }?.let { settings.setQuickStart(it, !quickStart) }
                         }
                     },
                     icon = MobileIcons.PlayCircle,

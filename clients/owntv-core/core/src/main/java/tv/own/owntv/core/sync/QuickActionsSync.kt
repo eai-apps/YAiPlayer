@@ -51,10 +51,8 @@ class QuickActionsSync(
                 epgSyncScheduler.enqueueSync(src.id, "manual_resync", base, ExistingWorkPolicy.KEEP)
             }
         } else {
-            allEpg.filterNot { it.builtin }.forEach { src ->
-                val base = epgDao.countForSources(listOf(src.id))
-                epgSyncScheduler.enqueueSync(src.id, "manual_resync", base, ExistingWorkPolicy.KEEP)
-            }
+            // No guide of its own: only the built-in one. The EPG sources are global (every profile's),
+            // and a shortcut on one playlist must not re-download the others'.
             allEpg.firstOrNull { it.builtin }?.let {
                 epgSyncScheduler.enqueueSync(it.id, "manual_builtin", policy = ExistingWorkPolicy.KEEP)
             }

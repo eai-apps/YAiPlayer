@@ -2325,7 +2325,7 @@ class SettingsRepository(private val context: Context, private val localeStore: 
             }.toMap()
         }
 
-    /** Per-source EPG auto-refresh selection. Missing ids default to [EpgAutoRefresh.OFF]. */
+    /** Whether Auto refresh runs when the app starts (default on). */
     val autoRefreshOnStartup: Flow<Boolean> =
         prefsFlow { it[Keys.AUTO_REFRESH_ON_STARTUP] ?: true }
 
@@ -2333,6 +2333,7 @@ class SettingsRepository(private val context: Context, private val localeStore: 
         context.dataStore.edit { it[Keys.AUTO_REFRESH_ON_STARTUP] = enabled }
     }
 
+    /** Per-source EPG auto-refresh selection. Missing ids default to [EpgAutoRefresh.OFF]. */
     val epgAutoRefresh: Flow<Map<Long, EpgRefresh>> =
         prefsFlow { prefs ->
             readRefreshMap(prefs[Keys.EPG_AUTO_REFRESH]).entries.mapNotNull { (key, value) ->
