@@ -143,7 +143,7 @@ class SearchReader(
                             (it.categoryId == null || it.categoryId !in hiddenSeriesCats)
                     }
                     .map { s -> custSeries.itemNames[CustomizeKeys.series(s)]?.let { s.copy(name = it) } ?: s },
-            programmes = if (sources.liveSourceIds.isEmpty()) emptyList() else
+            programmes = if (sources.liveSourceIds.isEmpty() || query.trim().length < 3) emptyList() else
                 programmes(query.trim(), sources.liveSourceIds, custLive, hiddenLiveCats),
         )
     }
@@ -162,17 +162,25 @@ class SearchReader(
         cust: SectionCustomizations,
         hiddenCats: Set<Long>,
     ): List<ProgrammeSearchResult> {
+        val trimmed = query.trim()
+        if (trimmed.length < 3) return emptyList()
         val now = System.currentTimeMillis()
-        // The stored window is widened by [PROGRAMME_SHIFT_SLACK_MS] on both sides, so a shifted channel
-        // still finds its rows; the exact window is applied after the shift, on the user's clock. The
-        // slack stays small: rows that ended before it would use up [PROGRAMME_ROWS] and push out what
-        // is on now.
-        val rows = epgDao.searchTitles(
-            query,
+        val variants = ProgrammeSearchMatcher.queryVariants(trimmed)
+        val q1 = variants.getOrElse(0) { trimmed }
+        val q2 = variants.getOrElse(1) { q1 }
+        val q3 = variants.getOrElse(2) { q1 }
+        val q4 = variants.getOrElse(3) { q1 }
+
+        val rows = epgDao.searchTitlesFlexible(
+            q1,
+            q2,
+            q3,
+            q4,
             now - PROGRAMME_SHIFT_SLACK_MS,
             now + PROGRAMME_HORIZON_MS + PROGRAMME_SHIFT_SLACK_MS,
             PROGRAMME_ROWS,
-        )
+        ).filter { ProgrammeSearchMatcher.matches(it.title, trimmed) }
+
         if (rows.isEmpty()) return emptyList()
         val byKey = rows.groupBy { it.epgChannelId }
         val keys = byKey.keys.toList()
@@ -182,7 +190,7 @@ class SearchReader(
         val candidates = keys.chunked(KEY_CHUNK).flatMap { channelDao.byEpgKeys(liveSourceIds, it) } +
             matchedTails.chunked(KEY_CHUNK).flatMap { channelDao.byRemoteIdsOrNames(liveSourceIds, it) }
         val globalShift = settings.epgOffsetMinutes.first()
-        return candidates
+        val mapped = candidates
             .distinctBy { it.id }
             .filter { CustomizeKeys.channel(it) !in cust.hiddenItems && (it.categoryId == null || it.categoryId !in hiddenCats) }
             .sortedWith(compareBy({ liveSourceIds.indexOf(it.sourceId) }, { it.sortOrder }))
@@ -192,11 +200,18 @@ class SearchReader(
                 val named = cust.itemNames[CustomizeKeys.channel(ch)]?.let { ch.copy(name = it) } ?: ch
                 EpgShift.apply(EpgDedupe.collapse(byKey[key].orEmpty()), shift)
                     .filter { it.stopMs > now && it.startMs < now + PROGRAMME_HORIZON_MS }
-                    .map { key to ProgrammeSearchResult(it, named) }
+                    .map { ProgrammeSearchResult(it, named) }
             }
-            .distinctBy { (key, found) -> Triple(key, found.programme.startMs, found.programme.title) }
-            .map { it.second }
-            .sortedWith(compareBy({ it.programme.startMs > now }, { it.programme.startMs }))
+
+        val deduped = ProgrammeSearchMatcher.collapseDuplicates(mapped, liveSourceIds)
+        return deduped
+            .sortedWith(
+                compareBy<ProgrammeSearchResult>(
+                    { !(it.programme.startMs <= now && now < it.programme.stopMs) },
+                    { it.programme.startMs },
+                    { it.programme.stopMs },
+                )
+            )
             .take(PROGRAMME_LIMIT)
     }
 
@@ -268,14 +283,14 @@ class SearchReader(
         const val MATCH_LIMIT = 500
 
         /** How far ahead "On TV" looks, and how many programmes it lists. */
-        private const val PROGRAMME_HORIZON_MS = 12 * 60 * 60_000L
-        private const val PROGRAMME_LIMIT = 20
+        private const val PROGRAMME_HORIZON_MS = 14 * 24 * 60 * 60_000L
+        private const val PROGRAMME_LIMIT = 100
 
         /** The largest guide shift "On TV" still allows for when reading stored times. */
         private const val PROGRAMME_SHIFT_SLACK_MS = 2 * 60 * 60_000L
 
         /** Raw rows read before mapping to channels; one programme can be on many guide channels. */
-        private const val PROGRAMME_ROWS = 300
+        private const val PROGRAMME_ROWS = 1000
 
         /** Keys per IN (…) lookup, inside SQLite's variable limit. */
         private const val KEY_CHUNK = 400

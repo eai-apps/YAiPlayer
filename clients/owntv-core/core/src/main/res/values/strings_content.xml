@@ -698,4 +698,7 @@
     <string name="content_poster_size">Poster size</string>
     <!-- Translators: Small heading on a movie's page above more posters from the same category: "More in Disney+ Kids Movies". Shown in capitals by the style. -->
     <string name="content_vod_more_in">More in <xliff:g id="category">%1$s</xliff:g></string>
+    <string name="search_programme_now">Now</string>
+    <string name="search_programme_today">Today</string>
+    <string name="search_programme_tomorrow">Tomorrow</string>
 </resources>

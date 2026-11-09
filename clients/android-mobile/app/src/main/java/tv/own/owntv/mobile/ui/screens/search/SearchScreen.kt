@@ -1,4 +1,8 @@
 package tv.own.owntv.mobile.ui.screens.search
+import tv.own.owntv.mobile.ui.screens.guide.ProgrammeSheet
+import tv.own.owntv.mobile.ui.screens.guide.GuideViewModel
+import tv.own.owntv.core.content.ProgrammeSearchMatcher
+import tv.own.owntv.core.content.ProgrammeSearchResult
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -122,6 +126,8 @@ fun SearchScreen(
     val listState = rememberLazyListState()
     val focus = remember { FocusRequester() }
     val keyboard = LocalSoftwareKeyboardController.current
+    val guideVm: GuideViewModel = koinViewModel()
+    var selectedProgramme by remember { mutableStateOf<ProgrammeSearchResult?>(null) }
     // Focus alone does not reliably raise the IME across Android versions, keyboard apps and
     // navigation states. Request focus, then explicitly show the keyboard once the field is
     // attached. Delayed: requesting in the same frame as composition is dropped on some builds.
@@ -181,12 +187,33 @@ fun SearchScreen(
                     categories = categories,
                     nowPlaying = nowPlaying,
                     onChannel = goChannel,
+                    onProgramme = { selectedProgramme = it },
                     onMovie = { vm.rememberQuery(); onOpenMovie(it) },
                     onSeries = { vm.rememberQuery(); onOpenSeries(it) },
                     onAllChannels = { vm.showOnly(SearchKind.LIVE) },
                 )
             }
         }
+    }
+
+    selectedProgramme?.let { found ->
+        ProgrammeSheet(
+            channel = found.channel,
+            programme = found.programme,
+            isFavorite = false,
+            nowMs = System.currentTimeMillis(),
+            vm = guideVm,
+            onWatch = {
+                onOpenChannel(found.channel.id)
+                selectedProgramme = null
+            },
+            onWatchFromStart = {
+                guideVm.playCatchup(found.channel, found.programme)
+                onOpenChannel(found.channel.id)
+                selectedProgramme = null
+            },
+            onDismiss = { selectedProgramme = null },
+        )
     }
 }
 
@@ -199,6 +226,7 @@ private fun LazyListScope.results(
     categories: Map<Long, String>,
     nowPlaying: Map<Long, String>,
     onChannel: (Long) -> Unit,
+    onProgramme: (ProgrammeSearchResult) -> Unit,
     onMovie: (Long) -> Unit,
     onSeries: (Long) -> Unit,
     onAllChannels: () -> Unit,
@@ -223,7 +251,9 @@ private fun LazyListScope.results(
     if (shown.programmes.isNotEmpty()) {
         if (headings) item(key = "h-ontv") { GroupHeading(R.string.search_on_tv, shown.programmes.size, first = shown.channels.isEmpty()) }
         items(shown.programmes, key = { "p" + it.programme.id + "-" + it.channel.id }) { found ->
-            ProgrammeResult(found.channel, found.programme.title, found.programme.startMs, found.programme.stopMs, marks[found.channel.sourceId]) { onChannel(found.channel.id) }
+            ProgrammeResult(found.channel, found.programme.title, found.programme.startMs, found.programme.stopMs, marks[found.channel.sourceId]) {
+                onProgramme(found)
+            }
         }
     }
     if (shown.movies.isNotEmpty()) {
@@ -287,13 +317,22 @@ private fun ChannelResult(channel: ChannelEntity, category: String?, now: String
     }
 }
 
-/** ON TV: the channel's plate, the programme, "channel · 21:50 – 22:40". */
+/** ON TV: the channel's plate, the programme, "channel · badge · 21:50 – 22:40". */
 @Composable
-private fun ProgrammeResult(channel: ChannelEntity, title: String, startMs: Long, stopMs: Long, mark: PlaylistMark?, onClick: () -> Unit) {
+internal fun ProgrammeResult(channel: ChannelEntity, title: String, startMs: Long, stopMs: Long, mark: PlaylistMark?, onClick: () -> Unit) {
     val palette = LocalStagePalette.current
     val locales = LocalConfiguration.current.locales
     val times = remember(locales) { java.text.DateFormat.getTimeInstance(java.text.DateFormat.SHORT) }
-    val line = ProviderTags.parse(channel.name).name + stringResource(R.string.content_epg_bits_separator) +
+    val badge = ProgrammeSearchMatcher.programmeBadge(startMs, stopMs)
+    val badgeText = when (badge.kind) {
+        ProgrammeSearchMatcher.ProgrammeTimeBadgeKind.NOW -> stringResource(R.string.search_programme_now)
+        ProgrammeSearchMatcher.ProgrammeTimeBadgeKind.TODAY -> stringResource(R.string.search_programme_today)
+        ProgrammeSearchMatcher.ProgrammeTimeBadgeKind.TOMORROW -> stringResource(R.string.search_programme_tomorrow)
+        ProgrammeSearchMatcher.ProgrammeTimeBadgeKind.DAY_OF_WEEK -> badge.dayOfWeek.orEmpty()
+    }
+    val sep = stringResource(R.string.content_epg_bits_separator)
+    val line = ProviderTags.parse(channel.name).name + sep +
+        badgeText + sep +
         stringResource(R.string.content_live_time_range_plain, times.format(java.util.Date(startMs)), times.format(java.util.Date(stopMs)))
     StageRow(onClick = onClick, height = 62.dp) {
         LogoPlate(channel)
