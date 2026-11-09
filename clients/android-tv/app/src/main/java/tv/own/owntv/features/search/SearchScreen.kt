@@ -424,7 +424,7 @@ fun SearchScreen(
                                         badgeText + sep +
                                         stringResource(R.string.content_live_time_range_plain, formatTime(p.startMs), formatTime(p.stopMs)),
                                 ),
-                                tags = listOf(StageTag(badgeText, isNow = badge.kind == tv.own.owntv.core.content.ProgrammeSearchMatcher.ProgrammeTimeBadgeKind.NOW)),
+                                tags = listOf(badgeText),
                                 mark = marks[ch.sourceId],
                                 onClick = { programmeMenuFor = e.found },
                                 leading = { LivePlate(ch.displayLogoUrl, 76.mpx, 54.mpx) },
@@ -511,6 +511,7 @@ fun SearchScreen(
             val ch = found.channel
             val p = found.programme
             val now = System.currentTimeMillis()
+            val sep = dotSeparator()
             tv.own.owntv.features.epg.GuideProgrammeMenu(
                 title = p.title,
                 subtitle = ProviderTags.parse(ch.name).name + sep + stringResource(R.string.content_live_time_range_plain, formatTime(p.startMs), formatTime(p.stopMs)),

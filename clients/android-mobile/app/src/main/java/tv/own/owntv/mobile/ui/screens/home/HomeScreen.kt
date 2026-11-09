@@ -6,6 +6,7 @@ import tv.own.owntv.mobile.ui.stage.stageGlass
 import tv.own.owntv.mobile.ui.components.MobileBottomSheet
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -80,6 +81,8 @@ import tv.own.owntv.mobile.ui.components.MobileIcons
 import androidx.compose.material3.Icon
 import tv.own.owntv.core.home.OnAirGenre
 import tv.own.owntv.core.home.OnAirItem
+import tv.own.owntv.core.database.entity.EpgProgrammeEntity
+import tv.own.owntv.mobile.ui.stage.stageAccent
 import tv.own.owntv.mobile.ui.screens.live.LiveTuner
 import tv.own.owntv.mobile.ui.components.rememberClockTick
 import tv.own.owntv.mobile.ui.player.rememberResumeGate
@@ -119,6 +122,7 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     vm: HomeViewModel = koinViewModel(),
     sportsVm: tv.own.owntv.mobile.ui.screens.sports.SportsViewModel = koinViewModel(),
+    guideVm: tv.own.owntv.mobile.ui.screens.guide.GuideViewModel = koinViewModel(),
 ) {
     val feed by vm.feed.collectAsStateWithLifecycle()
     val favoriteChannels by vm.favoriteChannels.collectAsStateWithLifecycle()
@@ -433,7 +437,7 @@ fun HomeScreen(
                         items = state.onAirItems,
                         onOpenChannel = onOpenChannel,
                         onWatchFromStart = { ch, prog ->
-                            liveTuner.playCatchup(prog, ch)
+                            guideVm.playCatchup(ch, prog)
                             onOpenChannel(ch.id)
                         },
                     )
@@ -552,6 +556,7 @@ private fun GuestHookCard(
     modifier: Modifier = Modifier,
 ) {
     val palette = LocalStagePalette.current
+    val accent = stageAccent.accent
     val shape = RoundedCornerShape(16.dp)
     val interaction = remember { MutableInteractionSource() }
     Row(
@@ -997,8 +1002,10 @@ private fun OnAirSection(
     val visibleItems = remember(items, selectedGenre) {
         if (selectedGenre == OnAirGenre.ALL) items else items.filter { selectedGenre in it.genres }
     }
-    val timeFormatter = rememberSystemTimeFormatter()
+    val context = LocalContext.current
+    val timeFormatter = remember(context) { android.text.format.DateFormat.getTimeFormat(context) }
     val palette = LocalStagePalette.current
+    val accent = stageAccent.accent
 
     Column(Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
         Text(
@@ -1019,7 +1026,7 @@ private fun OnAirSection(
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(16.dp))
-                            .background(if (selected) palette.accent.copy(alpha = 0.2f) else palette.controlFill)
+                            .background(if (selected) accent.copy(alpha = 0.2f) else palette.controlFill)
                             .clickable { selectedGenre = genre }
                             .padding(horizontal = 14.dp, vertical = 6.dp),
                         contentAlignment = Alignment.Center,
@@ -1027,7 +1034,7 @@ private fun OnAirSection(
                         Text(
                             stringResource(genre.titleRes),
                             style = stageText(13f, if (selected) 700 else 500),
-                            color = if (selected) palette.accent else palette.text,
+                            color = if (selected) accent else palette.text,
                         )
                     }
                 }
@@ -1041,7 +1048,7 @@ private fun OnAirSection(
             items(visibleItems, key = { it.channel.id }) { item ->
                 MobileOnAirCard(
                     item = item,
-                    timeFormatted = stringResource(R.string.on_air_ends_at, timeFormatter.format(item.programme.stopMs)),
+                    timeFormatted = stringResource(R.string.on_air_ends_at, timeFormatter.format(java.util.Date(item.programme.stopMs))),
                     onClick = { onOpenChannel(item.channel.id) },
                     onWatchFromStart = if (item.canWatchFromStart) { { onWatchFromStart(item.channel, item.programme) } } else null,
                 )
@@ -1058,6 +1065,7 @@ private fun MobileOnAirCard(
     onWatchFromStart: (() -> Unit)?,
 ) {
     val palette = LocalStagePalette.current
+    val accent = stageAccent.accent
     val shape = RoundedCornerShape(16.dp)
     val totalProgress = item.progress.coerceIn(0f, 1f)
 
@@ -1079,15 +1087,21 @@ private fun MobileOnAirCard(
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                ChannelLogoTile(
-                    logoUrl = item.channel.displayLogoUrl,
-                    modifier = Modifier.size(44.dp, 32.dp).clip(RoundedCornerShape(8.dp)),
-                    fill = palette.cardFill,
+                Box(
+                    modifier = Modifier.size(44.dp, 32.dp).clip(RoundedCornerShape(8.dp)).background(palette.cardSolid),
+                    contentAlignment = Alignment.Center,
                 ) {
-                    Text(
-                        item.channel.name.take(1).uppercase(),
-                        style = stageText(14f, 800),
-                        color = palette.text,
+                    ChannelLogoImage(
+                        url = item.channel.displayLogoUrl,
+                        modifier = Modifier.fillMaxSize().padding(3.dp),
+                        plateOn = palette.cardSolid,
+                        fallback = {
+                            Text(
+                                item.channel.name.take(1).uppercase(),
+                                style = stageText(14f, 800),
+                                color = palette.text,
+                            )
+                        },
                     )
                 }
                 Column(modifier = Modifier.weight(1f)) {
@@ -1121,7 +1135,7 @@ private fun MobileOnAirCard(
                         .fillMaxWidth(totalProgress)
                         .height(4.dp)
                         .clip(RoundedCornerShape(2.dp))
-                        .background(palette.accent),
+                        .background(accent),
                 )
             }
 
@@ -1141,7 +1155,7 @@ private fun MobileOnAirCard(
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(12.dp))
-                            .background(palette.accent.copy(alpha = 0.15f))
+                            .background(accent.copy(alpha = 0.15f))
                             .clickable(onClick = onWatchFromStart)
                             .padding(horizontal = 8.dp, vertical = 4.dp),
                     ) {
@@ -1152,13 +1166,13 @@ private fun MobileOnAirCard(
                             Icon(
                                 MobileIcons.Catchup,
                                 contentDescription = stringResource(R.string.on_air_from_start),
-                                tint = palette.accent,
+                                tint = accent,
                                 modifier = Modifier.size(12.dp),
                             )
                             Text(
                                 stringResource(R.string.on_air_from_start),
                                 style = stageText(11f, 700),
-                                color = palette.accent,
+                                color = accent,
                             )
                         }
                     }

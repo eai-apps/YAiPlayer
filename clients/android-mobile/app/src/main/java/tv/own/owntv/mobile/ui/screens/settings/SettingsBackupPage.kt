@@ -343,7 +343,7 @@ fun SettingsBackupPage(
                 val summary = validation.summary
                 MobileBottomSheet(onDismissRequest = { pendingSettingsRestoreJson = null }) {
                     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        StageSheetHeader(stringResource(R.string.backup_preview_title), onClose = { pendingSettingsRestoreJson = null })
+                        StageSheetHeader(stringResource(R.string.backup_preview_title))
                         Text(
                             stringResource(
                                 R.string.backup_preview_summary,
@@ -364,7 +364,7 @@ fun SettingsBackupPage(
                                     }
                                 },
                                 text = stringResource(R.string.backup_confirm_apply),
-                                style = StageButtonStyle.ACCENT,
+                                style = StageButtonStyle.PRIMARY,
                                 modifier = Modifier.weight(1f),
                             )
                             StageButton(
@@ -379,18 +379,18 @@ fun SettingsBackupPage(
             is tv.own.owntv.core.backup.SettingsBackupManager.ValidationResult.NewerVersion -> {
                 MobileBottomSheet(onDismissRequest = { pendingSettingsRestoreJson = null }) {
                     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        StageSheetHeader(stringResource(R.string.backup_restore_copy), onClose = { pendingSettingsRestoreJson = null })
+                        StageSheetHeader(stringResource(R.string.backup_restore_copy))
                         Text(stringResource(R.string.backup_error_newer_version), style = stageText(13f, 500), color = palette.warn)
-                        StageButton(onClick = { pendingSettingsRestoreJson = null }, text = stringResource(R.string.common_close), modifier = Modifier.fillMaxWidth())
+                        StageButton(onClick = { pendingSettingsRestoreJson = null }, text = stringResource(R.string.content_close), modifier = Modifier.fillMaxWidth())
                     }
                 }
             }
             else -> {
                 MobileBottomSheet(onDismissRequest = { pendingSettingsRestoreJson = null }) {
                     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        StageSheetHeader(stringResource(R.string.backup_restore_copy), onClose = { pendingSettingsRestoreJson = null })
+                        StageSheetHeader(stringResource(R.string.backup_restore_copy))
                         Text(stringResource(R.string.backup_error_invalid_format), style = stageText(13f, 500), color = palette.warn)
-                        StageButton(onClick = { pendingSettingsRestoreJson = null }, text = stringResource(R.string.common_close), modifier = Modifier.fillMaxWidth())
+                        StageButton(onClick = { pendingSettingsRestoreJson = null }, text = stringResource(R.string.content_close), modifier = Modifier.fillMaxWidth())
                     }
                 }
             }
@@ -400,7 +400,7 @@ fun SettingsBackupPage(
     if (showSettingsAppliedSuccess) {
         MobileBottomSheet(onDismissRequest = { showSettingsAppliedSuccess = false }) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                StageSheetHeader(stringResource(R.string.backup_restore_copy), onClose = { showSettingsAppliedSuccess = false })
+                StageSheetHeader(stringResource(R.string.backup_restore_copy))
                 Text(stringResource(R.string.backup_applied_success), style = stageText(14f, 600), color = palette.tagText)
                 StageButton(onClick = { showSettingsAppliedSuccess = false }, text = stringResource(R.string.common_done), modifier = Modifier.fillMaxWidth())
             }

@@ -100,7 +100,7 @@ fun HomeOnAirRow(
                         modifier = Modifier.height(34.mpx),
                         focusStyle = StageFocus.FILLED,
                         idle = Modifier.background(
-                            if (selected) StageColors.Accent.copy(alpha = 0.25f) else StageColors.Ink.copy(alpha = 0.08f),
+                            if (selected) stageAccent.accent.copy(alpha = 0.25f) else StageColors.Ink.copy(alpha = 0.08f),
                             RoundedCornerShape(16.mpx),
                         ),
                     ) {
@@ -108,7 +108,7 @@ fun HomeOnAirRow(
                             Text(
                                 stringResource(genre.titleRes),
                                 style = stageText(14, if (selected) 700 else 500),
-                                color = if (selected) StageColors.Accent else StageColors.Text,
+                                color = if (selected) stageAccent.accent else StageColors.Text,
                             )
                         }
                     }

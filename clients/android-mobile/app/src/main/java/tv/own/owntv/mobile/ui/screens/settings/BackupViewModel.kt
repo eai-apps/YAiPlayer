@@ -60,7 +60,7 @@ class BackupViewModel(
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     busy = false
-                    outcome = Outcome.Failed(R.string.settings_backup_failed)
+                    outcome = Outcome.Failed(R.string.settings_backup_export_error)
                 }
             }
         }
