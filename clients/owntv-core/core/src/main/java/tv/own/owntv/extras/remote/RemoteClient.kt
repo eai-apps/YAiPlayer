@@ -84,10 +84,8 @@ class RemoteClient(
                 .build()
 
             okHttpClient.newCall(request).execute().use { response ->
-                if (response.isSuccessful) {
-                    Result.success(Unit)
-                } else {
-                    Result.failure(IOException("HTTP ${response.code}"))
+                if (!response.isSuccessful) {
+                    throw IOException("HTTP ${response.code}")
                 }
             }
         }
