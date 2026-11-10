@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2026 YAiPlayer authors. Original code, written for YAiPlayer. -->
+<resources>
+    <string name="settings_epg_background_resync">Обновлять в фоне, если давно не заходили</string>
+    <string name="settings_epg_background_resync_desc">Поддерживать актуальность телепрограммы и плейлистов для всех профилей</string>
+    <string name="settings_epg_background_resync_threshold">Как давно</string>
+    <string name="settings_epg_background_resync_12h">12 ч</string>
+    <string name="settings_epg_background_resync_24h">1 сутки</string>
+    <string name="settings_epg_background_resync_48h">2 суток</string>
+    <string name="settings_epg_background_resync_72h">3 суток</string>
+</resources>

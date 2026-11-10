@@ -61,43 +61,42 @@ class AutoRefresh(
         if (includeStartup && !settings.autoRefreshOnStartup.first()) return
         val nowMs = System.currentTimeMillis()
         val pid = profileDao.resolveExistingProfileId(settings.activeProfileId.first()) ?: return
+        val thresholdHours = settings.backgroundResyncHours.first()
         // --- Playlist sources ---
         val playlistModes = settings.playlistAutoRefresh.first()
-        if (playlistModes.isNotEmpty()) {
-            sourceRepository.observeSources(pid).first().forEach { source ->
-                val mode = playlistModes[source.id] ?: PlaylistRefresh.OFF
-                if (shouldRefresh(mode, source.lastSyncAt, nowMs, includeStartup)) {
-                    val counts = importFinalizer.contentCounts(source.id)
-                    Log.d(TAG, "checkAutoRefresh playlist sourceId=${source.id} mode=$mode — enqueuing")
-                    catalogSyncScheduler.enqueueSync(
-                        source.id,
-                        reason = REASON,
-                        contentTypes = SyncContentTypes.enabledOf(source),
-                        baseItemCount = counts.channels + counts.movies + counts.series,
-                        policy = ExistingWorkPolicy.KEEP,
-                    )
-                }
+        sourceRepository.observeSources(pid).first().forEach { source ->
+            val mode = playlistModes[source.id] ?: PlaylistRefresh.OFF
+            val isStaleProfile = includeStartup && isStale(source.lastSyncAt, nowMs, thresholdHours)
+            if (shouldRefresh(mode, source.lastSyncAt, nowMs, includeStartup) || isStaleProfile) {
+                val counts = importFinalizer.contentCounts(source.id)
+                Log.d(TAG, "checkAutoRefresh playlist sourceId=${source.id} mode=$mode — enqueuing")
+                catalogSyncScheduler.enqueueSync(
+                    source.id,
+                    reason = REASON,
+                    contentTypes = SyncContentTypes.enabledOf(source),
+                    baseItemCount = counts.channels + counts.movies + counts.series,
+                    policy = ExistingWorkPolicy.KEEP,
+                )
             }
         }
         // --- EPG sources ---
         val epgModes = settings.epgAutoRefresh.first()
-        if (epgModes.isNotEmpty()) {
-            val all = epgSourceStore.getAll()
-            // The built-in guide is a chain: its first feed asks for the next, so only the first is due here.
-            val firstBuiltinId = all.firstOrNull { it.builtin }?.id
-            all.forEach { src ->
-                if (src.builtin && src.id != firstBuiltinId) return@forEach
-                val mode = epgModes[src.id] ?: EpgRefresh.OFF
-                if (shouldRefreshEpg(mode, src.lastSyncAt, nowMs, includeStartup)) {
-                    val base = epgDao.countForSources(listOf(src.id))
-                    Log.d(TAG, "checkAutoRefresh epg sourceId=${src.id} mode=$mode — enqueuing")
-                    epgSyncScheduler.enqueueSync(
-                        src.id,
-                        reason = REASON,
-                        baseProgrammes = base,
-                        policy = ExistingWorkPolicy.KEEP,
-                    )
-                }
+        val all = epgSourceStore.getAll()
+        // The built-in guide is a chain: its first feed asks for the next, so only the first is due here.
+        val firstBuiltinId = all.firstOrNull { it.builtin }?.id
+        all.forEach { src ->
+            if (src.builtin && src.id != firstBuiltinId) return@forEach
+            val mode = epgModes[src.id] ?: EpgRefresh.OFF
+            val isStaleEpg = includeStartup && isStale(src.lastSyncAt, nowMs, thresholdHours)
+            if (shouldRefreshEpg(mode, src.lastSyncAt, nowMs, includeStartup) || isStaleEpg) {
+                val base = epgDao.countForSources(listOf(src.id))
+                Log.d(TAG, "checkAutoRefresh epg sourceId=${src.id} mode=$mode — enqueuing")
+                epgSyncScheduler.enqueueSync(
+                    src.id,
+                    reason = REASON,
+                    baseProgrammes = base,
+                    policy = ExistingWorkPolicy.KEEP,
+                )
             }
         }
         if (includeStartup) {

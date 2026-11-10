@@ -209,6 +209,13 @@ class OwnTVMobileApp : Application(), androidx.work.Configuration.Provider {
                 )
             }
         }
+        // Background resync for stale profiles: register periodic worker once at start if enabled.
+        appScope.launch {
+            runCatching {
+                val settings = org.koin.core.context.GlobalContext.get().get<tv.own.owntv.core.settings.SettingsRepository>()
+                tv.own.owntv.core.sync.work.StaleResyncScheduler.scheduleIfEnabled(this@OwnTVMobileApp, settings)
+            }
+        }
     }
 
     private companion object {

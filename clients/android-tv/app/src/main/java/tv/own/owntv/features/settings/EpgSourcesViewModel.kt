@@ -56,6 +56,29 @@ class EpgSourcesViewModel(
         viewModelScope.launch { settings.setAutoRefreshOnStartup(enabled) }
     }
 
+    val backgroundResyncEnabled: StateFlow<Boolean> = settings.backgroundResyncEnabled
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsRepository.DEFAULT_BACKGROUND_RESYNC_ENABLED)
+
+    fun setBackgroundResyncEnabled(enabled: Boolean) {
+        viewModelScope.launch { settings.setBackgroundResyncEnabled(enabled) }
+    }
+
+    val backgroundResyncHours: StateFlow<Int> = settings.backgroundResyncHours
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsRepository.DEFAULT_BACKGROUND_RESYNC_HOURS)
+
+    fun cycleBackgroundResyncHours() {
+        viewModelScope.launch {
+            val current = backgroundResyncHours.value
+            val options = SettingsRepository.BACKGROUND_RESYNC_HOUR_OPTIONS
+            val nextIndex = (options.indexOf(current) + 1).let { if (it in options.indices) it else 0 }
+            settings.setBackgroundResyncHours(options[nextIndex])
+        }
+    }
+
+    fun setBackgroundResyncHours(hours: Int) {
+        viewModelScope.launch { settings.setBackgroundResyncHours(hours) }
+    }
+
     private val builtinGuide = tv.own.owntv.core.sync.BuiltinGuide(store, settings, epgSyncScheduler)
 
     val builtinStatus: StateFlow<tv.own.owntv.core.sync.BuiltinGuide.Status> = builtinGuide.status()

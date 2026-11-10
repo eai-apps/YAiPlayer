@@ -94,6 +94,18 @@ class KoinWorkerFactory : WorkerFactory() {
                 koin.get(),
                 koin.get(),
             )
+            StaleResyncWorker::class.java.name -> StaleResyncWorker(
+                appContext,
+                workerParameters,
+                koin.get(),
+                koin.get(),
+                koin.get(),
+                koin.get(),
+                koin.get(),
+                koin.get(),
+                koin.get(),
+                koin.get(),
+            )
             else -> null
         }
     }
