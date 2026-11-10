@@ -3513,6 +3513,7 @@
 1	technical	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	light_mode
 1	technical	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	light_mode_prompt_dismissed
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	list_orders_reset
+2	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	live_archive_only_$profileId
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	live_engine
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	live_latency_custom_secs
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	live_latency_mode
@@ -4774,6 +4775,7 @@
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	ch_id
 5	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	cmd
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	cover
+1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	create_link type=$type series=$episode inCmd=${redactForLog(cmd)} rawOut=${redactForLog(raw)} resolved=${redactForLog(resolved)}
 8	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	data
 3	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	descr
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	description
@@ -4883,6 +4885,7 @@
 2	url	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	?
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	Portal listed no file for episode ${ref.episodeId}
 4	log	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	Stalker source ${source.id} has no valid MAC
+1	log	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	episode resolve sourceId=${source?.id} episodeId=${episode.id} season=${episode.seasonNumber} episode=${episode.episodeNumber}
 1	log	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	film create_link failed (${e.javaClass.simpleName}) — playing the stored URL
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	itv
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	resolveCatchup is Stalker-only
@@ -6472,6 +6475,10 @@
 1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	mpv handoff for '${channel.name}' abandoned — the channel changed while ExoPlayer released
 1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	mpv never opened it (${MPV_OPEN_TIMEOUT_MS / 1000}s, no picture and no error)
 1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	no picture within ${armedBudgetMs / 1000}s of tuning
+1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	perf_live_exo_stop_begin at=${android.os.SystemClock.elapsedRealtime()}
+1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	perf_live_release_archive_begin at=${android.os.SystemClock.elapsedRealtime()}
+1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	perf_live_stop_begin at=${android.os.SystemClock.elapsedRealtime()}
+1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	perf_live_stop_engines_queued at=${android.os.SystemClock.elapsedRealtime()}
 1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	stalker reconnect re-resolve failed '${channel.name}'
 1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	stalker resolve failed
 1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	starting mpv for '${channel.name}' — reason=$reason
@@ -6819,6 +6826,10 @@
 3	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	paused-for-cache
 1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	paused-for-cache=${getPropertyString("paused-for-cache")}
 1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	pendingStopEndFiles at cap $MAX_PENDING_STOP_CREDITS ($reason)
+1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	perf_mpv_stop_begin at=${android.os.SystemClock.elapsedRealtime()}
+1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	perf_mpv_stop_end at=${android.os.SystemClock.elapsedRealtime()}
+1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	perf_player_deactivate_exo_end at=${android.os.SystemClock.elapsedRealtime()}
+1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	perf_player_stop_begin at=${android.os.SystemClock.elapsedRealtime()}
 1	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	pgssub
 1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	playback didn't start after retries
 1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	playback didn't start on hardware
@@ -7272,5 +7283,3 @@
 1	protocol	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	text/plain
 3	protocol	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	text/plain; charset=utf-8
 1	protocol	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	token
-1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	create_link type=$type series=$episode inCmd=${redactForLog(cmd)} rawOut=${redactForLog(raw)} resolved=${redactForLog(resolved)}
-1	log	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	episode resolve sourceId=${source?.id} episodeId=${episode.id} season=${episode.seasonNumber} episode=${episode.episodeNumber}
