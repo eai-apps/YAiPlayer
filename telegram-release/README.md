@@ -11,3 +11,6 @@
 - Сами APK не отправляются файлом: Bot API принимает файлы до 50 МБ, а APK ~58 МБ. Вместо этого — прямые ссылки.
 - Проверка текста без отправки: `python3 telegram-release/post_release.py --release-json release.json --dry-run`.
 - Тесты: `python3 -m unittest telegram-release/test_post_release.py`.
+
+## Ежедневный дайджест (`daily_digest.py`, workflow `daily-digest.yml`)
+Один пост в 09:00 по Берлину за релизы с 09:00 предыдущего дня. Формат (rich-сообщение): картинка-шапка `brand/telegram-banner-1280x720.png`, краткое резюме суток, таблица версий, блоки «Новое» и «Исправлено» (тема жирным, суть курсивом, ОДНА строка на тему), мелочь в раскрывающемся блоке, кнопки «Скачать» и «Написать в чат». Скрытые функции (список `SKIP` в скрипте) не анонсируются. Если Telegram не принял rich, уходит тот же текст обычным сообщением. Тесты: `python3 -m unittest telegram-release/test_daily_digest.py`.

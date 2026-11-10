@@ -346,6 +346,22 @@ def _send_classic_release(bot_token: str, chat_id: str, text: str, image_path: s
     return send_telegram_message(bot_token, chat_id, text, buttons)
 
 
+def send_digest(bot_token: str, chat_id: str, rich_html: str, classic_text: str, image_path: str | None, buttons: list) -> bool:
+    """Дайджест: rich-сообщение (картинка сверху, таблица версий, раскрывающийся блок) + кнопки внутри поста.
+    Если Telegram не принял rich: тот же текст обычным сообщением (картинка с подписью-заголовком, текст следом)."""
+    import post_showcase as ps
+    paths = [image_path] if image_path and os.path.exists(image_path) else []
+    page = ('<img src="tg://photo?id=s0"/>' if paths else "") + rich_html
+    if ps.send_rich(bot_token, chat_id, paths, page + ps.buttons_html(buttons), []):
+        print("Дайджест опубликован, кнопки внутри текста")
+        return True
+    if ps.send_rich(bot_token, chat_id, paths, page, buttons):
+        print("Дайджест опубликован, кнопки под ним")
+        return True
+    print("Rich не прошёл — запасной вариант", file=sys.stderr)
+    return _send_classic_release(bot_token, chat_id, classic_text, image_path, buttons)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Автопост релизов YAiPlayer в Telegram")
     parser.add_argument(
@@ -362,6 +378,11 @@ def main(argv: list[str] | None = None) -> int:
         "--announce-file",
         default="",
         help="Разовое объявление: текст (HTML) из файла уходит в канал с кнопками «Подписаться» и «Обсуждение»",
+    )
+    parser.add_argument(
+        "--rich-file",
+        default="",
+        help="Дайджест: готовый rich-HTML (таблица, раскрывающийся блок); --announce-file служит запасным обычным текстом",
     )
     parser.add_argument(
         "--with-downloads",
@@ -387,6 +408,11 @@ def main(argv: list[str] | None = None) -> int:
         if not bot_token or not chat_id:
             print("Telegram не настроен, пост пропущен")
             return 0
+        if args.rich_file:
+            with open(args.rich_file, "r", encoding="utf-8") as f:
+                rich_html = f.read().strip()
+            digest_buttons = [[{"text": "📥 Скачать", "url": BOT_URL}, {"text": "💬 Написать в чат", "url": CHAT_URL}]]
+            return 0 if send_digest(bot_token, chat_id, rich_html, text, args.image or None, digest_buttons) else 1
         row = ([{"text": "🔔 Подписаться", "url": f"https://t.me/{chat_id[1:]}"}] if chat_id.startswith("@") else []) + [
             {"text": "💬 Обсуждение", "url": CHAT_URL}
         ]

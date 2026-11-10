@@ -33,4 +33,4 @@ jobs:
           now=$(date +%s); target=$(TZ=Europe/Berlin date -d "today 09:00" +%s)
           if [ "${{ github.event_name }}" != "workflow_dispatch" ] && [ "$target" -gt "$now" ]; then sleep $((target - now)); fi
           f=$(python3 telegram-release/daily_digest.py "${{ inputs.day }}")
-          if [ -n "$f" ]; then python3 telegram-release/post_release.py --announce-file "$f"; else echo "no releases in the last 24 hours"; fi
+          if [ -n "$f" ]; then python3 telegram-release/post_release.py --announce-file "$f" --rich-file digest.rich.html --image brand/telegram-banner-1280x720.png; else echo "no releases in the last 24 hours"; fi
