@@ -1,0 +1,25 @@
+name: Support post to Telegram
+# Once every 3 days around 12:00 Berlin: how to report a bug / ask for a feature and how to export the log.
+# GitHub cron is UTC only and may start late; the gate lets only every third day (counted from the epoch) through.
+on:
+  schedule:
+    - cron: "3 11 * * *"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Every third day only
+        id: gate
+        run: |
+          d=$(( $(date +%s) / 86400 ))
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ $(( d % 3 )) -eq 0 ]; then echo "go=1" >> "$GITHUB_OUTPUT"; fi
+      - name: Send
+        if: steps.gate.outputs.go == '1'
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python3 telegram-release/post_support.py
