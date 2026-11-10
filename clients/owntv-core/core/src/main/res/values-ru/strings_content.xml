@@ -434,4 +434,6 @@
     <string name="backup_lan_transfer_desc">Откройте этот адрес на телефоне или компьютере в той же сети Wi-Fi</string>
     <string name="backup_upload_success">Копия загружена! Подтвердите на экране ТВ.</string>
     <string name="backup_applied_success">Настройки успешно восстановлены</string>
+    <string name="content_archive_only">Только с архивом</string>
+    <string name="content_archive_only_on">Только с архивом: вкл.</string>
 </resources>

@@ -384,6 +384,17 @@ class LiveViewModel(
 
     private data class Args(val key: LiveKey, val ctx: ActiveProfileSources, val cust: SectionCustomizations, val hidden: Set<Long>)
 
+    val archiveOnly: StateFlow<Boolean> = ctx.flatMapLatest { c ->
+        if (c.profileId < 0) flowOf(false) else settings.liveArchiveOnly(c.profileId)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
+
+    fun toggleArchiveOnly() {
+        viewModelScope.launch {
+            val pid = ctx.value.profileId.takeIf { it >= 0 } ?: return@launch
+            settings.setLiveArchiveOnly(pid, !archiveOnly.value)
+        }
+    }
+
     val channels: Flow<PagingData<ChannelEntity>> =
         combine(_selected, ctx, customOnceRead.filterNotNull(), hiddenCategoryIds, ::Args)
             // A folder gaining or losing a manual order changes which query is correct, and the
@@ -391,8 +402,9 @@ class LiveViewModel(
             // order tool, and the search field (settled for a moment, so each letter is not a query).
             .combine(orderedContexts) { args, _ -> args }
             .combine(sortMode) { args, _ -> args }
-            .combine(_query.debounce(SEARCH_DEBOUNCE_MS).map { it.trim() }.distinctUntilChanged()) { args, q -> args to q }
-            .flatMapLatest { (args, q) ->
+            .combine(archiveOnly) { args, archive -> args to archive }
+            .combine(_query.debounce(SEARCH_DEBOUNCE_MS).map { it.trim() }.distinctUntilChanged()) { (args, archive), q -> Triple(args, archive, q) }
+            .flatMapLatest { (args, archive, q) ->
                 val (key, c, cust, hidden) = args
                 if (c.profileId < 0) {
                     flowOf(PagingData.empty())
@@ -421,7 +433,10 @@ class LiveViewModel(
                             contextKey = { folderContextKeys.value[it] },
                             hasManualOrder = { it in orderedContexts.value },
                         )
-                    }.flow.map { paging -> paging.applyCustomizations(key, cust, hidden) }
+                    }.flow.map { paging ->
+                        val filtered = if (archive) paging.filter { it.catchup } else paging
+                        filtered.applyCustomizations(key, cust, hidden)
+                    }
                 }
             }
             .cachedIn(viewModelScope)

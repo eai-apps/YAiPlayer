@@ -402,4 +402,6 @@
     <string name="backup_lan_transfer_desc">Öffnen Sie diese Adresse auf dem Smartphone oder PC im selben WLAN</string>
     <string name="backup_upload_success">Sicherung hochgeladen! Auf dem TV-Bildschirm bestätigen.</string>
     <string name="backup_applied_success">Einstellungen erfolgreich wiederhergestellt</string>
+    <string name="content_archive_only">Nur mit Archiv</string>
+    <string name="content_archive_only_on">Nur mit Archiv: ein</string>
 </resources>

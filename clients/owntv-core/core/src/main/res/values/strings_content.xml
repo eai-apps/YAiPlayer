@@ -725,4 +725,6 @@
     <string name="backup_lan_transfer_desc">Open this address on your phone or PC on the same Wi-Fi network</string>
     <string name="backup_upload_success">Backup uploaded! Check your TV screen.</string>
     <string name="backup_applied_success">Settings restored successfully</string>
+    <string name="content_archive_only">Archive only</string>
+    <string name="content_archive_only_on">Archive only: on</string>
 </resources>

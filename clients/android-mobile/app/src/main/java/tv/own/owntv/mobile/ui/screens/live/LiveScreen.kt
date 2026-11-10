@@ -120,6 +120,7 @@ fun LiveScreen(
     val refreshing by vm.refreshing.collectAsStateWithLifecycle()
     val count by vm.count.collectAsStateWithLifecycle()
     val sort by vm.sort.collectAsStateWithLifecycle()
+    val archiveOnly by vm.archiveOnly.collectAsStateWithLifecycle()
     val query by vm.query.collectAsStateWithLifecycle()
     val providers by vm.providerNames.collectAsStateWithLifecycle()
 
@@ -255,6 +256,11 @@ fun LiveScreen(
                     label = stringResource(
                         if (sort == SettingsRepository.SortMode.ALPHA) R.string.settings_sort_alpha else R.string.content_epg_sort_provider,
                     ),
+                )
+                StageTool(
+                    onClick = vm::toggleArchiveOnly,
+                    icon = MobileIcons.History,
+                    label = stringResource(if (archiveOnly) R.string.content_archive_only_on else R.string.content_archive_only),
                 )
                 LiveViewSwitch(guide = false, onList = vm::showList, onGuide = vm::showGuide)
             }
