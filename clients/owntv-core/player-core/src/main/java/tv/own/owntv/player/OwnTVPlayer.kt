@@ -3936,15 +3936,21 @@ class OwnTVPlayer(
     }
 
     fun stop() {
+        tv.own.owntv.core.CorePerf.log { "perf_player_stop_begin at=${android.os.SystemClock.elapsedRealtime()}" }
         clearToast()
         deactivateExo() // give the surface back to mpv before tearing down
+        tv.own.owntv.core.CorePerf.log { "perf_player_deactivate_exo_end at=${android.os.SystemClock.elapsedRealtime()}" }
         load.pendingExoStart = false
         loadGeneration++ // cancels any queued-but-not-yet-executed load
         load.expectingPlayback = false
         errorCheckJob?.cancel()
         videoCheckJob?.cancel()
         liveStallJob?.cancel()
-        if (initialized) mpvAsync { stopWithStopClassification("stop") }
+        if (initialized) mpvAsync {
+            tv.own.owntv.core.CorePerf.log { "perf_mpv_stop_begin at=${android.os.SystemClock.elapsedRealtime()}" }
+            stopWithStopClassification("stop")
+            tv.own.owntv.core.CorePerf.log { "perf_mpv_stop_end at=${android.os.SystemClock.elapsedRealtime()}" }
+        }
         currentUrl = null
         pendingUrl = null
         _isPlaying.value = false
