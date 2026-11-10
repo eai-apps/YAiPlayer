@@ -2,6 +2,7 @@
 // Secrets: BOT_TOKEN, WEBHOOK_SECRET.  Vars: CHANNEL, CHAT, ADMIN_ID.  KV binding: DB.
 // Everything in the menu is editable by the admin with buttons (no commands): see the "🛠 Админка" button.
 const VERSION = "0.3.1";
+const RADIO_URL = "https://yaiplay-radio.pages.dev/";
 const SUPPORT_URL = "https://t.me/YAiPlayer?direct"; // the channel's own direct messages = tech support
 const REPO = "eai-apps/YAiPlayer";
 const DL = (f) => `https://github.com/${REPO}/releases/latest/download/${f}`;
@@ -19,9 +20,9 @@ const api = (env, method, body) =>
 const defaultCfg = (env) => ({
   welcome: "👋 <b>YAiPlayer</b> — IPTV-плеер для Android TV и телефона.\n\nПлеер в бете: пишите о багах в чат. Выберите, что нужно:",
   req: [], // extra channels the user must join before the download link
-  v: 2,
+  v: 3,
   next: 10,
-  root: ["1", "2", "3", "4"],
+  root: ["1", "2", "3", "4", "9"],
   nodes: {
     1: { t: "📥 Скачать плеер", k: "download" },
     2: { t: "🌐 Каналы и проекты", k: "section", c: ["5", "6"] },
@@ -31,11 +32,12 @@ const defaultCfg = (env) => ({
     6: { t: "💬 Чат", k: "url", u: tme(env.CHAT) },
     7: { t: "✉️ Написать в техподдержку", k: "url", u: SUPPORT_URL },
     8: { t: "💬 Спросить в чате", k: "url", u: tme(env.CHAT) },
+    9: { t: "🎧 Радио", k: "url", u: RADIO_URL },
   },
 });
 // v2: "Сообщить о проблеме" became a section (tech support + chat) instead of a plain chat link.
 function migrate(env, cfg) {
-  if (cfg.v >= 2) return cfg;
+  if ((cfg.v || 0) < 2) {
   cfg.v = 2;
   const old = cfg.nodes[4];
   if (old && old.k === "url" && old.u === tme(env.CHAT)) {
@@ -43,6 +45,18 @@ function migrate(env, cfg) {
     cfg.nodes[8] = { t: "💬 Спросить в чате", k: "url", u: tme(env.CHAT) };
     cfg.nodes[4] = { t: old.t, k: "section", c: ["7", "8"] };
     cfg.next = Math.max(cfg.next || 10, 10);
+  }
+  }
+  if (cfg.v < 3) {
+    // Preserve the owner-edited tree and do not duplicate an existing radio link.
+    if (!Object.values(cfg.nodes).some((node) => node.k === "url" && node.u?.replace(/\/+$/, "") === RADIO_URL.replace(/\/+$/, ""))) {
+      let id = Math.max(Number(cfg.next) || 10, 10);
+      while (cfg.nodes[String(id)]) id++;
+      cfg.nodes[String(id)] = { t: "🎧 Радио", k: "url", u: RADIO_URL };
+      cfg.root.push(String(id));
+      cfg.next = id + 1;
+    }
+    cfg.v = 3;
   }
   return cfg;
 }
