@@ -42,6 +42,13 @@
 1	performance	app/src/main/java/tv/own/owntv/OwnTVApp.kt	koin-started
 3	empty	app/src/main/java/tv/own/owntv/core/i18n/LocalizedContent.kt	\0
 1	empty	app/src/main/java/tv/own/owntv/extras/categories/CategoriesVisibilityDialog.kt	\0
+1	empty	app/src/main/java/tv/own/owntv/extras/remote/PhoneRemoteSettingsScreen.kt	\0
+2	technical	app/src/main/java/tv/own/owntv/extras/remote/PhoneRemoteSettingsScreen.kt	-
+1	technical	app/src/main/java/tv/own/owntv/extras/remote/RemoteTvManager.kt	${Build.MANUFACTURER} ${Build.MODEL}
+1	technical	app/src/main/java/tv/own/owntv/extras/remote/RemoteTvManager.kt	YAiPlayer TV
+1	log	app/src/main/java/tv/own/owntv/extras/remote/RemoteTvManager.kt	YAiPlayer log: no report
+2	preference-key	app/src/main/java/tv/own/owntv/extras/remote/RemoteTvManager.kt	remote_enabled
+1	preference-key	app/src/main/java/tv/own/owntv/extras/remote/RemoteTvManager.kt	remote_tv_prefs
 1	locale	app/src/main/java/tv/own/owntv/extras/screensaver/ScreensaverOverlay.kt	EEE, d MMMM
 1	locale	app/src/main/java/tv/own/owntv/extras/screensaver/ScreensaverOverlay.kt	HH:mm
 1	technical	app/src/main/java/tv/own/owntv/extras/screensaver/ScreensaverOverlay.kt	ken_burns
@@ -314,6 +321,7 @@
 1	log	app/src/main/java/tv/own/owntv/features/series/SeriesViewModel.kt	playEpisodeQueue seriesId=${show.id} episodeId=${episode.id} profile=$pid queue=${queue.size} startIndex=$startIndex startPositionMs=$startPositionMs
 1	log	app/src/main/java/tv/own/owntv/features/series/SeriesViewModel.kt	saveEpisodeProgressNow episodeId=${ep.id} profile=$pid positionMs=$pos durationMs=$dur
 1	log	app/src/main/java/tv/own/owntv/features/series/SeriesViewModel.kt	saveEpisodeProgressNow progress save failed episodeId=${ep.id} profile=$pid
+1	log	app/src/main/java/tv/own/owntv/features/series/SeriesViewModel.kt	selected episode missing from queue seriesId=${show.id} season=${episode.seasonNumber} episode=${episode.episodeNumber}
 1	log	app/src/main/java/tv/own/owntv/features/series/SeriesViewModel.kt	stalker resolve failed episodeId=${episode.id}
 2	empty	app/src/main/java/tv/own/owntv/features/settings/AccentPopup.kt	\0
 4	technical	app/src/main/java/tv/own/owntv/features/settings/AccentPopup.kt	#
@@ -1474,4 +1482,3 @@
 1	technical	app/src/main/java/tv/own/owntv/ui/theme/Glass.kt	glassPosition
 2	empty	app/src/main/java/tv/own/owntv/ui/theme/OwnTVColors.kt	\0
 2	empty	app/src/main/java/tv/own/owntv/ui/theme/Theme.kt	\0
-1	log	app/src/main/java/tv/own/owntv/features/series/SeriesViewModel.kt	selected episode missing from queue seriesId=${show.id} season=${episode.seasonNumber} episode=${episode.episodeNumber}

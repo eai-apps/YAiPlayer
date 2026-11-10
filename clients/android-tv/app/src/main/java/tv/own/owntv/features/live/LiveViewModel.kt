@@ -1694,6 +1694,15 @@ class LiveViewModel(
         return true
     }
 
+    // Remote devices have independent database IDs. Match only an unambiguous visible local channel.
+    suspend fun tuneRemoteChannel(name: String): Boolean {
+        val candidates = ctx.value.sourceIds.mapNotNull { channelDao.findByName(it, name) }
+            .filter { isPlayableForRemote(it) }
+        return candidates.singleOrNull()?.let { ensurePlayingByIdAsync(it.id) } ?: false
+    }
+    private suspend fun isPlayableForRemote(channel: ChannelEntity): Boolean =
+        channel.sourceId in ctx.value.sourceIds && !customize.sealsCategory(settings.activeProfileId.first(), channel.categoryId)
+
     private var historyJob: Job? = null
 
     /**

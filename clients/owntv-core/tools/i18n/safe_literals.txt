@@ -4774,6 +4774,7 @@
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	ch_id
 5	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	cmd
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	cover
+1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	create_link type=$type series=$episode inCmd=${redactForLog(cmd)} rawOut=${redactForLog(raw)} resolved=${redactForLog(resolved)}
 8	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	data
 3	technical	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	descr
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	description
@@ -4883,6 +4884,7 @@
 2	url	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	?
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	Portal listed no file for episode ${ref.episodeId}
 4	log	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	Stalker source ${source.id} has no valid MAC
+1	log	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	episode resolve sourceId=${source?.id} episodeId=${episode.id} season=${episode.seasonNumber} episode=${episode.episodeNumber}
 1	log	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	film create_link failed (${e.javaClass.simpleName}) — playing the stored URL
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	itv
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	resolveCatchup is Stalker-only
@@ -5907,6 +5909,144 @@
 1	technical	core/src/main/java/tv/own/owntv/extras/epg/EpgTimeShift.kt	0
 1	technical	core/src/main/java/tv/own/owntv/extras/epg/EpgTimeShift.kt	owntv_playlist_epg_shifts
 1	preference-key	core/src/main/java/tv/own/owntv/extras/epg/EpgTimeShift.kt	playlist_epg_shifts
+1	empty	core/src/main/java/tv/own/owntv/extras/favoriteshub/FavoritesHubFeed.kt	\0
+1	empty	core/src/main/java/tv/own/owntv/extras/favoriteshub/FavoritesHubGrouping.kt	\0
+2	empty	core/src/main/java/tv/own/owntv/extras/favoriteshub/FavoritesHubViewModel.kt	\0
+4	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	$host:$port
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	${System.currentTimeMillis()}:${java.util.UUID.randomUUID()}
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	/cmd
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	/favorites
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	/logs
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	/state
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	GET
+5	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	HTTP ${response.code}
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	POST
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	Pair first
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	X-Remote-Nonce
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	X-Remote-Signature
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	YAiPlayer
+1	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	application/json; charset=utf-8
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	code
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	deviceId
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	error
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	https://$host:$port$path
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	https://$host:$port/pair
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	name
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	retryAfterSeconds
+1	json	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	token
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	tvName
+1	empty	core/src/main/java/tv/own/owntv/extras/remote/RemoteDiscoveryManager.kt	\0
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteDiscoveryManager.kt	DEPRECATION
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteDiscoveryManager.kt	NSD registration failed: $errorCode
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteDiscoveryManager.kt	RemoteDiscovery
+1	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteDiscoveryManager.kt	_yaiplayer._tcp.
+2	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteDiscoveryManager.kt	id
+1	empty	core/src/main/java/tv/own/owntv/extras/remote/RemotePairingManager.kt	\0
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemotePairingManager.kt	$method $path $nonce $body
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemotePairingManager.kt	%02x
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemotePairingManager.kt	%06d
+2	technical	core/src/main/java/tv/own/owntv/extras/remote/RemotePairingManager.kt	HmacSHA256
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemotePairingManager.kt	Remote
+2	technical	core/src/main/java/tv/own/owntv/extras/remote/RemotePairingManager.kt	blocked_until
+2	technical	core/src/main/java/tv/own/owntv/extras/remote/RemotePairingManager.kt	failures
+1	json	core/src/main/java/tv/own/owntv/extras/remote/RemotePairingManager.kt	paired_devices
+2	technical	core/src/main/java/tv/own/owntv/extras/remote/RemotePairingManager.kt	paired_devices_v2
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemotePairingManager.kt	remote_pairing_store
+1	empty	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	\0
+5	json	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	channelId
+2	json	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	channelName
+2	json	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	digit
+2	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	durationMs
+2	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	id
+2	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	isMuted
+2	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	isPlaying
+4	json	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	key
+2	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	logoUrl
+2	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	media
+4	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	name
+2	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	nav
+2	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	number
+2	json	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	pairedAtMs
+2	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	positionMs
+2	json	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	query
+2	json	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	streamUrl
+2	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	text
+4	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	title
+2	json	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	token
+2	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	tune
+6	json	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	type
+2	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteProtocol.kt	volumePct
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteSecretStore.kt	AES
+2	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteSecretStore.kt	AES/GCM/NoPadding
+2	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteSecretStore.kt	AndroidKeyStore
+2	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteSecretStore.kt	data
+3	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteSecretStore.kt	remote_secrets_v1
+1	empty	core/src/main/java/tv/own/owntv/extras/remote/RemoteSecurity.kt	\0
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteSecurity.kt	$method $path $nonce $body
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteSecurity.kt	%02x
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteSecurity.kt	/live/
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteSecurity.kt	/movie/
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteSecurity.kt	/series/
+2	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteSecurity.kt	HmacSHA256
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteSecurity.kt	SHA-256
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteSecurity.kt	[0-9.]+
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteSecurity.kt	http
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteSecurity.kt	https
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteSecurity.kt	m3u8
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteSecurity.kt	mkv
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteSecurity.kt	mp4
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteSecurity.kt	mpd
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteSecurity.kt	ts
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteSecurity.kt	webm
+2	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTls.kt	AndroidKeyStore
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTls.kt	Certificate mismatch
+2	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTls.kt	SHA-256
+2	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTls.kt	TLSv1.2
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTls.kt	[a-f0-9]{64}
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTls.kt	yaiplayer_remote_tls_v1
+2	empty	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	\0
+1	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	/cmd
+1	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	/favorites
+1	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	/logs
+2	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	/pair
+1	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	/state
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	Bad Request
+2	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	Connection: close
+2	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	Content-Length: ${bytes.size}
+1	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	Content-Type: application/json; charset=utf-8
+1	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	Content-Type: text/plain; charset=utf-8
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	Error
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	Forbidden
+3	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	GET
+1	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	HTTP/1.1 $code $statusText
+1	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	HTTP/1.1 $code OK
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	Not Found
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	OK
+2	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	POST
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	Phone
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	Too Many Requests
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	UTF-8
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	Unauthorized
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	YAiPlayer TV
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	code
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	content-length
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	device
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	deviceId
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	invalid_code
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	name
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	ok
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	rate_limited
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	retryAfterSeconds
+3	json	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	status
+1	json	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	token
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	transfer-encoding
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	tvName
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	x-remote-nonce
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	x-remote-signature
+1	json	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	{"status":"bad_command"}
+1	json	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	{"status":"not_found"}
+1	json	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	{"status":"ok"}
+1	json	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	{"status":"unauthorized"}
 1	technical	core/src/main/java/tv/own/owntv/extras/screensaver/ScreensaverManifest.kt	Aurora Borealis over Tromsø
 2	technical	core/src/main/java/tv/own/owntv/extras/screensaver/ScreensaverManifest.kt	CC0 / Public Domain
 1	technical	core/src/main/java/tv/own/owntv/extras/screensaver/ScreensaverManifest.kt	Carina Nebula Cosmic Cliffs
@@ -7272,5 +7412,3 @@
 1	protocol	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	text/plain
 3	protocol	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	text/plain; charset=utf-8
 1	protocol	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	token
-1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerClient.kt	create_link type=$type series=$episode inCmd=${redactForLog(cmd)} rawOut=${redactForLog(raw)} resolved=${redactForLog(resolved)}
-1	log	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	episode resolve sourceId=${source?.id} episodeId=${episode.id} season=${episode.seasonNumber} episode=${episode.episodeNumber}

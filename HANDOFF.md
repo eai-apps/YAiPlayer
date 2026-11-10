@@ -345,3 +345,23 @@ Antigravity идёт по порядку: task-quick-actions, task-site-landing,
 | ЗАДАНИЕ 7 | test/extra-features | 7.1-7.4 | «Вчера в эфире» (прошлые дни архива), таймер сна, мульти-вид 2–4 (low-RAM лимит, разворот по OK), ребрендинг docs/REBRAND.md + apply_brand.py (task-extra-features.md) | ✅ готово (ветка test/extra-features) |
 | ЗАДАНИЕ 8 | test/tv-optimizer-ui | 8.1 | «Ускорь телевизор»: мастер на телефоне, ADB-заглушка (task-tv-optimizer-ui.md) | ✅ готово (ветка test/tv-optimizer-ui, CI зелёный) |
 | ЗАДАНИЕ 9 | test/light-mode | 9.1 | «Лёгкий режим»: переключатель для слабых устройств (отключение превью и анимаций), диалог первого запуска на low-RAM (ТВ + телефон, task-light-mode.md) | ✅ готово (ветка test/light-mode) |
+
+## Задание 4A — пульт (Codex, 10.11.2026)
+
+| Кто | Что | Ветка | Проверка |
+|---|---|---|---|
+| Codex | Только часть A: взял реализацию Antigravity `test/remote2` (она ещё не в main), исправил транспорт и безопасность, ввод и передачу канала | `test/remote-codex` от свежего `origin/main` fecf7b1 | CI ожидается; реальные телефон и ТВ, аудит Claude/Opus до слияния |
+
+Исправлено относительно remote2: HTTP заменён на TLS 1.2 с обязательным отпечатком сертификата с экрана ТВ (полный SHA-256 вводится на телефоне до PIN, без автоматического доверия mDNS). Подписываются метод, путь, nonce и тело; повтор и просроченная подпись отклоняются. Токены на ТВ только SHA-256, на телефоне AES-GCM с Android Keystore. PIN 2 минуты, одно применение; 5 ошибок блокируют на 5 минут, счётчик сохраняется. Выключение закрывает соединения и сбрасывает PIN. Приёмник выключен по умолчанию; привязан к частному IPv4-адресу, публичные адреса/имена и редиректы клиента запрещены. Ограничены соединения, заголовки и тело запроса.
+
+Ввод направлен через InputConnection только в активное поле, пароли исключены. Телефон отправляет название текущего live-канала, ТВ ищет единственное совпадение в своих активных источниках с проверкой закрытых категорий (ID баз на устройствах различаются). На экране пульта можно отправить публичную ссылку на видео; ссылки с userinfo, query/fragment и типовые пути Xtream с паролями запрещены. Настройки профиля/источников не передаются; экспорт журнала и избранного через этот транспорт отключён. Часть B, оптимизатор и его плитка не изменялись.
+
+Ограничения: сопряжение по PIN, без QR-сканера; ввод полного отпечатка вручную. Передача фильма/серии из карточки и обратный перенос просмотра не сделаны. Доставка команды не доказывает начало проигрывания. На реальных устройствах не проверены TLS с Keystore, Compose InputConnection, навигация/плеер, повторное подключение при смене IP/порта, уведомление. При смене адреса потребуется сопряжение заново. Нужен аудит Claude/Opus локальной сети, TLS/pinning, обработки ввода и профилей перед слиянием. Никакой публикации или push в main.
+
+### Оригинальный код YAiPlayer (пульт)
+Переиспользованы оригинальные файлы Antigravity в пакетах `tv.own.owntv.extras.remote`:
+- core: `RemoteProtocol.kt`, `RemotePairingManager.kt`, `RemoteTvServer.kt`, `RemoteClient.kt`, `RemoteDiscoveryManager.kt`, `RemoteEntitlement.kt`.
+- TV: `RemoteTvManager.kt`, `PhoneRemoteSettingsScreen.kt`.
+- Mobile: `RemoteScreen.kt`, `RemoteViewModel.kt`, `RemoteNotificationHelper.kt`.
+- тест: `core/src/test/java/tv/own/owntv/extras/remote/RemoteProtocolTest.kt`.
+Новые файлы Codex (внутри `clients/owntv-core`): `core/src/main/java/tv/own/owntv/extras/remote/RemoteSecurity.kt`, `RemoteTls.kt`, `RemoteSecretStore.kt` (тот же каталог), `core/src/test/java/tv/own/owntv/extras/remote/RemoteSecurityTest.kt`. Все с заголовком авторства YAiPlayer. Внешний код не копировался; okhttp-tls добавлен только для тестового сертификата.

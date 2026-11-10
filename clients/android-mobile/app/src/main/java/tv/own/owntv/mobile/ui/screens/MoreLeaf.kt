@@ -21,6 +21,7 @@ enum class MoreLeaf(slug: String, @param:StringRes val titleRes: Int) {
     LOCAL_SYNC("localsync", R.string.local_sync_title),
     ERROR_LOG("errorlog", R.string.settings_playback_error_log),
     ABOUT("about", R.string.settings_about),
+    REMOTE("remote", tv.own.owntv.core.R.string.remote_title),
     ;
 
     /** `more/backup` — the tab's own route with the page hung off it. */

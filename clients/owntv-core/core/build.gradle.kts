@@ -243,6 +243,7 @@ dependencies {
     implementation(libs.androidx.compose.runtime)
 
     testImplementation(libs.junit)
+    testImplementation("com.squareup.okhttp3:okhttp-tls:5.5.0")
     // android.jar's org.json is a stub and isReturnDefaultValues silences it; backup/restore is
     // all JSON, so the tests need the real implementation. Same reason as :app.
     testImplementation(libs.org.json)

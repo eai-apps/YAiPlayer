@@ -165,6 +165,7 @@ fun MoreScreen(
                     chevron = true,
                 )
                 MoreItem(R.string.local_sync_title, MobileIcons.Phone, stringResource(if (syncOn) R.string.common_on else R.string.common_off)) { onOpenLeaf(MoreLeaf.LOCAL_SYNC) }
+                StageMenuItem(label = stringResource(tv.own.owntv.core.R.string.remote_title), onClick = { onOpenLeaf(MoreLeaf.REMOTE) }, icon = MobileIcons.Tv, height = 48.dp, chevron = true)
                 StageGroupLabel(stringResource(R.string.more_group_quick_actions))
                 StageMenuItem(
                     label = stringResource(R.string.quick_start_title),

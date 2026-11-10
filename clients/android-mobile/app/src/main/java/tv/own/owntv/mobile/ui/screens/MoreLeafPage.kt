@@ -21,6 +21,7 @@ fun MoreLeafPage(
     onOpenItem: (LibraryTab, Long) -> Unit,
     onOpenPlayer: () -> Unit,
     onOpenLanguage: () -> Unit,
+    onBack: (() -> Unit)? = null,
 ) {
     when (leaf) {
         MoreLeaf.FAVORITES -> FavoritesScreen(onOpenChannel, onOpenItem)
@@ -29,5 +30,6 @@ fun MoreLeafPage(
         MoreLeaf.LOCAL_SYNC -> SettingsLocalSyncPage()
         MoreLeaf.ERROR_LOG -> SettingsErrorLogPage()
         MoreLeaf.ABOUT -> AboutPage(onOpenLanguage)
+        MoreLeaf.REMOTE -> tv.own.owntv.extras.remote.RemoteScreen(onBack = { onBack?.invoke() })
     }
 }
