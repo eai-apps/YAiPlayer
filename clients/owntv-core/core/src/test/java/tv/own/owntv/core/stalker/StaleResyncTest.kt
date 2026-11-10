@@ -81,7 +81,7 @@ class StaleResyncTest {
         val cat = CategoryEntity(
             id = 42L,
             sourceId = 1L,
-            type = MediaType.LIVE,
+            mediaType = MediaType.LIVE,
             name = "Cinema",
             remoteId = "cat_cinema",
         )
