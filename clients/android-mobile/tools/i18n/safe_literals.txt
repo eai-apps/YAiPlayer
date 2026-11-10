@@ -1114,3 +1114,14 @@
 2	empty	app/src/main/java/tv/own/owntv/mobile/ui/theme/MobileColors.kt	\0
 4	empty	app/src/main/java/tv/own/owntv/mobile/ui/theme/MobileTheme.kt	\0
 1	regex	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbCommandHelper.kt	[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z][A-Za-z0-9_]*)+
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	Package $name new state: disabled-user
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	Package $name new state: enabled
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	android
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	com.android.
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	com.google.
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	com.yai.
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	launcher
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	systemui
+2	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	package:
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	pm list packages -e --user 0
+1	file-path	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsAppPage.kt	tvoptimizer/licenses.txt

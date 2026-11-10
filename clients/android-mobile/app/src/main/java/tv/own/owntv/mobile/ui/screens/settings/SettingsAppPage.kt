@@ -127,6 +127,16 @@ fun AboutPage(onOpenLanguage: () -> Unit, modifier: Modifier = Modifier) {
             color = palette.body,
             modifier = Modifier.padding(top = 16.dp),
         )
+        StageButton(
+            text = stringResource(R.string.tv_optimizer_licenses),
+            onClick = {
+                android.app.AlertDialog.Builder(context)
+                    .setTitle(R.string.tv_optimizer_licenses)
+                    .setMessage(context.assets.open("tvoptimizer/licenses.txt").bufferedReader().use { it.readText() })
+                    .setPositiveButton(android.R.string.ok, null)
+                    .show()
+            },
+        )
         // The project's own community channel and site go here once they exist (not OwnTV's).
         @OptIn(ExperimentalLayoutApi::class)
         FlowRow(Modifier.padding(top = 14.dp), horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {

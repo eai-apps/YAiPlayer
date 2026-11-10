@@ -80,4 +80,5 @@
     <string name="pkg_print_spooler_desc">Служба печати документов. Телевизору печать не требуется.</string>
     <string name="pkg_google_music_title">Google Play Музыка</string>
     <string name="pkg_google_music_desc">Устаревший неработающий музыкальный сервис Google. Безопасно отключать.</string>
+    <string name="tv_optimizer_licenses">Лицензии</string>
 </resources>
