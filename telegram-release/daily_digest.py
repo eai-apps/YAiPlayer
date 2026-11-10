@@ -151,9 +151,10 @@ def build(picked, start, end):
     n = len(picked)
     newest = [lb for lb, v in sorted(themes.items(), key=lambda kv: tag_num(kv[1]["tag"]), reverse=True)]
     top = [lb for lb in newest if themes[lb]["kind"] == "new"][:3] or newest[:3]
-    ver_word = "версия" if n % 10 == 1 and n % 100 != 11 else ("версии" if n % 10 in (2, 3, 4) and n % 100 not in (12, 13, 14) else "версий")
-    out_word = "вышла" if n % 10 == 1 and n % 100 != 11 else "вышло"
-    summary = f"За сутки {out_word} <b>{n} {ver_word}</b> ({esc(first_tag)} → {esc(last_tag)})."
+    if n == 1:
+        summary = f"Вышла новая версия. Сейчас актуальная: <b>{esc(last_tag)}</b>."
+    else:
+        summary = f"Вышли новые версии. Сейчас актуальная: <b>{esc(last_tag)}</b>."
     if top:
         summary += " Главное: <i>" + ", ".join(esc(t) for t in top) + "</i>."
 
@@ -176,9 +177,9 @@ def build(picked, start, end):
     rows = "".join(f"<tr><td><b>{esc(t)}</b></td><td>{esc(lb)}</td></tr>" for t, lb in reversed(per_version[-8:]))
     if n > 8:
         rows += f"<tr><td>…</td><td><i>и ещё {n - 8} более ранних</i></td></tr>"
-    rich = [f"<h2>📋 Итоги суток · {start.strftime('%d.%m')} → {end.strftime('%d.%m.%Y')}</h2>", f"<p>{summary}</p>",
+    rich = ["<h2>📋 Дайджест</h2>", f"<p>{summary}</p>",
             f"<table><tr><td><b>Версия</b></td><td><b>Что вышло</b></td></tr>{rows}</table>"]
-    classic = [f"📋 <b>Итоги суток</b> · <i>{start.strftime('%d.%m')} → {end.strftime('%d.%m.%Y')}</i>", "", summary]
+    classic = ["📋 <b>Дайджест</b>", "", summary]
     for key in ("new", "fix"):
         if blocks[key]:
             rich.append(f"<h3>{titles[key]} {names[key]}</h3>")

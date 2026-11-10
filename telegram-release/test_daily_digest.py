@@ -19,6 +19,9 @@ class DigestTest(unittest.TestCase):
         self.assertIn("<details>", rich)
         self.assertIn("<blockquote expandable>", classic)
         self.assertIn("🛠", classic)
+        self.assertNotIn("за сутки", (rich + classic).lower())
+        self.assertNotIn("Итоги", rich + classic)
+        self.assertIn("Сейчас актуальная: <b>v3.0.3</b>", rich)
 
     def test_nothing_to_say(self):
         self.assertIsNone(d.build([{"tag_name": "v3.0.4", "body": ""}], datetime(2026, 11, 9), datetime(2026, 11, 10)))
