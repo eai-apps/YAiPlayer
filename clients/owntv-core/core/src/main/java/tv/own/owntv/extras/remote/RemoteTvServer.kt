@@ -76,7 +76,7 @@ class RemoteTvServer(
                     }
                 }
             } finally {
-                _state.value = ServerState.Stopped
+                if (serverSocket === socket) _state.value = ServerState.Stopped
             }
         }
         return localPort
