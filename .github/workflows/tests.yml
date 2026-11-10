@@ -14,6 +14,22 @@ permissions:
   contents: read
 
 jobs:
+  optimizer-unit:
+    name: Mobile optimizer unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 25
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Тесты оптимизатора
+        working-directory: clients/android-mobile
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:testStandardDebugUnitTest --tests 'tv.own.owntv.extras.tvoptimizer.TvOptimizerTest' -Powntv.corePath=${GITHUB_WORKSPACE}/clients/owntv-core --no-daemon --stacktrace
   core-unit:
     name: Core unit tests
     runs-on: ubuntu-latest

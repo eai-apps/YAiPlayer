@@ -40,6 +40,16 @@ class TvOptimizerTest {
     fun `command parser returns null on malformed commands`() {
         assertNull(AdbCommandHelper.parsePackageFromDisable("pm uninstall com.test"))
         assertNull(AdbCommandHelper.parsePackageFromEnable("pm disable com.test"))
+        assertNull(AdbCommandHelper.parsePackageFromDisable("pm disable-user --user 0 com.test;reboot"))
+        assertNull(AdbCommandHelper.parsePackageFromEnable("pm enable com.test extra"))
+    }
+
+    @Test
+    fun `command builders reject shell metacharacters and whitespace`() {
+        for (name in listOf("com.test;reboot", "com.test\nreboot", "com.test extra", "-x", "com..test")) {
+            assertTrue(runCatching { AdbCommandHelper.buildDisableCommand(name) }.isFailure)
+            assertTrue(runCatching { AdbCommandHelper.buildEnableCommand(name) }.isFailure)
+        }
     }
 
     @Test
