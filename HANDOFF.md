@@ -350,7 +350,7 @@ Antigravity идёт по порядку: task-quick-actions, task-site-landing,
 
 | Кто | Что | Ветка | Проверка |
 |---|---|---|---|
-| Codex | Только часть A: взял реализацию Antigravity `test/remote2` (она ещё не в main), исправил транспорт и безопасность, ввод и передачу канала | `test/remote-codex` от свежего `origin/main` fecf7b1 | CI ожидается; реальные телефон и ТВ, аудит Claude/Opus до слияния |
+| Codex | Только часть A: взял реализацию Antigravity `test/remote2` (она ещё не в main), исправил транспорт и безопасность, ввод и передачу канала | `test/remote-codex` от свежего `origin/main` fecf7b1 | Локально i18n core/TV/Mobile и XML en/ru/de прошли. Результаты Build/Tests — в Actions ветки; реальные телефон и ТВ, аудит Claude/Opus до слияния |
 
 Исправлено относительно remote2: HTTP заменён на TLS 1.2 с обязательным отпечатком сертификата с экрана ТВ (полный SHA-256 вводится на телефоне до PIN, без автоматического доверия mDNS). Подписываются метод, путь, nonce и тело; повтор и просроченная подпись отклоняются. Токены на ТВ только SHA-256, на телефоне AES-GCM с Android Keystore. PIN 2 минуты, одно применение; 5 ошибок блокируют на 5 минут, счётчик сохраняется. Выключение закрывает соединения и сбрасывает PIN. Приёмник выключен по умолчанию; привязан к частному IPv4-адресу, публичные адреса/имена и редиректы клиента запрещены. Ограничены соединения, заголовки и тело запроса.
 
@@ -365,3 +365,5 @@ Antigravity идёт по порядку: task-quick-actions, task-site-landing,
 - Mobile: `RemoteScreen.kt`, `RemoteViewModel.kt`, `RemoteNotificationHelper.kt`.
 - тест: `core/src/test/java/tv/own/owntv/extras/remote/RemoteProtocolTest.kt`.
 Новые файлы Codex (внутри `clients/owntv-core`): `core/src/main/java/tv/own/owntv/extras/remote/RemoteSecurity.kt`, `RemoteTls.kt`, `RemoteSecretStore.kt` (тот же каталог), `core/src/test/java/tv/own/owntv/extras/remote/RemoteSecurityTest.kt`. Все с заголовком авторства YAiPlayer. Внешний код не копировался; okhttp-tls добавлен только для тестового сертификата.
+
+Проверки: Tests теперь действительно запускает `tv.own.owntv.extras.remote.*` вместе с тестами Stalker. Первый CI: 136/137 тестов прошли; старый тест отвязки использовал клиентский ID, хотя безопасный ID теперь выдаёт ТВ. Исправил тест на реальный ID. Build выявил две ошибки Kotlin: smart cast свойства другого модуля и затенение пакета `tv` локальной переменной; исправил локальной переменной и импортом `CoreR`. Дополнительно сквозной TLS-тест проверяет неверный отпечаток, неверную подпись токена, повторный PIN и отказ после отвязки. Первый Build: 42799379779, Tests: 42799379863; результат исправленного коммита см. в последних Build и Tests ветки `test/remote-codex`. Сборок на устройстве не запускал.

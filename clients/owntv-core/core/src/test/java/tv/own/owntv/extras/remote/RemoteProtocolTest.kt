@@ -90,7 +90,7 @@ class RemoteProtocolTest {
         assertTrue(manager.getPairedDevices()[0].id.isNotBlank())
 
         // Forget device
-        manager.forgetDevice("phone_device_1")
+        manager.forgetDevice(manager.getPairedDevices().single().id)
         assertFalse(manager.isValidToken(token))
         assertEquals(0, manager.getPairedDevices().size)
     }
@@ -161,11 +161,16 @@ class RemoteProtocolTest {
         try {
             // Pair client
             val pin = pairingManager.generateNewCode()
+            val wrongCertificate = client.pair(server.host!!, port, pin, "TestPhone", "client_123", "0".repeat(64))
+            assertTrue(wrongCertificate is RemotePairResult.Failure)
             val pairRes = client.pair(server.host!!, port, pin, "TestPhone", "client_123", fingerprint)
             assertTrue(pairRes is RemotePairResult.Success)
             val success = pairRes as RemotePairResult.Success
             assertEquals("Living Room TV", success.tvName)
             val token = success.token
+            assertTrue(client.pair(server.host!!, port, pin, "Other", "other", fingerprint) is RemotePairResult.InvalidCode)
+            assertTrue(client.sendCommand(server.host!!, port, "wrong", RemoteCommand.Nav(RemoteNavKey.UP)).isFailure)
+            assertEquals(null, lastCommand.get())
 
             // Send command
             val sendRes = client.sendCommand(server.host!!, port, token, RemoteCommand.Nav(RemoteNavKey.OK))
@@ -190,6 +195,9 @@ class RemoteProtocolTest {
             val favsRes = client.fetchFavorites(server.host!!, port, token)
             assertTrue(favsRes.isSuccess)
             assertEquals(0, favsRes.getOrThrow().size)
+            pairingManager.forgetDevice(pairingManager.getPairedDevices().single().id)
+            assertTrue(client.fetchState(server.host!!, port, token).isFailure)
+            assertTrue(client.sendCommand(server.host!!, port, token, RemoteCommand.Nav(RemoteNavKey.UP)).isFailure)
 
         } finally {
             server.stop()

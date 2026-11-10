@@ -200,7 +200,8 @@ class RemoteTvManager(private val context: Context) : RemoteCommandHandler, Remo
                 onSearchText?.invoke(command.query) ?: false
             }
             is RemoteCommand.Tune -> {
-                if (command.streamUrl != null && !RemoteSecurity.shareableLink(command.streamUrl)) false
+                val streamUrl = command.streamUrl
+                if (streamUrl != null && !RemoteSecurity.shareableLink(streamUrl)) false
                 else if (onTune == null || (command.streamUrl == null && command.title.isNullOrBlank())) false
                 else { onTune?.invoke(null, command.streamUrl, command.title?.take(256)); true }
             }

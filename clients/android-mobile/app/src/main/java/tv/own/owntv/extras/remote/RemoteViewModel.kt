@@ -2,6 +2,7 @@
 package tv.own.owntv.extras.remote
 
 import android.app.Application
+import tv.own.owntv.core.R as CoreR
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -154,15 +155,15 @@ class RemoteViewModel(application: Application) : AndroidViewModel(application) 
                 }
                 is RemotePairResult.RateLimited -> {
                     _pairingError.value = "LOCKED"
-                    _status.value = ConnectionStatus.Error(getApplication<Application>().getString(tv.own.owntv.core.R.string.remote_pin_locked))
+                    _status.value = ConnectionStatus.Error(getApplication<Application>().getString(CoreR.string.remote_pin_locked))
                 }
                 is RemotePairResult.InvalidCode -> {
                     _pairingError.value = "INVALID"
-                    _status.value = ConnectionStatus.Error(getApplication<Application>().getString(tv.own.owntv.core.R.string.remote_pin_incorrect))
+                    _status.value = ConnectionStatus.Error(getApplication<Application>().getString(CoreR.string.remote_pin_incorrect))
                 }
                 is RemotePairResult.Failure -> {
-                    _pairingError.value = getApplication<Application>().getString(tv.own.owntv.core.R.string.remote_status_disconnected)
-                    _status.value = ConnectionStatus.Error(getApplication<Application>().getString(tv.own.owntv.core.R.string.remote_status_disconnected))
+                    _pairingError.value = getApplication<Application>().getString(CoreR.string.remote_status_disconnected)
+                    _status.value = ConnectionStatus.Error(getApplication<Application>().getString(CoreR.string.remote_status_disconnected))
                 }
             }
         }
@@ -228,7 +229,7 @@ class RemoteViewModel(application: Application) : AndroidViewModel(application) 
         val tv = _selectedTv.value ?: return
         viewModelScope.launch {
             client.sendCommand(tv.host, tv.port, tv.token, command).onFailure {
-                _status.value = ConnectionStatus.Error(getApplication<Application>().getString(tv.own.owntv.core.R.string.remote_status_disconnected))
+                _status.value = ConnectionStatus.Error(getApplication<Application>().getString(CoreR.string.remote_status_disconnected))
             }
         }
     }
