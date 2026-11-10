@@ -513,7 +513,10 @@ class EpgRepository(
                 }
                 if (channels.isNotEmpty()) {
                     val channelsStartedAt = SystemClock.elapsedRealtime()
-                    epgDao.upsertChannels(channels.values.toList())
+                    channels.values.chunked(250).forEach {
+                        epgDao.upsertChannels(it)
+                        kotlinx.coroutines.yield()
+                    }
                     val channelsMs = SystemClock.elapsedRealtime() - channelsStartedAt
                     writeMs += channelsMs
                     Log.d(
@@ -546,7 +549,10 @@ class EpgRepository(
             }
             if (channels.isNotEmpty()) {
                 val channelsStartedAt = SystemClock.elapsedRealtime()
-                epgDao.upsertChannels(channels.values.toList())
+                channels.values.chunked(250).forEach {
+                    epgDao.upsertChannels(it)
+                    kotlinx.coroutines.yield()
+                }
                 val channelsMs = SystemClock.elapsedRealtime() - channelsStartedAt
                 writeMs += channelsMs
                 Log.d(
@@ -901,7 +907,7 @@ class EpgRepository(
         val file = cacheFile(storeId)
         if (!file.exists() || aliases.isEmpty()) return@withContext emptySet()
         val now = System.currentTimeMillis()
-        val cutoff = pastCutoff(now, now - WINDOW_BACK_MS)
+        val from = now - WINDOW_BACK_MS
         val to = now + guideAheadMs()
         val buffer = ArrayList<EpgProgrammeEntity>(250)
         val filled = HashSet<String>()
@@ -915,7 +921,7 @@ class EpgRepository(
                 onChannel = { _, _, _ -> },
                 onProgramme = { channelId, start, stop, title, desc, details ->
                     for (key in aliases[channelId.trim().lowercase()].orEmpty()) {
-                        if (stop > cutoff(key) && start < to && tv.own.owntv.core.epg.EpgGapPlan.inWindow(start, stop, windows[key].orEmpty())) {
+                        if (stop > from && start < to && tv.own.owntv.core.epg.EpgGapPlan.inWindow(start, stop, windows[key].orEmpty())) {
                             buffer.add(EpgProgrammeEntity(sourceId = storeId, epgChannelId = key,
                                 startMs = start, stopMs = stop, title = title, description = desc).withDetails(details))
                             filled.add(key)

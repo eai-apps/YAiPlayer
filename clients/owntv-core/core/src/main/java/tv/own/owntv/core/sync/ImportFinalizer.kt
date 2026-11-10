@@ -41,7 +41,8 @@ class ImportFinalizer(
         runCatching { adultProtection?.applyIfRequested(source.id) }
         if (includeGuide) {
             val repository = org.koin.core.context.GlobalContext.get().get<tv.own.owntv.core.repository.EpgRepository>()
-            repository.guideUrls(source).forEach { url ->
+            val syncedSource = db.sourceDao().getById(source.id) ?: source
+            repository.guideUrls(syncedSource).forEach { url ->
                 val guide = epgSourceStore.ensure(source.name, url, source.userAgent)
                 if (epgSourceStore.builtinEnabled.firstOrNull() != true) {
                     org.koin.core.context.GlobalContext.get().get<tv.own.owntv.core.sync.work.EpgSyncScheduler>()
