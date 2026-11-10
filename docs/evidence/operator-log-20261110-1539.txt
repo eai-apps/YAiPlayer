@@ -1,0 +1,161 @@
+======================================================================
+YAiPlayer Diagnostic Report
+======================================================================
+App Version : YAiPlayer 3.0.36 (83)
+Device      : X3 Model-X3
+Android     : 9 (API 28)
+Export Time : 2026-11-10 15:39:08
+
+----------------------------------------------------------------------
+Active Sources (1)
+----------------------------------------------------------------------
+[Source #1]
+  Name     : ффф
+  Type     : STALKER
+  Address  : *** (redacted)
+  User     : *** (redacted)
+  Password : *** (redacted)
+  MAC      : *** (redacted)
+  Sync     : Live=true, Movies=true, Series=true
+  PreferHls: false
+
+----------------------------------------------------------------------
+Guide Trace
+----------------------------------------------------------------------
+No guide trace recorded.
+
+----------------------------------------------------------------------
+Playback Error Log
+----------------------------------------------------------------------
+[2026-11-09 22:13:06] EVENT · mpv · vod
+  reason: COPY_MODE_FALLBACK
+  raw   : watchdog MOOV-AT-END but decoder failed ('ACodec: [OMX.amlogic.avc.decoder.awesome] setPortMode on output to DynamicANWBuffer failed w/ err -2147483648')
+
+[2026-11-08 22:24:41] ERROR · mpv · vod
+  raw   : ACodec: [OMX.amlogic.hevc.decoder.awesome] setPortMode on output to DynamicANWBuffer failed w/ err -2147483648
+
+[2026-11-08 17:28:23] ERROR · mpv · vod
+  raw   : ACodec: [OMX.amlogic.avc.decoder.awesome] setPortMode on output to DynamicANWBuffer failed w/ err -2147483648
+
+[2026-11-08 17:27:45] ERROR · mpv · vod
+  raw   : ACodec: [OMX.amlogic.avc.decoder.awesome] setPortMode on output to DynamicANWBuffer failed w/ err -2147483648
+
+[2026-11-08 17:15:57] EVENT · ExoPlayer · live
+  reason: LIVE_NO_FALLBACK
+  raw   : 'Amedia Premium HD': no picture within 30s of tuning
+
+[2026-11-08 17:15:46] EVENT · ExoPlayer · live
+  reason: LIVE_NO_FALLBACK
+  raw   : 'Amedia Premium HD': ExoPlayer error before first frame: buffered but never started playing (10870ms buffered (needs 1000ms) after 4012ms, no frame, type5=true)
+
+[2026-11-08 17:15:37] EVENT · mpv · live
+  reason: LIVE_FALLBACK
+  raw   : 'Amedia Premium HD': ExoPlayer + TS — mpv couldn't play it: Channel
+
+[2026-11-07 22:11:44] EVENT · ExoPlayer · live
+  reason: LIVE_FALLBACK
+  raw   : 'viju TV1000 Romantica': mpv + TS — no decodable audio track
+
+[2026-11-07 22:09:41] EVENT · ExoPlayer · live
+  reason: LIVE_FALLBACK
+  raw   : '9-1-1': mpv + TS — the ExoPlayer preview had already failed
+
+[2026-11-07 21:54:36] EVENT · ExoPlayer · live
+  reason: LIVE_FALLBACK
+  raw   : 'viju TV1000 +7': mpv + TS — no decodable audio track
+
+[2026-11-07 21:53:15] EVENT · ExoPlayer · live
+  reason: LIVE_FALLBACK
+  raw   : 'Plan_B': mpv + TS — no decodable audio track
+
+[2026-11-07 21:52:56] EVENT · ExoPlayer · live
+  reason: LIVE_FALLBACK
+  raw   : 'NOW Series': mpv + TS — no decodable audio track
+
+[2026-11-07 21:52:14] EVENT · ExoPlayer · live
+  reason: LIVE_FALLBACK
+  raw   : 'Kion Хит': mpv + TS — no decodable audio track
+
+[2026-11-07 21:51:28] EVENT · ExoPlayer · live
+  reason: LIVE_FALLBACK
+  raw   : 'KinoWood HD': mpv + TS — no decodable audio track
+
+[2026-11-07 21:51:10] EVENT · ExoPlayer · live
+  reason: LIVE_FALLBACK
+  raw   : 'KinoMan [am]': mpv + TS — no decodable audio track
+
+[2026-11-07 21:50:52] EVENT · ExoPlayer · live
+  reason: LIVE_FALLBACK
+  raw   : 'КиноЛивинг': mpv + TS — ExoPlayer error before first frame: buffered but never started playing (10640ms buffered (needs 1000ms) after 4011ms, no frame, video=false audio=false type5=true)
+
+[2026-11-07 21:50:36] EVENT · ExoPlayer · live
+  reason: LIVE_FALLBACK
+  raw   : 'KinoGrande HD': mpv + TS — no decodable audio track
+
+[2026-11-07 21:50:30] EVENT · ExoPlayer · live
+  reason: LIVE_FALLBACK
+  raw   : 'KinoGrande': mpv + TS — no decodable audio track
+
+[2026-11-07 21:50:26] EVENT · ExoPlayer · live
+  reason: LIVE_FALLBACK
+  raw   : 'KinoJam 3 HD': mpv + TS — no decodable audio track
+
+[2026-11-07 21:50:07] EVENT · ExoPlayer · live
+  reason: LIVE_FALLBACK
+  raw   : 'KinoJam 3 HD': mpv + TS — no decodable audio track
+
+[2026-11-07 21:23:35] EVENT · ExoPlayer · live
+  reason: LIVE_FALLBACK
+  raw   : '4Y': mpv + TS — no decodable audio track
+
+[2026-11-07 21:23:16] EVENT · ExoPlayer · live
+  reason: LIVE_FALLBACK
+  raw   : 'Amedia Hit HD': mpv + TS — ExoPlayer error before first frame: buffered but never started playing (11360ms buffered (needs 1000ms) after 4008ms, no frame, video=false audio=false type5=true)
+
+[2026-11-07 21:22:38] EVENT · ExoPlayer · live
+  reason: LIVE_FALLBACK
+  raw   : 'Amedia 1': mpv + TS — ExoPlayer error before first frame: buffered but never started playing (10760ms buffered (needs 1000ms) after 4005ms, no frame, video=false audio=false type5=true)
+
+[2026-11-07 21:22:23] EVENT · mpv · live
+  reason: LIVE_FALLBACK
+  raw   : '9-1-1': mpv + TS — the ExoPlayer preview had already failed
+
+[2026-11-07 21:10:02] EVENT · ExoPlayer · live
+  reason: LIVE_FALLBACK
+  raw   : '9-1-1': mpv + TS — ExoPlayer error before first frame: buffered but never started playing (10480ms buffered (needs 1000ms) after 4001ms, no frame, type5=true)
+
+----------------------------------------------------------------------
+Recent Errors & Live Diagnostics
+----------------------------------------------------------------------
+--- Last Crash ---
+OwnTV 3.0.26 (73)
+X3 Model-X3 · Android 9 (API 28)
+Crashed 2026-11-09 12:48:38 on thread "main"
+
+java.lang.OutOfMemoryError: Failed to allocate a 378654928 byte allocation with 13595127 free bytes and 243MB until OOM, max allowed footprint 27190255, growth limit 268435456
+	at java.lang.StringBuilder.toString(StringBuilder.java:410)
+	at java.text.Normalizer.normalize(Normalizer.java:167)
+	at nz5.c(Unknown Source:9)
+	at nz5.b(Unknown Source:120)
+	at sl.Q(Unknown Source:3)
+	at jw2.b(Unknown Source:1375)
+	at wv2.A(Unknown Source:16)
+	at wu.i(Unknown Source:7)
+	at ih1.run(Unknown Source:113)
+	at pl3.run(Unknown Source:110)
+	at ua8.run(Unknown Source:2)
+	at wx0.run(Unknown Source:87)
+	Suppressed: bg1: [ax7{Cancelling}@3942e87, Dispatchers.Main.immediate]
+
+--- live diagnostics leading up to the crash ---
+11-09 12:39:49.743 stop() — intentional
+11-09 12:40:59.893 stop() — intentional
+11-09 12:41:18.237 play() engine=7a62254 url=http://***/Suspense_SD_0sbAZrEQ7/video.m3u8?token=***
+
+--- Live Diagnostics ---
+11-10 15:35:25.881 stop() — intentional
+11-10 15:35:48.163 stop() — intentional
+11-10 15:35:54.252 stop() — intentional
+11-10 15:35:54.700 mpv pause=false pos=0ms
+11-10 15:35:54.710 mpv surface attached in 1ms, pending load=false
+11-10 15:35:54.802 mpv_load live=false url=http://***/2025/SERIAL_2/MobLand/s02/S02E01.mkv?token=***
