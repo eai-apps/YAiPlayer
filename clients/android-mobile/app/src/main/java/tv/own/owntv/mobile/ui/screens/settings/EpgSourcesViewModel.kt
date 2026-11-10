@@ -50,6 +50,12 @@ class EpgSourcesViewModel(
     val builtinEnabled: StateFlow<Boolean> =
         store.builtinEnabled.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
 
+    val stalkerCatchupEnabled = store.stalkerCatchupEnabled
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
+    fun setStalkerCatchupEnabled(enabled: Boolean) {
+        viewModelScope.launch { store.setStalkerCatchupEnabled(enabled) }
+    }
+
     fun setBuiltinEnabled(enabled: Boolean) {
         viewModelScope.launch { store.setBuiltinEnabled(enabled) }
     }

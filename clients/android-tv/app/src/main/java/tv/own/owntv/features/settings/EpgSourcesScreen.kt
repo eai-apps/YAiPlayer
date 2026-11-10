@@ -32,6 +32,7 @@ fun EpgSourcesScreen(onBack: () -> Unit, modifier: Modifier = Modifier, startOnA
     val autoRefreshMap by vm.autoRefresh.collectAsStateWithLifecycle()
     val useLogosIds by vm.useLogos.collectAsStateWithLifecycle()
     val deletingIds by vm.deletingIds.collectAsStateWithLifecycle()
+    val stalkerCatchupEnabled by vm.stalkerCatchupEnabled.collectAsStateWithLifecycle()
     val builtinEnabled by vm.builtinEnabled.collectAsStateWithLifecycle()
     val builtinStatus by vm.builtinStatus.collectAsStateWithLifecycle()
     val builtinSchedule by vm.builtinSchedule.collectAsStateWithLifecycle()
@@ -163,6 +164,13 @@ fun EpgSourcesScreen(onBack: () -> Unit, modifier: Modifier = Modifier, startOnA
             value = SettingValue.Switch(builtinEnabled),
             onClick = { vm.setBuiltinEnabled(!builtinEnabled) },
             help = SettingHelp(builtinTitle, builtinDesc, hints = listOf(ok to stringResource(R.string.settings_key_switch), back to parent)),
+        )
+        StageSettingRow(
+            icon = OwnTVIcon.REFRESH,
+            title = stringResource(R.string.settings_epg_stalker_catchup),
+            desc = stringResource(R.string.settings_epg_stalker_catchup_desc),
+            value = SettingValue.Switch(stalkerCatchupEnabled),
+            onClick = { vm.setStalkerCatchupEnabled(!stalkerCatchupEnabled) },
         )
         val startupRefreshTitle = stringResource(R.string.settings_epg_startup_refresh)
         val startupRefreshDesc = stringResource(R.string.settings_epg_startup_refresh_desc)

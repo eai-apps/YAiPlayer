@@ -42,6 +42,7 @@ class EpgSourceStore(private val context: Context) {
         val LIST = stringPreferencesKey("sources")
         val NEXT_ID = longPreferencesKey("next_id") // counts down: -1, -2, …
         val MIGRATED = longPreferencesKey("migrated_v1")
+        val CATCHUP_OFF = longPreferencesKey("stalker_catchup_off")
         val BUILTIN_OFF = longPreferencesKey("builtin_off")
     }
 
@@ -55,6 +56,19 @@ class EpgSourceStore(private val context: Context) {
     /** Is the built-in guide allowed? On by default; the user can switch it off. */
     val builtinEnabled: Flow<Boolean> = context.epgStore.data.map { it[Keys.BUILTIN_OFF] != 1L }
 
+    val stalkerCatchupEnabled: Flow<Boolean> = context.epgStore.data.map { it[Keys.CATCHUP_OFF] != 1L }
+
+    suspend fun setStalkerCatchupEnabled(enabled: Boolean) {
+        context.epgStore.edit { if (enabled) it.remove(Keys.CATCHUP_OFF) else it[Keys.CATCHUP_OFF] = 1L }
+        updateCatchupSchedule()
+    }
+
+    suspend fun updateCatchupSchedule() {
+        if (stalkerCatchupEnabled.first() && builtinEnabled.first())
+            tv.own.owntv.core.sync.work.StalkerCatchupScheduler.schedule(context)
+        else tv.own.owntv.core.sync.work.StalkerCatchupScheduler.cancel(context)
+    }
+
     suspend fun setBuiltinEnabled(enabled: Boolean) {
         context.epgStore.edit { prefs ->
             if (enabled) prefs.remove(Keys.BUILTIN_OFF) else prefs[Keys.BUILTIN_OFF] = 1L
@@ -62,6 +76,8 @@ class EpgSourceStore(private val context: Context) {
                 prefs[Keys.LIST] = EpgSourceJson.write(EpgSourceJson.parse(prefs[Keys.LIST]).filterNot { it.builtin })
             }
         }
+        if (enabled) tv.own.owntv.core.sync.BuiltinGuide.fromKoin().ensure()
+        updateCatchupSchedule()
     }
 
     /**
@@ -133,7 +149,7 @@ class EpgSourceStore(private val context: Context) {
     suspend fun priority(): GuidePriority {
         val raw = context.epgStore.data.first()[Keys.LIST]
         priorityCache?.takeIf { it.first == raw }?.let { return it.second }
-        return GuidePriority.of(EpgSourceJson.parse(raw).map { it.id }).also { priorityCache = raw to it }
+        return GuidePriority.of(EpgGapPlan.ordered(EpgSourceJson.parse(raw).map { it.id to it.builtin })).also { priorityCache = raw to it }
     }
 
     suspend fun remove(id: Long) {

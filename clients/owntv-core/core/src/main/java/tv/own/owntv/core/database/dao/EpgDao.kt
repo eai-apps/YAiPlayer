@@ -17,6 +17,12 @@ import tv.own.owntv.core.database.entity.EpgProgrammeText
 /** EPG storage + now/next lookups. Programmes are kept to a rolling window and pruned. */
 @Dao
 interface EpgDao {
+    @Query("SELECT * FROM epg_channels WHERE sourceId = :sourceId")
+    suspend fun fallbackChannels(sourceId: Long): List<EpgChannelEntity>
+
+    @Query("SELECT DISTINCT epgChannelId FROM epg_programmes WHERE epgChannelId IN (:keys) AND startMs < :to AND stopMs > :from")
+    suspend fun keysWithGuide(keys: List<String>, from: Long, to: Long): List<String>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertChannels(channels: List<EpgChannelEntity>)
 

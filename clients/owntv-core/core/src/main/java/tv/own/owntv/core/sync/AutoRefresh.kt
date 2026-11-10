@@ -48,6 +48,7 @@ class AutoRefresh(
     private var lastResumeCheckAtElapsed = 0L
 
     suspend fun check(includeStartup: Boolean) {
+        epgSourceStore.updateCatchupSchedule()
         synchronized(this) {
             if (includeStartup) {
                 if (coldStartCheckDone) return

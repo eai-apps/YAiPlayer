@@ -132,9 +132,9 @@ class BuiltinGuide(
             val created = store.ensureBuiltin("$NAME ${i + 1}", url) ?: return@forEachIndexed
             settings.setEpgUseLogos(created.id, true)
             settings.setEpgAutoRefresh(created.id, DEFAULT_REFRESH)
-            // Only the first feed now; the worker asks for the next one while channels still lack a guide.
-            if (i == 0) scheduler.enqueueSync(created.id, "builtin")
+            // Queue only after all feeds have been registered.
         }
+        store.getAll().firstOrNull { it.builtin }?.let { scheduler.enqueueSync(it.id, "builtin", policy = androidx.work.ExistingWorkPolicy.KEEP) }
     }
 
     companion object {

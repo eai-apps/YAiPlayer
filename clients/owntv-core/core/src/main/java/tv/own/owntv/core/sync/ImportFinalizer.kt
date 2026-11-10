@@ -39,10 +39,17 @@ class ImportFinalizer(
         val counts = contentCounts(source.id)
         if (includeGuide) registerPortalGuide(source, refreshGuide)
         runCatching { adultProtection?.applyIfRequested(source.id) }
-        // A portal that brings its own guide does not need the built-in one forced on it unless opted in.
-        val allowedPortalIds = runCatching { settings?.portalBuiltinEpgSources?.firstOrNull() }.getOrNull().orEmpty()
-        val ownGuide = source.type == tv.own.owntv.core.model.SourceType.STALKER && source.importPortalEpg && (source.id !in allowedPortalIds)
-        if (includeGuide && !ownGuide) runCatching { builtinGuide?.onPlaylistImported() }
+        if (includeGuide) {
+            val repository = org.koin.core.context.GlobalContext.get().get<tv.own.owntv.core.repository.EpgRepository>()
+            repository.guideUrls(source).forEach { url ->
+                val guide = epgSourceStore.ensure(source.name, url, source.userAgent)
+                if (epgSourceStore.builtinEnabled.firstOrNull() != true) {
+                    org.koin.core.context.GlobalContext.get().get<tv.own.owntv.core.sync.work.EpgSyncScheduler>()
+                        .enqueueSync(guide.id, "playlist", policy = androidx.work.ExistingWorkPolicy.KEEP)
+                }
+            }
+            builtinGuide?.onPlaylistImported()
+        }
         // Bounded TTL eviction of the TMDB caches — they grow without limit as the user
         // browses. Piggy-backed here (the operation that changes data), never on cold start.
         // Indexed DELETE on updatedAt; evicted rows simply re-fetch on next focus.

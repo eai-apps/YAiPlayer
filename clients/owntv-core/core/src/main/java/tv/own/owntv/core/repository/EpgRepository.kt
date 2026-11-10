@@ -7,6 +7,7 @@ import androidx.room.immediateTransaction
 import androidx.room.useReaderConnection
 import androidx.room.useWriterConnection
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -317,7 +318,7 @@ class EpgRepository(
             val storeId = if (index == 0) source.id else extraId ?: -(source.id * 1000 + index)
             val now = System.currentTimeMillis()
             try {
-                val written = refreshUrl(storeId, url, source.userAgent, onProgress)
+                val written = refreshUrl(storeId, url, source.userAgent, onProgress = onProgress)
                 if (extraId != null) store?.setSynced(extraId, now, null)
                 total += written
                 anySucceeded = true
@@ -336,11 +337,24 @@ class EpgRepository(
      * Download [url] (XMLTV, gzip-aware) into the guide tables keyed by [storeId], keeping only the
      * rolling window. Used for standalone EPG sources (negative ids). Throws on network/parse failure.
      */
+    private val guideSyncLocks = java.util.concurrent.ConcurrentHashMap<Long, kotlinx.coroutines.sync.Mutex>()
+
     suspend fun refreshUrl(
         storeId: Long,
         url: String,
         userAgent: String?,
+        programmeIds: Set<String>? = null,
         onProgress: (channels: Int, programmes: Int) -> Unit = { _, _ -> },
+    ): Int = guideSyncLocks.getOrPut(storeId) { kotlinx.coroutines.sync.Mutex() }.withLock {
+        refreshUrlLocked(storeId, url, userAgent, programmeIds, onProgress)
+    }
+
+    private suspend fun refreshUrlLocked(
+        storeId: Long,
+        url: String,
+        userAgent: String?,
+        programmeIds: Set<String>?,
+        onProgress: (channels: Int, programmes: Int) -> Unit,
     ): Int = withContext(Dispatchers.IO) {
         // A portal guide is not a download, so it cannot go through the XMLTV path below — but it is
         // stored, pruned, matched and read exactly like one, which is why it is addressed as a URL
@@ -353,15 +367,14 @@ class EpgRepository(
         val from = now - WINDOW_BACK_MS
         val aheadMs = guideAheadMs()
         val to = now + aheadMs
-        val globallyEmpty = bulkInsertHelper.tableIsEmpty("epg_programmes")
         val sourceEmpty = epgDao.countForSources(listOf(storeId)) == 0
-        val freshSource = sourceEmpty
+        val freshSource = sourceEmpty || programmeIds != null
 
         // Filter programmes to the channels the user actually has (tvg-ids + persisted matches). Public
         // feeds carry far more channels than the user owns, so this is the single biggest sync speedup —
         // ~10–20× fewer rows. We still store ALL <channel> entries (cheap, needed as smart-match candidates).
         // Null = couldn't determine any ids → don't filter (never reduce the guide to empty).
-        val needed = neededEpgIds()
+        val needed = programmeIds ?: neededEpgIds()
         Log.d("EpgRepository", "EPG channel filter sourceId=$storeId ids=${needed?.size ?: 0} active=${needed != null}")
         val chunkSize = if (freshSource) BulkInsertHelper.CHUNK_FRESH else BulkInsertHelper.CHUNK
         val channels = LinkedHashMap<String, EpgChannelEntity>()
@@ -419,7 +432,7 @@ class EpgRepository(
             bulkInsertHelper.withOptimizedBulkInsert(
                 "epg_programmes",
                 ftsTable = null,
-                eligible = globallyEmpty,
+                eligible = false,
                 ftsOnly = false,
             ) {
                 tmpFile.outputStream().use { out ->
@@ -510,7 +523,7 @@ class EpgRepository(
                 }
                 parseCompleted = true
             }
-            if (parseCompleted && channels.isNotEmpty() && processedCount == 0) {
+            if (programmeIds == null && parseCompleted && channels.isNotEmpty() && processedCount == 0) {
                 // Filtered to the playlists' channels and none of the feed's is one of them: the guide
                 // has programmes, just for channels no playlist links to yet.
                 if (needed != null && channels.keys.none { it in needed }) throw GuideMatchesNoChannelException()
@@ -521,6 +534,7 @@ class EpgRepository(
         } catch (e: NoProgrammesInWindowException) {
             throw e
         } catch (e: Exception) {
+            if (programmeIds != null) throw e
             // Network drop or an unrecoverable parse position. Keep whatever we already pulled — a partial
             // guide beats none — and only fail outright if we got nothing at all.
             if (writtenCount == 0 && buffer.isEmpty() && channels.isEmpty()) throw e
@@ -552,6 +566,7 @@ class EpgRepository(
             }
             if (tmpFile.exists()) tmpFile.delete() // no-op after a successful rename
         }
+        if (programmeIds != null) return@withContext 0
         // Everything above is download + parse + the writes interleaved with it; everything below is
         // retention. Splitting the wall clock here is what makes parseMs and pruneMs mean something.
         val parsedAt = SystemClock.elapsedRealtime()
@@ -741,28 +756,33 @@ class EpgRepository(
      * a TV for a 10,000-row batch, against microseconds without it. Same SQL as the generated insert.
      */
     private suspend fun writeProgrammes(batch: List<EpgProgrammeEntity>) {
-        db.useWriterConnection { connection ->
-            connection.immediateTransaction {
-                usePrepared(UPSERT_PROGRAMME_SQL) { statement ->
-                    for (p in batch) {
-                        statement.bindLong(1, p.id)
-                        statement.bindLong(2, p.sourceId)
-                        statement.bindText(3, p.epgChannelId)
-                        statement.bindLong(4, p.startMs)
-                        statement.bindLong(5, p.stopMs)
-                        statement.bindText(6, p.title)
-                        p.description?.let { statement.bindText(7, it) } ?: statement.bindNull(7)
-                        statement.bindLong(8, p.contentHash.toLong())
-                        p.categories?.let { statement.bindText(9, it) } ?: statement.bindNull(9)
-                        p.year?.let { statement.bindLong(10, it.toLong()) } ?: statement.bindNull(10)
-                        p.rating?.let { statement.bindText(11, it) } ?: statement.bindNull(11)
-                        p.lengthMin?.let { statement.bindLong(12, it.toLong()) } ?: statement.bindNull(12)
-                        p.episode?.let { statement.bindText(13, it) } ?: statement.bindNull(13)
-                        statement.step()
-                        statement.reset()
+        for (part in batch.chunked(250)) {
+            val started = SystemClock.elapsedRealtime()
+            db.useWriterConnection { connection ->
+                connection.immediateTransaction {
+                    usePrepared(UPSERT_PROGRAMME_SQL) { statement ->
+                        for (p in part) {
+                            statement.bindLong(1, p.id)
+                            statement.bindLong(2, p.sourceId)
+                            statement.bindText(3, p.epgChannelId)
+                            statement.bindLong(4, p.startMs)
+                            statement.bindLong(5, p.stopMs)
+                            statement.bindText(6, p.title)
+                            p.description?.let { statement.bindText(7, it) } ?: statement.bindNull(7)
+                            statement.bindLong(8, p.contentHash.toLong())
+                            p.categories?.let { statement.bindText(9, it) } ?: statement.bindNull(9)
+                            p.year?.let { statement.bindLong(10, it.toLong()) } ?: statement.bindNull(10)
+                            p.rating?.let { statement.bindText(11, it) } ?: statement.bindNull(11)
+                            p.lengthMin?.let { statement.bindLong(12, it.toLong()) } ?: statement.bindNull(12)
+                            p.episode?.let { statement.bindText(13, it) } ?: statement.bindNull(13)
+                            statement.step()
+                            statement.reset()
+                        }
                     }
                 }
             }
+            CorePerf.log { "epg_commit atMs=${SystemClock.elapsedRealtime()} rows=${part.size} ms=${SystemClock.elapsedRealtime() - started}" }
+            kotlinx.coroutines.yield()
         }
     }
 
@@ -876,6 +896,38 @@ class EpgRepository(
      * Deliberately never starts a download: EPG is opt-in, and no cache means the user hasn't synced
      * a guide for this feed yet.
      */
+    suspend fun fillFallbackCache(storeId: Long, aliases: Map<String, Set<String>>,
+        windows: Map<String, List<Pair<Long, Long>>>): Set<String> = withContext(Dispatchers.IO) {
+        val file = cacheFile(storeId)
+        if (!file.exists() || aliases.isEmpty()) return@withContext emptySet()
+        val now = System.currentTimeMillis()
+        val cutoff = pastCutoff(now, now - WINDOW_BACK_MS)
+        val to = now + guideAheadMs()
+        val buffer = ArrayList<EpgProgrammeEntity>(250)
+        val filled = HashSet<String>()
+        suspend fun flush() {
+            if (buffer.isEmpty()) return
+            writeProgrammes(buffer.toList())
+            buffer.clear()
+        }
+        file.inputStream().use { input ->
+            XmltvParser.parse(input,
+                onChannel = { _, _, _ -> },
+                onProgramme = { channelId, start, stop, title, desc, details ->
+                    for (key in aliases[channelId.trim().lowercase()].orEmpty()) {
+                        if (stop > cutoff(key) && start < to && tv.own.owntv.core.epg.EpgGapPlan.inWindow(start, stop, windows[key].orEmpty())) {
+                            buffer.add(EpgProgrammeEntity(sourceId = storeId, epgChannelId = key,
+                                startMs = start, stopMs = stop, title = title, description = desc).withDetails(details))
+                            filled.add(key)
+                            if (buffer.size >= 250) flush()
+                        }
+                    }
+                }, channelFilter = aliases.keys)
+        }
+        flush()
+        filled
+    }
+
     suspend fun fillGuideGapsForSource(sourceId: Long): Int = withContext(Dispatchers.IO) {
         // Nothing to repair before the user has ever synced a guide — and without this the query
         // below would return every channel the source has.
