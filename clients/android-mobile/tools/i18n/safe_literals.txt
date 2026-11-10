@@ -20,11 +20,11 @@
 # category technical: Reviewed non-user-facing technical literal.
 
 1	empty	app/src/main/java/tv/own/owntv/extras/categories/CategoriesVisibilitySheet.kt	\0
-2	assertion	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbCommandHelper.kt	Package name must not be blank
+2	assertion	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbCommandHelper.kt	Invalid package name
 1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbCommandHelper.kt	pm disable-user --user 0
-1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbCommandHelper.kt	pm disable-user --user 0 ${packageName.trim()}
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbCommandHelper.kt	pm disable-user --user 0 $packageName
 1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbCommandHelper.kt	pm enable
-1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbCommandHelper.kt	pm enable ${packageName.trim()}
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbCommandHelper.kt	pm enable $packageName
 1	assertion	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbTransport.kt	ADB not connected
 1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbTransport.kt	Package new state: default
 1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbTransport.kt	Package new state: disabled-user
@@ -1113,3 +1113,4 @@
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/stage/StageRows.kt	•
 2	empty	app/src/main/java/tv/own/owntv/mobile/ui/theme/MobileColors.kt	\0
 4	empty	app/src/main/java/tv/own/owntv/mobile/ui/theme/MobileTheme.kt	\0
+1	regex	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbCommandHelper.kt	[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z][A-Za-z0-9_]*)+
