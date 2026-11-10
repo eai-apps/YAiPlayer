@@ -21,7 +21,15 @@ class DigestTest(unittest.TestCase):
         self.assertIn("🛠", classic)
         self.assertNotIn("за сутки", (rich + classic).lower())
         self.assertNotIn("Итоги", rich + classic)
+        self.assertNotIn("Дайджест", rich + classic)
         self.assertIn("Сейчас актуальная: <b>v3.0.3</b>", rich)
+
+    def test_title_changes_every_day(self):
+        from datetime import date, timedelta
+        days = [date(2026, 11, 10) + timedelta(days=i) for i in range(60)]
+        titles = [d.hook_title(x) for x in days]
+        self.assertTrue(all(a != b for a, b in zip(titles, titles[1:])))
+        self.assertGreaterEqual(len(d.HOOKS), 30)
 
     def test_nothing_to_say(self):
         self.assertIsNone(d.build([{"tag_name": "v3.0.4", "body": ""}], datetime(2026, 11, 9), datetime(2026, 11, 10)))

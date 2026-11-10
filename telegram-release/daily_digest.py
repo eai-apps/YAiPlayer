@@ -71,11 +71,52 @@ THEMES = (
     (("профил", "перенос настроек"), "Профили"),
     (("пульт",), "Пульт"),
 )
-MAX_PER_BLOCK = 5   # themes shown per block; the rest go under the expandable "minor" block
+MAX_PER_BLOCK = 3   # themes shown per block; the rest go under the expandable "minor" block
 ESSENCE_MAX = 110
 BOT_URL = "https://t.me/YAiPlayer_App_bot?start=dl"
 CHAT_URL = "https://t.me/YAiPlayer_Chat"
 IMAGE = "brand/telegram-banner-1280x720.png"
+
+
+HOOKS = (
+    "Что нового в вашем ТВ",
+    "Плеер стал ещё лучше",
+    "Свежая порция улучшений",
+    "Обновление уже на вашем экране",
+    "Смотрите, что мы доделали",
+    "Новинки для вашего вечера у телевизора",
+    "Пока вы смотрели ТВ, мы улучшали плеер",
+    "Тёплое обновление для вашего экрана",
+    "Ваш плеер стал умнее",
+    "Что поменялось в плеере",
+    "Ещё удобнее: свежие обновления",
+    "Включайте новую версию",
+    "Больше эфира, меньше хлопот",
+    "Новые версии уже ждут вас",
+    "Свежие новости из мира YAiPlayer",
+    "Работа над ошибками и не только",
+    "Мы не спали: обновление готово",
+    "Телевизор, но лучше",
+    "Что мы успели доделать",
+    "Новый день, новая версия",
+    "Ваш любимый эфир ещё стабильнее",
+    "Приготовили кое-что интересное",
+    "Загляните: в плеере новое",
+    "Обновили, и вам стало удобнее",
+    "Вечер с плеером станет приятнее",
+    "Что нового и снаружи, и под капотом",
+    "Новая версия на связи",
+    "Мелочи, из которых складывается удобство",
+    "Проверьте обновление: есть что показать",
+    "Ещё один шаг к идеальному ТВ",
+)  # заголовок поста меняется каждый день (см. HANDOFF.md, «Дайджест»); список можно пополнять
+HOOK_EMOJI = ("📺", "🚀", "✨", "🎬", "🔔", "🆕")
+
+
+def hook_title(day) -> str:
+    """Заголовок дня: соседние дни никогда не совпадают."""
+    n = day.toordinal()
+    return f"{HOOK_EMOJI[n % len(HOOK_EMOJI)]} {HOOKS[n % len(HOOKS)]}"
 
 
 def theme_of(text: str):
@@ -177,9 +218,9 @@ def build(picked, start, end):
     rows = "".join(f"<tr><td><b>{esc(t)}</b></td><td>{esc(lb)}</td></tr>" for t, lb in reversed(per_version[-8:]))
     if n > 8:
         rows += f"<tr><td>…</td><td><i>и ещё {n - 8} более ранних</i></td></tr>"
-    rich = ["<h2>📋 Дайджест</h2>", f"<p>{summary}</p>",
+    rich = [f"<h2>{esc(hook_title(end.date()))}</h2>", f"<p>{summary}</p>",
             f"<table><tr><td><b>Версия</b></td><td><b>Что вышло</b></td></tr>{rows}</table>"]
-    classic = ["📋 <b>Дайджест</b>", "", summary]
+    classic = [f"<b>{esc(hook_title(end.date()))}</b>", "", summary]
     for key in ("new", "fix"):
         if blocks[key]:
             rich.append(f"<h3>{titles[key]} {names[key]}</h3>")
