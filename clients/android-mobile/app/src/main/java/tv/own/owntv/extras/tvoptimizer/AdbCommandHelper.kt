@@ -22,7 +22,7 @@ object AdbCommandHelper {
      */
     fun buildEnableCommand(packageName: String): String {
         require(validPackage(packageName)) { "Invalid package name" }
-        return "pm enable $packageName"
+        return "pm enable --user 0 $packageName"
     }
 
     /**
@@ -38,7 +38,7 @@ object AdbCommandHelper {
      * Extracts the target package name from an enable command string, or null if malformed.
      */
     fun parsePackageFromEnable(cmd: String): String? {
-        val prefix = "pm enable "
+        val prefix = "pm enable --user 0 "
         if (!cmd.startsWith(prefix)) return null
         return cmd.removePrefix(prefix).takeIf(::validPackage)
     }
