@@ -3514,6 +3514,7 @@
 1	technical	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	light_mode
 1	technical	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	light_mode_prompt_dismissed
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	list_orders_reset
+2	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	live_archive_only_$profileId
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	live_engine
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	live_latency_custom_secs
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	live_latency_mode
@@ -6486,6 +6487,10 @@
 1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	no picture within ${armedBudgetMs / 1000}s of tuning
 1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	perf_live_exo_stop at=${android.os.SystemClock.elapsedRealtime()}
 1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	perf_live_stop at=${android.os.SystemClock.elapsedRealtime()}
+1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	perf_live_exo_stop_begin at=${android.os.SystemClock.elapsedRealtime()}
+1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	perf_live_release_archive_begin at=${android.os.SystemClock.elapsedRealtime()}
+1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	perf_live_stop_begin at=${android.os.SystemClock.elapsedRealtime()}
+1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	perf_live_stop_engines_queued at=${android.os.SystemClock.elapsedRealtime()}
 1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	stalker reconnect re-resolve failed '${channel.name}'
 1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	stalker resolve failed
 1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	starting mpv for '${channel.name}' — reason=$reason
@@ -6836,6 +6841,10 @@
 1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	perf_exo_stop at=${android.os.SystemClock.elapsedRealtime()}
 1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	perf_mpv_stop at=${android.os.SystemClock.elapsedRealtime()}
 1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	perf_player_stop at=${android.os.SystemClock.elapsedRealtime()}
+1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	perf_mpv_stop_begin at=${android.os.SystemClock.elapsedRealtime()}
+1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	perf_mpv_stop_end at=${android.os.SystemClock.elapsedRealtime()}
+1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	perf_player_deactivate_exo_end at=${android.os.SystemClock.elapsedRealtime()}
+1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	perf_player_stop_begin at=${android.os.SystemClock.elapsedRealtime()}
 1	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	pgssub
 1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	playback didn't start after retries
 1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	playback didn't start on hardware

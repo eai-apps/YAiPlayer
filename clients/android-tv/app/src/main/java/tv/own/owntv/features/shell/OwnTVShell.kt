@@ -606,6 +606,7 @@ fun OwnTVShell(
     LaunchedEffect(playerMode) { liveVm.onPlayerMode(mini = playerMode == PlayerMode.MINI, open = playerMode != PlayerMode.NONE) }
     val exitPlayer = {
         tv.own.owntv.core.CorePerf.log { "perf_exit_player_begin at=${android.os.SystemClock.elapsedRealtime()}" }
+        tv.own.owntv.core.CorePerf.log { "perf_tv_exit_begin at=${android.os.SystemClock.elapsedRealtime()}" }
         // Flush the resume position BEFORE the stream is torn down — stop() drops the loaded item's
         // identity, after which neither view model can tell the position was theirs. Both calls are
         // no-ops unless the player is on that section's item.
@@ -626,6 +627,7 @@ fun OwnTVShell(
             (selectedSection == MainSection.LIVE_TV && liveVm.liveView.value == tv.own.owntv.core.settings.SettingsRepository.LiveView.GUIDE)
         restoreFocus = true
         focusRail()
+        tv.own.owntv.core.CorePerf.log { "perf_tv_exit_end at=${android.os.SystemClock.elapsedRealtime()}" }
         Unit
     }
     SealedPlaybackEffect(shellVm, liveVm, movieVm, seriesVm, player, { currentMultiview }, exitPlayer)

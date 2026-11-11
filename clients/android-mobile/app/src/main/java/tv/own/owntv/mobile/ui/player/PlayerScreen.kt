@@ -527,8 +527,10 @@ fun PlayerScreen(
     // A stream that outlived a Back press was the app quietly holding one of the provider's allowed
     // connections open with nothing on screen to say so.
     val stopAndExit = {
+        tv.own.owntv.core.CorePerf.log { "perf_mobile_exit_begin at=${android.os.SystemClock.elapsedRealtime()}" }
         tuner.stop()
         vodTuner.stop()
+        tv.own.owntv.core.CorePerf.log { "perf_mobile_exit_end at=${android.os.SystemClock.elapsedRealtime()}" }
         onExit()
     }
     BackHandler(onBack = stopAndExit)

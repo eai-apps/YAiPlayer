@@ -125,6 +125,7 @@ fun LiveScreen(
     val providerNames by vm.providerNames.collectAsStateWithLifecycle()
     val railFocus = remember { FocusRequester() }
     val selectedKey by vm.selectedKey.collectAsStateWithLifecycle()
+    val archiveOnly by vm.archiveOnly.collectAsStateWithLifecycle()
     val count by vm.count.collectAsStateWithLifecycle()
     val favoriteIds by vm.favoriteIds.collectAsStateWithLifecycle()
     val showChannelNumbers by vm.showChannelNumbers.collectAsStateWithLifecycle()
@@ -772,6 +773,11 @@ fun LiveScreen(
                         icon = OwnTVIcon.SORT,
                         value = if (sortMode == tv.own.owntv.core.settings.SettingsRepository.SortMode.ALPHA) stringResource(R.string.settings_sort_alpha) else stringResource(R.string.content_epg_sort_provider),
                         onClick = vm::toggleSort,
+                    )
+                    tv.own.owntv.ui.stage.StageTool(
+                        text = stringResource(if (archiveOnly) R.string.content_archive_only_on else R.string.content_archive_only),
+                        icon = OwnTVIcon.REWIND,
+                        onClick = vm::toggleArchiveOnly,
                     )
                     tv.own.owntv.ui.stage.StageTool(
                         text = stringResource(R.string.content_live_guide_view),

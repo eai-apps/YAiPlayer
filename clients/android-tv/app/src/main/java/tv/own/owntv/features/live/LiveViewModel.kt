@@ -659,6 +659,17 @@ class LiveViewModel(
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), defaultRail)
 
+    val archiveOnly: StateFlow<Boolean> = ctx.flatMapLatest { c ->
+        if (c.profileId < 0) flowOf(false) else settings.liveArchiveOnly(c.profileId)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
+
+    fun toggleArchiveOnly() {
+        viewModelScope.launch {
+            val pid = currentProfileId() ?: return@launch
+            settings.setLiveArchiveOnly(pid, !archiveOnly.value)
+        }
+    }
+
     val channels: Flow<PagingData<ChannelEntity>> = combine(
         _selected,
         ctx,
@@ -666,10 +677,12 @@ class LiveViewModel(
         sortMode,
         custResolved.filterNotNull(),
     ) { key, c, query, sort, cs -> Args(key, c, query, sort, cs) }
+        .combine(archiveOnly) { args, archive -> args to archive }
         // Rebuild the pager when a folder gains/loses manual order: the fast-path plain
         // PagingSource doesn't observe content_order, so the switch must recreate it.
         .combine(orderedContexts) { args, _ -> args }
-        .flatMapLatest { (key, c, query, sort, cs) ->
+        .flatMapLatest { (args, archive) ->
+            val (key, c, query, sort, cs) = args
             // Customizations are applied to each fresh PagingData inside the pager chain — a PagingData
             // that the UI already collected must never be re-transformed (Paging forbids re-collection,
             // which is why hiding a channel used to crash). A customization change re-creates the pager.
@@ -679,8 +692,9 @@ class LiveViewModel(
                 val cust = cs.cust
                 val hiddenCats = cs.hiddenCats
                 val movedFrom = cust.movedFromOrigin
-                if (cust.hiddenItems.isEmpty() && cust.itemNames.isEmpty() && hiddenCats.isEmpty() && movedFrom.isEmpty() && cust.sealedCategories.isEmpty()) paging
-                else paging
+                val archivePaging = if (archive) paging.filter { it.catchup } else paging
+                if (cust.hiddenItems.isEmpty() && cust.itemNames.isEmpty() && hiddenCats.isEmpty() && movedFrom.isEmpty() && cust.sealedCategories.isEmpty()) archivePaging
+                else archivePaging
                     .filter { ch ->
                         isChannelVisible(ch, cust, hiddenCats, key) &&
                             // Moved-out items leave ONLY their origin folder (they stay in All/search).

@@ -770,6 +770,14 @@ class SettingsRepository(private val context: Context, private val localeStore: 
 
     /** Whether a category the provider adds on a later resync is hidden automatically. Same across
      *  Live/Movies/Series for a profile — there's no reason to want it to differ by section. */
+    fun liveArchiveOnly(profileId: Long): Flow<Boolean> = prefsFlow { prefs ->
+        prefs[booleanPreferencesKey("live_archive_only_$profileId")] ?: false
+    }
+
+    suspend fun setLiveArchiveOnly(profileId: Long, enabled: Boolean) {
+        context.dataStore.edit { it[booleanPreferencesKey("live_archive_only_$profileId")] = enabled }
+    }
+
     fun hideNewCategoriesDefault(profileId: Long): Flow<Boolean> = prefsFlow { prefs ->
         prefs[booleanPreferencesKey("hide_new_categories_$profileId")] ?: false
     }

@@ -347,6 +347,7 @@ class LiveTuneController(
     /** Stop ExoPlayer (the preview, or a detached stream) without touching mpv. */
     fun stopExo() {
         tv.own.owntv.core.CorePerf.log { "perf_live_exo_stop at=${android.os.SystemClock.elapsedRealtime()}" }
+        tv.own.owntv.core.CorePerf.log { "perf_live_exo_stop_begin at=${android.os.SystemClock.elapsedRealtime()}" }
         previewJob?.cancel()
         exoResolveJob?.cancel()
         exoWatchJob?.cancel()
@@ -371,6 +372,7 @@ class LiveTuneController(
      * outside [launch] uses [cancelTune] first.
      */
     fun releaseForArchive() {
+        tv.own.owntv.core.CorePerf.log { "perf_live_release_archive_begin at=${android.os.SystemClock.elapsedRealtime()}" }
         parkTimeshift()
         cancelLadderJobs()
         current = null
@@ -381,9 +383,11 @@ class LiveTuneController(
     /** Stop everything: both engines, every watcher. */
     fun stop() {
         tv.own.owntv.core.CorePerf.log { "perf_live_stop at=${android.os.SystemClock.elapsedRealtime()}" }
+        tv.own.owntv.core.CorePerf.log { "perf_live_stop_begin at=${android.os.SystemClock.elapsedRealtime()}" }
         cancelTune()
         releaseForArchive()
         engines.mpvStop()
+        tv.own.owntv.core.CorePerf.log { "perf_live_stop_engines_queued at=${android.os.SystemClock.elapsedRealtime()}" }
         host.timeshift?.watching(null)
     }
 

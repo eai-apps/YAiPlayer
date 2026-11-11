@@ -318,6 +318,7 @@
 1	log	app/src/main/java/tv/own/owntv/features/series/SeriesViewModel.kt	playEpisodeQueue seriesId=${show.id} episodeId=${episode.id} profile=$pid queue=${queue.size} startIndex=$startIndex startPositionMs=$startPositionMs
 1	log	app/src/main/java/tv/own/owntv/features/series/SeriesViewModel.kt	saveEpisodeProgressNow episodeId=${ep.id} profile=$pid positionMs=$pos durationMs=$dur
 1	log	app/src/main/java/tv/own/owntv/features/series/SeriesViewModel.kt	saveEpisodeProgressNow progress save failed episodeId=${ep.id} profile=$pid
+1	log	app/src/main/java/tv/own/owntv/features/series/SeriesViewModel.kt	selected episode missing from queue seriesId=${show.id} season=${episode.seasonNumber} episode=${episode.episodeNumber}
 1	log	app/src/main/java/tv/own/owntv/features/series/SeriesViewModel.kt	stalker resolve failed episodeId=${episode.id}
 2	empty	app/src/main/java/tv/own/owntv/features/settings/AccentPopup.kt	\0
 4	technical	app/src/main/java/tv/own/owntv/features/settings/AccentPopup.kt	#
@@ -671,6 +672,8 @@
 1	performance	app/src/main/java/tv/own/owntv/features/shell/OwnTVShell.kt	epg-preload
 1	log	app/src/main/java/tv/own/owntv/features/shell/OwnTVShell.kt	perf_back_player_pressed at=${android.os.SystemClock.elapsedRealtime()}
 1	log	app/src/main/java/tv/own/owntv/features/shell/OwnTVShell.kt	perf_exit_player_begin at=${android.os.SystemClock.elapsedRealtime()}
+1	log	app/src/main/java/tv/own/owntv/features/shell/OwnTVShell.kt	perf_tv_exit_begin at=${android.os.SystemClock.elapsedRealtime()}
+1	log	app/src/main/java/tv/own/owntv/features/shell/OwnTVShell.kt	perf_tv_exit_end at=${android.os.SystemClock.elapsedRealtime()}
 1	performance	app/src/main/java/tv/own/owntv/features/shell/OwnTVShell.kt	shell-composed
 1	protocol	app/src/main/java/tv/own/owntv/features/shell/OwnTVShell.kt	srt
 1	protocol	app/src/main/java/tv/own/owntv/features/shell/OwnTVShell.kt	ssa
@@ -1480,4 +1483,3 @@
 1	technical	app/src/main/java/tv/own/owntv/ui/theme/Glass.kt	glassPosition
 2	empty	app/src/main/java/tv/own/owntv/ui/theme/OwnTVColors.kt	\0
 2	empty	app/src/main/java/tv/own/owntv/ui/theme/Theme.kt	\0
-1	log	app/src/main/java/tv/own/owntv/features/series/SeriesViewModel.kt	selected episode missing from queue seriesId=${show.id} season=${episode.seasonNumber} episode=${episode.episodeNumber}
