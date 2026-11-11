@@ -65,6 +65,7 @@ data class TrackOption(
     val lang: String? = null,
     val typeIndex: Int = -1,
     val labelKind: TrackLabelKind = TrackLabelKind.AUDIO,
+    val forced: Boolean = false,
 )
 
 /** Image-based subtitle codecs. They carry no text, so the app-drawn (direct render) overlay can't show
@@ -4605,6 +4606,7 @@ class OwnTVPlayer(
             val lang = m.getPropertyString("track-list/$i/lang")
             val codec = m.getPropertyString("track-list/$i/codec")
             val selected = m.getPropertyBoolean("track-list/$i/selected") ?: false
+            val forced = m.getPropertyBoolean("track-list/$i/forced") ?: false
             // Image-based subtitle (PGS/VOBSUB/DVB): mpv's direct path can't draw it — on VOD, selecting
             // it hands playback to ExoPlayer. typeIndex lines the pick up with ExoPlayer's track order.
             val image = type == "sub" && codec?.lowercase() in BITMAP_SUB_CODECS
@@ -4618,6 +4620,7 @@ class OwnTVPlayer(
                     lang = lang,
                     typeIndex = typeIndex,
                     labelKind = if (type == "sub") TrackLabelKind.SUBTITLE else TrackLabelKind.AUDIO,
+                    forced = forced,
                 ),
             )
             typeIndex++

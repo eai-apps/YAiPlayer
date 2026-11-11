@@ -37,7 +37,7 @@ fun TrackOption.displayLabel(): String {
         TrackTitleKind.COMMENTARY to stringResource(R.string.player_track_kind_commentary),
     )
     // Language first, then what kind of track it is (П9): «Русский · Форсированные», not «forced».
-    return TrackTitle.display(raw, lang, locale, { kindWords.getValue(it) }, fallback, stringResource(R.string.content_epg_bits_separator))
+    return TrackTitle.display(raw, lang, locale, { kindWords.getValue(it) }, fallback, stringResource(R.string.content_epg_bits_separator), forced)
 }
 
 private fun TrackOption.displayNumber(): Int = (typeIndex.takeIf { it >= 0 } ?: mpvId) + 1

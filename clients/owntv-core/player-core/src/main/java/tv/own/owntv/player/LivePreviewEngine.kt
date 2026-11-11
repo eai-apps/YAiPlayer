@@ -3030,6 +3030,7 @@ class LivePreviewEngine(
                 androidx.media3.common.C.TRACK_TYPE_TEXT -> for (i in 0 until group.length) {
                     val f = group.getTrackFormat(i)
                     val lang = f.language?.takeIf { it.isNotBlank() && it != "und" }
+                    val forced = (f.selectionFlags and androidx.media3.common.C.SELECTION_FLAG_FORCED) != 0
                     text.add(
                         TrackOption(
                             label = f.label.orEmpty(),
@@ -3038,6 +3039,7 @@ class LivePreviewEngine(
                             lang = lang,
                             typeIndex = tId,
                             labelKind = TrackLabelKind.SUBTITLE,
+                            forced = forced,
                         ),
                     )
                     tSel.add(TextSel(tId, group.mediaTrackGroup, i)); tId++

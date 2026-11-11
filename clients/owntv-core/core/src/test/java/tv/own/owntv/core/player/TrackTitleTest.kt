@@ -47,4 +47,12 @@ class TrackTitleTest {
         assertEquals("Субтитры 4 · Форсированные", show("forced", null))
         assertEquals("Something", show("Something", null))
     }
+
+    @Test fun streamForcedFlagCountsWhenTheTitleDoesNotSayIt() {
+        val flagged = TrackTitle.display("Subtitle 4", "rus", ru, ::kindRu, fallback = "Субтитры 4", separator = " · ", forcedFlag = true)
+        assertEquals("Русский · Форсированные", flagged)
+        // Already said by the title: not doubled.
+        val named = TrackTitle.display("forced", "rus", ru, ::kindRu, fallback = "Субтитры 4", separator = " · ", forcedFlag = true)
+        assertEquals("Русский · Форсированные", named)
+    }
 }

@@ -86,11 +86,12 @@ object TrackTitle {
 
     /**
      * The row text. [kindText] localises a kind, [fallback] is «Аудио 2» / «Субтитры 2» for a track
-     * with nothing to go on, [separator] is the app's « · ».
+     * with nothing to go on, [separator] is the app's « · ». [forcedFlag] is the stream's forced flag.
      */
     fun display(
         title: String?, langCode: String?, locale: Locale,
         kindText: (TrackTitleKind) -> String, fallback: String, separator: String,
+        forcedFlag: Boolean = false,
     ): String {
         val code = langCode?.takeIf { it.isNotBlank() && !it.equals("und", true) } ?: languageCode(title)
         val language = code?.let { normalizeCode(it) }?.let {
@@ -99,7 +100,8 @@ object TrackTitle {
                 ?.replaceFirstChar { c -> c.titlecase(locale) }
                 ?: it.uppercase(locale)
         }
-        val kinds = kinds(title)
+        // The stream's own «forced» flag counts even when the title never says so.
+        val kinds = kinds(title).let { if (forcedFlag && TrackTitleKind.FORCED !in it) listOf(TrackTitleKind.FORCED) + it else it }
         val extra = remainder(title).takeIf { it.length >= 2 && (language == null || !it.equals(language, true)) }
         // No language anywhere: the number still says which track it is, the kind says what it is.
         val head = language ?: fallback.takeIf { kinds.isNotEmpty() }
