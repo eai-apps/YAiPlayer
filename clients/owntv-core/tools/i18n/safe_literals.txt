@@ -4944,6 +4944,7 @@
 1	preference-key	core/src/main/java/tv/own/owntv/core/subscription/SubscriptionExpiry.kt	expiry_text_
 1	preference-key	core/src/main/java/tv/own/owntv/core/subscription/SubscriptionExpiry.kt	is_unlimited_
 1	protocol	core/src/main/java/tv/own/owntv/core/subscription/SubscriptionExpiry.kt	null
+2	preference-key	core/src/main/java/tv/own/owntv/core/subscription/SubscriptionExpiry.kt	refreshed_${s.id}
 1	technical	core/src/main/java/tv/own/owntv/core/subscription/SubscriptionExpiry.kt	shown_${it.sourceId}
 1	technical	core/src/main/java/tv/own/owntv/core/subscription/SubscriptionExpiry.kt	shown_${s.id}
 1	technical	core/src/main/java/tv/own/owntv/core/subscription/SubscriptionExpiry.kt	subscription_expiry
@@ -6486,9 +6487,9 @@
 1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	mpv never opened it (${MPV_OPEN_TIMEOUT_MS / 1000}s, no picture and no error)
 1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	no picture within ${armedBudgetMs / 1000}s of tuning
 1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	perf_live_exo_stop at=${android.os.SystemClock.elapsedRealtime()}
-1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	perf_live_stop at=${android.os.SystemClock.elapsedRealtime()}
 1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	perf_live_exo_stop_begin at=${android.os.SystemClock.elapsedRealtime()}
 1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	perf_live_release_archive_begin at=${android.os.SystemClock.elapsedRealtime()}
+1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	perf_live_stop at=${android.os.SystemClock.elapsedRealtime()}
 1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	perf_live_stop_begin at=${android.os.SystemClock.elapsedRealtime()}
 1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	perf_live_stop_engines_queued at=${android.os.SystemClock.elapsedRealtime()}
 1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	stalker reconnect re-resolve failed '${channel.name}'
@@ -6839,11 +6840,10 @@
 1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	paused-for-cache=${getPropertyString("paused-for-cache")}
 1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	pendingStopEndFiles at cap $MAX_PENDING_STOP_CREDITS ($reason)
 1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	perf_exo_stop at=${android.os.SystemClock.elapsedRealtime()}
-1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	perf_mpv_stop at=${android.os.SystemClock.elapsedRealtime()}
-1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	perf_player_stop at=${android.os.SystemClock.elapsedRealtime()}
 1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	perf_mpv_stop_begin at=${android.os.SystemClock.elapsedRealtime()}
 1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	perf_mpv_stop_end at=${android.os.SystemClock.elapsedRealtime()}
 1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	perf_player_deactivate_exo_end at=${android.os.SystemClock.elapsedRealtime()}
+1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	perf_player_stop at=${android.os.SystemClock.elapsedRealtime()}
 1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	perf_player_stop_begin at=${android.os.SystemClock.elapsedRealtime()}
 1	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	pgssub
 1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	playback didn't start after retries
