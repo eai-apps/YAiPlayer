@@ -773,6 +773,12 @@ fun OwnTVShell(
         activePlaylistId <= 0L -> stringResource(R.string.content_all_playlists)
         else -> playlists.firstOrNull { it.id == activePlaylistId }?.name ?: (sourceSummary ?: noSourceLabel)
     }
+    val activeSource = playlists.firstOrNull { it.id == activePlaylistId } ?: playlists.firstOrNull()
+    val subscriptionExpiryChecker: tv.own.owntv.core.subscription.SubscriptionExpiryChecker = org.koin.compose.koinInject()
+    val subscriptionUpdates by subscriptionExpiryChecker.updates.collectAsStateWithLifecycle()
+    val subscriptionBadge = remember(activeSource, subscriptionUpdates) {
+        subscriptionExpiryChecker.getBadgeState(activeSource)
+    }
     // OK on the rail item moves focus INTO the window (it is not a section and navigates nowhere).
     val enterNowPlaying = {
         when (playerMode) {
@@ -1478,6 +1484,7 @@ fun OwnTVShell(
                 clockColors = clockColors,
                 playlistDownFocusRequester = homeFirstRowFocus.takeIf { selectedSection == MainSection.HOME },
                 onPlaylistPillBounds = { playlistPillBounds = it },
+                subscriptionBadge = subscriptionBadge.takeIf { selectedSection == MainSection.HOME },
                 modifier = Modifier.align(Alignment.TopEnd).onFocusChanged { clusterFocused = it.hasFocus }.focusGroup(),
             )
             tv.own.owntv.features.shell.components.StageRail(

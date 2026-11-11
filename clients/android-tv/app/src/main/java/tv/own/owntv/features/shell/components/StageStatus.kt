@@ -2,7 +2,9 @@ package tv.own.owntv.features.shell.components
 
 import android.text.format.DateFormat
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -35,14 +37,17 @@ import androidx.tv.material3.Text
 import kotlinx.coroutines.delay
 import tv.own.owntv.R
 import tv.own.owntv.core.settings.ClockColors
+import tv.own.owntv.core.subscription.SubscriptionBadgeState
 import tv.own.owntv.core.weather.WeatherInfo
 import androidx.compose.runtime.staticCompositionLocalOf
 import tv.own.owntv.ui.theme.parseAccentHex
 import tv.own.owntv.ui.theme.stageAccent
 import tv.own.owntv.ui.components.OwnTVIcon
 import tv.own.owntv.ui.stage.StagePill
+import tv.own.owntv.ui.stage.stageGlass
 import tv.own.owntv.ui.theme.StageColors
 import tv.own.owntv.ui.theme.LocalStagePalette
+import tv.own.owntv.ui.theme.StageRadii
 import tv.own.owntv.ui.theme.mpx
 import tv.own.owntv.ui.theme.mpxSp
 import tv.own.owntv.ui.theme.stageText
@@ -74,6 +79,7 @@ fun StageStatusCluster(
     modifier: Modifier = Modifier,
     playlistDownFocusRequester: FocusRequester? = null,
     onPlaylistPillBounds: (Rect) -> Unit = {},
+    subscriptionBadge: SubscriptionBadgeState? = null,
 ) {
     Row(
         modifier.padding(end = 64.mpx, top = 34.mpx),
@@ -107,8 +113,47 @@ fun StageStatusCluster(
                         if (playlistDownFocusRequester != null) down = playlistDownFocusRequester
                     },
             )
+            if (subscriptionBadge != null && subscriptionBadge !is SubscriptionBadgeState.Unknown) {
+                StageSubscriptionBadge(subscriptionBadge)
+            }
         }
         StageClock(weatherInfo, weatherFahrenheit, clockColors)
+    }
+}
+
+/** Non-focusable badge showing subscription days remaining, infinity for unlimited, or hidden if unknown. */
+@Composable
+fun StageSubscriptionBadge(
+    badge: SubscriptionBadgeState,
+    modifier: Modifier = Modifier,
+) {
+    if (badge is SubscriptionBadgeState.Unknown) return
+    val text = when (badge) {
+        is SubscriptionBadgeState.Days -> if (badge.days == 0) {
+            stringResource(R.string.subscription_days_zero)
+        } else {
+            stringResource(R.string.subscription_days_left, badge.days)
+        }
+        is SubscriptionBadgeState.Unlimited -> stringResource(R.string.subscription_days_unlimited)
+        is SubscriptionBadgeState.Unknown -> return
+    }
+    val isWarning = badge is SubscriptionBadgeState.Days && badge.isWarning
+    val a = stageAccent
+    val r = StageRadii.Pill
+    Box(
+        modifier = modifier
+            .height(50.mpx)
+            .stageGlass(r)
+            .padding(horizontal = 16.mpx)
+            .focusProperties { canFocus = false },
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = text,
+            style = stageText(18, 700),
+            color = if (isWarning) a.accent else StageColors.Text,
+            maxLines = 1,
+        )
     }
 }
 

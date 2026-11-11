@@ -489,6 +489,12 @@ fun MobileShell(
     // as the layers icon on Home (its hero needs the width). Settings and More pages leave it out.
     val activePlaylist = playlists.firstOrNull { it.id == activePlaylistId }
     val activeIndex = playlists.indexOf(activePlaylist)
+    val activeSource = activePlaylist ?: playlists.firstOrNull()
+    val subscriptionExpiryChecker: tv.own.owntv.core.subscription.SubscriptionExpiryChecker = org.koin.compose.koinInject()
+    val subscriptionUpdates by subscriptionExpiryChecker.updates.collectAsStateWithLifecycle()
+    val subscriptionBadge = remember(activeSource, subscriptionUpdates) {
+        subscriptionExpiryChecker.getBadgeState(activeSource)
+    }
     val clusterPlaylist = if (playlists.isEmpty()) null else when {
         // A title page has Home's layers pill.
         headerRoute == MobileDestination.HOME.route || onTitlePage -> ClusterPlaylist(
@@ -601,6 +607,7 @@ fun MobileShell(
                                 navController.navigate(setupRoute(SetupEntry.FORM)) { launchSingleTop = true }
                             }
                         }) else null,
+                        subscriptionBadge = subscriptionBadge.takeIf { onHome },
                         extra = {
                             // Home's Resume pill, while its hero is in view (the scrolled heading has
                             // no room beside it). It gives up width first, so at UI zoom 120 % the avatar

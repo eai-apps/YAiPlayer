@@ -9,4 +9,7 @@
         <item quantity="other">Уважаемый абонент! Срок вашей оплаты истекает через %1$d дня. Просим пополнить лицевой счёт во избежание отключения услуг.</item>
     </plurals>
     <string name="subscription_expiry_ok">Понятно</string>
+    <string name="subscription_days_left">%1$d дн.</string>
+    <string name="subscription_days_zero">0 дн.</string>
+    <string name="subscription_days_unlimited">∞</string>
 </resources>

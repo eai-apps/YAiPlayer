@@ -59,6 +59,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import tv.own.owntv.core.database.entity.ProfileEntity
+import tv.own.owntv.core.subscription.SubscriptionBadgeState
 import tv.own.owntv.core.ui.stage.PlaylistMark
 import tv.own.owntv.mobile.R
 import tv.own.owntv.mobile.ui.components.MobileIcons
@@ -505,10 +506,14 @@ fun ShellCluster(
     onAvatar: () -> Unit,
     /** YAiPlayer: a one-tap "My sources" button (playlists, portals, EPG); null hides it. */
     onSources: (() -> Unit)? = null,
+    subscriptionBadge: SubscriptionBadgeState? = null,
     extra: @Composable RowScope.() -> Unit = {},
 ) {
     Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
         extra()
+        if (subscriptionBadge != null && subscriptionBadge !is SubscriptionBadgeState.Unknown) {
+            MobileSubscriptionBadge(subscriptionBadge)
+        }
         onSources?.let {
             StagePill(onClick = it, icon = MobileIcons.Add, contentDescription = stringResource(R.string.setup_add_source))
         }
@@ -532,6 +537,46 @@ fun ShellCluster(
             StagePill(onClick = onSearch, icon = MobileIcons.Search, contentDescription = stringResource(R.string.common_nav_search))
         }
         ShellAvatar(profile, onAvatar)
+    }
+}
+
+/**
+ * Non-clickable badge showing subscription days left ("N дн."), "0 дн." if expired,
+ * infinity "∞" for unlimited, or hidden if unknown.
+ */
+@Composable
+fun MobileSubscriptionBadge(
+    badge: SubscriptionBadgeState,
+    modifier: Modifier = Modifier,
+) {
+    if (badge is SubscriptionBadgeState.Unknown) return
+    val text = when (badge) {
+        is SubscriptionBadgeState.Days -> if (badge.days == 0) {
+            stringResource(R.string.subscription_days_zero)
+        } else {
+            stringResource(R.string.subscription_days_left, badge.days)
+        }
+        is SubscriptionBadgeState.Unlimited -> stringResource(R.string.subscription_days_unlimited)
+        is SubscriptionBadgeState.Unknown -> return
+    }
+    val isWarning = badge is SubscriptionBadgeState.Days && badge.isWarning
+    val palette = LocalStagePalette.current
+    val accent = stageAccent
+    val shape = RoundedCornerShape(StageRadii.Pill)
+    Box(
+        modifier = modifier
+            .height(36.dp)
+            .stageGlass(shape)
+            .padding(horizontal = 10.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = text,
+            style = stageText(13f, 700),
+            color = if (isWarning) accent.accent else palette.text,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
     }
 }
 
