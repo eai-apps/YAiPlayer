@@ -111,7 +111,7 @@ fun PlaylistSheet(
         tv.own.owntv.extras.portal.PortalResyncSheet(
             source = activeSource,
             onSelectOption = { option ->
-                scope.launch {
+                run {
                     targets.forEach { source ->
                         when (option) {
                             tv.own.owntv.extras.portal.PortalResyncOption.ALL -> quickActionsSync.refreshAll(source)

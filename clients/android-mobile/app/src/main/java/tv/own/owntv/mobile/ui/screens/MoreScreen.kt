@@ -182,7 +182,7 @@ fun MoreScreen(
                     StageMenuItem(
                         label = refreshLabel,
                         onClick = {
-                            scope.launch {
+                            run {
                                 val targets = playlists.filter { it.id == activePlaylistId }.ifEmpty { playlists }
                                 targets.forEach { quickActionsSync.refreshPlaylist(it) }
                             }
@@ -219,7 +219,7 @@ fun MoreScreen(
                     StageMenuItem(
                         label = stringResource(R.string.quick_refresh_epg),
                         onClick = {
-                            scope.launch {
+                            run {
                                 val targets = playlists.filter { it.id == activePlaylistId }.ifEmpty { playlists }
                                 targets.forEach { quickActionsSync.refreshEpg(it) }
                             }
@@ -231,7 +231,7 @@ fun MoreScreen(
                         StageMenuItem(
                             label = stringResource(R.string.quick_refresh_vod),
                             onClick = {
-                                scope.launch {
+                                run {
                                     val targets = playlists.filter { it.id == activePlaylistId }.ifEmpty { playlists }
                                     targets.forEach {
                                         if (it.type == tv.own.owntv.core.model.SourceType.STALKER || it.type == tv.own.owntv.core.model.SourceType.XTREAM) {

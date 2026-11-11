@@ -2043,7 +2043,7 @@ fun OwnTVShell(
             source = resyncActiveSource,
             onSelectOption = { option ->
                 resyncActiveSource?.let { src ->
-                    scope.launch {
+                    run {
                         when (option) {
                             tv.own.owntv.extras.portal.PortalResyncOption.ALL -> quickActionsSync.refreshAll(src)
                             tv.own.owntv.extras.portal.PortalResyncOption.CHANNELS_ONLY -> quickActionsSync.refreshChannelsOnly(src)

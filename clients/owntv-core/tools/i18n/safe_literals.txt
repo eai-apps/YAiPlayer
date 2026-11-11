@@ -5210,8 +5210,10 @@
 1	preference-key	core/src/main/java/tv/own/owntv/core/sync/PortalCeilingStore.kt	ceiling_$sourceId
 1	preference-key	core/src/main/java/tv/own/owntv/core/sync/PortalCeilingStore.kt	clean_runs_$sourceId
 1	preference-key	core/src/main/java/tv/own/owntv/core/sync/PortalCeilingStore.kt	owntv_portal_ceiling
+1	log	core/src/main/java/tv/own/owntv/core/sync/QuickActionsSync.kt	QuickActionsSync
 1	technical	core/src/main/java/tv/own/owntv/core/sync/QuickActionsSync.kt	manual_builtin
 2	technical	core/src/main/java/tv/own/owntv/core/sync/QuickActionsSync.kt	manual_resync
+1	log	core/src/main/java/tv/own/owntv/core/sync/QuickActionsSync.kt	quick sync failed sourceId=${source.id} action=$action
 2	empty	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	\0
 1	log	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	$label backfill cat=${row.categoryRemoteId} page=$p
 1	log	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	$label backfill cat=${row.categoryRemoteId} page=$p failed (${e.message})

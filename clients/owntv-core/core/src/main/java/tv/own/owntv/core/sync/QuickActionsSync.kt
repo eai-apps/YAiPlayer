@@ -2,6 +2,7 @@
 package tv.own.owntv.core.sync
 
 import androidx.work.ExistingWorkPolicy
+import kotlinx.coroutines.launch
 import tv.own.owntv.core.database.dao.EpgDao
 import tv.own.owntv.core.database.entity.SourceEntity
 import tv.own.owntv.core.epg.EpgSourceStore
@@ -18,12 +19,32 @@ class QuickActionsSync(
     private val epgRepository: EpgRepository,
     private val importFinalizer: ImportFinalizer,
 ) {
-    suspend fun refreshPlaylist(source: SourceEntity) = refresh(source, QuickSyncAction.PLAYLIST)
-    suspend fun refreshChannelsOnly(source: SourceEntity) = refresh(source, QuickSyncAction.CHANNELS)
-    suspend fun refreshChannelsAndEpg(source: SourceEntity) = refresh(source, QuickSyncAction.CHANNELS_AND_EPG)
-    suspend fun refreshAll(source: SourceEntity) = refresh(source, QuickSyncAction.ALL)
-    suspend fun refreshVod(source: SourceEntity) = refresh(source, QuickSyncAction.VOD)
-    suspend fun refreshEpg(source: SourceEntity) = refresh(source, QuickSyncAction.EPG)
+    /*
+     * Fire-and-forget on the app's own scope. The callers are dialogs that close in the same click
+     * (TV side rail «Синхронизация», phone playlist sheet): a sync launched in the dialog's
+     * rememberCoroutineScope was cancelled the moment the dialog left the composition, before the
+     * first DB read — the owner's «choose any item, nothing happens» (П1, 10.11.2026).
+     */
+    fun refreshPlaylist(source: SourceEntity) = launch(source, QuickSyncAction.PLAYLIST)
+    fun refreshChannelsOnly(source: SourceEntity) = launch(source, QuickSyncAction.CHANNELS)
+    fun refreshChannelsAndEpg(source: SourceEntity) = launch(source, QuickSyncAction.CHANNELS_AND_EPG)
+    fun refreshAll(source: SourceEntity) = launch(source, QuickSyncAction.ALL)
+    fun refreshVod(source: SourceEntity) = launch(source, QuickSyncAction.VOD)
+    fun refreshEpg(source: SourceEntity) = launch(source, QuickSyncAction.EPG)
+
+    private val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.IO)
+
+    private fun launch(source: SourceEntity, action: QuickSyncAction) {
+        scope.launch {
+            try {
+                refresh(source, action)
+            } catch (c: kotlinx.coroutines.CancellationException) {
+                throw c
+            } catch (e: Exception) {
+                android.util.Log.w(TAG, "quick sync failed sourceId=${source.id} action=$action", e)
+            }
+        }
+    }
 
     private suspend fun refresh(source: SourceEntity, action: QuickSyncAction) {
         val plan = selectiveSyncPlan(action, source)
@@ -50,5 +71,9 @@ class QuickActionsSync(
         val stalkerUrl = EpgRepository.stalkerGuideUrl(source.id)
         val matched = allEpg.filter { it.url in urls || (source.type == SourceType.STALKER && it.url == stalkerUrl) }
         return matched.ifEmpty { allEpg.firstOrNull { it.builtin }?.let { listOf(it) }.orEmpty() }
+    }
+
+    private companion object {
+        const val TAG = "QuickActionsSync"
     }
 }

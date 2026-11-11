@@ -394,7 +394,7 @@ fun ManageSourcesScreen(
             tv.own.owntv.extras.portal.PortalResyncDialog(
                 source = src,
                 onSelectOption = { option ->
-                    scope.launch {
+                    run {
                         when (option) {
                             tv.own.owntv.extras.portal.PortalResyncOption.ALL -> quickActionsSync.refreshAll(src)
                             tv.own.owntv.extras.portal.PortalResyncOption.CHANNELS_ONLY -> quickActionsSync.refreshChannelsOnly(src)

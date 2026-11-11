@@ -235,7 +235,7 @@ fun MoreScreen(
                     icon = OwnTVIcon.REFRESH,
                     selected = false,
                     onClick = {
-                        scope.launch {
+                        run {
                             val targets = playlistSources.filter { it.id == activePlaylistId }.ifEmpty { playlistSources }
                             targets.forEach { quickActionsSync.refreshPlaylist(it) }
                         }
@@ -272,7 +272,7 @@ fun MoreScreen(
                     icon = OwnTVIcon.EPG,
                     selected = false,
                     onClick = {
-                        scope.launch {
+                        run {
                             val targets = playlistSources.filter { it.id == activePlaylistId }.ifEmpty { playlistSources }
                             targets.forEach { quickActionsSync.refreshEpg(it) }
                         }
@@ -284,7 +284,7 @@ fun MoreScreen(
                         icon = OwnTVIcon.MOVIES,
                         selected = false,
                         onClick = {
-                            scope.launch {
+                            run {
                                 val targets = playlistSources.filter { it.id == activePlaylistId }.ifEmpty { playlistSources }
                                 targets.forEach {
                                     if (it.type == tv.own.owntv.core.model.SourceType.STALKER || it.type == tv.own.owntv.core.model.SourceType.XTREAM) {
