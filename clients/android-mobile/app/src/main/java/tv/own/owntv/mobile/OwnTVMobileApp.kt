@@ -90,6 +90,7 @@ class OwnTVMobileApp : Application(), androidx.work.Configuration.Provider {
         CoreBuildInfo.devTools = BuildConfig.DEV_TOOLS
         CoreBuildInfo.debug = BuildConfig.DEBUG
         CoreBuildInfo.diagnosticBuild = BuildConfig.DIAGNOSTIC_BUILD
+        CoreBuildInfo.selfUpdate = BuildConfig.SELF_UPDATE
         // No LEANBACK_LAUNCHER entry, so a Watch Next row published from here would be a row nothing
         // could open. Without this, core's sync worker tried to write to the TV content provider
         // after every catalog sync — using the two permissions this app's manifest removes.

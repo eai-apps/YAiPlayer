@@ -82,10 +82,16 @@ fun ProfileGate(
     var addProfile by remember { mutableStateOf(false) }
     var showTvOptimizer by remember { mutableStateOf(false) }
     var showRemote by remember { mutableStateOf(false) }
+    var showRadio by remember { mutableStateOf(false) }
     val fallbackName = stringResource(R.string.profiles_default_name)
 
     if (showRemote) {
         tv.own.owntv.extras.remote.RemoteHubScreen(onBack = { showRemote = false })
+        return
+    }
+
+    if (showRadio) {
+        tv.own.owntv.extras.radio.RadioFeature.Screen(onBack = { showRadio = false })
         return
     }
 
@@ -134,7 +140,8 @@ fun ProfileGate(
         )
         // The guest ("no registration, no profile") is a tile of its own until its profile exists.
         val guestMissing = visibleProfiles.none { it.id == guestId }
-        val tiles: List<Any> = visibleProfiles + "add" + (if (guestMissing) listOf("guest") else emptyList()) + (if (TV_OPTIMIZER_READY) listOf("tv_optimizer") else emptyList()) + listOf("remote")
+        val tiles: List<Any> = visibleProfiles + "add" + (if (guestMissing) listOf("guest") else emptyList()) + (if (TV_OPTIMIZER_READY) listOf("tv_optimizer") else emptyList()) +
+            (if (tv.own.owntv.extras.radio.RadioFeature.AVAILABLE) listOf("radio") else emptyList()) + listOf("remote")
         tiles.chunked(2).forEach { pair ->
             Row(Modifier.fillMaxWidth().padding(bottom = 26.dp), horizontalArrangement = Arrangement.spacedBy(20.dp)) {
                 pair.forEach { tile ->
@@ -151,6 +158,12 @@ fun ProfileGate(
                                 onClick = { onOpenTvOptimizer?.invoke() ?: run { showTvOptimizer = true } },
                                 label = stringResource(tv.own.owntv.core.R.string.tv_optimizer_tile),
                                 icon = MobileIcons.AutoAwesome,
+                            )
+                        } else if (tile == "radio") {
+                            AddProfileTile(
+                                onClick = { showRadio = true },
+                                label = tv.own.owntv.extras.radio.RadioFeature.label(),
+                                icon = MobileIcons.MusicNote,
                             )
                         } else if (tile == "remote") {
                             AddProfileTile(

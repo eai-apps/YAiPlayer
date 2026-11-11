@@ -29,6 +29,9 @@ plugins {
     alias(libs.plugins.baselineprofile)
 }
 
+/** -Powntv.playStore=true: the Google Play build (no radio, no self-update). Default: the normal APK. */
+val playStore = (findProperty("owntv.playStore") as String?)?.toBoolean() == true
+
 android {
     namespace = "tv.own.owntv"
     compileSdk {
@@ -44,6 +47,10 @@ android {
     }
 
     defaultConfig {
+        buildConfigField("boolean", "SELF_UPDATE", (!playStore).toString())
+        buildConfigField("boolean", "RADIO", (!playStore).toString())
+        manifestPlaceholders["installPermission"] =
+            if (playStore) "android.permission.INTERNET" else "android.permission.REQUEST_INSTALL_PACKAGES"
         applicationId = "com.yai.iptv.player.tv"
         minSdk = 26
         targetSdk = 36
@@ -112,6 +119,21 @@ android {
             dimension = "abi"
             ndk { abiFilters += listOf("x86_64") }
         }
+    }
+    // ONE build: the radio is part of the player. For a Google Play build later, add -Powntv.playStore=true:
+    // the radio code, its strings and its player library are left out, self-update and its install permission
+    // too. Nothing else differs, so every change to the player is in both builds by itself.
+    sourceSets {
+        getByName("main") {
+            if (playStore) {
+                kotlin.srcDir("src/noradio/java")
+            } else {
+                kotlin.srcDir("src/radio/java")
+                kotlin.srcDir("../../radio-shared/src/main/java")
+                res.srcDir("src/radio/res")
+            }
+        }
+        getByName("test") { if (!playStore) kotlin.srcDir("../../radio-shared/src/test/java") }
     }
 
     // Release signing: env vars first (that is how CI injects the GitHub secrets), then Gradle
@@ -328,6 +350,8 @@ val verifyI18nLiterals = tasks.register<VerifyI18nLiterals>("verifyI18nLiterals"
     // Only :app lives in this repo now. Core's own Kotlin is gated by the identical task in the
     // core repo, so a literal cannot escape by moving between the two.
     kotlinSources.from(fileTree("src/main/java") { include("**/*.kt") })
+    kotlinSources.from(fileTree("src/radio/java") { include("**/*.kt") })
+    kotlinSources.from(fileTree("src/noradio/java") { include("**/*.kt") })
     toolInputs.from(
         rootProject.file("tools/i18n/check_hardcoded_strings.py"),
         rootProject.file("tools/i18n/hardcoded_baseline.txt"),

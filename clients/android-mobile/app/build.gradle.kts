@@ -29,6 +29,9 @@ plugins {
     alias(libs.plugins.baselineprofile)
 }
 
+/** -Powntv.playStore=true: the Google Play build (no radio, no self-update). Default: the normal APK. */
+val playStore = (findProperty("owntv.playStore") as String?)?.toBoolean() == true
+
 android {
     // Distinct from the TV app's tv.own.owntv, so both install side by side on one device and each
     // keeps its own data. This value can never change after the first release — the launcher label
@@ -47,6 +50,10 @@ android {
     }
 
     defaultConfig {
+        buildConfigField("boolean", "SELF_UPDATE", (!playStore).toString())
+        buildConfigField("boolean", "RADIO", (!playStore).toString())
+        manifestPlaceholders["installPermission"] =
+            if (playStore) "android.permission.INTERNET" else "android.permission.REQUEST_INSTALL_PACKAGES"
         applicationId = "com.yai.iptv.player.mobile"
         minSdk = 26
         targetSdk = 36
@@ -97,6 +104,21 @@ android {
             dimension = "abi"
             ndk { abiFilters += listOf("x86_64") }
         }
+    }
+    // ONE build: the radio is part of the player. For a Google Play build later, add -Powntv.playStore=true:
+    // the radio code, its strings and its player library are left out, self-update and its install permission
+    // too. Nothing else differs, so every change to the player is in both builds by itself.
+    sourceSets {
+        getByName("main") {
+            if (playStore) {
+                kotlin.srcDir("src/noradio/java")
+            } else {
+                kotlin.srcDir("src/radio/java")
+                kotlin.srcDir("../../radio-shared/src/main/java")
+                res.srcDir("src/radio/res")
+            }
+        }
+        getByName("test") { if (!playStore) kotlin.srcDir("../../radio-shared/src/test/java") }
     }
 
     // The SAME keystore and the same property names as the TV app. A signing certificate must be
@@ -290,6 +312,8 @@ val verifyI18nLiterals = tasks.register<VerifyI18nLiterals>("verifyI18nLiterals"
     // line added HERE as well as in check_hardcoded_strings.py's SRC_ROOTS — an undeclared input
     // silently skips the gate whenever only that module changed.
     kotlinSources.from(fileTree("src/main/java") { include("**/*.kt") })
+    kotlinSources.from(fileTree("src/radio/java") { include("**/*.kt") })
+    kotlinSources.from(fileTree("src/noradio/java") { include("**/*.kt") })
     toolInputs.from(
         rootProject.file("tools/i18n/check_hardcoded_strings.py"),
         rootProject.file("tools/i18n/hardcoded_baseline.txt"),
@@ -350,6 +374,11 @@ dependencies {
     // Image loading
     // Media3's SubtitleView, for the image subtitles the engine renders through ExoPlayer.
     implementation(libs.androidx.media3.ui)
+    // Radio: plays internet radio streams in its own small player (left out of a Play-store build).
+    if (!playStore) {
+        implementation("androidx.media3:media3-exoplayer:${libs.versions.media3.get()}")
+        implementation("androidx.media3:media3-exoplayer-hls:${libs.versions.media3.get()}")
+    }
 
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
@@ -380,7 +409,7 @@ dependencies {
 
     // Test
     testImplementation(libs.junit)
-    // The real org.json, so the TV list and restore points are tested with the same parser as on the phone.
+    // The real org.json, so the TV list, restore points and parsers (radio catalogue) are tested with the same code as on the phone.
     testImplementation("org.json:json:20260814")
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

@@ -91,4 +91,10 @@ object CoreBuildInfo {
      * periodic background check runs only while the phone charges. A TV box is always plugged in: false.
      */
     var batteryPowered: Boolean = false
+
+    /**
+     * False in a Google Play build (-Powntv.playStore=true): updates come from the store, so the app never downloads
+     * or installs an APK itself and does not even ask for the permission to.
+     */
+    var selfUpdate: Boolean = true
 }

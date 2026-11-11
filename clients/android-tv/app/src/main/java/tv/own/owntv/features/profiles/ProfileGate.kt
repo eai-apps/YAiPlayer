@@ -65,6 +65,12 @@ fun ProfileGate(onEnter: (Long) -> Unit, onAddProfile: () -> Unit, modifier: Mod
     var pinForEnter by remember { mutableStateOf<ProfileEntity?>(null) }
     var pinForDelete by remember { mutableStateOf<ProfileEntity?>(null) }
     var pinError by remember { mutableStateOf(false) }
+    // Radio: a tile next to Guest; Back returns here.
+    var showRadio by remember { mutableStateOf(false) }
+    if (showRadio) {
+        tv.own.owntv.features.radio.RadioFeature.Screen(onBack = { showRadio = false })
+        return
+    }
 
     val profileFocus = remember { mutableMapOf<Long, FocusRequester>() }
     val addFocus = remember { FocusRequester() }
@@ -127,6 +133,9 @@ fun ProfileGate(onEnter: (Long) -> Unit, onAddProfile: () -> Unit, modifier: Mod
                 // "No registration, no profile": shown until the guest profile exists (then it is a tile above).
                 if (visibleProfiles.none { it.id == guestId }) {
                     item { AddTile(onClick = { vm.enterGuest(guestName, onEnter) }, label = guestName, icon = OwnTVIcon.PERSON) }
+                }
+                if (tv.own.owntv.features.radio.RadioFeature.AVAILABLE) {
+                    item { AddTile(onClick = { showRadio = true }, label = tv.own.owntv.features.radio.RadioFeature.label(), icon = OwnTVIcon.EQ) }
                 }
             }
         }
