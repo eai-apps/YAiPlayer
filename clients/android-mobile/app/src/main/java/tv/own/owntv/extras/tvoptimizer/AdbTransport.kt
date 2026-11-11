@@ -11,6 +11,9 @@ interface AdbTransport {
     suspend fun runShell(cmd: String): Result<String>
     suspend fun disconnect()
 
+    /** Installs an APK on the TV; only the real transport can. */
+    suspend fun install(apk: java.io.File): Result<Unit> = Result.failure(UnsupportedOperationException())
+
     companion object {
         const val DEFAULT_ADB_PORT = 5555
     }

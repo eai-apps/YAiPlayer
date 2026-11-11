@@ -281,3 +281,14 @@ No dadb binary artifact is used by this application.
    END OF TERMS AND CONDITIONS
 
 ```
+
+## «Ускорь телевизор»: ADB, списки моделей, лаунчер для ТВ
+
+| Что | Откуда | Лицензия | Где в YAiPlayer |
+|---|---|---|---|
+| Сетевой ADB на телефоне | библиотека dadb 2.0.0 (mobile-dev-inc/dadb), зависимость Gradle `dev.mobile:dadb` | Apache-2.0 | `clients/android-mobile`, `DadbTransport.kt` |
+| Списки отключаемых приложений для 468 моделей ТВ | Gathin23/cleanyourtv, папка `examples/` (коммит `b953804`), переведены в JSON скриптом `tools/tvoptimizer/build_catalog.py` | MIT | `assets/tvoptimizer/catalog.json` |
+| Лаунчер для ТВ (главный экран без рекламы) | Gathin23/cleanyourtv, папка `launcher/` (коммит `b953804`), без изменений; собирается в CI и кладётся в телефонный APK | MIT; шрифт Outfit — SIL OFL 1.1; картинки Fluent Emoji — MIT | `clients/tv-launcher/` |
+| Порядок шагов мастера, схема «сторожа» главного экрана (фоновая задача на ТВ возвращает старый главный экран, если телефон не подтвердил) | udhaykumarbala/cleanyourtv-app | MIT | код не копировался, написан заново в `OptimizerCore.kt` |
+
+Тексты лицензий показываются в приложении: Настройки → О приложении → «Лицензии оптимизатора ТВ» (`assets/tvoptimizer/licenses.txt`).

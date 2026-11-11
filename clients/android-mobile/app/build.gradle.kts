@@ -366,6 +366,9 @@ dependencies {
     implementation(libs.androidx.camera.view)
     implementation(libs.zxing.core)
 
+    // «Ускорь телевизор»: network ADB from the phone (mobile-dev-inc/dadb, Apache-2.0, docs/THIRD_PARTY.md).
+    implementation("dev.mobile:dadb:2.0.0")
+
     // Dependency injection
     implementation(platform(libs.koin.bom))
     implementation(libs.koin.android)
@@ -377,6 +380,8 @@ dependencies {
 
     // Test
     testImplementation(libs.junit)
+    // The real org.json, so the TV list and restore points are tested with the same parser as on the phone.
+    testImplementation("org.json:json:20260814")
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))

@@ -15,3 +15,5 @@ keystore.properties
 !.env.example
 __pycache__/
 *.pyc
+clients/android-mobile/app/src/main/assets/tvoptimizer/launcher.apk
+clients/tv-launcher/**/build/

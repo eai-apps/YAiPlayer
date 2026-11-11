@@ -34,6 +34,12 @@ jobs:
           n=$(( $(git tag --list 'v3.0.*' | wc -l) + 1 ))
           echo "VN=3.0.$n" >> "$GITHUB_ENV"
       - uses: actions/setup-java@v4
+        id: jdk17
+        if: matrix.app == 'android-mobile'
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '25'
@@ -44,6 +50,16 @@ jobs:
         run: |
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > "$RUNNER_TEMP/yaiplayer-release.jks"
           test -s "$RUNNER_TEMP/yaiplayer-release.jks"
+      - name: TV launcher for «Ускорь телевизор»
+        if: matrix.app == 'android-mobile'
+        working-directory: clients/tv-launcher
+        env:
+          JAVA_HOME: ${{ steps.jdk17.outputs.path }}
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:assembleRelease --no-daemon --stacktrace
+          mkdir -p ../android-mobile/app/src/main/assets/tvoptimizer
+          cp app/build/outputs/apk/release/app-release.apk ../android-mobile/app/src/main/assets/tvoptimizer/launcher.apk
       - name: Build signed release
         working-directory: clients/${{ matrix.app }}
         env:

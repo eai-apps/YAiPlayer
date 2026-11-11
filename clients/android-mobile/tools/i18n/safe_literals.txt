@@ -63,97 +63,197 @@
 1	regex	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbCommandHelper.kt	[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z][A-Za-z0-9_]*)+
 1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbCommandHelper.kt	pm disable-user --user 0
 1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbCommandHelper.kt	pm disable-user --user 0 $packageName
-1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbCommandHelper.kt	pm enable
-1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbCommandHelper.kt	pm enable $packageName
-1	assertion	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbTransport.kt	ADB not connected
-1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbTransport.kt	Package new state: default
-1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbTransport.kt	Package new state: disabled-user
-1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbTransport.kt	Success
-1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbTransport.kt	pm disable-user
-1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbTransport.kt	pm enable
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbCommandHelper.kt	pm enable --user 0
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbCommandHelper.kt	pm enable --user 0 $packageName
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	--user
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	-r
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	0
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	adb
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	adbkey
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	adbkey.pub
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	echo ok
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	no shell
+2	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	not connected
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	not local
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	ok
+8	empty	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	\0
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	# YAiPlayer restore point: ${point.label}
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	$brand|$model|$androidId
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	%02x
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	%s
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	.ads.
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	/data/local/tmp/yaiplayer
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	ASCII only
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	SHA-256
+3	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	Success
+2	regex	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	[0-9a-f]{16}
+1	regex	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z0-9_]+)+/[A-Za-z0-9_.]+
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	acr
+2	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	adb shell
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	adb shell cmd package set-home-activity --user 0 $it
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	ads
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	adservices
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	advert
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	alexa
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	alphonso
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	am start -W -a android.intent.action.MAIN -c android.intent.category.HOME
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	am start -W -a android.intent.action.MAIN -c android.intent.category.HOME'
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	analytics
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	assistant
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	automatic.content
+2	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	bad package list
+2	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	brand
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	bugreport
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	cmd package query-activities --brief -a android.intent.action.MAIN -c android.intent.category.HOME
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	cmd package resolve-activity --brief -a android.intent.action.MAIN -c android.intent.category.HOME
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	cmd package set-home-activity --user 0 $stockHome
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	cmd package set-home-activity --user 0 ${OptimizerSafety.OUR_LAUNCHER_HOME}
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	crashreport
+2	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	createdAt
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	diagnos
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	feedback
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	getprop $name
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	googlequicksearchbox
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	gracenote
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	groups
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	hotword
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	id
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	input keyevent $keyCode
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	input text $escaped
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	inscape
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	katniss
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	keep
+2	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	label
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	launcher
+2	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	launcherActive
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	logger
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	mkdir -p $WORK_DIR
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	models
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	nohup setsid sh -c 'sleep $watchdogSeconds & wait; [ -f $WORK_DIR/home-ok-$token ] && exit 0;
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	notes
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	ok
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	os
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	p
+2	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	packages
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	pm enable --user 0 $stockPkg; cmd package set-home-activity --user 0 $stockHome;
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	pm list packages --user 0 $pkg
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	pm list packages -d --user 0
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	pm list packages -e --user 0
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	pm uninstall --user 0 ${OptimizerSafety.OUR_LAUNCHER}
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	preload
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	ro.build.fingerprint
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	ro.build.version.release
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	ro.product.brand
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	ro.product.manufacturer
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	ro.product.model
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	samba
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	settings get secure android_id
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	settings get secure default_input_method
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	settings put global adb_enabled 0
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	settings put global adb_wifi_enabled 0
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	source
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	speech
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	statistic
+2	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	stockHome
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	telemetry
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	touch $WORK_DIR/home-ok-$token && echo ok
+2	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	tracking
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	tv
+2	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	tvId
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	tvinteractive
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	usagestats
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	viewing
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	voice
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	yaiplayer-rollback-$token >$WORK_DIR/watchdog-$token.log 2>&1 &
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	$OUR_LAUNCHER/.MainActivity
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	.cast
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	.ota
 1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	Package $name new state: disabled-user
 1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	Package $name new state: enabled
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	accessibility
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	alexa
 1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	android
-1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	com.android.
-1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	com.google.
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	assistant
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	bluetooth
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	bluetoothremote
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	chromecast
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	com.android.bluetooth
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	com.android.connectivity
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	com.android.externalstorage
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	com.android.inputdevices
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	com.android.keychain
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	com.android.location.fused
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	com.android.networkstack
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	com.android.packageinstaller
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	com.android.permissioncontroller
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	com.android.providers.
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	com.android.provision
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	com.android.server.telecom
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	com.android.settings
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	com.android.shell
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	com.android.systemui
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	com.android.tethering
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	com.android.tv
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	com.android.tv.settings
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	com.android.vending
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	com.android.webview
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	com.android.wifi
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	com.gathin.tvhome
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	com.google.android.bluetooth
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	com.google.android.connectivity
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	com.google.android.gms
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	com.google.android.gsf
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	com.google.android.networkstack
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	com.google.android.packageinstaller
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	com.google.android.permissioncontroller
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	com.google.android.tungsten.setupwraith
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	com.google.android.tv.remote.service
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	com.google.android.tvsetup
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	com.google.android.webview
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	com.google.mainline.
 1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	com.yai.
-1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	launcher
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	dlna
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	firmware
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	fota
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	googlequicksearchbox
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	hdmi
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	inputmethod
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	katniss
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	keyboard
+3	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	launcher
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	leanbackime
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	mediashell
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	milink
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	miracast
 2	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	package:
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	rcu
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	remotecontrol
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	remoteservice
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	setupwizard
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	setupwraith
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	speech
 1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	systemui
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerModels.kt	caution
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerModels.kt	danger
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerModels.kt	high
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerModels.kt	moderate
-5	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerRepository.kt	android_tv_generic
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerRepository.kt	com.android.printspooler
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerRepository.kt	com.google.android.music
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerRepository.kt	com.google.android.play.games
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerRepository.kt	com.google.android.youtube.tvunplugged
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerRepository.kt	com.mitv.tvhome
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerRepository.kt	com.sony.dtv.braviasync
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerRepository.kt	com.tcl.tvmanager
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerRepository.kt	com.xiaomi.mitv.upgrade
-1	json	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerRepository.kt	descriptionKey
-1	json	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerRepository.kt	id
-2	json	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerRepository.kt	models
-1	json	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerRepository.kt	name
-1	json	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerRepository.kt	package
-1	json	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerRepository.kt	packages
-5	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerRepository.kt	philips_tv
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerRepository.kt	pkg_google_music_desc
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerRepository.kt	pkg_google_music_title
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerRepository.kt	pkg_patchwall_desc
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerRepository.kt	pkg_patchwall_title
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerRepository.kt	pkg_play_games_desc
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerRepository.kt	pkg_play_games_title
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerRepository.kt	pkg_print_spooler_desc
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerRepository.kt	pkg_print_spooler_title
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerRepository.kt	pkg_sony_sync_desc
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerRepository.kt	pkg_sony_sync_title
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerRepository.kt	pkg_tcl_manager_desc
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerRepository.kt	pkg_tcl_manager_title
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerRepository.kt	pkg_xiaomi_upgrade_desc
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerRepository.kt	pkg_xiaomi_upgrade_title
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerRepository.kt	pkg_youtube_tv_desc
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerRepository.kt	pkg_youtube_tv_title
-1	json	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerRepository.kt	recommended
-1	json	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerRepository.kt	risk
-6	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerRepository.kt	sony_bravia
-6	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerRepository.kt	tcl_tv
-1	json	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerRepository.kt	titleKey
-1	file-path	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerRepository.kt	tvoptimizer/demo.json
-7	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerRepository.kt	xiaomi_mitv
-1	compiler	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	UNCHECKED_CAST
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	generic
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	google
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	philips
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	pkg_google_music_desc
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	pkg_google_music_title
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	pkg_patchwall_desc
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	pkg_patchwall_title
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	pkg_play_games_desc
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	pkg_play_games_title
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	pkg_print_spooler_desc
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	pkg_print_spooler_title
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	pkg_sony_sync_desc
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	pkg_sony_sync_title
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	pkg_tcl_manager_desc
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	pkg_tcl_manager_title
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	pkg_xiaomi_upgrade_desc
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	pkg_xiaomi_upgrade_title
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	pkg_youtube_tv_desc
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	pkg_youtube_tv_title
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	sony
-1	locale	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	string
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	tcl
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	xiaomi
-1	preference-key	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerStore.kt	backup_timestamp
-1	preference-key	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerStore.kt	disabled_packages
-1	preference-key	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerStore.kt	owntv_tv_optimizer
-1	empty	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	\0
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	192.168.1.100
-1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	5555
-1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	pm list packages -e --user 0
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	talkback
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	tvinput
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	update
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	upgrade
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	voice
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	wifi
+2	empty	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	\0
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	${i + 1}.
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	adb
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	g$group
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	k$kind
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	text/plain
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	·
+4	empty	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	\0
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	%02x
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	host
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	restore_points
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	tv_optimizer_v2
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	tvhome.apk
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	tvoptimizer/catalog.json
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	tvoptimizer/launcher.apk
 1	technical	app/src/main/java/tv/own/owntv/mobile/MainActivity.kt	back
 1	technical	app/src/main/java/tv/own/owntv/mobile/MainActivity.kt	forward
 1	uri	app/src/main/java/tv/own/owntv/mobile/MainActivity.kt	open_player

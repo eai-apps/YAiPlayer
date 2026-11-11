@@ -77,12 +77,30 @@ object OptimizerSafety {
     fun parseImePackage(output: String): String? =
         output.trim().substringBefore('/').takeIf { runCatching { AdbCommandHelper.buildEnableCommand(it) }.isSuccess }
 
-    fun isProtected(name: String, homeHandlers: Set<String> = emptySet(), imePackage: String? = null): Boolean {
-        if (name in NEVER || name in homeHandlers || name == imePackage) return true
+    /** Package of the TV launcher YAiPlayer installs (Gathin23/cleanyourtv, built from clients/tv-launcher). */
+    const val OUR_LAUNCHER = "com.gathin.tvhome"
+    const val OUR_LAUNCHER_HOME = "$OUR_LAUNCHER/.MainActivity"
+
+    /**
+     * [launcherActive]: our launcher is installed, set as Home and confirmed by the user. Only then may the stock
+     * launcher and other Home apps be switched off (never ticked by default); our launcher itself stays protected.
+     */
+    fun isProtected(
+        name: String,
+        homeHandlers: Set<String> = emptySet(),
+        imePackage: String? = null,
+        launcherActive: Boolean = false,
+    ): Boolean {
+        if (name == OUR_LAUNCHER) return true
+        if (name in NEVER || name == imePackage) return true
+        if (!launcherActive && name in homeHandlers) return true
         if (NEVER_PREFIXES.any { name.startsWith(it) }) return true
         val lower = name.lowercase()
-        return NEVER_WORDS.any { lower.contains(it) }
+        return NEVER_WORDS.any { lower.contains(it) && !(launcherActive && it == "launcher") }
     }
+
+    fun isLauncherLike(name: String, homeHandlers: Set<String>): Boolean =
+        name in homeHandlers || name.lowercase().contains("launcher")
 
     fun optionalArea(name: String): OptionalArea? {
         val n = name.lowercase()

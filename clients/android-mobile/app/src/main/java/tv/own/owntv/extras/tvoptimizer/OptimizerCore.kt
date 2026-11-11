@@ -46,15 +46,18 @@ class OptimizerCatalog(
     fun modelsOfBrand(brand: String): List<CatalogModel> {
         val b = norm(brand)
         if (b.isEmpty()) return emptyList()
-        return models.filter { norm(it.brand) == b || norm(it.brand).startsWith(b) || b.startsWith(norm(it.brand).ifEmpty { "\u0000" }) }
+        return models.filter { norm(it.brand).isNotEmpty() && (norm(it.brand) == b || norm(it.brand).startsWith(b) || b.startsWith(norm(it.brand))) }
     }
 
-    /** The careful brand list: only apps that every list of this brand switches off (needs at least two lists). */
+    /**
+     * The careful brand list: only apps that most lists of this brand switch off ([BRAND_SHARE], at least two lists).
+     * A brand spans many platforms, so «every list» would leave nothing for big brands (TCL: 85 lists, 0 in common).
+     */
     fun brandConsensus(brand: String): List<CatalogEntry> {
         val lists = modelsOfBrand(brand)
         if (lists.size < 2) return emptyList()
-        val common = lists.map { m -> m.entries.map { it.packageName }.toSet() }.reduce { a, b -> a intersect b }
-        return common.sorted().mapNotNull { bestEntry[it] }
+        val counts = lists.flatMap { m -> m.entries.map { it.packageName }.distinct() }.groupingBy { it }.eachCount()
+        return counts.filter { it.value >= lists.size * BRAND_SHARE }.keys.sorted().mapNotNull { bestEntry[it] }
     }
 
     /** Best guess of the TV's list from what it reports: every word of the model code found in a list name. */
@@ -66,6 +69,8 @@ class OptimizerCatalog(
     }
 
     companion object {
+        const val BRAND_SHARE = 0.6
+
         private fun norm(s: String) = s.lowercase().filter { it.isLetterOrDigit() }
 
         fun parse(json: String): OptimizerCatalog {
@@ -161,6 +166,7 @@ object OptimizerPlanner {
         disabled: Set<String>,
         homeHandlers: Set<String>,
         imePackage: String?,
+        launcherActive: Boolean = false,
     ): Plan {
         val items = ArrayList<PlanItem>()
         val protectedFound = ArrayList<String>()
@@ -170,12 +176,16 @@ object OptimizerPlanner {
             when {
                 pkg in disabled -> alreadyOff += pkg
                 pkg !in enabled -> Unit
-                e.group == AppGroup.LAUNCHER || OptimizerSafety.isProtected(pkg, homeHandlers, imePackage) -> protectedFound += pkg
+                (e.group == AppGroup.LAUNCHER && !launcherActive) ||
+                    OptimizerSafety.isProtected(pkg, homeHandlers, imePackage, launcherActive) -> protectedFound += pkg
                 else -> {
                     val optional = OptimizerSafety.optionalArea(pkg)
                     val keep = catalog.keepVotes(pkg)
                     val off = catalog.disableVotes(pkg)
-                    items += PlanItem(pkg, e.group, e.note, optional, off, keep, optional == null && keep <= off)
+                    // A replaced stock launcher can be switched off, but only when the user ticks it.
+                    val launcher = e.group == AppGroup.LAUNCHER || OptimizerSafety.isLauncherLike(pkg, homeHandlers)
+                    items += PlanItem(pkg, if (launcher) AppGroup.LAUNCHER else e.group, e.note, optional, off, keep,
+                        optional == null && keep <= off && !launcher)
                 }
             }
         }
@@ -184,9 +194,18 @@ object OptimizerPlanner {
 }
 
 /** One TV's record of what YAiPlayer switched off, written before the first change. */
-data class RestorePoint(val tvId: String, val label: String, val createdAt: Long, val packages: Set<String>) {
+data class RestorePoint(
+    val tvId: String,
+    val label: String,
+    val createdAt: Long,
+    val packages: Set<String>,
+    /** The Home activity before YAiPlayer's launcher took over (`package/class`), or null. */
+    val stockHome: String? = null,
+    /** Our launcher was set as Home and the user confirmed it works. */
+    val launcherActive: Boolean = false,
+) {
     fun toJson(): JSONObject = JSONObject().put("tvId", tvId).put("label", label).put("createdAt", createdAt)
-        .put("packages", JSONArray(packages.sorted()))
+        .put("packages", JSONArray(packages.sorted())).put("stockHome", stockHome ?: "").put("launcherActive", launcherActive)
 
     companion object {
         fun fromJson(o: JSONObject): RestorePoint? {
@@ -194,7 +213,8 @@ data class RestorePoint(val tvId: String, val label: String, val createdAt: Long
             val arr = o.optJSONArray("packages") ?: JSONArray()
             val pkgs = List(arr.length()) { arr.optString(it) }
                 .filter { runCatching { AdbCommandHelper.buildEnableCommand(it) }.isSuccess }.toSet()
-            return RestorePoint(tvId, o.optString("label"), o.optLong("createdAt"), pkgs)
+            val home = o.optString("stockHome").takeIf { OptimizerEngine.isComponent(it) }
+            return RestorePoint(tvId, o.optString("label"), o.optLong("createdAt"), pkgs, home, o.optBoolean("launcherActive"))
         }
 
         fun listToJson(points: List<RestorePoint>): String = JSONArray(points.map { it.toJson() }).toString()
@@ -216,7 +236,8 @@ object OptimizerScripts {
 
     fun restoreScript(point: RestorePoint): String =
         (listOf("# YAiPlayer restore point: ${point.label}") +
-            point.packages.sorted().map { "adb shell " + AdbCommandHelper.buildEnableCommand(it) }).joinToString("\n")
+            point.packages.sorted().map { "adb shell " + AdbCommandHelper.buildEnableCommand(it) } +
+            listOfNotNull(point.stockHome?.let { "adb shell cmd package set-home-activity --user 0 $it" })).joinToString("\n")
 }
 
 /** Findings of the tracking audit: matched by package name and by how the community lists file the app. */
@@ -270,6 +291,13 @@ object AdbRemoteCommands {
  * Changes are confirmed by the exact `pm` answer, not by the transport saying the command ran.
  */
 class OptimizerEngine(private val transport: AdbTransport) {
+    companion object {
+        const val WORK_DIR = "/data/local/tmp/yaiplayer"
+        private const val HOME_INTENT = "am start -W -a android.intent.action.MAIN -c android.intent.category.HOME"
+        private val COMPONENT = Regex("[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z0-9_]+)+/[A-Za-z0-9_.]+")
+
+        fun isComponent(s: String): Boolean = COMPONENT.matches(s)
+    }
 
     private suspend fun shell(cmd: String): String = transport.runShell(cmd).getOrThrow()
 
@@ -309,6 +337,56 @@ class OptimizerEngine(private val transport: AdbTransport) {
     suspend fun key(keyCode: Int) = runCatching { shell(AdbRemoteCommands.key(keyCode)) }.isSuccess
 
     suspend fun text(value: String) = runCatching { shell(AdbRemoteCommands.text(value)) }.isSuccess
+
+    /** The activity that answers Home right now (`package/class`), or null. */
+    suspend fun currentHome(): String? = runCatching {
+        shell("cmd package resolve-activity --brief -a android.intent.action.MAIN -c android.intent.category.HOME")
+            .lineSequence().map { it.trim() }.lastOrNull { isComponent(it) }
+    }.getOrNull()
+
+    suspend fun isInstalled(pkg: String): Boolean = runCatching {
+        AdbCommandHelper.buildEnableCommand(pkg)
+        OptimizerSafety.parsePackageList(shell("pm list packages --user 0 $pkg"))?.contains(pkg) == true
+    }.getOrDefault(false)
+
+    /**
+     * Makes our launcher the Home screen with a safety net on the TV: a background job that, unless [confirmHome] is
+     * called with the same [token] within [watchdogSeconds], switches Home back to [stockHome] by itself, even if
+     * the phone is gone. True when the TV now answers Home with our launcher.
+     */
+    suspend fun switchHome(stockHome: String, token: String, watchdogSeconds: Int = 150): Boolean {
+        require(isComponent(stockHome) && token.matches(Regex("[0-9a-f]{16}")) && watchdogSeconds in 30..600)
+        val stockPkg = stockHome.substringBefore('/')
+        shell("mkdir -p $WORK_DIR")
+        shell(
+            "nohup setsid sh -c 'sleep $watchdogSeconds & wait; [ -f $WORK_DIR/home-ok-$token ] && exit 0; " +
+                "pm enable --user 0 $stockPkg; cmd package set-home-activity --user 0 $stockHome; " +
+                "am start -W -a android.intent.action.MAIN -c android.intent.category.HOME' " +
+                "yaiplayer-rollback-$token >$WORK_DIR/watchdog-$token.log 2>&1 &",
+        )
+        val out = shell("cmd package set-home-activity --user 0 ${OptimizerSafety.OUR_LAUNCHER_HOME}")
+        if (!out.contains("Success")) return false
+        runCatching { shell(HOME_INTENT) }
+        return currentHome()?.substringBefore('/') == OptimizerSafety.OUR_LAUNCHER
+    }
+
+    /** The user saw the new Home screen working: the watchdog then leaves it alone. */
+    suspend fun confirmHome(token: String): Boolean {
+        require(token.matches(Regex("[0-9a-f]{16}")))
+        return runCatching { shell("touch $WORK_DIR/home-ok-$token && echo ok").trim() == "ok" }.getOrDefault(false)
+    }
+
+    /** Puts the TV's own Home screen back (also switches it on again if it was switched off). */
+    suspend fun restoreHome(stockHome: String): Boolean {
+        require(isComponent(stockHome))
+        enable(stockHome.substringBefore('/'))
+        val out = runCatching { shell("cmd package set-home-activity --user 0 $stockHome") }.getOrDefault("")
+        runCatching { shell(HOME_INTENT) }
+        return out.contains("Success")
+    }
+
+    suspend fun uninstallLauncher(): Boolean =
+        runCatching { shell("pm uninstall --user 0 ${OptimizerSafety.OUR_LAUNCHER}").trim() == "Success" }.getOrDefault(false)
 
     /**
      * Turns off network debugging. The TV drops the connection while answering, so a lost connection here is the
