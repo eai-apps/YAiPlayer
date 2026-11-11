@@ -32,9 +32,9 @@ suspend fun runSemiAutoEpgSync(
         val epgSource = store.getAll().firstOrNull { it.url == url } ?: store.add(source.name, url, source.userAgent)
         val now = System.currentTimeMillis()
         try {
-            val written = epgRepository.refreshUrl(epgSource.id, epgSource.url, epgSource.userAgent) { _, count ->
+            val written = epgRepository.refreshUrl(epgSource.id, epgSource.url, epgSource.userAgent, onProgress = { _, count ->
                 setState(EpgSyncUi.Syncing(total + count))
-            }
+            })
             store.setSynced(epgSource.id, now, null)
             total += written
             anySucceeded = true

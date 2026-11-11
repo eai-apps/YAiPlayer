@@ -43,6 +43,9 @@ class AutoRefresh(
     private val epgDao: EpgDao,
     private val importFinalizer: ImportFinalizer,
     private val vodResort: M3uVodResort,
+    /** Starts [tv.own.owntv.core.sync.work.RefreshQueueWorker] with these jobs. */
+    private val startQueue: (List<RefreshJob>) -> Unit,
+    private val sourceDaoAll: suspend () -> List<tv.own.owntv.core.database.entity.SourceEntity>,
 ) {
     private var coldStartCheckDone = false
     private var lastResumeCheckAtElapsed = 0L
@@ -65,42 +68,35 @@ class AutoRefresh(
         val thresholdHours = settings.backgroundResyncHours.first()
         // The startup catch-up is part of background resync: switched off there, off here too.
         val staleCatchUp = includeStartup && settings.backgroundResyncEnabled.first()
-        // --- Playlist sources ---
+        // Everything due goes into ONE queue, run one after another (RefreshQueuePlanner): first this profile's
+        // playlists, then their guides, then unclaimed feeds, then the built-in guide. Other profiles wait until
+        // they are opened or until the background refresh.
         val playlistModes = settings.playlistAutoRefresh.first()
-        sourceRepository.observeSources(pid).first().forEach { source ->
+        val epgRepository = org.koin.core.context.GlobalContext.get().get<tv.own.owntv.core.repository.EpgRepository>()
+        val active = sourceRepository.observeSources(pid).first()
+        val activeIds = active.map { it.id }.toSet()
+        val others = runCatching { sourceDaoAll() }.getOrDefault(emptyList()).filter { it.id !in activeIds }
+        val playlists = active.map { source ->
             val mode = playlistModes[source.id] ?: PlaylistRefresh.OFF
-            val isStaleProfile = staleCatchUp && isStale(source.lastSyncAt, nowMs, thresholdHours)
-            if (shouldRefresh(mode, source.lastSyncAt, nowMs, includeStartup) || isStaleProfile) {
-                val counts = importFinalizer.contentCounts(source.id)
-                Log.d(TAG, "checkAutoRefresh playlist sourceId=${source.id} mode=$mode — enqueuing")
-                catalogSyncScheduler.enqueueSync(
-                    source.id,
-                    reason = REASON,
-                    contentTypes = SyncContentTypes.enabledOf(source),
-                    baseItemCount = counts.channels + counts.movies + counts.series,
-                    policy = ExistingWorkPolicy.KEEP,
-                )
-            }
-        }
-        // --- EPG sources ---
+            val due = shouldRefresh(mode, source.lastSyncAt, nowMs, includeStartup) ||
+                (staleCatchUp && (isStale(source.lastSyncAt, nowMs, thresholdHours) || !syncedToday(source.lastSyncAt, nowMs)))
+            val counts = if (due) importFinalizer.contentCounts(source.id) else null
+            PlaylistInfo(source.id, true, due, counts?.let { it.channels + it.movies + it.series } ?: 0, epgRepository.guideUrls(source))
+        } + others.map { PlaylistInfo(it.id, false, false, 0, epgRepository.guideUrls(it)) }
         val epgModes = settings.epgAutoRefresh.first()
         val all = epgSourceStore.getAll()
         // The built-in guide is a chain: its first feed asks for the next, so only the first is due here.
         val firstBuiltinId = all.firstOrNull { it.builtin }?.id
-        all.forEach { src ->
-            if (src.builtin && src.id != firstBuiltinId) return@forEach
+        val feeds = all.filter { !it.builtin || it.id == firstBuiltinId }.map { src ->
             val mode = epgModes[src.id] ?: EpgRefresh.OFF
-            val isStaleEpg = staleCatchUp && isStale(src.lastSyncAt, nowMs, thresholdHours)
-            if (shouldRefreshEpg(mode, src.lastSyncAt, nowMs, includeStartup) || isStaleEpg) {
-                val base = epgDao.countForSources(listOf(src.id))
-                Log.d(TAG, "checkAutoRefresh epg sourceId=${src.id} mode=$mode — enqueuing")
-                epgSyncScheduler.enqueueSync(
-                    src.id,
-                    reason = REASON,
-                    baseProgrammes = base,
-                    policy = ExistingWorkPolicy.KEEP,
-                )
-            }
+            val due = shouldRefreshEpg(mode, src.lastSyncAt, nowMs, includeStartup) ||
+                (staleCatchUp && (isStale(src.lastSyncAt, nowMs, thresholdHours) || !syncedToday(src.lastSyncAt, nowMs)))
+            GuideFeedInfo(src.id, src.url, src.builtin, due, if (due) epgDao.countForSources(listOf(src.id)) else 0)
+        }
+        val jobs = RefreshQueuePlanner.plan(playlists, feeds)
+        if (jobs.isNotEmpty()) {
+            Log.d(TAG, "checkAutoRefresh queue=${jobs.size}")
+            startQueue(jobs)
         }
         if (includeStartup) {
             refillGuideEmptiedByMigration()

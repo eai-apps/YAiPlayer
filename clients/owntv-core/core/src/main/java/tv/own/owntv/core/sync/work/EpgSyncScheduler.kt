@@ -13,13 +13,24 @@ import kotlinx.coroutines.flow.map
 
 class EpgSyncScheduler(private val context: Context) {
 
-    fun enqueueSync(sourceId: Long, reason: String, baseProgrammes: Int = 0, policy: ExistingWorkPolicy = ExistingWorkPolicy.REPLACE) {
+    /**
+     * [inQueue]: started by [RefreshQueueWorker], which runs the built-in guide itself at the end — so this sync
+     * must not start it on its own (that is how four rings used to appear at once).
+     */
+    fun enqueueSync(
+        sourceId: Long,
+        reason: String,
+        baseProgrammes: Int = 0,
+        policy: ExistingWorkPolicy = ExistingWorkPolicy.REPLACE,
+        inQueue: Boolean = false,
+    ) {
         val request = OneTimeWorkRequestBuilder<EpgSyncWorker>()
             .setInputData(
                 workDataOf(
                     EpgSyncWorker.KEY_SOURCE_ID to sourceId,
                     EpgSyncWorker.KEY_REASON to reason,
                     EpgSyncWorker.KEY_BASE_PROGRAMMES to baseProgrammes,
+                    EpgSyncWorker.KEY_IN_QUEUE to inQueue,
                 ),
             )
             .setConstraints(

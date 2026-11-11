@@ -17,6 +17,8 @@ class EpgActivityTracker {
         val sourceName: String,
         val channels: Int = 0,
         val programmes: Int = 0,
+        /** 0..100 when the source can tell how far it is; null shows counts only (no made-up bar). */
+        val percent: Int? = null,
     )
 
     private val _active = MutableStateFlow<Map<Long, ActiveEpgSync>>(emptyMap())
@@ -31,6 +33,13 @@ class EpgActivityTracker {
     fun progress(sourceId: Long, channels: Int, programmes: Int) {
         val existing = _active.value[sourceId] ?: return
         _active.value = _active.value + (sourceId to existing.copy(channels = channels, programmes = programmes))
+    }
+
+    fun fraction(sourceId: Long, fraction: Float) {
+        val existing = _active.value[sourceId] ?: return
+        val pct = (fraction * 100).toInt().coerceIn(0, 99)
+        if (existing.percent == pct) return
+        _active.value = _active.value + (sourceId to existing.copy(percent = pct))
     }
 
     fun finished(sourceId: Long) {

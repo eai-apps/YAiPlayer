@@ -345,8 +345,10 @@ class EpgRepository(
         userAgent: String?,
         programmeIds: Set<String>? = null,
         onProgress: (channels: Int, programmes: Int) -> Unit = { _, _ -> },
+        /** 0..1 where the source can tell how far it is (a portal's own guide); never called for plain XMLTV. */
+        onFraction: (Float) -> Unit = {},
     ): Int = guideSyncLocks.getOrPut(storeId) { kotlinx.coroutines.sync.Mutex() }.withLock {
-        refreshUrlLocked(storeId, url, userAgent, programmeIds, onProgress)
+        refreshUrlLocked(storeId, url, userAgent, programmeIds, onProgress, onFraction)
     }
 
     private suspend fun refreshUrlLocked(
@@ -355,12 +357,13 @@ class EpgRepository(
         userAgent: String?,
         programmeIds: Set<String>?,
         onProgress: (channels: Int, programmes: Int) -> Unit,
+        onFraction: (Float) -> Unit = {},
     ): Int = withContext(Dispatchers.IO) {
         // A portal guide is not a download, so it cannot go through the XMLTV path below — but it is
         // stored, pruned, matched and read exactly like one, which is why it is addressed as a URL
         // and lives in the same EPG-source list with the same "sync now" button and error line.
         stalkerSourceIdOf(url)?.let { portalSourceId ->
-            return@withContext refreshFromPortal(storeId, portalSourceId, onProgress)
+            return@withContext refreshFromPortal(storeId, portalSourceId, onProgress, onFraction)
         }
         val now = System.currentTimeMillis()
         val startedAt = SystemClock.elapsedRealtime()
@@ -628,6 +631,7 @@ class EpgRepository(
         storeId: Long,
         portalSourceId: Long,
         onProgress: (channels: Int, programmes: Int) -> Unit,
+        onFraction: (Float) -> Unit = {},
     ): Int {
         val startedAt = SystemClock.elapsedRealtime()
         val source = sourceDao.getById(portalSourceId)
@@ -645,6 +649,7 @@ class EpgRepository(
         val guideKeys = channelDao.guideKeysForSource(portalSourceId)
             .associate { it.remoteId.trim().lowercase() to it.epgChannelId.trim().lowercase() }
         val channelIds = channelDao.remoteIdsForSource(portalSourceId)
+        var bulkDoneAt = 0L
         val outcome = stalkerEpg.crawl(
             source = source,
             from = from,
@@ -653,7 +658,10 @@ class EpgRepository(
             channelIds = channelIds,
             // Straight through to the EPG screen, so a portal guide counts up like any other feed
             // instead of sitting on "Connecting…" until it finishes.
-            onProgress = { seenChannels, programmes -> onProgress(seenChannels, programmes) },
+            onProgress = { seenChannels, programmes ->
+                onProgress(seenChannels, programmes)
+                onFraction(BULK_SHARE * (seenChannels.toFloat() / channelIds.size.coerceAtLeast(1)).coerceAtMost(1f))
+            },
         ) { batch ->
             writeProgrammes(
                 batch.map {
@@ -677,11 +685,22 @@ class EpgRepository(
         val missingPast = portalChannels.mapNotNull { channel ->
             val remote = channel.remoteId ?: return@mapNotNull null
             val key = guideKeys[remote.trim().lowercase()] ?: remote.trim().lowercase()
+            if (!channel.catchup && channel.catchupDays <= 0) {
+                // No archive: past programmes cannot be played, so only a channel the bulk call left empty is
+                // asked for today and tomorrow. Asking every channel for three past days was most of the
+                // five minutes a 4,500-channel portal took.
+                return@mapNotNull if (key in channels) null else remote to 0
+            }
             val days = channel.catchupDays.takeIf { it > 0 }?.coerceAtMost(14) ?: 3
             val earliest = pastCoverage[key]?.minOfOrNull { it.startMs }
             if (earliest != null && earliest <= now - days * 86_400_000L) null else remote to days
         }
-        stalkerEpg.loadDayTables(source, missingPast, from, to) { batch ->
+        bulkDoneAt = SystemClock.elapsedRealtime()
+        onFraction(BULK_SHARE)
+        stalkerEpg.loadDayTables(
+            source, missingPast, from, to,
+            onChannelDone = { done, total -> onFraction(BULK_SHARE + (1f - BULK_SHARE) * done / total.coerceAtLeast(1)) },
+        ) { batch ->
             writeProgrammes(batch.map {
                 EpgProgrammeEntity(sourceId = storeId,
                     epgChannelId = guideKeys[it.epgChannelId] ?: it.epgChannelId,
@@ -718,7 +737,8 @@ class EpgRepository(
         Log.i(
             "EpgRepository",
             "EPG portal sync storeId=$storeId portalSourceId=$portalSourceId method=${outcome.method} " +
-                "period=${outcome.periodDays} channels=${channels.size} written=$written " +
+                "period=${outcome.periodDays} channels=${channels.size} written=$written dayTables=${missingPast.size} " +
+                "bulkMs=${bulkDoneAt - startedAt} dayTablesAndWriteMs=${SystemClock.elapsedRealtime() - bulkDoneAt} " +
                 "ms=${SystemClock.elapsedRealtime() - startedAt}",
         )
         return written
@@ -1087,6 +1107,9 @@ class EpgRepository(
         private const val STALKER_GUIDE_SCHEME = "stalker://"
 
         fun stalkerGuideUrl(sourceId: Long): String = "$STALKER_GUIDE_SCHEME$sourceId"
+
+        /** Share of a portal guide's progress bar taken by the bulk call; the per-channel day tables fill the rest. */
+        private const val BULK_SHARE = 0.6f
 
         /** The playlist id inside a [stalkerGuideUrl], or null when this is an ordinary feed URL. */
         fun stalkerSourceIdOf(url: String): Long? =

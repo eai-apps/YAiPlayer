@@ -17,6 +17,7 @@ class KoinWorkerFactory : WorkerFactory() {
         val koin = GlobalContext.get()
         return when (workerClassName) {
             StalkerCatchupWorker::class.java.name -> StalkerCatchupWorker(appContext, workerParameters)
+            RefreshQueueWorker::class.java.name -> RefreshQueueWorker(appContext, workerParameters, koin.get(), koin.get(), koin.get(), koin.get())
             EpgSyncWorker::class.java.name -> EpgSyncWorker(
                 appContext,
                 workerParameters,
