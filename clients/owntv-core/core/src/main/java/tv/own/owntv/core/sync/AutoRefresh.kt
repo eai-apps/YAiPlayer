@@ -48,6 +48,8 @@ class AutoRefresh(
     private val sourceDaoAll: suspend () -> List<tv.own.owntv.core.database.entity.SourceEntity>,
 ) {
     private var coldStartCheckDone = false
+    /** The queue was stopped because the app left the screen (phone); the next return finishes it. */
+    @Volatile private var pausedForBackground = false
     private var lastResumeCheckAtElapsed = 0L
 
     suspend fun check(includeStartup: Boolean) {
@@ -56,18 +58,21 @@ class AutoRefresh(
             if (includeStartup) {
                 if (coldStartCheckDone) return
                 coldStartCheckDone = true
-            } else {
+            } else if (!pausedForBackground) {
                 val now = SystemClock.elapsedRealtime()
                 if (now - lastResumeCheckAtElapsed < RESUME_THROTTLE_MS) return
                 lastResumeCheckAtElapsed = now
             }
         }
+        val resuming = pausedForBackground && !includeStartup
+        pausedForBackground = false
         if (includeStartup && !settings.autoRefreshOnStartup.first()) return
         val nowMs = System.currentTimeMillis()
         val pid = profileDao.resolveExistingProfileId(settings.activeProfileId.first()) ?: return
         val thresholdHours = settings.backgroundResyncHours.first()
         // The startup catch-up is part of background resync: switched off there, off here too.
-        val staleCatchUp = includeStartup && settings.backgroundResyncEnabled.first()
+        // Back after a pause: the same catch-up again; what finished before the pause counts as done today.
+        val staleCatchUp = (includeStartup || resuming) && settings.backgroundResyncEnabled.first()
         // Everything due goes into ONE queue, run one after another (RefreshQueuePlanner): first this profile's
         // playlists, then their guides, then unclaimed feeds, then the built-in guide. Other profiles wait until
         // they are opened or until the background refresh.
@@ -101,6 +106,20 @@ class AutoRefresh(
         if (includeStartup) {
             refillGuideEmptiedByMigration()
             vodResort.runOnce()
+        }
+    }
+
+    /**
+     * The app left the screen. On a phone ([tv.own.owntv.core.CoreBuildInfo.batteryPowered]) the automatic
+     * queue stops here — downloading guides with the screen off drained a phone to empty (owner, 11.11) —
+     * and [check] on the next return starts it again for what is still due. Manual refreshes are not touched.
+     */
+    fun onAppBackground(context: android.content.Context) {
+        if (!tv.own.owntv.core.CoreBuildInfo.batteryPowered) return
+        val tracker = org.koin.core.context.GlobalContext.get().get<RefreshQueueTracker>()
+        if (tv.own.owntv.core.sync.work.RefreshQueueScheduler.pause(context, tracker)) {
+            pausedForBackground = true
+            Log.i(TAG, "refresh queue paused: app in background")
         }
     }
 

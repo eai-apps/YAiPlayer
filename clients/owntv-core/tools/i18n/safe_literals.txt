@@ -5222,6 +5222,7 @@
 1	log	core/src/main/java/tv/own/owntv/core/sync/AutoRefresh.kt	epgRefill check failed
 1	log	core/src/main/java/tv/own/owntv/core/sync/AutoRefresh.kt	epgRefill sourceId=${src.id} — synced before but guide is empty, re-fetching
 1	technical	core/src/main/java/tv/own/owntv/core/sync/AutoRefresh.kt	migration_refill
+1	log	core/src/main/java/tv/own/owntv/core/sync/AutoRefresh.kt	refresh queue paused: app in background
 1	technical	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	$NAME ${i + 1}
 1	technical	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	Built-in guide
 1	technical	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	builtin

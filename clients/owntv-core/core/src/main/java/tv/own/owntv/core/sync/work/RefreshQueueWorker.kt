@@ -61,11 +61,14 @@ class RefreshQueueWorker(
             }
         }
         if (name != null) {
+            tracker.currentWork = name
             runCatching {
                 WorkManager.getInstance(applicationContext).getWorkInfosForUniqueWorkFlow(name)
                     .first { infos -> infos.isNotEmpty() && infos.all { it.state.isFinished } }
             }.onFailure { Log.w(TAG, "waiting for $name failed", it) }
         }
+        // Paused (the phone app left the screen): the wait above was cancelled, so no next step.
+        if (isStopped) return Result.success()
         if (index + 1 >= jobs.size) {
             tracker.finished()
         } else {
@@ -104,6 +107,16 @@ object RefreshQueueScheduler {
         val input = workDataOf(*(data + (RefreshQueueWorker.KEY_INDEX to index)).map { it.key to it.value }.toTypedArray())
         val request = OneTimeWorkRequestBuilder<RefreshQueueWorker>().setInputData(input).build()
         WorkManager.getInstance(context).enqueueUniqueWork(UNIQUE_NAME, policy, request)
+    }
+
+    /** Stops the queue and the job it is on (the app left the screen on a phone); [AutoRefresh] restarts it. */
+    fun pause(context: Context, tracker: RefreshQueueTracker): Boolean {
+        if (tracker.progress.value == null) return false
+        val wm = WorkManager.getInstance(context)
+        wm.cancelUniqueWork(UNIQUE_NAME)
+        tracker.currentWork?.let { wm.cancelUniqueWork(it) }
+        tracker.finished()
+        return true
     }
 
     fun decode(kinds: IntArray?, ids: LongArray?, bases: IntArray?): List<RefreshJob> {

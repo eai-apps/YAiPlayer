@@ -84,4 +84,11 @@ object CoreBuildInfo {
 
     /** Whether channel preview (small player) is on until the user chooses; the phone app turns it off so a tap opens full screen. */
     var livePreviewDefault: Boolean = true
+
+    /**
+     * Phone: automatic refreshes (the startup queue, the background check) must not drain the battery. True =
+     * the queue stops when the app leaves the screen and picks up where it was when it comes back; the
+     * periodic background check runs only while the phone charges. A TV box is always plugged in: false.
+     */
+    var batteryPowered: Boolean = false
 }

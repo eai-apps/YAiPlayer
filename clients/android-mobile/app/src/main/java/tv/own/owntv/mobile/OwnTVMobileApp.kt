@@ -100,6 +100,8 @@ class OwnTVMobileApp : Application(), androidx.work.Configuration.Provider {
         CoreBuildInfo.releaseRepo = "eai-apps/YAiPlayer"
         CoreBuildInfo.releaseAssetMarker = "YAiPlayer-Mobile"
         CoreBuildInfo.livePreviewDefault = false
+        // A phone runs on battery: automatic refreshes pause off screen and the background check waits for a charger.
+        CoreBuildInfo.batteryPowered = true
         // Fixed for this process before any player exists: the setting applies only after a restart.
         tv.own.owntv.core.player.FfmpegAudioSetting.load(this)
         // First thing after the context exists: a crash from here on leaves a trace on disk instead
