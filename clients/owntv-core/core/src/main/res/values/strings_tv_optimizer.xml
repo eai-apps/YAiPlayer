@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="tv_optimizer_tile">Speed up TV</string>
     <string name="tv_optimizer_title">TV Optimizer</string>
     <string name="tv_optimizer_welcome_title">Speed up your TV</string>
