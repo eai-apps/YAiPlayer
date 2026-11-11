@@ -509,6 +509,9 @@ private fun SourceRow(
         else -> null
     }
     val back = rowFocus ?: remember { FocusRequester() }
+    val settings = org.koin.compose.koinInject<tv.own.owntv.core.settings.SettingsRepository>()
+    val livePreview by settings.livePreviewEnabled.collectAsStateWithLifecycle(initialValue = true)
+    val scope = rememberCoroutineScope()
     val actions = if (isDeleting) emptyList() else listOf(
         StageAction(OwnTVIcon.PENCIL, stringResource(R.string.settings_sources_edit), onEdit),
         // "Info", not "Test": the expensive measurement lives behind Re-test inside the popup.
@@ -517,6 +520,11 @@ private fun SourceRow(
             OwnTVIcon.REFRESH,
             stringResource(if (syncState.isActive) R.string.settings_sources_cancel else R.string.settings_sources_resync),
             if (syncState.isActive) onCancelSync else onResync,
+        ),
+        StageAction(
+            OwnTVIcon.PIP,
+            stringResource(tv.own.owntv.core.R.string.channel_preview) + ": " + stringResource(if (livePreview) R.string.common_on else R.string.common_off),
+            { scope.launch { settings.setLivePreviewEnabled(!livePreview) } },
         ),
         StageAction(OwnTVIcon.SPARKLE, stringResource(R.string.settings_sources_clean_names), onCleanNames),
         StageAction(OwnTVIcon.EPG, stringResource(R.string.epg_time_shift_title), onEpgShift),

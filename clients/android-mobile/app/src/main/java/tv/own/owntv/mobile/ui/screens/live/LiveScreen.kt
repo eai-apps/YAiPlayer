@@ -47,6 +47,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.delay
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.DisposableEffect
@@ -192,6 +194,25 @@ fun LiveScreen(
             .distinctUntilChanged()
             .collect { indices ->
                 vm.loadNowPlaying(indices.mapNotNull { channels.peek(it) })
+            }
+    }
+
+    LaunchedEffect(listState, channels) {
+        snapshotFlow { listState.layoutInfo.visibleItemsInfo.map { it.index } }
+            .distinctUntilChanged()
+            .collectLatest { indices ->
+                delay(400)
+                if (indices.isNotEmpty() && channels.itemCount > 0) {
+                    val window = tv.own.owntv.extras.epg.VisibleEpgPrefetcher.visibleWindow(
+                        visibleIndices = indices,
+                        totalCount = channels.itemCount,
+                        buffer = 3,
+                    )
+                    if (!window.isEmpty()) {
+                        val windowChannels = window.mapNotNull { channels.peek(it) }
+                        vm.prefetchVisibleChannels(windowChannels)
+                    }
+                }
             }
     }
 

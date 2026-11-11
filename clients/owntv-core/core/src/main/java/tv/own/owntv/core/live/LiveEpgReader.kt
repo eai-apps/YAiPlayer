@@ -42,6 +42,9 @@ private const val NEXT_PROGRAMME_GAP_CAP_MS = 3L * 60 * 60 * 1000
  */
 private const val CACHE_TTL_MS = 5 * 60_000L
 
+/** Backoff for channels whose provider returned no short-EPG data. */
+private const val EMPTY_PROVIDER_TTL_MS = 10 * 60_000L
+
 /** How many entries the provider's short-EPG endpoint is asked for. Its own practical maximum. */
 private const val SHORT_EPG_LIMIT = 8
 
@@ -89,14 +92,60 @@ class LiveEpgReader(
     /** Provider-fetched guide rows per channel, so the grid and the preview share one request. */
     private val providerRows = java.util.concurrent.ConcurrentHashMap<Long, CachedRows>()
 
+    /** Channels where provider short-EPG returned nothing: backoff until timestamp to avoid repeating requests. */
+    private val emptyProviderEpgUntil = java.util.concurrent.ConcurrentHashMap<Long, Long>()
+
+    /** Clear negative caching of channels with no provider EPG so visible channels can retry. */
+    fun clearEmptyProviderCache() {
+        emptyProviderEpgUntil.clear()
+    }
+
+    /** True if [channelId] was recently probed from provider and yielded no programme (backoff 10 min). */
+    fun isKnownEmptyProvider(channelId: Long, now: Long = System.currentTimeMillis()): Boolean {
+        val until = emptyProviderEpgUntil[channelId] ?: return false
+        if (now < until) return true
+        emptyProviderEpgUntil.remove(channelId)
+        return false
+    }
+
+    /** Record that [channelId] has no programme at the provider for [ttlMs] (defaults to 10 min). */
+    fun markEmptyProvider(channelId: Long, now: Long = System.currentTimeMillis(), ttlMs: Long = EMPTY_PROVIDER_TTL_MS) {
+        emptyProviderEpgUntil[channelId] = now + ttlMs
+    }
+
+    /**
+     * Prefetch a single visible channel's current programme via [nowNext] if not already cached.
+     * Caches empty results for 10 minutes to avoid repeatedly hammering channels without short EPG.
+     */
+    suspend fun prefetchVisibleProgramme(
+        channel: ChannelEntity,
+        cust: SectionCustomizations,
+        globalShiftMinutes: Int,
+    ): XtEpgEntry? = withContext(Dispatchers.IO) {
+        val now = System.currentTimeMillis()
+        if (isKnownEmptyProvider(channel.id, now)) return@withContext null
+        cachedNow(channel.id, now)?.let { return@withContext it }
+
+        val res = nowNext(channel, cust, globalShiftMinutes)
+        val nowEntry = res?.now?.takeIf { it.title.isNotBlank() }
+        if (nowEntry != null) {
+            nowEntry
+        } else {
+            markEmptyProvider(channel.id, now)
+            null
+        }
+    }
+
     /** Drop every cached now/next — the global guide offset moved, so all of them are stale. */
     fun clearCache() {
         cache.clear()
+        emptyProviderEpgUntil.clear()
     }
 
     /** Drop one channel's cached now/next (its EPG match or per-channel shift changed). */
     fun invalidate(channelId: Long) {
         cache.remove(channelId)
+        emptyProviderEpgUntil.remove(channelId)
     }
 
     /** Now/next for [ch], cached ~5 min. Prefers a manual EPG match / stored bulk guide, then falls
@@ -280,6 +329,7 @@ class LiveEpgReader(
         }
         if (channelKeys.isEmpty()) return@withContext emptyMap()
         val startedAt = android.os.SystemClock.elapsedRealtime()
+        CorePerf.log { "perf_now_programmes_for_start channels=${channels.size} at=$startedAt" }
         var chunks = 0
         val result = HashMap<Long, XtEpgEntry>()
         val priority = epgSourceStore.priority()
@@ -325,6 +375,7 @@ class LiveEpgReader(
                 "fromStored=$fromStored fromCache=${result.size - fromStored} " +
                 "totalMs=${android.os.SystemClock.elapsedRealtime() - startedAt}"
         }
+        CorePerf.log { "perf_now_programmes_for_end channels=${channels.size} durationMs=${android.os.SystemClock.elapsedRealtime() - startedAt} at=${android.os.SystemClock.elapsedRealtime()}" }
         result
     }
 

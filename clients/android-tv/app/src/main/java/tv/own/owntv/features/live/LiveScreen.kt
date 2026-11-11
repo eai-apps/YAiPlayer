@@ -156,6 +156,15 @@ fun LiveScreen(
     LaunchedEffect(loadedChannels.size, loadedChannels.firstOrNull()?.id, loadedChannels.lastOrNull()?.id) {
         vm.ensureNowPlaying(loadedChannels)
     }
+
+    var listFirstDrawnReported by remember { mutableStateOf(false) }
+    if (!listFirstDrawnReported && channels.itemCount > 0) {
+        androidx.compose.runtime.SideEffect {
+            listFirstDrawnReported = true
+            tv.own.owntv.core.CorePerf.log { "perf_list_first_drawn items=${channels.itemCount} at=${android.os.SystemClock.elapsedRealtime()}" }
+        }
+    }
+
     // Turnover happens on the minute, so wait for the next one rather than 60s from mount — otherwise
     // rows change late and at different instants from each other.
     LaunchedEffect(Unit) {
@@ -208,6 +217,23 @@ fun LiveScreen(
         else listState
     LaunchedEffect(selectedKey, rememberLive) {
         if (!rememberLive) runCatching { listState.scrollToItem(0) }
+    }
+    val firstVisibleIndex = effectiveListState.firstVisibleItemIndex
+    val firstVisibleOffset = effectiveListState.firstVisibleItemScrollOffset
+    val currentFocusId = previewChannel?.id
+
+    LaunchedEffect(firstVisibleIndex, firstVisibleOffset, currentFocusId, channels.itemCount) {
+        kotlinx.coroutines.delay(400)
+        val info = effectiveListState.layoutInfo.visibleItemsInfo
+        if (info.isEmpty() || channels.itemCount <= 0) return@LaunchedEffect
+        val window = tv.own.owntv.extras.epg.VisibleEpgPrefetcher.visibleWindow(
+            visibleIndices = info.map { it.index },
+            totalCount = channels.itemCount,
+            buffer = 3,
+        )
+        if (window.isEmpty()) return@LaunchedEffect
+        val windowChannels = window.mapNotNull { channels.peek(it) }
+        vm.prefetchVisibleChannels(windowChannels)
     }
     val catListState = androidx.compose.foundation.lazy.rememberLazyListState()
     val categoryQuery by vm.categoryQuery.collectAsStateWithLifecycle()
@@ -1041,6 +1067,7 @@ fun LiveScreen(
             onHide = { vm.hideChannel(ch); contextChannel = null },
             onMatchEpg = { matchingEpg = ch; contextChannel = null },
             onEpgOffset = { offsettingEpg = ch; contextChannel = null },
+            onRefreshListEpg = { vm.refreshListEpg(); contextChannel = null },
             onCatchup = { catchupChannel = ch; contextChannel = null },
             onYesterdayOnAir = { yesterdayChannel = ch; contextChannel = null },
             isRecording = ch.id in recordingChannelIds,
@@ -1197,6 +1224,7 @@ private fun ChannelContextMenu(
     onHide: () -> Unit,
     onMatchEpg: () -> Unit,
     onEpgOffset: () -> Unit,
+    onRefreshListEpg: () -> Unit,
     onCatchup: () -> Unit,
     onYesterdayOnAir: () -> Unit,
     // A recording of this channel is running: Record becomes Stop recording.
@@ -1244,6 +1272,7 @@ private fun ChannelContextMenu(
         if (isHistory) add(MenuAction("remove_history", stringResource(R.string.content_remove_history), OwnTVIcon.HISTORY, group = chan, onClick = onRemoveFromHistory))
         add(MenuAction("match_epg", stringResource(R.string.content_match_epg), OwnTVIcon.EPG, group = guide, onClick = onMatchEpg))
         add(MenuAction("epg_offset", stringResource(R.string.content_epg_time_offset), OwnTVIcon.CLOCK, group = guide, onClick = onEpgOffset))
+        add(MenuAction("refresh_list_epg", stringResource(R.string.refresh_list_epg), OwnTVIcon.REFRESH, group = guide, onClick = onRefreshListEpg))
         if (canMove) {
             add(MenuAction("move", stringResource(R.string.content_move), OwnTVIcon.MOVE, group = organise, onClick = onMove))
             add(MenuAction("move_to_category", stringResource(R.string.content_move_to_category), OwnTVIcon.FOLDER, group = organise, onClick = onMoveToCategory))

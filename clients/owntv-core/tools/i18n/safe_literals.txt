@@ -2474,6 +2474,7 @@
 1	log	core/src/main/java/tv/own/owntv/core/live/LiveEpgReader.kt	fromStored=$fromStored fromCache=${result.size - fromStored}
 1	log	core/src/main/java/tv/own/owntv/core/live/LiveEpgReader.kt	keys=${channelKeys.map { it.second }.distinct().size} chunks=$chunks
 1	log	core/src/main/java/tv/own/owntv/core/live/LiveEpgReader.kt	live_nowplaying channels=${channels.size} keyed=${channelKeys.size}
+1	log	core/src/main/java/tv/own/owntv/core/live/LiveEpgReader.kt	perf_now_programmes_for_start channels=${channels.size} at=$startedAt
 1	log	core/src/main/java/tv/own/owntv/core/live/LiveEpgReader.kt	portal days: ${keep.size} programmes added for one channel
 1	log	core/src/main/java/tv/own/owntv/core/live/LiveEpgReader.kt	portal days: failed (${e.javaClass.simpleName})
 1	log	core/src/main/java/tv/own/owntv/core/live/LiveEpgReader.kt	totalMs=${android.os.SystemClock.elapsedRealtime() - startedAt}
@@ -6483,6 +6484,8 @@
 1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	mpv handoff for '${channel.name}' abandoned — the channel changed while ExoPlayer released
 1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	mpv never opened it (${MPV_OPEN_TIMEOUT_MS / 1000}s, no picture and no error)
 1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	no picture within ${armedBudgetMs / 1000}s of tuning
+1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	perf_live_exo_stop at=${android.os.SystemClock.elapsedRealtime()}
+1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	perf_live_stop at=${android.os.SystemClock.elapsedRealtime()}
 1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	stalker reconnect re-resolve failed '${channel.name}'
 1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	stalker resolve failed
 1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	starting mpv for '${channel.name}' — reason=$reason
@@ -6830,6 +6833,9 @@
 3	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	paused-for-cache
 1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	paused-for-cache=${getPropertyString("paused-for-cache")}
 1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	pendingStopEndFiles at cap $MAX_PENDING_STOP_CREDITS ($reason)
+1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	perf_exo_stop at=${android.os.SystemClock.elapsedRealtime()}
+1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	perf_mpv_stop at=${android.os.SystemClock.elapsedRealtime()}
+1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	perf_player_stop at=${android.os.SystemClock.elapsedRealtime()}
 1	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	pgssub
 1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	playback didn't start after retries
 1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	playback didn't start on hardware

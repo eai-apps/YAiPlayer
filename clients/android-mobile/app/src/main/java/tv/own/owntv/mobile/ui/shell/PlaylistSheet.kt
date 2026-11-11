@@ -171,6 +171,16 @@ fun PlaylistSheet(
             onClick = { askResync = true },
             icon = MobileIcons.Refresh,
         )
+        val livePreview by settings.livePreviewEnabled.collectAsStateWithLifecycle(initialValue = true)
+        StageMenuItem(
+            label = stringResource(tv.own.owntv.core.R.string.channel_preview),
+            onClick = {
+                scope.launch { settings.setLivePreviewEnabled(!livePreview) }
+            },
+            icon = MobileIcons.Tv,
+            value = stringResource(if (livePreview) R.string.common_on else R.string.common_off),
+            selected = livePreview,
+        )
         StageMenuItem(
             label = stringResource(R.string.quick_categories),
             onClick = { showCategoriesSheet = true },

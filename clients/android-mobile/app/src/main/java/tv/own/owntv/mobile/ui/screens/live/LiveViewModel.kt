@@ -528,6 +528,42 @@ class LiveViewModel(
         viewModelScope.launch { settings.setLastLiveCategory(key.serialize()) }
     }
 
+    private val visiblePrefetcher = tv.own.owntv.extras.epg.VisibleEpgPrefetcher()
+    private var lastVisibleWindow: List<ChannelEntity> = emptyList()
+
+    fun prefetchVisibleChannels(visible: List<ChannelEntity>) {
+        lastVisibleWindow = visible
+        if (visible.isEmpty()) return
+        visiblePrefetcher.onVisibleRangeChanged(
+            scope = viewModelScope,
+            channels = visible,
+            hasProgramme = { id -> _nowPlaying.value[id] != null },
+            epgReader = epgReader,
+            cust = custom.value,
+            globalShiftMinutes = epgOffset.value,
+            onResolved = { id, entry ->
+                _nowPlaying.value = (_nowPlaying.value + (id to entry)).toList()
+                    .takeLast(MAX_NOW_PLAYING).toMap()
+            },
+        )
+    }
+
+    fun refreshListEpg() {
+        epgReader.clearEmptyProviderCache()
+        visiblePrefetcher.cancelAll()
+        viewModelScope.launch {
+            val window = lastVisibleWindow
+            if (window.isNotEmpty()) {
+                val found = runCatching { epgReader.nowProgrammesFor(window, custom.value, epgOffset.value) }.getOrDefault(emptyMap())
+                if (found.isNotEmpty()) {
+                    _nowPlaying.value = (_nowPlaying.value + found).toList()
+                        .takeLast(MAX_NOW_PLAYING).toMap()
+                }
+                prefetchVisibleChannels(window)
+            }
+        }
+    }
+
     /**
      * Read the guide for the rows the user can see, in one query.
      *

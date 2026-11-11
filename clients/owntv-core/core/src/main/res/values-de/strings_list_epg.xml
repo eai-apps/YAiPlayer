@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Copyright (C) 2026 YAiPlayer authors. Original code, written for YAiPlayer. -->
+    <string name="refresh_list_epg">Programm in der Liste aktualisieren</string>
+    <string name="channel_preview">Kanalvorschau</string>
+</resources>

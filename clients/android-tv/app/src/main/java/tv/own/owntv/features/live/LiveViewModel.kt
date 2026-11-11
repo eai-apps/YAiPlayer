@@ -1075,6 +1075,7 @@ class LiveViewModel(
 
     /** In-pane preview playback (no history) — triggered by the UI after the focus settles. */
     fun playPreview(channel: ChannelEntity) {
+        tv.own.owntv.core.CorePerf.log { "perf_preview_start channel=${channel.id} at=${android.os.SystemClock.elapsedRealtime()}" }
         if (channel.categoryId != null && channel.categoryId in hiddenCategoryIds.value) return
         // Core keeps the preview off a promoted full-screen stream, re-mutes on a re-focus instead of
         // reloading, mints a Stalker link, and holds back on a one-session panel while mpv plays.
@@ -1753,6 +1754,14 @@ class LiveViewModel(
     private val _catchupActive = MutableStateFlow(false)
     val catchupActive: StateFlow<Boolean> = _catchupActive.asStateFlow()
 
+    fun stopCatchup() {
+        val wasActive = _catchupActive.value
+        _catchupActive.value = false
+        if (wasActive) {
+            tv.own.owntv.core.CorePerf.log { "perf_archive_closed at=${android.os.SystemClock.elapsedRealtime()}" }
+        }
+    }
+
     /** Which player takes a catch-up archive — read by the UI so "Watch from start" can route itself. */
     val catchupPlayer: StateFlow<SettingsRepository.CatchupPlayer> = settings.catchupPlayer
         .stateIn(viewModelScope, SharingStarted.Eagerly, SettingsRepository.CatchupPlayer.INTERNAL)
@@ -2145,6 +2154,40 @@ class LiveViewModel(
      * changes on the minute, so a timer started from mount shows rows changing up to 59 seconds late
      * and at different instants from one another.
      */
+    private val visiblePrefetcher = tv.own.owntv.extras.epg.VisibleEpgPrefetcher()
+    private var lastVisibleWindow: List<ChannelEntity> = emptyList()
+
+    fun prefetchVisibleChannels(visible: List<ChannelEntity>) {
+        lastVisibleWindow = visible
+        if (visible.isEmpty()) return
+        visiblePrefetcher.onVisibleRangeChanged(
+            scope = viewModelScope,
+            channels = visible,
+            hasProgramme = { id -> _nowPlaying.value[id] != null },
+            epgReader = epgReader,
+            cust = custom.value,
+            globalShiftMinutes = epgOffset.value,
+            onResolved = { id, entry ->
+                publishNowPlaying(mapOf(id to entry))
+            },
+        )
+    }
+
+    fun refreshListEpg() {
+        epgReader.clearEmptyProviderCache()
+        visiblePrefetcher.cancelAll()
+        viewModelScope.launch {
+            val window = lastVisibleWindow
+            if (window.isNotEmpty()) {
+                val found = runCatching { epgReader.nowProgrammesFor(window, custom.value, epgOffset.value) }.getOrDefault(emptyMap())
+                if (found.isNotEmpty()) {
+                    publishNowPlaying(found)
+                }
+                prefetchVisibleChannels(window)
+            }
+        }
+    }
+
     fun refreshNowPlaying(loaded: List<ChannelEntity>) {
         if (loaded.isEmpty()) return
         nowPlayingJob?.cancel()

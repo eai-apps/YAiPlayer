@@ -413,7 +413,7 @@
     <string name="home_row_now_on_air">Сейчас в эфире</string>
     <string name="home_row_now_on_air_desc">Передачи, идущие прямо сейчас на телеканалах</string>
     <string name="on_air_from_start">С начала</string>
-    <string name="on_air_ends_at">до %s</string>
+    <string name="on_air_ends_at">до %1$s</string>
     <string name="on_air_genre_all">Все</string>
     <string name="on_air_genre_movies">Фильмы</string>
     <string name="on_air_genre_series">Сериалы</string>
