@@ -1435,7 +1435,18 @@ private fun EpisodeView(
         // Horizontal geometry is a fraction of the 1920 design width, so every zoom reflows.
         val screenW = maxWidth
         fun fx(px: Int) = screenW * (px / 1920f)
-        EpisodesBackdrop(info.backdropUrl ?: info.posterUrl, Modifier.align(Alignment.TopEnd))
+        // A wide picture fills the top right; a portal's portrait poster alone is shown as a cover there
+        // instead — stretched to 1400 × 700 it filled the screen with a blurry crop (П7, 10.11.2026).
+        if (!info.backdropUrl.isNullOrBlank()) {
+            EpisodesBackdrop(info.backdropUrl, Modifier.align(Alignment.TopEnd))
+        } else if (!info.posterUrl.isNullOrBlank()) {
+            AsyncImage(
+                model = info.posterUrl, contentDescription = null, contentScale = ContentScale.Crop,
+                modifier = Modifier.align(Alignment.TopEnd).padding(top = 50.mpx, end = fx(84))
+                    .width(fx(300)).aspectRatio(2f / 3f)
+                    .clip(androidx.compose.foundation.shape.RoundedCornerShape(14.mpx)),
+            )
+        }
         // The crumb: "‹ Series · Crunchyroll".
         Row(
             Modifier.padding(start = fx(84), top = 50.mpx).width(fx(980)),
@@ -1468,8 +1479,19 @@ private fun EpisodeView(
             info.plot?.takeIf { it.isNotBlank() }?.let {
                 Text(
                     it, style = stageText(19.5f, 400).copy(lineHeight = (19.5f * 1.55f).mpxSp), color = StageColors.Body,
-                    maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.widthIn(max = 860.mpx),
+                    // The full synopsis, not a teaser: inside the show is where it is read (П7).
+                    maxLines = 6, overflow = TextOverflow.Ellipsis, modifier = Modifier.widthIn(max = 860.mpx),
                 )
+            }
+            // What the portal says about the people: director and cast, when it sends them.
+            listOfNotNull(
+                series.director?.takeIf { it.isNotBlank() }?.let { stringResource(R.string.portal_details_director) to it },
+                series.actors?.takeIf { it.isNotBlank() }?.let { stringResource(R.string.portal_details_cast) to it },
+            ).forEach { (label, value) ->
+                Row(Modifier.padding(top = 8.mpx).widthIn(max = 860.mpx), horizontalArrangement = Arrangement.spacedBy(10.mpx)) {
+                    Text(label, style = stageText(17, 700), color = StageColors.Dim)
+                    Text(value, style = stageText(17, 400), color = StageColors.Body, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                }
             }
             Row(
                 Modifier.padding(top = 26.mpx).focusGroup(),
