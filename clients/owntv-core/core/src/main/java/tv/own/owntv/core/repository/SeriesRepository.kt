@@ -92,8 +92,11 @@ class SeriesRepository(
             android.util.Log.w(TAG, "${source.type} episode load failed seriesId=${series.id}", e)
             return@withContext if (hasCache) EpisodeLoad.Ready else EpisodeLoad.Failed(episodeLoadFailure(e))
         }
-        if (fetched.isNullOrEmpty()) return@withContext stored
-        applyEpisodes(series.id, fetched)
+        val withSiblings = if (source.type == SourceType.STALKER && !fetched.isNullOrEmpty()) {
+            fetched + siblingSeasonEpisodes(series, source, fetched)
+        } else fetched
+        if (withSiblings.isNullOrEmpty()) return@withContext stored
+        applyEpisodes(series.id, withSiblings)
         EpisodeLoad.Ready
     }
 
@@ -115,6 +118,38 @@ class SeriesRepository(
         )
         // Episode rows just appeared — restored/pending episode history and resume can attach now.
         if (plan.inserts.isNotEmpty()) runCatching { userData.resolvePending() }
+    }
+
+    /**
+     * A panel that files each season as its own record («Title [S01]», «Title [S02]»): the other records'
+     * seasons are folded into the one opened, so every card of the show opens the whole show (П8).
+     * Each episode keeps its own record's season command, so playback is untouched. A season the opened
+     * record already lists wins; a sibling that fails to answer is skipped, never fatal.
+     */
+    private suspend fun siblingSeasonEpisodes(series: SeriesEntity, source: SourceEntity, own: List<EpisodeEntity>): List<EpisodeEntity> {
+        if (!tv.own.owntv.core.content.SeasonRecordTitle.isSeasonRecord(series.name)) return emptyList()
+        val base = tv.own.owntv.core.content.SeasonRecordTitle.base(series.name)
+        if (base.length < 2) return emptyList()
+        val siblings = runCatching { seriesDao.seriesByNamePrefix(series.sourceId, base) }.getOrDefault(emptyList())
+            .filter { it.id != series.id && !it.remoteId.isNullOrBlank() && tv.own.owntv.core.content.SeasonRecordTitle.sameShow(it.name, series.name) }
+            .take(MAX_SIBLING_RECORDS)
+        if (siblings.isEmpty()) return emptyList()
+        val haveSeasons = own.mapTo(HashSet()) { it.seasonNumber }
+        val out = ArrayList<EpisodeEntity>()
+        for (sibling in siblings) {
+            val eps = try {
+                fetchStalkerEpisodes(sibling, source, sibling.remoteId!!)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                android.util.Log.w(TAG, "sibling season record failed seriesId=${sibling.id}", e)
+                null
+            } ?: continue
+            eps.filter { it.seasonNumber !in haveSeasons }.forEach { out.add(it.copy(id = 0, seriesId = series.id)) }
+            haveSeasons.addAll(eps.map { it.seasonNumber })
+        }
+        android.util.Log.i(TAG, "sibling season records seriesId=${series.id} siblings=${siblings.size} episodes=${out.size}")
+        return out
     }
 
     private suspend fun fetchXtreamEpisodes(series: SeriesEntity, source: SourceEntity, remoteId: String): List<EpisodeEntity> {
@@ -337,6 +372,9 @@ class SeriesRepository(
             return if (sane) own else own.indices.map { it + 1 }
         }
 
+
+        /** A show with more season records than this is not a show split by season. */
+        const val MAX_SIBLING_RECORDS = 30
 
         /** Safety cap on season paging (a show never has hundreds of season pages). */
         const val MAX_SEASON_PAGES = 20

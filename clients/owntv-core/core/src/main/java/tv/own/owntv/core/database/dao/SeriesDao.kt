@@ -122,6 +122,10 @@ interface SeriesDao {
     @Query("SELECT * FROM series WHERE sourceId = :sourceId AND name = :name LIMIT 1")
     suspend fun findSeriesByName(sourceId: Long, name: String): SeriesEntity?
 
+    /** Candidates for a show's other season records («Title [S02]»): same playlist, name starting alike. */
+    @Query("SELECT * FROM series WHERE sourceId = :sourceId AND name LIKE :prefix || '%' LIMIT 50")
+    suspend fun seriesByNamePrefix(sourceId: Long, prefix: String): List<SeriesEntity>
+
     @Query("SELECT * FROM episodes WHERE seriesId = :seriesId AND remoteId = :remoteId LIMIT 1")
     suspend fun findEpisodeByRemote(seriesId: Long, remoteId: String): EpisodeEntity?
 
