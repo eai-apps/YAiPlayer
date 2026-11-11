@@ -734,6 +734,53 @@ fun OwnTVShell(
         )
         else -> null
     }
+    val remoteTvManager = remember { tv.own.owntv.extras.remote.RemoteTvManager.get(shellContext) }
+    LaunchedEffect(dockedEngine, previewChannel, liveVm, playerMode, dockedPlaying) {
+        val activity = shellContext as? android.app.Activity
+        remoteTvManager.keyEventDispatcher = { keyCode ->
+            activity?.let { act ->
+                android.os.Handler(android.os.Looper.getMainLooper()).post {
+                    act.dispatchKeyEvent(android.view.KeyEvent(android.view.KeyEvent.ACTION_DOWN, keyCode))
+                    act.dispatchKeyEvent(android.view.KeyEvent(android.view.KeyEvent.ACTION_UP, keyCode))
+                }
+                true
+            } ?: false
+        }
+        remoteTvManager.togglePlayPause = { dockedEngine.togglePlayPause() }
+        remoteTvManager.seekBy = { delta -> dockedEngine.seekBy(delta) }
+        remoteTvManager.zap = { dir -> liveVm.zap(dir) }
+        remoteTvManager.toLive = { liveVm.goToLive() }
+        remoteTvManager.tuneByNumber = { num -> scope.launch { liveVm.tuneByNumber(num) } }
+        remoteTvManager.onSearchText = { query ->
+            val info = android.view.inputmethod.EditorInfo()
+            val connection = activity?.currentFocus?.onCreateInputConnection(info)
+            val variation = info.inputType and android.text.InputType.TYPE_MASK_VARIATION
+            if (connection == null || variation in listOf(android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD,
+                    android.text.InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD, android.text.InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD,
+                    android.text.InputType.TYPE_NUMBER_VARIATION_PASSWORD)) false
+            else connection.commitText(query.take(2048), 1)
+        }
+        remoteTvManager.onTune = { chId, streamUrl, title ->
+            if (!streamUrl.isNullOrBlank() && tv.own.owntv.extras.remote.RemoteSecurity.shareableLink(streamUrl)) {
+                player.play(url = streamUrl, title = title)
+            } else if (!title.isNullOrBlank()) {
+                scope.launch { liveVm.tuneRemoteChannel(title) }
+            }
+        }
+        remoteTvManager.stateSupplier = {
+            tv.own.owntv.extras.remote.RemoteState(
+                title = previewChannel?.name ?: dockedEngine.currentMeta.value.title?.takeIf { it.isNotBlank() },
+                channelName = previewChannel?.name,
+                isPlaying = dockedPlaying,
+                positionMs = dockedEngine.position.value,
+                durationMs = dockedEngine.duration.value,
+                volumePct = dockedEngine.volume.value,
+            )
+        }
+        remoteTvManager.logsSupplier = {
+            tv.own.owntv.player.diagnostic.DiagnosticLogExporter.buildReport(shellContext)
+        }
+    }
     // Auto-hide: once focus has been in the content for the chosen delay, the capsule slides away.
     var railIdleHidden by remember { mutableStateOf(false) }
     // Focus on a top-right pill (reached from the rail) is not "in the rail": the rail closes, so its

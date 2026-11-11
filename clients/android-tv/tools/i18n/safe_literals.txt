@@ -42,6 +42,13 @@
 1	performance	app/src/main/java/tv/own/owntv/OwnTVApp.kt	koin-started
 3	empty	app/src/main/java/tv/own/owntv/core/i18n/LocalizedContent.kt	\0
 1	empty	app/src/main/java/tv/own/owntv/extras/categories/CategoriesVisibilityDialog.kt	\0
+1	empty	app/src/main/java/tv/own/owntv/extras/remote/PhoneRemoteSettingsScreen.kt	\0
+2	technical	app/src/main/java/tv/own/owntv/extras/remote/PhoneRemoteSettingsScreen.kt	-
+1	technical	app/src/main/java/tv/own/owntv/extras/remote/RemoteTvManager.kt	${Build.MANUFACTURER} ${Build.MODEL}
+1	technical	app/src/main/java/tv/own/owntv/extras/remote/RemoteTvManager.kt	YAiPlayer TV
+1	log	app/src/main/java/tv/own/owntv/extras/remote/RemoteTvManager.kt	YAiPlayer log: no report
+2	preference-key	app/src/main/java/tv/own/owntv/extras/remote/RemoteTvManager.kt	remote_enabled
+1	preference-key	app/src/main/java/tv/own/owntv/extras/remote/RemoteTvManager.kt	remote_tv_prefs
 1	locale	app/src/main/java/tv/own/owntv/extras/screensaver/ScreensaverOverlay.kt	EEE, d MMMM
 1	locale	app/src/main/java/tv/own/owntv/extras/screensaver/ScreensaverOverlay.kt	HH:mm
 1	technical	app/src/main/java/tv/own/owntv/extras/screensaver/ScreensaverOverlay.kt	ken_burns
