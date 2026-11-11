@@ -89,7 +89,7 @@ object RefreshQueueScheduler {
     /** Starts the queue unless one is already running (that one finishes first; the next check catches up). */
     fun start(context: Context, jobs: List<RefreshJob>) {
         if (jobs.isEmpty()) return
-        val data = mapOf<String, Any>(
+        val data = mapOf<String, Any?>(
             RefreshQueueWorker.KEY_KINDS to jobs.map { if (it is RefreshJob.Catalog) 0 else 1 }.toIntArray(),
             RefreshQueueWorker.KEY_IDS to jobs.map { it.id }.toLongArray(),
             RefreshQueueWorker.KEY_BASES to jobs.map { if (it is RefreshJob.Catalog) it.baseItemCount else (it as RefreshJob.Guide).baseProgrammes }.toIntArray(),
@@ -97,10 +97,10 @@ object RefreshQueueScheduler {
         enqueue(context, data, 0, ExistingWorkPolicy.KEEP)
     }
 
-    internal fun enqueueStep(context: Context, data: Map<String, Any>, index: Int) =
+    internal fun enqueueStep(context: Context, data: Map<String, Any?>, index: Int) =
         enqueue(context, data, index, ExistingWorkPolicy.APPEND_OR_REPLACE)
 
-    private fun enqueue(context: Context, data: Map<String, Any>, index: Int, policy: ExistingWorkPolicy) {
+    private fun enqueue(context: Context, data: Map<String, Any?>, index: Int, policy: ExistingWorkPolicy) {
         val input = workDataOf(*(data + (RefreshQueueWorker.KEY_INDEX to index)).map { it.key to it.value }.toTypedArray())
         val request = OneTimeWorkRequestBuilder<RefreshQueueWorker>().setInputData(input).build()
         WorkManager.getInstance(context).enqueueUniqueWork(UNIQUE_NAME, policy, request)
