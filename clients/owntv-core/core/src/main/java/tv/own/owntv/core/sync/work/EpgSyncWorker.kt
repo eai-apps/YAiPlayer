@@ -79,9 +79,11 @@ class EpgSyncWorker(
                 return Result.success()
             }
             val programmes = try {
-                epgRepository.refreshUrl(source.id, source.url, source.userAgent) { channels, count ->
-                    progress.publish(channels, count)
-                }
+                epgRepository.refreshUrl(
+                    source.id, source.url, source.userAgent,
+                    onProgress = { channels, count -> progress.publish(channels, count) },
+                    onFraction = { activityTracker.fraction(source.id, it) },
+                )
             } catch (e: tv.own.owntv.core.repository.EpgRepository.NoProgrammesInWindowException) {
                 // The built-in feeds are filtered to channels a playlist links by id; a portal has none.
                 // The feed's own channel list is stored all the same — that is what name matching reads.
@@ -91,7 +93,7 @@ class EpgSyncWorker(
             progress.flush()
             if (source.url.startsWith("stalker://")) tv.own.owntv.core.util.GuideTrace.add("guide: stored $programmes programmes")
             store.setSynced(source.id, System.currentTimeMillis(), null)
-            tv.own.owntv.core.sync.BuiltinGuide.fromKoin().onPlaylistImported()
+            if (!inputData.getBoolean(KEY_IN_QUEUE, false)) tv.own.owntv.core.sync.BuiltinGuide.fromKoin().onPlaylistImported()
             // A series rule is a standing instruction about programmes that do not exist in the
             // database until the guide mentioning them is fetched — so this is the moment "record
             // every showing" becomes actual timers. Best-effort: a rule that could not be
@@ -212,6 +214,7 @@ class EpgSyncWorker(
         /** The same cadence [tv.own.owntv.core.download.DownloadWorker] refreshes its own at. */
         private const val NOTIFICATION_INTERVAL_MS = 2_000L
         const val KEY_SOURCE_ID = "sourceId"
+        const val KEY_IN_QUEUE = "inQueue"
         const val KEY_REASON = "reason"
         const val KEY_PROGRESS_CHANNELS = "channels"
         const val KEY_PROGRESS_PROGRAMMES = "programmes"

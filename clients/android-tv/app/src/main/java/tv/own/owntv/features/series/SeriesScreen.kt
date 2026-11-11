@@ -66,6 +66,8 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.foundation.focusGroup
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -1274,8 +1276,6 @@ private fun EpisodeView(
     val epListState = androidx.compose.foundation.lazy.rememberLazyListState()
     val epGridState = androidx.compose.foundation.lazy.grid.rememberLazyGridState()
     val seasonMeta by vm.seasonEpisodeMeta.collectAsStateWithLifecycle()
-    // Long-running shows have more seasons than fit on one line (12+): the tabs scroll.
-    val seasonRowState = androidx.compose.foundation.lazy.rememberLazyListState()
     val selFocus = remember { FocusRequester() }
     val firstEpFocus = remember { FocusRequester() }
     val sortFocus = remember { FocusRequester() }
@@ -1316,9 +1316,7 @@ private fun EpisodeView(
 
     // Seasons and episodes are ordered independently (the Episode order menu); both sort explicitly.
     // Specials (season 0) always come after the numbered seasons, in either order.
-    val seasons = episodes.map { it.seasonNumber }.distinct()
-        .let { if (seriesOrder.seasonsDescending) it.sortedDescending() else it.sorted() }
-        .sortedBy { it == 0 }
+    val seasons = tv.own.owntv.core.content.SeasonList.order(episodes.map { it.seasonNumber }, seriesOrder.seasonsDescending)
     val activeSeason = if (seasons.contains(selectedSeason)) selectedSeason else seasons.firstOrNull() ?: 1
     val seasonEpisodes = episodes.filter { it.seasonNumber == activeSeason }
         .let { list ->
@@ -1393,13 +1391,6 @@ private fun EpisodeView(
     LaunchedEffect(seriesOrder, activeSeason) {
         if (orderSeen) runCatching { scrollEpisodes(0) } else orderSeen = true
     }
-    // Keep the active season's tab in view (opening on a deep season, or after a switch).
-    LaunchedEffect(activeSeason, seasons.size) {
-        if (seasons.size > 1) {
-            val idx = seasons.indexOf(activeSeason)
-            if (idx >= 0) runCatching { seasonRowState.scrollToItem(idx) }
-        }
-    }
 
     // What the main button plays: the next-up episode (resumed when started), else the first one.
     val target = nextUpId?.let { id -> episodes.firstOrNull { it.id == id } }
@@ -1440,10 +1431,12 @@ private fun EpisodeView(
         if (!info.backdropUrl.isNullOrBlank()) {
             EpisodesBackdrop(info.backdropUrl, Modifier.align(Alignment.TopEnd))
         } else if (!info.posterUrl.isNullOrBlank()) {
+            // In the right column, below the top bar (clock, Play, Grid | List): it never covers them (3б, 11.11).
+            // Same place and size for every show, in its own proportions.
             AsyncImage(
-                model = info.posterUrl, contentDescription = null, contentScale = ContentScale.Crop,
-                modifier = Modifier.align(Alignment.TopEnd).padding(top = 50.mpx, end = fx(84))
-                    .width(fx(300)).aspectRatio(2f / 3f)
+                model = info.posterUrl, contentDescription = null, contentScale = ContentScale.Fit,
+                modifier = Modifier.align(Alignment.TopEnd).padding(top = 130.mpx, end = fx(150))
+                    .width(fx(240)).aspectRatio(2f / 3f)
                     .clip(androidx.compose.foundation.shape.RoundedCornerShape(14.mpx)),
             )
         }
@@ -1462,7 +1455,10 @@ private fun EpisodeView(
                 Text(it, style = stageText(21, 700), color = tv.own.owntv.ui.theme.stageAccent.accent, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
         }
-        Column(Modifier.padding(start = fx(84), top = 104.mpx).width(fx(980))) {
+        // One column from top to bottom: the header, one row of buttons, then the episodes in the rest. Nothing is
+        // placed at a fixed height any more, so the Continue button and the season choice can never overlap (3б).
+        Column(Modifier.padding(top = 104.mpx).fillMaxSize()) {
+        Column(Modifier.padding(start = fx(84)).width(fx(980))) {
             // At most 170 high, the room the films' hero gives its title, so two lines shrink rather than
             // push the episodes down.
             tv.own.owntv.features.shell.components.VodHeroTitle(series.name, Modifier.heightIn(max = 170.mpx))
@@ -1479,8 +1475,8 @@ private fun EpisodeView(
             info.plot?.takeIf { it.isNotBlank() }?.let {
                 Text(
                     it, style = stageText(19.5f, 400).copy(lineHeight = (19.5f * 1.55f).mpxSp), color = StageColors.Body,
-                    // The full synopsis, not a teaser: inside the show is where it is read (П7).
-                    maxLines = 6, overflow = TextOverflow.Ellipsis, modifier = Modifier.widthIn(max = 860.mpx),
+                    // The synopsis, kept to four lines so the episodes stay on screen (3б).
+                    maxLines = 4, overflow = TextOverflow.Ellipsis, modifier = Modifier.widthIn(max = 860.mpx),
                 )
             }
             // What the portal says about the people: director and cast, when it sends them.
@@ -1493,81 +1489,131 @@ private fun EpisodeView(
                     Text(value, style = stageText(17, 400), color = StageColors.Body, maxLines = 2, overflow = TextOverflow.Ellipsis)
                 }
             }
-            Row(
-                Modifier.padding(top = 26.mpx).focusGroup(),
-                horizontalArrangement = Arrangement.spacedBy(14.mpx),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                if (target != null) {
-                    val code = stringResource(R.string.content_season_episode, target.seasonNumber, target.episodeNumber)
-                    StageButton(
-                        text = stringResource(if (targetProgress != null) R.string.content_resume_episode else R.string.content_play_episode, code),
-                        trailing = secondsLeft(target)?.let { "· " + stringResource(R.string.home_time_left, vodRuntime(it)) },
-                        onClick = { startEpisode(target) },
-                        icon = OwnTVIcon.PLAY, iconFilled = true, tinted = true, height = 60.mpx, textSize = 20,
-                    )
-                }
-                val favourite = favoriteIds.contains(series.id)
-                StageButton(
-                    text = stringResource(if (favourite) R.string.content_favorited else R.string.content_favorite),
-                    onClick = { vm.toggleFavorite(series) },
-                    icon = OwnTVIcon.FAVORITE, iconFilled = favourite, height = 60.mpx, textSize = 20,
-                )
-                if (downloadsAllowed && (visibleEpisodes.isNotEmpty() || seasonEpisodes.isNotEmpty())) {
-                    StageButton(
-                        text = stringResource(R.string.content_download_season),
-                        onClick = { vm.askBulkDownload(series, activeSeason) },
-                        icon = OwnTVIcon.DOWNLOADS, height = 60.mpx, textSize = 20,
-                    )
-                }
-                StageButton(
-                    text = null, onClick = { seriesMenuOpen = true }, icon = OwnTVIcon.MORE, round = true,
-                    height = 60.mpx, textSize = 20, modifier = Modifier.focusRequester(moreFocus),
-                )
-            }
         }
-
-        // Season tabs, Grid | List and the order tool, bottom-aligned; the tab underline ends at 564.
+        val favouriteOn = stringResource(R.string.content_favorited)
+        val favouriteOff = stringResource(R.string.content_favorite)
+        val favouriteLabel: (Boolean) -> String = { if (it) favouriteOn else favouriteOff }
+        val downloadSeasonLabel = stringResource(R.string.content_download_season)
+        var seasonPicker by remember { mutableStateOf(false) }
+        var episodePicker by remember { mutableStateOf(false) }
+        val seasonFocus = remember { FocusRequester() }
+        val episodeFocus = remember { FocusRequester() }
         Row(
-            Modifier.padding(top = 504.mpx).fillMaxWidth().height(60.mpx).focusGroup(),
-            verticalAlignment = Alignment.Bottom,
+            Modifier.padding(start = fx(84), end = fx(64), top = 22.mpx).fillMaxWidth().focusGroup(),
+            horizontalArrangement = Arrangement.spacedBy(14.mpx),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            androidx.compose.foundation.lazy.LazyRow(
-                state = seasonRowState,
-                horizontalArrangement = Arrangement.spacedBy(20.mpx),
-                contentPadding = PaddingValues(start = fx(84) - 12.mpx),
-                modifier = Modifier.weight(1f),
+            if (target != null) {
+                val code = stringResource(R.string.content_season_episode, target.seasonNumber, target.episodeNumber)
+                StageButton(
+                    text = stringResource(if (targetProgress != null) R.string.content_resume_episode else R.string.content_play_episode, code),
+                    trailing = secondsLeft(target)?.let { "· " + stringResource(R.string.home_time_left, vodRuntime(it)) },
+                    onClick = { startEpisode(target) },
+                    icon = OwnTVIcon.PLAY, iconFilled = true, tinted = true, height = 60.mpx, textSize = 20,
+                )
+            }
+            // «Сезон N ▾»: every season in a list, however many (13, 20, 30), instead of tabs that ran off the row.
+            if (seasons.isNotEmpty()) {
+                StageButton(
+                    text = if (activeSeason == 0) stringResource(R.string.content_season_specials) else stringResource(R.string.content_season, activeSeason),
+                    trailing = if (seasons.size > 1) "▾" else null,
+                    onClick = { if (seasons.size > 1) seasonPicker = true },
+                    height = 60.mpx, textSize = 20, modifier = Modifier.focusRequester(seasonFocus),
+                )
+            }
+            if (visibleEpisodes.size >= tv.own.owntv.core.content.SeasonList.EPISODE_PICKER_FROM) {
+                StageButton(
+                    text = stringResource(R.string.content_episodes),
+                    trailing = "▾",
+                    onClick = { episodePicker = true },
+                    height = 60.mpx, textSize = 20, modifier = Modifier.focusRequester(episodeFocus),
+                )
+            }
+            val favourite = favoriteIds.contains(series.id)
+            // Compact: the heart says it; the name is read aloud for TalkBack.
+            StageButton(
+                text = null, onClick = { vm.toggleFavorite(series) }, round = true,
+                icon = OwnTVIcon.FAVORITE, iconFilled = favourite, height = 60.mpx, textSize = 20,
+                modifier = Modifier.semantics { contentDescription = favouriteLabel(favourite) },
+            )
+            if (downloadsAllowed && (visibleEpisodes.isNotEmpty() || seasonEpisodes.isNotEmpty())) {
+                StageButton(
+                    text = null, round = true,
+                    onClick = { vm.askBulkDownload(series, activeSeason) },
+                    icon = OwnTVIcon.DOWNLOADS, height = 60.mpx, textSize = 20,
+                    modifier = Modifier.semantics { contentDescription = downloadSeasonLabel },
+                )
+            }
+            StageButton(
+                text = null, onClick = { seriesMenuOpen = true }, icon = OwnTVIcon.MORE, round = true,
+                height = 60.mpx, textSize = 20, modifier = Modifier.focusRequester(moreFocus),
+            )
+            Spacer(Modifier.weight(1f))
+            StageSegmented(
+                options = listOf(stringResource(R.string.settings_view_grid), stringResource(R.string.settings_view_list)),
+                selected = if (isEpisodeGrid) 0 else 1,
+                icons = listOf(OwnTVIcon.GRID, OwnTVIcon.LIST),
+                onSelect = { i ->
+                    vm.setEpisodeViewMode(if (i == 0) SettingsRepository.VodViewMode.GRID else SettingsRepository.VodViewMode.LIST)
+                },
+            )
+            StageTool(
+                text = null, icon = OwnTVIcon.SORT,
+                value = stringResource(if (seriesOrder.episodesDescending) R.string.content_newest_first else R.string.content_oldest_first),
+                trailingIcon = OwnTVIcon.CHEVRON_DOWN, onClick = { showSorting = true },
+                modifier = Modifier.focusRequester(sortFocus),
+            )
+        }
+        if (seasonPicker) {
+            val first = remember { FocusRequester() }
+            LaunchedEffect(Unit) { withFrameNanos { }; runCatching { first.requestFocus() } }
+            tv.own.owntv.features.epg.GuideMenuHost(
+                x = 330f, top = 200.mpx, width = 520.mpx,
+                onDismiss = { seasonPicker = false; runCatching { seasonFocus.requestFocus() } },
             ) {
-                items(seasons, key = { it }) { season ->
-                    tv.own.owntv.ui.stage.StageTab(
-                        label = if (season == 0) stringResource(R.string.content_season_specials) else stringResource(R.string.content_season, season),
-                        count = localizedInteger(episodes.count { it.seasonNumber == season }, grouping = false),
-                        selected = season == activeSeason,
-                        onClick = { vm.selectSeason(season) },
+                StageMenuHeader(stringResource(R.string.content_seasons), null)
+                seasons.forEach { season ->
+                    StageMenuItem(
+                        text = if (season == 0) stringResource(R.string.content_season_specials) else stringResource(R.string.content_season, season),
+                        value = localizedInteger(episodes.count { it.seasonNumber == season }, grouping = false),
+                        checked = season == activeSeason,
+                        onClick = {
+                            vm.selectSeason(season)
+                            seasonPicker = false
+                            scope.launch { withFrameNanos { }; runCatching { firstEpFocus.requestFocus() } }
+                        },
+                        modifier = if (season == activeSeason) Modifier.focusRequester(first) else Modifier,
                     )
                 }
             }
-            Row(
-                Modifier.padding(start = 24.mpx, end = fx(64), bottom = 6.mpx),
-                horizontalArrangement = Arrangement.spacedBy(10.mpx),
-                verticalAlignment = Alignment.CenterVertically,
+        }
+        if (episodePicker) {
+            val first = remember { FocusRequester() }
+            LaunchedEffect(Unit) { withFrameNanos { }; runCatching { first.requestFocus() } }
+            tv.own.owntv.features.epg.GuideMenuHost(
+                x = 520f, top = 200.mpx, width = 520.mpx,
+                onDismiss = { episodePicker = false; runCatching { episodeFocus.requestFocus() } },
             ) {
-                StageSegmented(
-                    options = listOf(stringResource(R.string.settings_view_grid), stringResource(R.string.settings_view_list)),
-                    selected = if (isEpisodeGrid) 0 else 1,
-                    icons = listOf(OwnTVIcon.GRID, OwnTVIcon.LIST),
-                    onSelect = { i ->
-                        vm.setEpisodeViewMode(if (i == 0) SettingsRepository.VodViewMode.GRID else SettingsRepository.VodViewMode.LIST)
-                    },
-                )
-                StageTool(
-                    text = null, icon = OwnTVIcon.SORT,
-                    value = stringResource(if (seriesOrder.episodesDescending) R.string.content_newest_first else R.string.content_oldest_first),
-                    trailingIcon = OwnTVIcon.CHEVRON_DOWN, onClick = { showSorting = true },
-                    modifier = Modifier.focusRequester(sortFocus),
-                )
+                StageMenuHeader(stringResource(R.string.content_episodes), null)
+                visibleEpisodes.forEachIndexed { idx, ep ->
+                    StageMenuItem(
+                        text = stringResource(R.string.content_episode_numbered, localizedInteger(ep.episodeNumber, grouping = false), epName(ep, seasonMeta[ep.id])),
+                        onClick = {
+                            episodePicker = false
+                            contextEpisodeId = ep.id
+                            vm.onEpisodeFocused(ep)
+                            scope.launch {
+                                runCatching { scrollEpisodes(idx) }
+                                withFrameNanos { }
+                                runCatching { epContextFocus.requestFocus() }
+                            }
+                        },
+                        modifier = if (idx == 0) Modifier.focusRequester(first) else Modifier,
+                    )
+                }
             }
         }
+        Box(Modifier.weight(1f).fillMaxWidth()) {
 
         // The episodes: only this part scrolls. Its top padding is the focused tile's lift and ring room.
         val epModifierFor: (Int, EpisodeEntity) -> Modifier = { index, ep ->
@@ -1581,7 +1627,6 @@ private fun EpisodeView(
                 }
         }
         val epArea = Modifier
-            .padding(top = 586.mpx)
             .fillMaxSize()
             .onFocusChanged { epPaneFocused = it.hasFocus }
             .chNavPaging(
@@ -1702,6 +1747,8 @@ private fun EpisodeView(
                         }
                     }
                 }
+            }
+        }
             }
         }
     }

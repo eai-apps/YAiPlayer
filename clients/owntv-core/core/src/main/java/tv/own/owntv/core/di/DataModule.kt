@@ -296,6 +296,7 @@ val dataModule = module {
     // Same idea for EPG: EpgSyncWorker reports started/progress/finished here so the pill also reflects
     // guide/EPG downloads (manual resync from Settings, auto startup refresh, …).
     single { tv.own.owntv.core.sync.EpgActivityTracker() }
+    single { tv.own.owntv.core.sync.RefreshQueueTracker() }
     single { tv.own.owntv.core.sync.TrendingActivityTracker() }
     // epgDao, httpClient, xtreamClient, channelDao, customize, settings, context, db, bulkInsertHelper
     single {
@@ -419,7 +420,15 @@ val dataModule = module {
     single { EpgSyncScheduler(androidContext()) }
     // settings, sourceRepository, profileDao, catalogSyncScheduler, epgSyncScheduler, epgSourceStore,
     // epgDao, importFinalizer, vodResort — the Auto refresh settings, run by both apps on start and resume.
-    single { tv.own.owntv.core.sync.AutoRefresh(get(), get(), get(), get(), get(), get(), get(), get(), get()) }
+    single {
+        val sourceDao: tv.own.owntv.core.database.dao.SourceDao = get()
+        val appContext = androidContext()
+        tv.own.owntv.core.sync.AutoRefresh(
+            get(), get(), get(), get(), get(), get(), get(), get(), get(),
+            startQueue = { jobs -> tv.own.owntv.core.sync.work.RefreshQueueScheduler.start(appContext, jobs) },
+            sourceDaoAll = { sourceDao.getAllOnce() },
+        )
+    }
     single { tv.own.owntv.core.sync.QuickActionsSync(get(), get(), get(), get(), get(), get()) }
     // settings, sourceDao, channelDao, catalogSyncScheduler, importFinalizer
     single { tv.own.owntv.core.sync.M3uVodResort(get(), get(), get(), get(), get()) }

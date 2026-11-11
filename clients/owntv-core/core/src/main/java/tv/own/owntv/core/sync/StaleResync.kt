@@ -15,3 +15,13 @@ fun isStale(lastSyncAt: Long?, nowMs: Long, thresholdHours: Int): Boolean {
     val thresholdMs = thresholdHours * 3_600_000L
     return (nowMs - lastSyncAt) >= thresholdMs
 }
+
+/**
+ * True when [lastSyncAt] falls on the same local calendar day as [nowMs]. The first start of a new day refreshes
+ * the active profile («if it was not updated today»), whatever the hour threshold says.
+ */
+fun syncedToday(lastSyncAt: Long?, nowMs: Long, zone: java.time.ZoneId = java.time.ZoneId.systemDefault()): Boolean {
+    if (lastSyncAt == null || lastSyncAt <= 0L) return false
+    val day = { ms: Long -> java.time.Instant.ofEpochMilli(ms).atZone(zone).toLocalDate() }
+    return day(lastSyncAt) == day(nowMs)
+}

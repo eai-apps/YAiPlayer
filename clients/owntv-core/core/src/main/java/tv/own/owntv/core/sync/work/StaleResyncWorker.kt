@@ -2,6 +2,8 @@
 
 package tv.own.owntv.core.sync.work
 
+import tv.own.owntv.core.database.dao.resolveExistingProfileId
+
 import android.content.Context
 import android.util.Log
 import androidx.work.Constraints
@@ -52,43 +54,33 @@ class StaleResyncWorker(
         val thresholdHours = settings.backgroundResyncHours.first()
         val nowMs = System.currentTimeMillis()
 
-        // 1. Playlist / Portal sources across ALL profiles
-        val profiles = profileDao.getAllOnce()
+        // One queue for everything (RefreshQueuePlanner): the active profile first, then the other profiles,
+        // one source at a time, instead of every stale source at once.
+        val epgRepository = org.koin.core.context.GlobalContext.get().get<tv.own.owntv.core.repository.EpgRepository>()
+        val activeId = profileDao.resolveExistingProfileId(settings.activeProfileId.first())
+        val profiles = profileDao.getAllOnce().sortedBy { if (it.id == activeId) 0 else 1 }
         val seenSourceIds = mutableSetOf<Long>()
+        val playlists = ArrayList<tv.own.owntv.core.sync.PlaylistInfo>()
         for (profile in profiles) {
-            val sources = sourceRepository.observeSources(profile.id).first()
-            for (source in sources) {
+            for (source in sourceRepository.observeSources(profile.id).first()) {
                 if (!seenSourceIds.add(source.id)) continue
-                if (isStale(source.lastSyncAt, nowMs, thresholdHours)) {
-                    val counts = importFinalizer.contentCounts(source.id)
-                    Log.i(TAG, "stale playlist sourceId=${source.id} — enqueuing")
-                    catalogSyncScheduler.enqueueSync(
-                        source.id,
-                        reason = AutoRefresh.REASON,
-                        contentTypes = SyncContentTypes.enabledOf(source),
-                        baseItemCount = counts.channels + counts.movies + counts.series,
-                        policy = ExistingWorkPolicy.KEEP,
-                    )
-                }
-            }
-        }
-
-        // 2. EPG sources (first builtin in chain + external)
-        val allEpg = epgSourceStore.getAll()
-        val firstBuiltinId = allEpg.firstOrNull { it.builtin }?.id
-        allEpg.forEach { src ->
-            if (src.builtin && src.id != firstBuiltinId) return@forEach
-            if (isStale(src.lastSyncAt, nowMs, thresholdHours)) {
-                val base = epgDao.countForSources(listOf(src.id))
-                Log.i(TAG, "stale epg sourceId=${src.id} — enqueuing")
-                epgSyncScheduler.enqueueSync(
-                    src.id,
-                    reason = AutoRefresh.REASON,
-                    baseProgrammes = base,
-                    policy = ExistingWorkPolicy.KEEP,
+                val due = isStale(source.lastSyncAt, nowMs, thresholdHours)
+                val counts = if (due) importFinalizer.contentCounts(source.id) else null
+                playlists += tv.own.owntv.core.sync.PlaylistInfo(
+                    source.id, profile.id == activeId, due,
+                    counts?.let { it.channels + it.movies + it.series } ?: 0, epgRepository.guideUrls(source),
                 )
             }
         }
+        val allEpg = epgSourceStore.getAll()
+        val firstBuiltinId = allEpg.firstOrNull { it.builtin }?.id
+        val feeds = allEpg.filter { !it.builtin || it.id == firstBuiltinId }.map { src ->
+            val due = isStale(src.lastSyncAt, nowMs, thresholdHours)
+            tv.own.owntv.core.sync.GuideFeedInfo(src.id, src.url, src.builtin, due, if (due) epgDao.countForSources(listOf(src.id)) else 0)
+        }
+        val jobs = tv.own.owntv.core.sync.RefreshQueuePlanner.plan(playlists, feeds, includeOtherProfiles = true)
+        Log.i(TAG, "stale resync queue=${jobs.size}")
+        RefreshQueueScheduler.start(applicationContext, jobs)
 
         return Result.success()
     }

@@ -1,5 +1,7 @@
 package tv.own.owntv.core.stalker
 
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.launch
 import android.util.Log
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
@@ -63,24 +65,45 @@ class StalkerEpgLoader(
         channels: List<Pair<String, Int>>,
         from: Long,
         to: Long,
+        /** Called after each channel, with how many of [channels] are done — for an honest percentage. */
+        onChannelDone: (done: Int, total: Int) -> Unit = { _, _ -> },
         onBatch: suspend (List<Row>) -> Unit,
     ): Int {
         val resolver = StreamUrlResolver(auth, client)
-        var written = 0
-        var empty = 0
-        // scheduleDays already bounds parallel day requests to four. Do not multiply that by channels.
-        for ((channelId, pastDays) in channels.distinctBy { it.first }) {
-            val entries = resolver.scheduleDays(source, channelId, (-pastDays.coerceIn(1, 14)..1).toList())
-                .filter { it.title.isNotBlank() && it.stopMs > it.startMs && it.stopMs > from && it.startMs < to }
-            if (entries.isEmpty()) {
-                if (++empty >= PER_CHANNEL_GIVE_UP && written == 0) return written
-                continue
+        val list = channels.distinctBy { it.first }
+        val written = java.util.concurrent.atomic.AtomicInteger(0)
+        val empty = java.util.concurrent.atomic.AtomicInteger(0)
+        val done = java.util.concurrent.atomic.AtomicInteger(0)
+        val writeLock = kotlinx.coroutines.sync.Mutex()
+        // A few channels at a time (each asks for its days at most DAY_PARALLEL at once): one channel after the
+        // other made thousands of round trips on a big portal and took minutes.
+        val gate = kotlinx.coroutines.sync.Semaphore(CHANNEL_PARALLEL)
+        kotlinx.coroutines.coroutineScope {
+            for ((channelId, pastDays) in list) {
+                // Nothing came back for the first channels at all: the portal has no day tables; stop asking.
+                if (empty.get() >= PER_CHANNEL_GIVE_UP && written.get() == 0) break
+                gate.acquire()
+                launch {
+                    try {
+                        // pastDays 0: a channel without archive only needs today and tomorrow.
+                        val days = if (pastDays <= 0) listOf(0, 1) else (-pastDays.coerceIn(1, 14)..1).toList()
+                        val entries = resolver.scheduleDays(source, channelId, days)
+                            .filter { it.title.isNotBlank() && it.stopMs > it.startMs && it.stopMs > from && it.startMs < to }
+                        if (entries.isEmpty()) {
+                            empty.incrementAndGet()
+                        } else {
+                            val rows = entries.map { Row(channelId, it.title, it.description, it.startMs, it.stopMs) }
+                            writeLock.withLock { rows.chunked(250).forEach { onBatch(it) } }
+                            written.addAndGet(rows.size)
+                        }
+                    } finally {
+                        gate.release()
+                        onChannelDone(done.incrementAndGet(), list.size)
+                    }
+                }
             }
-            val rows = entries.map { Row(channelId, it.title, it.description, it.startMs, it.stopMs) }
-            rows.chunked(250).forEach { onBatch(it) }
-            written += rows.size
         }
-        return written
+        return written.get()
     }
 
     /**
@@ -316,6 +339,8 @@ class StalkerEpgLoader(
 
         /** Failures — or, since this fix, fruitless channels — after which the per-channel route is abandoned. */
         const val PER_CHANNEL_GIVE_UP = 25
+        /** Channels whose day tables are fetched at the same time. */
+        const val CHANNEL_PARALLEL = 3
 
         /** The stored, classified-for-display text of [PortalHasNoGuideException]. Unchanged wording. */
         private const val NO_GUIDE = "Portal returned no guide"

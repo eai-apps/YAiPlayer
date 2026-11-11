@@ -62,6 +62,8 @@ fun SyncStatusPill(modifier: Modifier = Modifier) {
     val downloadTracker: DownloadActivityTracker = koinInject()
     val recordingTracker: RecordingActivityTracker = koinInject()
     val connectivity: ConnectivityObserver = koinInject()
+    val queueTracker: tv.own.owntv.core.sync.RefreshQueueTracker = koinInject()
+    val queue by queueTracker.progress.collectAsStateWithLifecycle()
     val activeCatalog by catalogTracker.active.collectAsStateWithLifecycle()
     val activeEpg by epgTracker.active.collectAsStateWithLifecycle()
     val activeTrending by trendingTracker.active.collectAsStateWithLifecycle()
@@ -90,7 +92,7 @@ fun SyncStatusPill(modifier: Modifier = Modifier) {
     var currentCompleted by remember { mutableStateOf<SyncActivityTracker.CompletedSync?>(null) }
     var currentTrendingCompleted by remember { mutableStateOf<TrendingActivityTracker.CompletedBuild?>(null) }
 
-    val anyActive = activeCatalog.isNotEmpty() || activeEpg.isNotEmpty() || activeTrending.isNotEmpty() ||
+    val anyActive = queue != null || activeCatalog.isNotEmpty() || activeEpg.isNotEmpty() || activeTrending.isNotEmpty() ||
         activeDownload != null || activeRecordings.isNotEmpty() || sportsRebuild is tv.own.owntv.core.sports.RebuildState.Running
 
     LaunchedEffect(lastCompleted) {
@@ -141,12 +143,16 @@ fun SyncStatusPill(modifier: Modifier = Modifier) {
         // background syncs, which are the ones that can afford to be hidden.
         activeRecordings.values.sortedBy { it.id }.forEach { add(SyncLine.Recording(it, it.id in named.recordings)) }
         activeDownload?.let { add(SyncLine.Download(it, it.id in named.downloads)) }
-        activeCatalog.values.sortedBy { it.sourceId }.forEach { add(SyncLine.Catalog(it)) }
+        val syncs = activeCatalog.values.sortedBy { it.sourceId }.map { SyncLine.Catalog(it) } +
+            activeEpg.values.sortedBy { it.sourceId }.map { SyncLine.Epg(it) }
+        // The start-up queue runs its refreshes one by one: one summary line («2 of 4») with the current one.
+        val q = queue
+        if (q != null) add(SyncLine.Queue(q.current, q.total, syncs.firstOrNull())) else syncs.filterIsInstance<SyncLine.Catalog>().forEach { add(it) }
         activeTrending.values.sortedBy { it.sourceId }.forEach {
             add(SyncLine.Trending(it))
             add(SyncLine.TrendingDetail(it))
         }
-        activeEpg.values.sortedBy { it.sourceId }.forEach { add(SyncLine.Epg(it)) }
+        if (q == null) syncs.filterIsInstance<SyncLine.Epg>().forEach { add(it) }
         if (sportsRebuild is tv.own.owntv.core.sports.RebuildState.Running) add(SyncLine.Sports)
     }
     val shown = rows.take(MAX_ROWS)
@@ -240,11 +246,16 @@ private sealed interface SyncLine {
     data class TrendingDetail(val build: TrendingActivityTracker.ActiveBuild) : SyncLine
     data class Epg(val sync: EpgActivityTracker.ActiveEpgSync) : SyncLine
     data object Sports : SyncLine
+    data class Queue(val current: Int, val total: Int, val inner: SyncLine?) : SyncLine
 }
 
 @Composable
 private fun SyncLine.text(): String = when (this) {
     SyncLine.Sports -> stringResource(R.string.sports_rebuilding)
+    is SyncLine.Queue -> listOfNotNull(
+        stringResource(R.string.sync_queue_progress, current, total),
+        inner?.text(),
+    ).joinToString(stringResource(R.string.sync_counts_separator))
     is SyncLine.Catalog -> {
         val stage = sync.stage
         val counts = stage?.let {
@@ -266,6 +277,7 @@ private fun SyncLine.text(): String = when (this) {
         val countParts = buildList {
             if (sync.channels > 0) add(pluralStringResource(R.plurals.sync_count_channels, sync.channels, compactCount(context, sync.channels)))
             if (sync.programmes > 0) add(pluralStringResource(R.plurals.sync_count_epg, sync.programmes, compactCount(context, sync.programmes)))
+            sync.percent?.let { add(stringResource(R.string.sync_percent, it)) }
         }
         val countsText = countParts.joinToString(stringResource(R.string.sync_counts_separator))
         // The hidden built-in feeds are never named; they all read as the built-in guide.

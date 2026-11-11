@@ -77,6 +77,8 @@ fun SyncStatusPill(
     val downloadTracker: DownloadActivityTracker = koinInject()
     val recordingTracker: RecordingActivityTracker = koinInject()
     val connectivity: ConnectivityObserver = koinInject()
+    val queueTracker: tv.own.owntv.core.sync.RefreshQueueTracker = koinInject()
+    val queue by queueTracker.progress.collectAsStateWithLifecycle()
 
     val activeCatalog by catalogTracker.active.collectAsStateWithLifecycle()
     val activeEpg by epgTracker.active.collectAsStateWithLifecycle()
@@ -134,7 +136,7 @@ fun SyncStatusPill(
     // Sorted once per progress change, not once per emission per row: the trackers emit at Hz
     // rates while a sync runs, and the sort has nothing new to say between two emissions of the
     // same maps.
-    val rows = remember(activeCatalog, activeEpg, activeTrending, activeDownload, activeRecordings, recordingsOnly, sportsRebuild) {
+    val rows = remember(activeCatalog, activeEpg, activeTrending, activeDownload, activeRecordings, recordingsOnly, sportsRebuild, queue) {
         buildList {
         // Recordings first, always: they are time-critical and unrecoverable, so they are never
         // the line that gets collapsed into "+N more". Then downloads, which the user also started
@@ -142,9 +144,13 @@ fun SyncStatusPill(
         activeRecordings.values.sortedBy { it.id }.forEach { add(SyncLine.Recording(it)) }
         if (recordingsOnly) return@buildList
         activeDownload?.let { add(SyncLine.Download(it)) }
-        activeCatalog.values.sortedBy { it.sourceId }.forEach { add(SyncLine.Catalog(it)) }
+        val syncs = activeCatalog.values.sortedBy { it.sourceId }.map { SyncLine.Catalog(it) } +
+            activeEpg.values.sortedBy { it.sourceId }.map { SyncLine.Epg(it) }
+        // The start-up queue runs its refreshes one by one: one summary line («2 of 4») with the current one.
+        val q = queue
+        if (q != null) add(SyncLine.Queue(q.current, q.total, syncs.firstOrNull())) else syncs.filterIsInstance<SyncLine.Catalog>().forEach { add(it) }
         activeTrending.values.sortedBy { it.sourceId }.forEach { add(SyncLine.Trending(it)) }
-        activeEpg.values.sortedBy { it.sourceId }.forEach { add(SyncLine.Epg(it)) }
+        if (q == null) syncs.filterIsInstance<SyncLine.Epg>().forEach { add(it) }
         if (sportsRebuild is RebuildState.Running) add(SyncLine.Sports)
         }
     }
@@ -236,6 +242,7 @@ private sealed interface SyncLine {
     data class Trending(val build: TrendingActivityTracker.ActiveBuild) : SyncLine
     data class Epg(val sync: EpgActivityTracker.ActiveEpgSync) : SyncLine
     data object Sports : SyncLine
+    data class Queue(val current: Int, val total: Int, val inner: SyncLine?) : SyncLine
 }
 
 /**
@@ -244,6 +251,10 @@ private sealed interface SyncLine {
  */
 private fun SyncLine.text(res: android.content.res.Resources): String = when (this) {
     SyncLine.Sports -> res.getString(R.string.sports_rebuilding)
+    is SyncLine.Queue -> listOfNotNull(
+        res.getString(R.string.sync_queue_progress, current, total),
+        inner?.text(res),
+    ).joinToString(res.getString(R.string.sync_counts_separator))
     is SyncLine.Catalog -> {
         val counts = sync.stage?.let {
             SyncProgressCounts(
@@ -267,6 +278,7 @@ private fun SyncLine.text(res: android.content.res.Resources): String = when (th
             if (sync.programmes > 0) {
                 add(res.getQuantityString(R.plurals.sync_count_epg, sync.programmes, compactCount(res, sync.programmes)))
             }
+            sync.percent?.let { add(res.getString(R.string.sync_percent, it)) }
         }
         val text = parts.joinToString(res.getString(R.string.sync_counts_separator))
         // The hidden built-in feeds are never named; they all read as the built-in guide.

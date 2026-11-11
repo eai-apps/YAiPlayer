@@ -305,6 +305,7 @@
 2	url	app/src/main/java/tv/own/owntv/features/series/SeriesScreen.kt	w300
 1	url	app/src/main/java/tv/own/owntv/features/series/SeriesScreen.kt	w780
 6	technical	app/src/main/java/tv/own/owntv/features/series/SeriesScreen.kt	·
+2	technical	app/src/main/java/tv/own/owntv/features/series/SeriesScreen.kt	▾
 1	technical	app/src/main/java/tv/own/owntv/features/series/SeriesScreen.kt	◀
 3	empty	app/src/main/java/tv/own/owntv/features/series/SeriesViewModel.kt	\0
 1	technical	app/src/main/java/tv/own/owntv/features/series/SeriesViewModel.kt	${StorageAccess.sanitize(ep.name.ifBlank { "episode-${ep.episodeNumber}" })}.$ext
