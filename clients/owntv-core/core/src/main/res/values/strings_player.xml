@@ -613,4 +613,22 @@
     <string name="player_btn_episodes">Episodes</string>
     <!-- Translators: A row of the in-player episode list. "season" and "episode" are numbers. -->
     <string name="player_episode_row">Season <xliff:g id="season">%1$d</xliff:g> · Episode <xliff:g id="episode">%2$d</xliff:g></string>
+    <!-- Translators: Kind of audio or subtitle track, shown after its language in the player's track list. -->
+    <string name="player_track_kind_forced">Forced</string>
+    <!-- Translators: Kind of audio or subtitle track, shown after its language in the player's track list. -->
+    <string name="player_track_kind_full">Full</string>
+    <!-- Translators: Kind of audio or subtitle track, shown after its language in the player's track list. -->
+    <string name="player_track_kind_sdh">SDH</string>
+    <!-- Translators: Kind of audio or subtitle track, shown after its language in the player's track list. -->
+    <string name="player_track_kind_dub">Dubbed</string>
+    <!-- Translators: Kind of audio or subtitle track, shown after its language in the player's track list. -->
+    <string name="player_track_kind_mvo">Multi-voice</string>
+    <!-- Translators: Kind of audio or subtitle track, shown after its language in the player's track list. -->
+    <string name="player_track_kind_dvo">Two-voice</string>
+    <!-- Translators: Kind of audio or subtitle track, shown after its language in the player's track list. -->
+    <string name="player_track_kind_avo">Single-voice</string>
+    <!-- Translators: Kind of audio or subtitle track, shown after its language in the player's track list. -->
+    <string name="player_track_kind_original">Original</string>
+    <!-- Translators: Kind of audio or subtitle track, shown after its language in the player's track list. -->
+    <string name="player_track_kind_commentary">Commentary</string>
 </resources>

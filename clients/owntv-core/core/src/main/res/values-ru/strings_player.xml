@@ -344,4 +344,13 @@
     <string name="player_btn_next_episode">След. серия</string>
     <string name="player_btn_episodes">Серии</string>
     <string name="player_episode_row">Сезон <xliff:g id="season">%1$d</xliff:g> · Серия <xliff:g id="episode">%2$d</xliff:g></string>
+    <string name="player_track_kind_forced">Форсированные</string>
+    <string name="player_track_kind_full">Полные</string>
+    <string name="player_track_kind_sdh">Для слабослышащих</string>
+    <string name="player_track_kind_dub">Дубляж</string>
+    <string name="player_track_kind_mvo">Многоголосый</string>
+    <string name="player_track_kind_dvo">Двухголосый</string>
+    <string name="player_track_kind_avo">Авторский</string>
+    <string name="player_track_kind_original">Оригинал</string>
+    <string name="player_track_kind_commentary">Комментарии</string>
 </resources>
