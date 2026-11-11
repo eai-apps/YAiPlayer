@@ -1,9 +1,22 @@
 name: Play-store build check
-# Запускается только вручную: GitHub → Actions → Play-store build check → Run workflow.
+# Запускается вручную (GitHub → Actions → Play-store build check → Run workflow) и сам, только когда
+# меняются файлы радио или сборки — чтобы сборка без радио не сломалась незаметно.
 # Собирает ту же программу с -Powntv.playStore=true (без радио и без самообновления) и проверяет,
 # что в APK нет кода и строк радио и нет разрешения на установку APK. Обычная сборка — с радио.
 on:
   workflow_dispatch:
+  push:
+    branches: [main, 'test/**']
+    paths:
+      - 'clients/*/app/build.gradle.kts'
+      - 'clients/*/app/src/radio/**'
+      - 'clients/*/app/src/noradio/**'
+      - 'clients/radio-shared/**'
+      - '.github/workflows/play-store-check.yml'
+
+concurrency:
+  group: play-check-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
