@@ -281,3 +281,15 @@ No dadb binary artifact is used by this application.
    END OF TERMS AND CONDITIONS
 
 ```
+
+## Пульт всей приставки (протокол Android TV Remote v2)
+
+Код в `clients/owntv-core/core/src/main/java/tv/own/owntv/extras/atvremote/` написан для YAiPlayer заново (GPL-3.0). Чужой код не копировался; из открытых источников взяты только описание протокола и номера полей protobuf:
+
+| Источник | Что взято | Лицензия |
+|---|---|---|
+| AOSP `platform/external/google-tv-pairing-protocol`, файл `proto/polo.proto` (Copyright 2009 Google Inc.) | номера полей и значения статусов сообщений привязки (порт 6467) | Apache-2.0 |
+| louis49/androidtv-remote, файл `src/remote/remotemessage.proto` (Copyright (c) 2021 louis49) | номера полей сообщений команд (порт 6466), коды клавиш | MIT |
+| tronikos/androidtvremote2 (Python) | порядок обмена при привязке и командах, формула секрета привязки, порты 6466/6467, тип службы `_androidtvremote2._tcp` | Apache-2.0 |
+
+Эталонные байты для тестов `AtvMessagesTest` получены официальной библиотекой protobuf (Python) из этих .proto-файлов. Коды клавиш совпадают с `android/keycodes.h` (AOSP, Apache-2.0).
