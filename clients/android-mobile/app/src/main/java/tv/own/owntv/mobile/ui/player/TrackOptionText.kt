@@ -17,12 +17,13 @@ import java.util.Locale
  */
 @Composable
 fun TrackOption.displayLabel(): String {
-    val configuration = LocalResources.current.configuration
+    val resources = LocalResources.current
+    val configuration = resources.configuration
     val locale = if (configuration.locales.isEmpty) Locale.ENGLISH else configuration.locales[0]
     val fallbackNumber: (Int) -> String = { num ->
         when (labelKind) {
-            TrackLabelKind.AUDIO -> stringResource(R.string.player_audio_track_number, num)
-            TrackLabelKind.SUBTITLE -> stringResource(R.string.player_subtitle_track_number, num)
+            TrackLabelKind.AUDIO -> resources.getString(R.string.player_audio_track_number, num)
+            TrackLabelKind.SUBTITLE -> resources.getString(R.string.player_subtitle_track_number, num)
         }
     }
     val strings = TrackLocalizedStrings(

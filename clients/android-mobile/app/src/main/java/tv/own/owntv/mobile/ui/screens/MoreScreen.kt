@@ -283,7 +283,7 @@ fun MoreScreen(
     if (showQuickStartSheet) {
         val sheetTitle = stringResource(R.string.quick_start_title)
         tv.own.owntv.mobile.ui.components.MobileBottomSheet(onDismissRequest = { showQuickStartSheet = false }, title = sheetTitle) {
-            tv.own.owntv.mobile.ui.components.StageSheetHeader(title = sheetTitle, subtitle = stringResource(R.string.quick_start_hint))
+            tv.own.owntv.mobile.ui.stage.StageSheetHeader(title = sheetTitle, subtitle = stringResource(R.string.quick_start_hint))
             StageMenuItem(
                 label = stringResource(R.string.quick_start_turn_on),
                 onClick = {

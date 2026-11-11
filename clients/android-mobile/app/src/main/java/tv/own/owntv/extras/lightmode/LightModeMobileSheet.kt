@@ -11,8 +11,8 @@ import org.koin.compose.koinInject
 import tv.own.owntv.core.R
 import tv.own.owntv.core.settings.SettingsRepository
 import tv.own.owntv.mobile.ui.components.MobileBottomSheet
-import tv.own.owntv.mobile.ui.components.StageMenuItem
-import tv.own.owntv.mobile.ui.components.StageSheetHeader
+import tv.own.owntv.mobile.ui.stage.StageMenuItem
+import tv.own.owntv.mobile.ui.stage.StageSheetHeader
 
 @Composable
 fun LightModeMobileSheet(
