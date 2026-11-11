@@ -5,9 +5,9 @@
     <string name="quick_refresh_epg">Обновить телепрограмму (EPG)</string>
     <string name="quick_refresh_vod">Обновить фильмы и сериалы</string>
     <string name="more_group_quick_actions">Быстрые действия</string>
-    <string name="quick_start_title">Быстрый старт канала</string>
-    <string name="quick_start_turn_on">Включить быстрый старт канала</string>
-    <string name="quick_start_turn_off">Выключить быстрый старт канала</string>
+    <string name="quick_start_title">Быстрая загрузка портала (загружается последний включённый профиль)</string>
+    <string name="quick_start_turn_on">Включить быструю загрузку портала</string>
+    <string name="quick_start_turn_off">Выключить быструю загрузку портала</string>
     <string name="settings_epg_startup_refresh">Обновлять телепрограмму и плейлист при запуске</string>
     <string name="settings_epg_startup_refresh_desc">Автоматически проверять и обновлять телепрограмму и плейлисты при запуске приложения</string>
     <string name="shell_resync_title_playlist">Пересинхронизировать плейлист?</string>

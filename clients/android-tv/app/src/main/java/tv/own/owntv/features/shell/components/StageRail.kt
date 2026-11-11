@@ -172,6 +172,7 @@ fun StageRail(
     }
     val quickStart by quickStartFlow.collectAsStateWithLifecycle(initialValue = false)
     var showQuickStartMenu by remember { mutableStateOf(false) }
+    var showLightModeMenu by remember { mutableStateOf(false) }
     val sourceRepo: tv.own.owntv.core.repository.SourceRepository = org.koin.compose.koinInject()
     val activePlaylistId by settings.defaultSourceId.collectAsStateWithLifecycle(initialValue = -1L)
     val railSources by remember(activeProfileId) {
@@ -381,22 +382,17 @@ fun StageRail(
                 namesAlpha = namesAlpha,
                 active = lightMode,
                 accentIcon = lightMode,
-                onClick = {
-                    scope.launch { settings.setLightModeEnabled(!lightMode) }
-                },
+                onClick = { showLightModeMenu = true },
             )
-            if (onManageCategories != null) {
-                RailItem(
-                    icon = OwnTVIcon.FOLDER,
-                    label = stringResource(R.string.quick_categories),
-                    trailing = null,
-                    detail = stringResource(R.string.quick_categories_hint),
-                    open = shown,
-                    namesAlpha = namesAlpha,
-                    active = false,
-                    onClick = onManageCategories,
+            if (showLightModeMenu) {
+                LightModeDialog(
+                    enabled = lightMode,
+                    onSet = { on -> scope.launch { settings.setLightModeEnabled(on) } },
+                    onDismiss = { showLightModeMenu = false },
                 )
             }
+            // «Категории» lives in Settings now, next to «Журнал ошибок» (П5, 10.11.2026).
+            // Settings → «Категории» is the way to them; the rail no longer carries the folder.
         }
     }
     if (showQuickStartMenu) {

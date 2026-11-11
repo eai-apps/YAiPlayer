@@ -5,9 +5,9 @@
     <string name="quick_refresh_epg">Refresh TV guide (EPG)</string>
     <string name="quick_refresh_vod">Refresh movies &amp; series</string>
     <string name="more_group_quick_actions">Quick actions</string>
-    <string name="quick_start_title">Channel quick start</string>
-    <string name="quick_start_turn_on">Enable channel quick start</string>
-    <string name="quick_start_turn_off">Disable channel quick start</string>
+    <string name="quick_start_title">Fast portal loading (opens the last used profile)</string>
+    <string name="quick_start_turn_on">Turn on fast portal loading</string>
+    <string name="quick_start_turn_off">Turn off fast portal loading</string>
     <string name="settings_epg_startup_refresh">Update TV guide and playlist on launch</string>
     <string name="settings_epg_startup_refresh_desc">Automatically check and update TV guide and playlists when the app starts</string>
     <string name="shell_resync_title_playlist">Resync the playlist?</string>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="quick_start_on">Быстрый старт: вкл</string>
-    <string name="quick_start_off">Быстрый старт: выкл</string>
-    <string name="quick_start_hint">Сразу открывать последний канал на весь экран, без выбора профиля. Выключите, чтобы снова выбирать профиль. Профиль с PIN-кодом по-прежнему спросит PIN.</string>
+    <string name="quick_start_on">Быстрая загрузка: вкл</string>
+    <string name="quick_start_off">Быстрая загрузка: выкл</string>
+    <string name="quick_start_hint">При запуске приложения сразу загружается последний включённый профиль и его портал, без выбора профиля. Профиль с PIN-кодом по-прежнему спросит PIN.</string>
 </resources>

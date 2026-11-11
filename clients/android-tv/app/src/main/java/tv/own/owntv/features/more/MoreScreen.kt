@@ -176,6 +176,7 @@ fun MoreScreen(
     val context = LocalContext.current
     var logVersion by remember { mutableIntStateOf(0) }
     var showCategories by remember { mutableStateOf(false) }
+    var showLightMode by remember { mutableStateOf(false) }
     val logCount by produceState(0, logVersion) { value = withContext(Dispatchers.IO) { PlaybackErrorLog.read(context).size } }
 
     Box(modifier.fillMaxSize().onFocusChanged { if (it.hasFocus) onChildFocused() }) {
@@ -257,10 +258,15 @@ fun MoreScreen(
                     icon = OwnTVIcon.MOTION,
                     value = stringResource(if (lightMode) R.string.common_on else R.string.common_off),
                     selected = false,
-                    onClick = {
-                        scope.launch { settings.setLightModeEnabled(!lightMode) }
-                    },
+                    onClick = { showLightMode = true },
                 )
+                if (showLightMode) {
+                    tv.own.owntv.features.shell.components.LightModeDialog(
+                        enabled = lightMode,
+                        onSet = { on -> scope.launch { settings.setLightModeEnabled(on) } },
+                        onDismiss = { showLightMode = false },
+                    )
+                }
                 StageGroupItem(
                     text = stringResource(R.string.quick_categories),
                     icon = OwnTVIcon.FOLDER,

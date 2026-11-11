@@ -113,6 +113,7 @@ fun MoreScreen(
     val context = LocalContext.current
     var logVersion by remember { mutableStateOf(0) }
     var showCategoriesSheet by remember { mutableStateOf(false) }
+    var showLightMode by remember { mutableStateOf(false) }
     LifecycleResumeEffect(Unit) { logVersion++; onPauseOrDispose { } }
     val logCount by produceState(0, logVersion) { value = withContext(Dispatchers.IO) { PlaybackErrorLog.read(context).size } }
 
@@ -202,11 +203,16 @@ fun MoreScreen(
                         height = 48.dp,
                     )
                     val lightMode by settings.lightModeEnabled.collectAsStateWithLifecycle(initialValue = false)
+                    if (showLightMode) {
+                        tv.own.owntv.mobile.ui.shell.LightModeSheet(
+                            enabled = lightMode,
+                            onSet = { on -> scope.launch { settings.setLightModeEnabled(on) } },
+                            onDismiss = { showLightMode = false },
+                        )
+                    }
                     StageMenuItem(
                         label = stringResource(R.string.light_mode_title),
-                        onClick = {
-                            scope.launch { settings.setLightModeEnabled(!lightMode) }
-                        },
+                        onClick = { showLightMode = true },
                         icon = MobileIcons.AutoAwesome,
                         value = stringResource(if (lightMode) R.string.common_on else R.string.common_off),
                         height = 48.dp,
