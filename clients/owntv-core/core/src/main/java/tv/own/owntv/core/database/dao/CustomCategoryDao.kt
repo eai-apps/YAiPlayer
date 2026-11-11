@@ -312,7 +312,7 @@ interface CustomCategoryDao {
     @Query(
         "SELECT mv.* FROM movies mv " +
             "INNER JOIN custom_category_members m ON m.itemId = mv.id AND m.profileId = :profileId AND m.mediaType = 'MOVIE' AND m.contextKey = :contextKey " +
-            "WHERE mv.sourceId IN (:sourceIds) AND mv.name LIKE '%' || :query || '%' " +
+            "WHERE mv.sourceId IN (:sourceIds) AND mv.searchText LIKE '%' || :query || '%' " +
             "ORDER BY m.position, mv.sortOrder, mv.name",
     )
     fun searchMovies(query: String, profileId: Long, contextKey: String, sourceIds: List<Long>): PagingSource<Int, MovieEntity>
@@ -320,7 +320,7 @@ interface CustomCategoryDao {
     @Query(
         "SELECT s.* FROM series s " +
             "INNER JOIN custom_category_members m ON m.itemId = s.id AND m.profileId = :profileId AND m.mediaType = 'SERIES' AND m.contextKey = :contextKey " +
-            "WHERE s.sourceId IN (:sourceIds) AND s.name LIKE '%' || :query || '%' " +
+            "WHERE s.sourceId IN (:sourceIds) AND s.searchText LIKE '%' || :query || '%' " +
             "ORDER BY m.position, s.sortOrder, s.name",
     )
     fun searchSeries(query: String, profileId: Long, contextKey: String, sourceIds: List<Long>): PagingSource<Int, SeriesEntity>

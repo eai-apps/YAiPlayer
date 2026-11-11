@@ -206,6 +206,13 @@ data class MovieEntity(
     val providerLanguage: String? = null,
     @ColumnInfo(defaultValue = "0") val qualityRank: Int = 0,
     val advertisedCapabilities: String? = null,
+    val originalTitle: String? = null,
+    val genres: String? = null,
+    val country: String? = null,
+    val director: String? = null,
+    val actors: String? = null,
+    @ColumnInfo(defaultValue = "''") val searchText: String =
+        tv.own.owntv.core.content.providerSearchText(name, originalTitle, genres, year, country, director, actors, plot),
 )
 
 @Entity(
@@ -262,6 +269,14 @@ data class SeriesEntity(
     val providerLanguage: String? = null,
     @ColumnInfo(defaultValue = "0") val qualityRank: Int = 0,
     val advertisedCapabilities: String? = null,
+    val originalTitle: String? = null,
+    val genres: String? = null,
+    val country: String? = null,
+    val director: String? = null,
+    val actors: String? = null,
+    val durationSecs: Int? = null,
+    @ColumnInfo(defaultValue = "''") val searchText: String =
+        tv.own.owntv.core.content.providerSearchText(name, originalTitle, genres, year, country, director, actors, plot),
 )
 
 @Entity(
@@ -369,13 +384,16 @@ fun MovieEntity.computeContentHash(): Int {
         sourceId, categoryId, name, posterUrl, backdropUrl,
         year, rating, durationSecs, plot, streamUrl, containerExt, remoteId, addedAt,
     )
-    if (httpHeaders == null && drmConfig == null && manifestType == null) return base
-    val withHeaders = Objects.hash(base, httpHeaders)
+    val detailsHash = if (listOf(originalTitle, genres, country, director, actors).all { it == null }) base
+        else Objects.hash(base, originalTitle, genres, country, director, actors)
+    if (httpHeaders == null && drmConfig == null && manifestType == null) return detailsHash
+    val withHeaders = Objects.hash(detailsHash, httpHeaders)
     val withDrm = if (drmConfig == null) withHeaders else Objects.hash(withHeaders, drmConfig)
     return if (manifestType == null) withDrm else Objects.hash(withDrm, manifestType)
 }
 
-fun SeriesEntity.computeContentHash(): Int = Objects.hash(
-    sourceId, categoryId, name, posterUrl, backdropUrl,
-    year, rating, plot, remoteId, addedAt,
-)
+fun SeriesEntity.computeContentHash(): Int {
+    val base = Objects.hash(sourceId, categoryId, name, posterUrl, backdropUrl, year, rating, plot, remoteId, addedAt)
+    return if (listOf(originalTitle, genres, country, director, actors, durationSecs).all { it == null }) base
+        else Objects.hash(base, originalTitle, genres, country, director, actors, durationSecs)
+}

@@ -32,6 +32,7 @@ class CatalogSyncWorker(
     private val epgRepository: tv.own.owntv.core.repository.EpgRepository,
     private val settings: SettingsRepository,
     private val watchSession: tv.own.owntv.core.live.WatchSession,
+    private val epgSyncScheduler: EpgSyncScheduler,
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
@@ -53,6 +54,7 @@ class CatalogSyncWorker(
         // User picked "clean resync": this run may prune past the catalog-shrink guard. Read from the
         // work data (not persisted anywhere) so it applies to exactly this run.
         val forcePrune = inputData.getBoolean(KEY_FORCE_PRUNE, false)
+        val includeGuide = inputData.getBoolean(KEY_INCLUDE_GUIDE, true)
 
         val source = sourceRepository.getById(sourceId) ?: run {
             Log.w(TAG, "Source $sourceId not found — skipping ($reason)")
@@ -78,6 +80,7 @@ class CatalogSyncWorker(
         if (!effective.hasAny) {
             progressPublisher.flush()
             Log.i(TAG, "Sync no-op empty effective sourceId=${source.id} reason=$reason")
+            enqueueRequestedGuide()
             return Result.success()
         }
 
@@ -100,7 +103,7 @@ class CatalogSyncWorker(
                 }
                 val finalizeStartedAt = SystemClock.elapsedRealtime()
                 val deferIndexes = source.lastSyncAt == null
-                runCatching { importFinalizer.finalize(source, deferIndexes = deferIndexes, refreshGuide = reason.startsWith("manual")) }
+                runCatching { importFinalizer.finalize(source, deferIndexes = deferIndexes, refreshGuide = reason.startsWith("manual"), includeGuide = includeGuide) }
                     .onSuccess { Log.i(TAG, "Import finalizer sourceId=${source.id} counts=$it ms=${SystemClock.elapsedRealtime() - finalizeStartedAt}") }
                     .onFailure { Log.w(TAG, "Import finalizer failed sourceId=${source.id} ms=${SystemClock.elapsedRealtime() - finalizeStartedAt}", it) }
                 if (deferIndexes) {
@@ -110,7 +113,7 @@ class CatalogSyncWorker(
                 // so channels this pass just added have no programmes. Repair them from the cached
                 // feed (no network). A no-op for the usual case where nothing new appeared.
                 val gapFillStartedAt = SystemClock.elapsedRealtime()
-                runCatching { epgRepository.fillGuideGapsForSource(source.id) }
+                runCatching { if (includeGuide && effective.live) epgRepository.fillGuideGapsForSource(source.id) else 0 }
                     .onSuccess { if (it > 0) Log.i(TAG, "Guide gap fill sourceId=${source.id} channels=$it ms=${SystemClock.elapsedRealtime() - gapFillStartedAt}") }
                     .onFailure { Log.w(TAG, "Guide gap fill failed sourceId=${source.id}", it) }
                 sourceDao.profileIdsForSource(source.id).forEach { profileId ->
@@ -142,6 +145,7 @@ class CatalogSyncWorker(
                     catalogSyncScheduler.enqueueTrendingRefresh(source.id)
                     Log.i(TAG, "Trending refresh enqueued sourceId=${source.id}")
                 }
+                enqueueRequestedGuide()
                 Result.success()
             }
             is SyncResult.Failed -> {
@@ -156,6 +160,12 @@ class CatalogSyncWorker(
                 }
             }
             SyncResult.Cancelled -> Result.failure()
+        }
+    }
+
+    private fun enqueueRequestedGuide() {
+        (inputData.getLongArray(KEY_AFTER_EPG_IDS) ?: longArrayOf()).distinct().forEach { id ->
+            epgSyncScheduler.enqueueSync(id, "manual_resync", policy = androidx.work.ExistingWorkPolicy.KEEP)
         }
     }
 
@@ -254,6 +264,8 @@ class CatalogSyncWorker(
         const val KEY_SERIES = "series"
         const val KEY_COMPLETES_INITIAL_SYNC = "completesInitialSync"
         const val KEY_FORCE_PRUNE = "forcePrune"
+        const val KEY_INCLUDE_GUIDE = "includeGuide"
+        const val KEY_AFTER_EPG_IDS = "afterEpgSourceIds"
         const val KEY_PROGRESS_LIVE_PROCESSED = "liveProcessed"
         const val KEY_PROGRESS_MOVIES_PROCESSED = "moviesProcessed"
         const val KEY_PROGRESS_SERIES_PROCESSED = "seriesProcessed"

@@ -450,6 +450,9 @@ internal class StalkerSyncer(
                 MovieEntity(
                     sourceId = s.id, categoryId = catDbId, name = item.name,
                     posterUrl = item.poster, rating = item.rating, plot = item.plot,
+                    year = item.details.year ?: item.year, durationSecs = item.details.durationSecs,
+                    originalTitle = item.details.originalTitle, genres = item.details.genres,
+                    country = item.details.country, director = item.details.director, actors = item.details.actors,
                     // Portal command — resolved to a real URL at play time (create_link, type=vod) in D-2.
                     streamUrl = item.cmd ?: "", containerExt = null, remoteId = item.id,
                     // Portal `added` date when the panel exposes one; null falls through to playlist order.
@@ -483,7 +486,10 @@ internal class StalkerSyncer(
     private fun showRow(s: SourceEntity, item: StalkerClient.VodItem, catDbId: Long?, order: Int) = SeriesEntity(
         sourceId = s.id, categoryId = catDbId, name = item.name,
         posterUrl = item.poster, plot = item.plot, rating = item.rating,
-        year = item.year, remoteId = item.id, sortOrder = order,
+        year = item.details.year ?: item.year, remoteId = item.id, sortOrder = order,
+        durationSecs = item.details.durationSecs, originalTitle = item.details.originalTitle,
+        genres = item.details.genres, country = item.details.country,
+        director = item.details.director, actors = item.details.actors,
         // Portal `added` date when the panel exposes one; null falls through to playlist order.
         addedAt = item.addedAt,
     )
@@ -928,6 +934,9 @@ internal class StalkerSyncer(
                 MovieEntity(
                     sourceId = s.id, categoryId = catDbId, name = item.name,
                     posterUrl = item.poster, rating = item.rating, plot = item.plot,
+                    year = item.details.year ?: item.year, durationSecs = item.details.durationSecs,
+                    originalTitle = item.details.originalTitle, genres = item.details.genres,
+                    country = item.details.country, director = item.details.director, actors = item.details.actors,
                     streamUrl = item.cmd ?: "", containerExt = null, remoteId = item.id,
                     addedAt = item.addedAt, sortOrder = order,
                 )

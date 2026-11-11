@@ -57,6 +57,32 @@ class StalkerEpgLoader(
 
     data class Outcome(val method: Method, val periodDays: Int, val channels: Int, val programmes: Int)
 
+    /** Day tables supply history on portals whose bulk endpoint only returns future programmes. */
+    suspend fun loadDayTables(
+        source: SourceEntity,
+        channels: List<Pair<String, Int>>,
+        from: Long,
+        to: Long,
+        onBatch: suspend (List<Row>) -> Unit,
+    ): Int {
+        val resolver = StreamUrlResolver(auth, client)
+        var written = 0
+        var empty = 0
+        // scheduleDays already bounds parallel day requests to four. Do not multiply that by channels.
+        for ((channelId, pastDays) in channels.distinctBy { it.first }) {
+            val entries = resolver.scheduleDays(source, channelId, (-pastDays.coerceIn(1, 14)..1).toList())
+                .filter { it.title.isNotBlank() && it.stopMs > it.startMs && it.stopMs > from && it.startMs < to }
+            if (entries.isEmpty()) {
+                if (++empty >= PER_CHANNEL_GIVE_UP && written == 0) return written
+                continue
+            }
+            val rows = entries.map { Row(channelId, it.title, it.description, it.startMs, it.stopMs) }
+            rows.chunked(250).forEach { onBatch(it) }
+            written += rows.size
+        }
+        return written
+    }
+
     /**
      * Crawl [source]'s portal guide, calling [onBatch] with every [BATCH] programmes (and once more
      * with the remainder). Only programmes overlapping [from]..[to] are kept, so a portal serving a

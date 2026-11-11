@@ -649,7 +649,28 @@ class EpgRepository(
             written += batch.size
             batch.forEach { channels.add(guideKeys[it.epgChannelId] ?: it.epgChannelId) }
         }
-        if (outcome.programmes == 0) throw NoProgrammesInWindowException()
+        val portalChannels = channelDao.allForSources(listOf(portalSourceId), Int.MAX_VALUE)
+        val pastCoverage = guideKeys.values.distinct().chunked(400).flatMap {
+            epgDao.programmeSummariesForChannels(it, from, now)
+        }.filter { it.sourceId == storeId }.groupBy { it.epgChannelId }
+        val missingPast = portalChannels.mapNotNull { channel ->
+            val remote = channel.remoteId ?: return@mapNotNull null
+            val key = guideKeys[remote.trim().lowercase()] ?: remote.trim().lowercase()
+            val days = channel.catchupDays.takeIf { it > 0 }?.coerceAtMost(14) ?: 3
+            val earliest = pastCoverage[key]?.minOfOrNull { it.startMs }
+            if (earliest != null && earliest <= now - days * 86_400_000L) null else remote to days
+        }
+        stalkerEpg.loadDayTables(source, missingPast, from, to) { batch ->
+            writeProgrammes(batch.map {
+                EpgProgrammeEntity(sourceId = storeId,
+                    epgChannelId = guideKeys[it.epgChannelId] ?: it.epgChannelId,
+                    startMs = it.startMs, stopMs = it.stopMs, title = it.title, description = it.description)
+            })
+            written += batch.size
+            batch.forEach { channels.add(guideKeys[it.epgChannelId] ?: it.epgChannelId) }
+            onProgress(channels.size, written)
+        }
+        if (written == 0) throw NoProgrammesInWindowException()
         // A guide channel row per channel we saw, so the EPG matcher and the "guide channels" counts
         // treat a portal guide like any other. The portal's EPG payload carries no display name, so
         // the id doubles as the label — the matcher keys on the id regardless.

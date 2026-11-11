@@ -99,6 +99,7 @@ open class StalkerClient(okHttpClient: OkHttpClient) {
         // `is_series` on a `type=vod` row: a show filed in the film catalogue. Portals with no series
         // section of their own list every show this way.
         val isSeries: Boolean = false,
+        val details: tv.own.owntv.core.content.ProviderMediaDetails = tv.own.owntv.core.content.ProviderMediaDetails(),
     )
 
     /** One page of `get_ordered_list`: the items plus the totals needed to page through the rest. */
@@ -517,6 +518,17 @@ open class StalkerClient(okHttpClient: OkHttpClient) {
         return request(url, mac, token, userAgent) { readSeasonPage(it) }
     }
 
+    /** One bounded lookup in the same catalogue endpoint used by sync; accept only the exact id. */
+    suspend fun getCatalogDetails(
+        apiBase: String, mac: String, token: String, userAgent: String?,
+        remoteId: String, categoryId: String?, title: String, series: Boolean,
+    ): VodItem? {
+        val type = if (series) "series" else "vod"
+        val category = categoryId ?: "*"
+        val url = "$apiBase?type=$type&action=get_ordered_list&category=${enc(category)}&search=${enc(title)}&p=1&JsHttpRequest=1-xml"
+        return request(url, mac, token, userAgent) { readVodPage(it, apiBase) }.items.firstOrNull { it.id == remoteId }
+    }
+
     /**
      * `?type=series&action=get_ordered_list&movie_id=<show remoteId>&p=<page>` → one page of the
      * show's SEASONS, each carrying its `series` episode-number array. Category is included
@@ -695,7 +707,7 @@ open class StalkerClient(okHttpClient: OkHttpClient) {
         return Page(total, maxPer, items)
     }
 
-    private fun readVodItem(reader: JsonReader, apiBase: String): VodItem? {
+    internal fun readVodItem(reader: JsonReader, apiBase: String): VodItem? {
         if (reader.peek() != JsonToken.BEGIN_OBJECT) { reader.skipValue(); return null }
         // Nested fields (the series episode list, actors arrays) are skipped by readScalarFields — the
         // show/movie row only needs the scalar metadata; episodes are fetched lazily on open.
@@ -714,6 +726,7 @@ open class StalkerClient(okHttpClient: OkHttpClient) {
             addedAt = parseAddedAt(f["added"]),
             // Some portals never set `is_series` and instead name each season row "Title [S01]".
             isSeries = isFlagSet(f["is_series"]) || hasSeasonTag(title),
+            details = tv.own.owntv.core.content.ProviderMediaDetails.from(f),
         )
     }
 
@@ -1041,6 +1054,9 @@ open class StalkerClient(okHttpClient: OkHttpClient) {
                 JsonToken.NUMBER -> fields[name] = reader.nextString()
                 JsonToken.BOOLEAN -> fields[name] = reader.nextBoolean().toString()
                 JsonToken.NULL -> reader.nextNull()
+                JsonToken.BEGIN_ARRAY -> if (name in listOf("actors", "cast", "genres", "genre")) {
+                    tv.own.owntv.core.content.readProviderField(reader)?.let { fields[name] = it }
+                } else reader.skipValue()
                 else -> reader.skipValue()
             }
         }

@@ -804,7 +804,7 @@ private fun SeriesGrid(
                                 val displayTitle = show.canonicalTitle.ifBlank { show.name }
                                 VodListRow(
                                     title = displayTitle,
-                                    originalTitle = show.name.takeIf { it.trim() != displayTitle.trim() },
+                                    originalTitle = show.originalTitle?.takeIf { it.trim() != displayTitle.trim() },
                                     line = vodLine(show.year, show.rating, null),
                                     posterUrl = posterOf(show),
                                     placeholder = OwnTVIcon.SERIES,
@@ -966,7 +966,7 @@ private fun SeriesGrid(
             }
             add(MenuAction("hide", stringResource(R.string.common_hide), OwnTVIcon.EYE_OFF, group = VodGroupOrganise) { vm.hideSeries(s); contextSeries = null })
             add(MenuAction("tmdb_details", stringResource(R.string.content_series_details), OwnTVIcon.INFO, group = VodGroupDetails) {
-                if (cacheForS != null) { contextSeries = null; detailsSeries = s }
+                contextSeries = null; detailsSeries = s
             })
             // Update details and Set TMDB name: only while enrichment is on.
             if (metadataMode.enrich) {
@@ -993,7 +993,6 @@ private fun SeriesGrid(
             disabled = setOfNotNull(
                 "play_trailer".takeIf { trailerKey == null },
                 "remove_history".takeIf { !inHistory },
-                "tmdb_details".takeIf { !(metadataMode.enrich && cacheForS != null) },
             ),
             onDismiss = { contextSeries = null },
         )
@@ -1036,9 +1035,11 @@ private fun SeriesGrid(
         }
     }
     detailsSeries?.let { s ->
+        var providerSeries by remember(s.id) { mutableStateOf(s) }
+        LaunchedEffect(s.id) { providerSeries = vm.loadProviderDetails(s) }
         val cache = selectedSeriesMeta?.takeIf { it.seriesId == s.id }?.cache
         tv.own.owntv.features.shell.components.MediaDetailsScreen(
-            details = buildSeriesDetails(s, cache, metadataMode.tmdbWins),
+            details = buildSeriesDetails(providerSeries, cache, metadataMode.tmdbWins),
             onExit = { detailsSeries = null },
         )
     }
@@ -1187,14 +1188,17 @@ private fun buildSeriesDetails(
     val displayTitle = if (tmdbWins && !meta?.title.isNullOrBlank()) meta.title else s.canonicalTitle.ifBlank { s.name }
     return tv.own.owntv.features.shell.components.MediaDetailsUi(
         title = displayTitle,
-        originalTitle = s.name.takeIf { it.trim() != displayTitle.trim() },
+        originalTitle = s.originalTitle?.takeIf { it.trim() != displayTitle.trim() },
         backdropUrl = backdrop,
         logoUrl = tv.own.owntv.core.metadata.MetadataImages.logo(meta?.logoPath),
         posterUrl = poster,
         metaLine = metaLine,
-        genres = jsonStringList(meta?.genresJson),
+        genres = (if (tmdbWins) jsonStringList(meta?.genresJson).takeIf { it.isNotEmpty() } else null)
+            ?: s.genres?.split(',')?.map(String::trim)?.filter(String::isNotEmpty) ?: jsonStringList(meta?.genresJson),
         plot = plot,
         cast = tv.own.owntv.core.metadata.MetadataCast.parse(meta?.castJson),
+        country = s.country, director = s.director, actorsText = s.actors,
+        durationText = s.durationSecs?.takeIf { it > 0 }?.let { tv.own.owntv.features.shell.components.vodRuntime(it) },
         year = year,
     )
 }
@@ -1799,7 +1803,7 @@ private fun EpisodeView(
                 vm.removeFromHistory(series.id); close()
             })
             add(MenuAction("tmdb_details", stringResource(R.string.content_series_details), OwnTVIcon.INFO, group = VodGroupDetails) {
-                if (seriesMeta != null) { openWindow(); showSeriesDetails = true }
+                openWindow(); showSeriesDetails = true
             })
             if (metadataMode.enrich) {
                 add(MenuAction("refetch_tmdb", stringResource(R.string.content_refetch_tmdb), OwnTVIcon.REFRESH, group = VodGroupDetails) {
@@ -1820,7 +1824,6 @@ private fun EpisodeView(
             disabled = setOfNotNull(
                 "play_trailer".takeIf { trailerKey == null },
                 "remove_history".takeIf { !inHistory },
-                "tmdb_details".takeIf { !(metadataMode.enrich && seriesMeta != null) },
             ),
             onDismiss = close,
         )

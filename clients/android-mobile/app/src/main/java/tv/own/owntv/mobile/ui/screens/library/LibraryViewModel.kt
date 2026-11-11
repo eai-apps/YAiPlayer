@@ -108,6 +108,7 @@ data class VodItem(
     /** A film's length; null on a show. */
     val durationSecs: Int? = null,
     val canonicalTitle: String? = null,
+    val originalTitle: String? = null,
 )
 
 /**
@@ -141,6 +142,7 @@ class LibraryViewModel(
     private val vodTuner: VodTuner,
     private val metadata: MetadataRepository,
     private val subtitleController: SubtitleController,
+    private val providerDetails: tv.own.owntv.core.repository.ProviderDetailsRepository,
 ) : ViewModel() {
 
     private val _tab = MutableStateFlow(LibraryTab.MOVIES)
@@ -457,6 +459,7 @@ class LibraryViewModel(
         categoryId = categoryId,
         durationSecs = durationSecs,
         canonicalTitle = canonicalTitle,
+        originalTitle = originalTitle,
     )
 
     private fun SeriesEntity.asItem(cust: SectionCustomizations) = VodItem(
@@ -468,6 +471,7 @@ class LibraryViewModel(
         sourceId = sourceId,
         categoryId = categoryId,
         canonicalTitle = canonicalTitle,
+        originalTitle = originalTitle,
     )
 
     val favoriteIds: StateFlow<Set<Long>> = combine(ctx, mediaType) { c, type -> c to type }
@@ -947,8 +951,10 @@ class LibraryViewModel(
 
     /** The row itself, for the details sheet — the poster grid carries only what it draws. */
     suspend fun movieById(itemId: Long): MovieEntity? = movieDao.getById(itemId)
+    suspend fun movieDetailsById(itemId: Long): MovieEntity? = movieById(itemId)?.let { providerDetails.movie(it) }
 
     suspend fun seriesById(itemId: Long): SeriesEntity? = seriesDao.getSeriesById(itemId)
+    suspend fun seriesDetailsById(itemId: Long): SeriesEntity? = seriesById(itemId)?.let { providerDetails.show(it) }
 
     /** Subtitles downloaded for this film, for the Delete-subtitles sheet. Films only, as on the TV. */
     suspend fun downloadedSubtitles(itemId: Long): List<LinkedSubtitle> =

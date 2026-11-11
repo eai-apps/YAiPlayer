@@ -9,6 +9,7 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import tv.own.owntv.core.database.entity.SourceEntity
 import tv.own.owntv.core.network.HttpClient
+import tv.own.owntv.core.content.ProviderMediaDetails
 import java.io.InputStream
 import java.net.URLEncoder
 
@@ -26,11 +27,13 @@ data class XtLiveStream(
 data class XtVod(
     val streamId: String, val name: String, val icon: String?, val rating: Double?, val plot: String?,
     val categoryId: String?, val containerExt: String?, val added: Long?,
+    val details: ProviderMediaDetails = ProviderMediaDetails(),
 )
 data class XtSeries(
     val seriesId: String, val name: String, val cover: String?, val plot: String?,
     val rating: Double?, val categoryId: String?, val year: Int?,
     val added: Long? = null, val lastModified: Long? = null,
+    val details: ProviderMediaDetails = ProviderMediaDetails(),
 )
 data class XtEpisode(
     val id: String, val seasonNumber: Int, val episodeNumber: Int, val title: String, val containerExt: String?,
@@ -113,6 +116,31 @@ data class XtEpgEntry(val title: String, val description: String?, val startMs: 
  */
 class XtreamClient(private val http: HttpClient) {
 
+    /** Provider metadata only; this request does not fetch or replace any catalogue rows. */
+    suspend fun getCatalogDetails(s: SourceEntity, remoteId: String, series: Boolean): Map<String, String?> {
+        val action = if (series) "get_series_info" else "get_vod_info"
+        val parameter = if (series) "series_id" else "vod_id"
+        return http.get(api(s, action, "&$parameter=${URLEncoder.encode(remoteId, "UTF-8")}"), s.userAgent) { input ->
+            val fields = LinkedHashMap<String, String?>()
+            JsonReader(input.reader(Charsets.UTF_8)).use { reader ->
+                reader.beginObject()
+                while (reader.hasNext()) {
+                    val key = reader.nextName()
+                    if (key in listOf("info", "movie_data") && reader.peek() == JsonToken.BEGIN_OBJECT) {
+                        reader.beginObject()
+                        while (reader.hasNext()) {
+                            val name = reader.nextName()
+                            tv.own.owntv.core.content.readProviderField(reader)?.let { fields[name] = it }
+                        }
+                        reader.endObject()
+                    } else reader.skipValue()
+                }
+                reader.endObject()
+            }
+            fields
+        }
+    }
+
     // --- Categories ---
     suspend fun liveCategories(s: SourceEntity, onProgress: ((Long, Long?) -> Unit)? = null) = categories(s, "get_live_categories", onProgress)
     suspend fun vodCategories(s: SourceEntity, onProgress: ((Long, Long?) -> Unit)? = null) = categories(s, "get_vod_categories", onProgress)
@@ -182,8 +210,8 @@ class XtreamClient(private val http: HttpClient) {
         streamVod(
             s = s,
             categoryId = categoryId,
-            transform = { streamId, name, icon, rating, plot, itemCategoryId, containerExt, added ->
-                XtVod(streamId, name, icon, rating, plot, itemCategoryId, containerExt, added)
+            transform = { streamId, name, icon, rating, plot, itemCategoryId, containerExt, added, details ->
+                XtVod(streamId, name, icon, rating, plot, itemCategoryId, containerExt, added, details)
             },
             onItem = onItem,
             onProgress = onProgress,
@@ -201,6 +229,7 @@ class XtreamClient(private val http: HttpClient) {
             categoryId: String?,
             containerExt: String?,
             added: Long?,
+            details: ProviderMediaDetails,
         ) -> T?,
         onItem: suspend (T) -> Unit,
         onProgress: ((Long, Long?) -> Unit)? = null,
@@ -219,8 +248,8 @@ class XtreamClient(private val http: HttpClient) {
         streamSeries(
             s = s,
             categoryId = categoryId,
-            transform = { seriesId, name, cover, plot, rating, itemCategoryId, year, added, lastModified ->
-                XtSeries(seriesId, name, cover, plot, rating, itemCategoryId, year, added, lastModified)
+            transform = { seriesId, name, cover, plot, rating, itemCategoryId, year, added, lastModified, details ->
+                XtSeries(seriesId, name, cover, plot, rating, itemCategoryId, year, added, lastModified, details)
             },
             onItem = onItem,
             onProgress = onProgress,
@@ -239,6 +268,7 @@ class XtreamClient(private val http: HttpClient) {
             year: Int?,
             added: Long?,
             lastModified: Long?,
+            details: ProviderMediaDetails,
         ) -> T?,
         onItem: suspend (T) -> Unit,
         onProgress: ((Long, Long?) -> Unit)? = null,
@@ -1073,6 +1103,7 @@ class XtreamClient(private val http: HttpClient) {
             categoryId: String?,
             containerExt: String?,
             added: Long?,
+            details: ProviderMediaDetails,
         ) -> T?,
     ): T? {
         if (reader.peek() != JsonToken.BEGIN_OBJECT) {
@@ -1089,9 +1120,11 @@ class XtreamClient(private val http: HttpClient) {
         var containerExt: String? = null
         var added: Long? = null
 
+        val metadata = LinkedHashMap<String, String?>()
         reader.beginObject()
         while (reader.hasNext()) {
-            when (reader.nextName()) {
+            val key = reader.nextName()
+            when (key) {
                 "stream_id" -> streamId = reader.nextScalarStringOrNull()
                 "name" -> name = reader.nextScalarStringOrNull().orEmpty()
                 "stream_icon" -> icon = reader.nextScalarStringOrNull()
@@ -1101,12 +1134,15 @@ class XtreamClient(private val http: HttpClient) {
                 "category_id" -> categoryId = reader.nextScalarStringOrNull()
                 "container_extension" -> containerExt = reader.nextScalarStringOrNull()
                 "added" -> added = reader.nextLongOrNull()
+                "o_name", "original_title", "original_name", "genres_str", "genre", "genres",
+                "country", "director", "actors", "cast", "duration_secs", "duration_seconds", "duration",
+                "time", "releasedate", "release_date", "year" -> metadata[key] = tv.own.owntv.core.content.readProviderField(reader)
                 else -> reader.skipValue()
             }
         }
         reader.endObject()
         val cleanPlot = plot?.takeIf { it.isNotBlank() } ?: description?.takeIf { it.isNotBlank() }
-        return streamId?.let { transform(it, name, icon, rating, cleanPlot, categoryId, containerExt, added) }
+        return streamId?.let { transform(it, name, icon, rating, cleanPlot, categoryId, containerExt, added, ProviderMediaDetails.from(metadata)) }
     }
 
     private fun <T : Any> readSeriesAs(
@@ -1121,6 +1157,7 @@ class XtreamClient(private val http: HttpClient) {
             year: Int?,
             added: Long?,
             lastModified: Long?,
+            details: ProviderMediaDetails,
         ) -> T?,
     ): T? {
         if (reader.peek() != JsonToken.BEGIN_OBJECT) {
@@ -1137,9 +1174,11 @@ class XtreamClient(private val http: HttpClient) {
         var added: Long? = null
         var lastModified: Long? = null
 
+        val metadata = LinkedHashMap<String, String?>()
         reader.beginObject()
         while (reader.hasNext()) {
-            when (reader.nextName()) {
+            val key = reader.nextName()
+            when (key) {
                 "series_id" -> seriesId = reader.nextScalarStringOrNull()
                 "name" -> name = reader.nextScalarStringOrNull().orEmpty()
                 "cover" -> cover = reader.nextScalarStringOrNull()
@@ -1149,6 +1188,9 @@ class XtreamClient(private val http: HttpClient) {
                 "year" -> year = reader.nextIntOrNull()
                 "added" -> added = reader.nextScalarStringOrNull()?.toLongOrNull()
                 "last_modified" -> lastModified = reader.nextScalarStringOrNull()?.toLongOrNull()
+                "o_name", "original_title", "original_name", "genres_str", "genre", "genres",
+                "country", "director", "actors", "cast", "duration_secs", "duration_seconds", "duration",
+                "time", "releasedate", "release_date" -> metadata[key] = tv.own.owntv.core.content.readProviderField(reader)
                 else -> reader.skipValue()
             }
         }
@@ -1164,6 +1206,7 @@ class XtreamClient(private val http: HttpClient) {
                 year,
                 added,
                 lastModified,
+                ProviderMediaDetails.from(metadata),
             )
         }
     }

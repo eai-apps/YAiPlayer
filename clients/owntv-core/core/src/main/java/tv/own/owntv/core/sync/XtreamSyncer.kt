@@ -126,11 +126,14 @@ internal class XtreamSyncer(
                             plot: String?,
                             categoryId: String?,
                             containerExt: String?,
-                            added: Long? ->
+                            added: Long?, details: tv.own.owntv.core.content.ProviderMediaDetails ->
                             seenCategory(categoryId)
                             MovieEntity(
                                 sourceId = s.id, categoryId = catMap[categoryId], name = name,
                                 posterUrl = icon, rating = rating, plot = plot,
+                                year = details.year, durationSecs = details.durationSecs,
+                                originalTitle = details.originalTitle, genres = details.genres,
+                                country = details.country, director = details.director, actors = details.actors,
                                 streamUrl = xtream.movieUrl(s, streamId, containerExt),
                                 containerExt = containerExt, remoteId = streamId,
                                 addedAt = added?.takeIf { it > 0L }?.let { if (it < 10_000_000_000L) it * 1000L else it },
@@ -166,12 +169,15 @@ internal class XtreamSyncer(
                             plot: String?,
                             rating: Double?,
                             categoryId: String?,
-                            year: Int?, added: Long?, lastModified: Long? ->
+                            year: Int?, added: Long?, lastModified: Long?, details: tv.own.owntv.core.content.ProviderMediaDetails ->
                             seenCategory(categoryId)
                             SeriesEntity(
                                 sourceId = s.id, categoryId = catMap[categoryId], name = name,
                                 posterUrl = cover, plot = plot, rating = rating,
-                                year = year, remoteId = seriesId,
+                                year = year ?: details.year, remoteId = seriesId,
+                                durationSecs = details.durationSecs, originalTitle = details.originalTitle,
+                                genres = details.genres, country = details.country,
+                                director = details.director, actors = details.actors,
                                 addedAt = (lastModified ?: added)?.takeIf { it > 0L }?.let {
                                     if (it < 10_000_000_000L) it * 1000L else it
                                 },

@@ -151,10 +151,10 @@ interface MovieDao {
     @Query("SELECT * FROM movies WHERE categoryId = :categoryId ORDER BY addedAt DESC, sortOrder DESC, id DESC")
     fun pagingByCategoryDateAdded(categoryId: Long): PagingSource<Int, MovieEntity>
 
-    @Query("SELECT * FROM movies WHERE sourceId IN (:sourceIds) AND (name LIKE '%' || :query || '%' OR canonicalTitle LIKE '%' || :query || '%' OR plot LIKE '%' || :query || '%' OR CAST(year AS TEXT) LIKE '%' || :query || '%' OR categoryId IN (SELECT id FROM categories WHERE name LIKE '%' || :query || '%')) ORDER BY addedAt DESC, sortOrder DESC, id DESC")
+    @Query("SELECT * FROM movies WHERE sourceId IN (:sourceIds) AND searchText LIKE '%' || :query || '%' ORDER BY addedAt DESC, sortOrder DESC, id DESC")
     fun searchAllDateAdded(query: String, sourceIds: List<Long>): PagingSource<Int, MovieEntity>
 
-    @Query("SELECT * FROM movies WHERE categoryId = :categoryId AND (name LIKE '%' || :query || '%' OR canonicalTitle LIKE '%' || :query || '%' OR plot LIKE '%' || :query || '%' OR CAST(year AS TEXT) LIKE '%' || :query || '%') ORDER BY addedAt DESC, sortOrder DESC, id DESC")
+    @Query("SELECT * FROM movies WHERE categoryId = :categoryId AND searchText LIKE '%' || :query || '%' ORDER BY addedAt DESC, sortOrder DESC, id DESC")
     fun searchInCategoryDateAdded(query: String, categoryId: Long): PagingSource<Int, MovieEntity>
 
     // --- Manual order (Move) — see ChannelDao for the join shape. ---
@@ -256,10 +256,10 @@ interface MovieDao {
     fun search(query: String, sourceIds: List<Long>): PagingSource<Int, MovieEntity>
 
     // --- Inline folder-scoped search (substring) ---
-    @Query("SELECT * FROM movies WHERE sourceId IN (:sourceIds) AND (name LIKE '%' || :query || '%' OR canonicalTitle LIKE '%' || :query || '%' OR plot LIKE '%' || :query || '%' OR CAST(year AS TEXT) LIKE '%' || :query || '%' OR categoryId IN (SELECT id FROM categories WHERE name LIKE '%' || :query || '%')) ORDER BY name ASC")
+    @Query("SELECT * FROM movies WHERE sourceId IN (:sourceIds) AND searchText LIKE '%' || :query || '%' ORDER BY name ASC")
     fun searchAll(query: String, sourceIds: List<Long>): PagingSource<Int, MovieEntity>
 
-    @Query("SELECT * FROM movies WHERE categoryId = :categoryId AND (name LIKE '%' || :query || '%' OR canonicalTitle LIKE '%' || :query || '%' OR plot LIKE '%' || :query || '%' OR CAST(year AS TEXT) LIKE '%' || :query || '%') ORDER BY sortOrder ASC, name ASC")
+    @Query("SELECT * FROM movies WHERE categoryId = :categoryId AND searchText LIKE '%' || :query || '%' ORDER BY sortOrder ASC, name ASC")
     fun searchInCategory(query: String, categoryId: Long): PagingSource<Int, MovieEntity>
 
     /** Bounded list for global search (across all of a profile's sources). */
@@ -277,13 +277,13 @@ interface MovieDao {
 
     @Query(
         "SELECT m.* FROM movies m INNER JOIN favorites f ON f.itemId = m.id AND f.mediaType = 'MOVIE' " +
-            "WHERE f.profileId = :profileId AND m.sourceId IN (:sourceIds) AND m.name LIKE '%' || :query || '%' ORDER BY f.addedAt DESC",
+            "WHERE f.profileId = :profileId AND m.sourceId IN (:sourceIds) AND m.searchText LIKE '%' || :query || '%' ORDER BY f.addedAt DESC",
     )
     fun searchFavorites(query: String, profileId: Long, sourceIds: List<Long>): PagingSource<Int, MovieEntity>
 
     @Query(
         "SELECT m.* FROM movies m INNER JOIN watch_history h ON h.itemId = m.id AND h.mediaType = 'MOVIE' " +
-            "WHERE h.profileId = :profileId AND m.sourceId IN (:sourceIds) AND m.name LIKE '%' || :query || '%' ORDER BY h.watchedAt DESC",
+            "WHERE h.profileId = :profileId AND m.sourceId IN (:sourceIds) AND m.searchText LIKE '%' || :query || '%' ORDER BY h.watchedAt DESC",
     )
     fun searchHistory(query: String, profileId: Long, sourceIds: List<Long>): PagingSource<Int, MovieEntity>
 

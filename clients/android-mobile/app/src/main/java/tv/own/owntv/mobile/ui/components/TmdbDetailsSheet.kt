@@ -46,6 +46,10 @@ data class MediaDetails(
     val genres: List<String> = emptyList(),
     val plot: String? = null,
     val cast: List<CastMember> = emptyList(),
+    val originalTitle: String? = null,
+    val country: String? = null,
+    val director: String? = null,
+    val actorsText: String? = null,
 )
 
 /**
@@ -78,6 +82,9 @@ fun TmdbDetailsSheet(details: MediaDetails, onDismiss: () -> Unit) {
                 }
                 Column(Modifier.weight(1f)) {
                     Text(details.title, style = stageText(19f, 800), color = palette.text, maxLines = 3, overflow = TextOverflow.Ellipsis)
+                    details.originalTitle?.takeIf { it.isNotBlank() && it.trim() != details.title.trim() }?.let {
+                        Text(it, style = stageText(12f, 400), color = palette.muted)
+                    }
                     details.subtitle?.takeIf { it.isNotBlank() }?.let {
                         Text(it, style = stageText(12f, 600), color = palette.muted, modifier = Modifier.padding(top = 2.dp))
                     }
@@ -93,6 +100,14 @@ fun TmdbDetailsSheet(details: MediaDetails, onDismiss: () -> Unit) {
                         )
                     }
                 }
+            }
+            listOfNotNull(
+                details.country?.takeIf { it.isNotBlank() }?.let { stringResource(R.string.portal_details_country) to it },
+                details.director?.takeIf { it.isNotBlank() }?.let { stringResource(R.string.portal_details_director) to it },
+                details.actorsText?.takeIf { it.isNotBlank() }?.let { stringResource(R.string.portal_details_cast) to it },
+            ).forEach { (label, value) ->
+                StageGroupLabel(label)
+                Text(value, style = stageText(12.5f, 500), color = palette.body, modifier = Modifier.padding(horizontal = 12.dp))
             }
             details.plot?.takeIf { it.isNotBlank() }?.let { plot ->
                 StageGroupLabel(stringResource(R.string.content_media_overview))
@@ -122,11 +137,13 @@ fun movieDetails(movie: MovieEntity, meta: MetadataCacheEntity?, tmdbWins: Boole
     }
     return MediaDetails(
         title = movie.name,
+        originalTitle = movie.originalTitle, country = movie.country,
+        director = movie.director, actorsText = movie.actors,
         // Providers carry no backdrop of their own for most films, so TMDB's is the usual one.
         backdropUrl = MetadataImages.backdrop(meta?.backdropPath) ?: movie.backdropUrl?.takeIf { it.isNotBlank() },
         posterUrl = if (tmdbWins) tmdbPoster ?: providerPoster else providerPoster ?: tmdbPoster,
         metaLine = metaLine(year, rating, duration),
-        genres = jsonList(meta?.genresJson),
+        genres = (if (tmdbWins) jsonList(meta?.genresJson).takeIf { it.isNotEmpty() } else null) ?: movie.genres?.split(',')?.map(String::trim)?.filter(String::isNotEmpty) ?: jsonList(meta?.genresJson),
         plot = if (tmdbWins) meta?.overview ?: movie.plot else movie.plot?.takeIf { it.isNotBlank() } ?: meta?.overview,
         cast = MetadataCast.parse(meta?.castJson),
     )
@@ -140,12 +157,20 @@ fun seriesDetails(show: SeriesEntity, meta: MetadataCacheEntity?, tmdbWins: Bool
     val year = if (tmdbWins) meta?.year ?: show.year else show.year ?: meta?.year
     val rating = if (tmdbWins) meta?.rating?.positive() ?: show.rating?.positive()
     else show.rating?.positive() ?: meta?.rating?.positive()
+    val duration = show.durationSecs?.takeIf { it > 0 }?.let { secs ->
+        val hours = secs / 3600
+        val minutes = (secs % 3600) / 60
+        if (hours > 0) stringResource(R.string.content_duration_hours, hours, minutes)
+        else stringResource(R.string.content_duration_minutes, minutes)
+    }
     return MediaDetails(
         title = show.name,
+        originalTitle = show.originalTitle, country = show.country,
+        director = show.director, actorsText = show.actors,
         backdropUrl = MetadataImages.backdrop(meta?.backdropPath) ?: show.backdropUrl?.takeIf { it.isNotBlank() },
         posterUrl = if (tmdbWins) tmdbPoster ?: providerPoster else providerPoster ?: tmdbPoster,
-        metaLine = metaLine(year, rating, null),
-        genres = jsonList(meta?.genresJson),
+        metaLine = metaLine(year, rating, duration),
+        genres = (if (tmdbWins) jsonList(meta?.genresJson).takeIf { it.isNotEmpty() } else null) ?: show.genres?.split(',')?.map(String::trim)?.filter(String::isNotEmpty) ?: jsonList(meta?.genresJson),
         plot = if (tmdbWins) meta?.overview ?: show.plot else show.plot?.takeIf { it.isNotBlank() } ?: meta?.overview,
         cast = MetadataCast.parse(meta?.castJson),
     )

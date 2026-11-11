@@ -114,6 +114,7 @@ class SeriesViewModel(
     private val externalPlayerLauncher: tv.own.owntv.core.player.ExternalPlayerLauncher,
     private val streamUrlResolver: tv.own.owntv.core.stalker.StreamUrlResolver,
     private val subtitleController: tv.own.owntv.core.subtitles.SubtitleController,
+    private val providerDetails: tv.own.owntv.core.repository.ProviderDetailsRepository,
 ) : ViewModel() {
 
     /** The categories' search text, held here so it survives the player (see LiveViewModel). */
@@ -906,6 +907,10 @@ class SeriesViewModel(
 
     fun openSeries(s: SeriesEntity) {
         _openedSeries.value = s
+        viewModelScope.launch {
+            val enriched = providerDetails.show(s)
+            if (_openedSeries.value?.id == s.id) _openedSeries.value = enriched
+        }
         _selectedSeason.value = 1 // reset season when opening a different show
         _lastPlayedEpisodeId.value = null
         Log.d(TAG, "openSeries seriesId=${s.id} profile=${ctx.value.profileId}")
@@ -925,6 +930,8 @@ class SeriesViewModel(
             _episodesLoading.value = false
         }
     }
+
+    suspend fun loadProviderDetails(show: SeriesEntity): SeriesEntity = providerDetails.show(show)
 
     fun openSeriesById(seriesId: Long) {
         viewModelScope.launch {
@@ -1383,14 +1390,14 @@ class SeriesViewModel(
             }
         } else when (key) {
             LiveKey.All, LiveKey.Catchup ->
-                if (dateAdded) seriesDao.searchAllDateAdded(query, ids)
-                else seriesDao.searchAll(query, ids)
-            LiveKey.Favorites -> seriesDao.searchFavorites(query, c.profileId, ids)
-            LiveKey.History -> seriesDao.searchHistory(query, c.profileId, ids)
-            is LiveKey.Custom -> customCategoryDao.searchSeries(query, c.profileId, key.id, ids)
+                if (dateAdded) seriesDao.searchAllDateAdded(tv.own.owntv.core.content.providerSearchText(query), ids)
+                else seriesDao.searchAll(tv.own.owntv.core.content.providerSearchText(query), ids)
+            LiveKey.Favorites -> seriesDao.searchFavorites(tv.own.owntv.core.content.providerSearchText(query), c.profileId, ids)
+            LiveKey.History -> seriesDao.searchHistory(tv.own.owntv.core.content.providerSearchText(query), c.profileId, ids)
+            is LiveKey.Custom -> customCategoryDao.searchSeries(tv.own.owntv.core.content.providerSearchText(query), c.profileId, key.id, ids)
             is LiveKey.Folder ->
-                if (dateAdded) seriesDao.searchInCategoryDateAdded(query, key.id)
-                else seriesDao.searchInCategory(query, key.id)
+                if (dateAdded) seriesDao.searchInCategoryDateAdded(tv.own.owntv.core.content.providerSearchText(query), key.id)
+                else seriesDao.searchInCategory(tv.own.owntv.core.content.providerSearchText(query), key.id)
         }
     }
 

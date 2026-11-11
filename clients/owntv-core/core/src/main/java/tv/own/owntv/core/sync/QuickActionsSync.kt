@@ -18,65 +18,37 @@ class QuickActionsSync(
     private val epgRepository: EpgRepository,
     private val importFinalizer: ImportFinalizer,
 ) {
-    suspend fun refreshPlaylist(source: SourceEntity) {
-        val counts = importFinalizer.contentCounts(source.id)
-        catalogSyncScheduler.enqueueSync(
-            source.id,
-            reason = "manual_resync",
-            contentTypes = SyncContentTypes.enabledOf(source),
-            baseItemCount = counts.channels + counts.movies + counts.series,
-            policy = ExistingWorkPolicy.KEEP,
-        )
+    suspend fun refreshPlaylist(source: SourceEntity) = refresh(source, QuickSyncAction.PLAYLIST)
+    suspend fun refreshChannelsOnly(source: SourceEntity) = refresh(source, QuickSyncAction.CHANNELS)
+    suspend fun refreshChannelsAndEpg(source: SourceEntity) = refresh(source, QuickSyncAction.CHANNELS_AND_EPG)
+    suspend fun refreshAll(source: SourceEntity) = refresh(source, QuickSyncAction.ALL)
+    suspend fun refreshVod(source: SourceEntity) = refresh(source, QuickSyncAction.VOD)
+    suspend fun refreshEpg(source: SourceEntity) = refresh(source, QuickSyncAction.EPG)
+
+    private suspend fun refresh(source: SourceEntity, action: QuickSyncAction) {
+        val plan = selectiveSyncPlan(action, source)
+        dispatchSelectiveSync(plan, catalog = { contentTypes ->
+            val counts = importFinalizer.contentCounts(source.id)
+            val base = (if (contentTypes.live) counts.channels else 0) +
+                (if (contentTypes.movies) counts.movies else 0) + (if (contentTypes.series) counts.series else 0)
+            catalogSyncScheduler.enqueueSync(source.id, reason = "manual_resync", contentTypes = contentTypes,
+                baseItemCount = base, policy = ExistingWorkPolicy.APPEND_OR_REPLACE, includeGuide = false,
+                afterEpgSourceIds = if (plan.epg) selectedGuideSources(source).map { it.id } else emptyList())
+        }, epg = { if (plan.catalog?.hasAny != true) refreshEpgOnly(source) })
     }
 
-    suspend fun refreshChannelsOnly(source: SourceEntity) {
-        val counts = importFinalizer.contentCounts(source.id)
-        catalogSyncScheduler.enqueueSync(
-            source.id,
-            reason = "manual_resync",
-            contentTypes = SyncContentTypes(live = true, movies = false, series = false),
-            baseItemCount = counts.channels,
-            policy = ExistingWorkPolicy.KEEP,
-        )
+    private suspend fun refreshEpgOnly(source: SourceEntity) {
+        selectedGuideSources(source).forEach { src ->
+            val base = epgDao.countForSources(listOf(src.id))
+            epgSyncScheduler.enqueueSync(src.id, if (src.builtin) "manual_builtin" else "manual_resync", base, ExistingWorkPolicy.KEEP)
+        }
     }
 
-    suspend fun refreshChannelsAndEpg(source: SourceEntity) {
-        refreshChannelsOnly(source)
-        refreshEpg(source)
-    }
-
-    suspend fun refreshAll(source: SourceEntity) {
-        refreshPlaylist(source)
-        refreshEpg(source)
-    }
-
-    suspend fun refreshVod(source: SourceEntity) {
-        val counts = importFinalizer.contentCounts(source.id)
-        catalogSyncScheduler.enqueueSync(
-            source.id,
-            reason = "manual_resync",
-            contentTypes = SyncContentTypes(live = false, movies = source.syncMovies, series = source.syncSeries),
-            baseItemCount = counts.movies + counts.series,
-            policy = ExistingWorkPolicy.KEEP,
-        )
-    }
-
-    suspend fun refreshEpg(source: SourceEntity) {
+    private suspend fun selectedGuideSources(source: SourceEntity): List<tv.own.owntv.core.epg.EpgSource> {
         val allEpg = epgSourceStore.getAll()
         val urls = epgRepository.guideUrls(source).toSet()
         val stalkerUrl = EpgRepository.stalkerGuideUrl(source.id)
         val matched = allEpg.filter { it.url in urls || (source.type == SourceType.STALKER && it.url == stalkerUrl) }
-        if (matched.isNotEmpty()) {
-            matched.forEach { src ->
-                val base = epgDao.countForSources(listOf(src.id))
-                epgSyncScheduler.enqueueSync(src.id, "manual_resync", base, ExistingWorkPolicy.KEEP)
-            }
-        } else {
-            // No guide of its own: only the built-in one. The EPG sources are global (every profile's),
-            // and a shortcut on one playlist must not re-download the others'.
-            allEpg.firstOrNull { it.builtin }?.let {
-                epgSyncScheduler.enqueueSync(it.id, "manual_builtin", policy = ExistingWorkPolicy.KEEP)
-            }
-        }
+        return matched.ifEmpty { allEpg.firstOrNull { it.builtin }?.let { listOf(it) }.orEmpty() }
     }
 }

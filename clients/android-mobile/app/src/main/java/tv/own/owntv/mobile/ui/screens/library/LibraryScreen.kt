@@ -449,7 +449,7 @@ private fun VodListRow(
         )
         Column(Modifier.weight(1f)) {
             val displayTitle = item.canonicalTitle?.ifBlank { item.name } ?: item.name
-            val originalTitle = item.name.takeIf { it.trim() != displayTitle.trim() }
+            val originalTitle = item.originalTitle?.takeIf { it.trim() != displayTitle.trim() }
             Text(displayTitle, style = stageText(14.5f, 700), color = palette.text, maxLines = 2, overflow = TextOverflow.Ellipsis)
             if (!originalTitle.isNullOrBlank()) {
                 Text(originalTitle, style = stageText(11.5f, 400), color = palette.muted, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 1.dp))

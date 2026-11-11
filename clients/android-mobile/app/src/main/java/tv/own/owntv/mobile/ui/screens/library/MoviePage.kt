@@ -168,9 +168,9 @@ internal fun MoviePage(
         } else {
             val titleSize = headlineSizeFor(title)
             Text(title, style = stageText(titleSize, 800, (-1f / titleSize).em, lineHeight = 1.12f), color = palette.text, maxLines = 2, overflow = TextOverflow.Ellipsis)
-            if (film.name.trim() != title.trim() && film.name.isNotBlank()) {
-                Text(film.name, style = stageText(12f, 400), color = palette.muted, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 2.dp))
-            }
+        }
+        film.originalTitle?.takeIf { it.isNotBlank() && it.trim() != title.trim() }?.let {
+            Text(it, style = stageText(12f, 400), color = palette.muted, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 2.dp))
         }
         Spacer(Modifier.height(8.dp))
         // "Movies · Disney+ Kids Movies" (`.crumb`): where it sits, the category in the accent.
@@ -191,7 +191,7 @@ internal fun MoviePage(
         MovieMeta(
             parts = listOfNotNull(
                 (film.year ?: meta?.year)?.takeIf { it > 0 }?.let(::formatYear),
-                jsonList(meta?.genresJson).take(3).takeIf { it.isNotEmpty() }?.joinToString(stringResource(R.string.content_epg_bits_separator)),
+                (film.genres?.split(',') ?: jsonList(meta?.genresJson)).take(3).takeIf { it.isNotEmpty() }?.joinToString(stringResource(R.string.content_epg_bits_separator)),
                 film.durationSecs?.takeIf { it >= 60 }?.let { durationText(it / 60L) },
             ),
             rating = rating?.let(::formatRating),

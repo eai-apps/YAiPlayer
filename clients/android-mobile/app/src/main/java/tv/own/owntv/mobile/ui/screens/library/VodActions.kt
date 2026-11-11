@@ -127,7 +127,7 @@ fun VodMenu(
         val trailer = tv.own.owntv.core.metadata.TrailerKeys.split(meta?.trailerKey).firstOrNull()
         // WATCH, LIBRARY, ORGANISE, DETAILS. What is not available for this
         // title stays in its place, dimmed — Play trailer without a trailer, Remove from history when it is
-        // not in History, details without a TMDB match, Delete subtitles with none downloaded.
+        // not in History, Delete subtitles with none downloaded.
         val actions = buildList {
             add(
                 SheetAction(
@@ -239,8 +239,8 @@ fun VodMenu(
                     label = stringResource(if (movie) R.string.content_movie_details else R.string.content_series_details),
                     icon = MobileIcons.Info,
                     group = GROUP_DETAILS,
-                    // Only once a confident match has actually resolved: there is nothing to show otherwise.
-                    enabled = mode.enrich && meta != null,
+                    // Provider details remain available when enrichment is off or has no match.
+                    enabled = true,
                     onClick = { dialog = VodDialog.DETAILS },
                 ),
             )
@@ -372,6 +372,7 @@ private fun VodDetails(
     val movie = tab == LibraryTab.MOVIES
     val entity by produceState<Any?>(null, itemId) {
         value = if (movie) vm.movieById(itemId) else vm.seriesById(itemId)
+        value = if (movie) vm.movieDetailsById(itemId) else vm.seriesDetailsById(itemId)
     }
     val details = when (val e = entity) {
         is MovieEntity -> movieDetails(e, meta, tmdbWins)

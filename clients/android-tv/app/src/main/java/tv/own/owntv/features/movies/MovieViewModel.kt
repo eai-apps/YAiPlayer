@@ -109,6 +109,7 @@ class MovieViewModel(
     private val externalPlayerLauncher: tv.own.owntv.core.player.ExternalPlayerLauncher,
     private val streamUrlResolver: tv.own.owntv.core.stalker.StreamUrlResolver,
     private val subtitleController: tv.own.owntv.core.subtitles.SubtitleController,
+    private val providerDetails: tv.own.owntv.core.repository.ProviderDetailsRepository,
 ) : ViewModel() {
 
     /** The categories' search text, held here so it survives the player (see LiveViewModel). */
@@ -562,7 +563,16 @@ class MovieViewModel(
         }
     }
     fun setSearchQuery(query: String) { _search.value = query }
-    fun onMovieFocused(movie: MovieEntity) { _selectedMovie.value = movie }
+    suspend fun loadProviderDetails(movie: MovieEntity): MovieEntity = providerDetails.movie(movie)
+    fun onMovieFocused(movie: MovieEntity) {
+        _selectedMovie.value = movie
+        viewModelScope.launch {
+            delay(tv.own.owntv.core.metadata.MetadataRepository.FOCUS_DEBOUNCE_MS)
+            if (_selectedMovie.value?.id != movie.id) return@launch
+            val enriched = providerDetails.movie(movie)
+            if (_selectedMovie.value?.id == movie.id) _selectedMovie.value = enriched
+        }
+    }
 
     /** Search's "Go to movie": the titles scroll to [reveal] and focus it, then call [revealDone]. */
     private val _reveal = MutableStateFlow<tv.own.owntv.features.search.Reveal?>(null)
@@ -1053,14 +1063,14 @@ class MovieViewModel(
             }
         } else when (key) {
             LiveKey.All, LiveKey.Catchup ->
-                if (dateAdded) movieDao.searchAllDateAdded(query, ids)
-                else movieDao.searchAll(query, ids)
-            LiveKey.Favorites -> movieDao.searchFavorites(query, c.profileId, ids)
-            LiveKey.History -> movieDao.searchHistory(query, c.profileId, ids)
-            is LiveKey.Custom -> customCategoryDao.searchMovies(query, c.profileId, key.id, ids)
+                if (dateAdded) movieDao.searchAllDateAdded(tv.own.owntv.core.content.providerSearchText(query), ids)
+                else movieDao.searchAll(tv.own.owntv.core.content.providerSearchText(query), ids)
+            LiveKey.Favorites -> movieDao.searchFavorites(tv.own.owntv.core.content.providerSearchText(query), c.profileId, ids)
+            LiveKey.History -> movieDao.searchHistory(tv.own.owntv.core.content.providerSearchText(query), c.profileId, ids)
+            is LiveKey.Custom -> customCategoryDao.searchMovies(tv.own.owntv.core.content.providerSearchText(query), c.profileId, key.id, ids)
             is LiveKey.Folder ->
-                if (dateAdded) movieDao.searchInCategoryDateAdded(query, key.id)
-                else movieDao.searchInCategory(query, key.id)
+                if (dateAdded) movieDao.searchInCategoryDateAdded(tv.own.owntv.core.content.providerSearchText(query), key.id)
+                else movieDao.searchInCategory(tv.own.owntv.core.content.providerSearchText(query), key.id)
         }
     }
 

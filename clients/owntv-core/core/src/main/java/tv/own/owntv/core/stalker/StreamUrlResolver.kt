@@ -281,18 +281,22 @@ class StreamUrlResolver(
         val mac = source.mac?.let { StalkerClient.canonicalizeMac(it) }
             ?: throw java.io.IOException("Stalker source ${source.id} has no valid MAC")
         val creds = source.stalkerCredentials(mac)
-        val fmt = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
-            .apply { timeZone = java.util.TimeZone.getDefault() }
         val now = System.currentTimeMillis()
+        val today = java.time.Instant.ofEpochMilli(now).atZone(java.time.ZoneId.systemDefault()).toLocalDate()
         return stalkerAuth.withAuthRetry(creds) { session ->
             val gate = kotlinx.coroutines.sync.Semaphore(DAY_PARALLEL)
             kotlinx.coroutines.coroutineScope {
                 dayOffsets.map { offset ->
                     async {
                         gate.withPermit {
-                            val date = fmt.format(java.util.Date(now + offset * 24L * 60 * 60 * 1000))
-                            runCatching { readWholeDay(session.apiBase, mac, session.token, creds.userAgent, channelRemoteId, date) }
-                                .getOrDefault(emptyList())
+                            val date = today.plusDays(offset.toLong()).toString()
+                            try {
+                                readWholeDay(session.apiBase, mac, session.token, creds.userAgent, channelRemoteId, date)
+                            } catch (c: kotlinx.coroutines.CancellationException) {
+                                throw c
+                            } catch (_: Exception) {
+                                emptyList()
+                            }
                         }
                     }
                 }.awaitAll().flatten()
