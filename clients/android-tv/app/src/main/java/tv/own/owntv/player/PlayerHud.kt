@@ -93,7 +93,7 @@ private const val TRACK_POLL_TRIES = 20
  *  Counted from the stall, which itself only starts once the buffer (~10s) has run dry. */
 private const val RECONNECT_NOTICE_AFTER_MS = 10_000L
 
-internal enum class HudDialog { NONE, AUDIO, SUBS, SPEED, ZOOM, QUALITY, VOLUME, JUMP_BACK, SLEEP_TIMER, SOURCES }
+internal enum class HudDialog { NONE, AUDIO, SUBS, SPEED, ZOOM, QUALITY, VOLUME, JUMP_BACK, SLEEP_TIMER, SOURCES, EPISODES }
 
 /**
  * "Sources": the other versions of the live channel playing ([tv.own.owntv.core.live.ChannelVersions]).
@@ -247,6 +247,8 @@ fun PlayerHud(
     val providerBackOff by player.providerBackOff.collectAsStateWithLifecycle()
     val stalledSinceMs by player.stalledSinceMs.collectAsStateWithLifecycle()
     val nav by player.nav.collectAsStateWithLifecycle()
+    val queueItems by player.queueItems.collectAsStateWithLifecycle()
+    val queueIndex by player.queueIndex.collectAsStateWithLifecycle()
     val volume by player.volume.collectAsStateWithLifecycle()
     val videoRes by player.videoRes.collectAsStateWithLifecycle()
     val streamChips by player.streamChips.collectAsStateWithLifecycle()
@@ -589,6 +591,9 @@ fun PlayerHud(
                 // intended: CH-/Down from the first channel lands on the last, and vice versa.
                 canZap && e.key == Key.MediaNext -> { zap(1); true }
                 canZap && e.key == Key.MediaPrevious -> { zap(-1); true }
+                // A season queue: the remote's ⏭/⏮ step episodes (nothing handled them for VOD before).
+                !isLive && nav.hasNext && e.key == Key.MediaNext -> { player.next(); true }
+                !isLive && nav.hasPrev && e.key == Key.MediaPrevious -> { player.previous(); true }
                 canZap && isLive && !controlsVisible && e.key == Key.DirectionUp -> { zap(zapDirection(up = true, remoteOptions)); true }
                 canZap && isLive && !controlsVisible && e.key == Key.DirectionDown -> { zap(zapDirection(up = false, remoteOptions)); true }
                 // Left/Right with the controls hidden: reveal them on the timeline and take the first
@@ -719,6 +724,7 @@ fun PlayerHud(
                     onPlayFromStart = onPlayFromStart,
                     onPrevInList = onChannelUp, onNextInList = onChannelDown,
                     onOpenRecent = onOpenHistoryList, onGoLive = onGoToLive,
+                    onOpenEpisodes = if (queueItems.size > 1) { { dialog = HudDialog.EPISODES } } else null,
                     modifier = Modifier.align(Alignment.Center),
                 )
 
@@ -987,6 +993,11 @@ fun PlayerHud(
             QualityDialog(heights, pick, onSelect = { player.selectVideoQuality(it); dialog = HudDialog.NONE }, onDismiss = { dialog = HudDialog.NONE })
         }
         HudDialog.VOLUME -> VolumeDialog(player, onDismiss = { dialog = HudDialog.NONE })
+        HudDialog.EPISODES -> EpisodesDialog(
+            items = queueItems, current = queueIndex,
+            onSelect = { player.playQueueAt(it); dialog = HudDialog.NONE },
+            onDismiss = { dialog = HudDialog.NONE },
+        )
         HudDialog.SOURCES -> sources?.let { s ->
             SourcesDialog(s, onDismiss = { dialog = HudDialog.NONE })
         } ?: run { dialog = HudDialog.NONE }

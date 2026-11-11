@@ -605,4 +605,12 @@
     <string name="player_trailer_blocked_body">Its owner only allows it to be played on YouTube.</string>
     <!-- Translators: Popup button: open the trailer in the YouTube app instead. Keep "YouTube" as is. -->
     <string name="player_trailer_open_youtube">Open in YouTube</string>
+    <!-- Translators: Labelled player button that plays the previous episode of the season. -->
+    <string name="player_btn_prev_episode">Previous episode</string>
+    <!-- Translators: Labelled player button that plays the next episode of the season. -->
+    <string name="player_btn_next_episode">Next episode</string>
+    <!-- Translators: Player button and dialog title: the list of the season's episodes to jump to. -->
+    <string name="player_btn_episodes">Episodes</string>
+    <!-- Translators: A row of the in-player episode list. "season" and "episode" are numbers. -->
+    <string name="player_episode_row">Season <xliff:g id="season">%1$d</xliff:g> · Episode <xliff:g id="episode">%2$d</xliff:g></string>
 </resources>

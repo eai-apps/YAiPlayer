@@ -67,7 +67,8 @@ class StreamUrlResolver(
                     type = if (vod) "vod" else "itv", episode = episode,
                 )
             }
-            completeLink(minted, direct)
+            val link = completeLink(minted, direct)
+            if (episode != null) pinEpisodeInUrl(link, episode) else link
         } catch (e: kotlin.coroutines.cancellation.CancellationException) {
             throw e
         } catch (e: Exception) {
@@ -98,6 +99,32 @@ class StreamUrlResolver(
             tail.startsWith("/") -> "${base.scheme}://${base.host}:${base.port}$tail"
             else -> minted
         }
+    }
+
+    /**
+     * Portals whose seasons are a "Custom URL" record (one file address for the whole season, e.g.
+     * `…/s02/S02E01.mkv`) ignore `series=<ep>` in `create_link`: they hand back that same first-episode
+     * file (or only a `?token=…` tail that [completeLink] glues onto it). Every episode then played
+     * episode one — the operator's bug of 10.11.2026 (log: `mpv_load …/MobLand/s02/S02E01.mkv?token=…`).
+     *
+     * When the file name carries an `SxxEyy` mark whose episode differs from the requested one, the
+     * episode digits are replaced (padding kept: `S02E01` → `S02E05`, `S1E9` → `S1E10`). A URL already
+     * naming the right episode, or with no such mark, is returned untouched. Only the last path segment
+     * is looked at, so a folder like `/S01E01-special/` never matches; the query (token) is kept.
+     */
+    internal fun pinEpisodeInUrl(url: String, episode: Int): String {
+        if (episode <= 0) return url
+        val queryAt = url.indexOfFirst { it == '?' || it == '#' }.let { if (it < 0) url.length else it }
+        val path = url.substring(0, queryAt)
+        val slash = path.lastIndexOf('/')
+        val segment = path.substring(slash + 1)
+        val m = EPISODE_MARK.find(segment) ?: return url
+        val digits = m.groupValues[2]
+        if (digits.toIntOrNull() == episode) return url
+        val padded = episode.toString().padStart(digits.length, '0')
+        val newSegment = segment.substring(0, m.groups[2]!!.range.first) + padded + segment.substring(m.groups[2]!!.range.last + 1)
+        android.util.Log.i(TAG, "episode pinned in url: E$digits -> E$padded")
+        return path.substring(0, slash + 1) + newSegment + url.substring(queryAt)
     }
 
     /**
@@ -223,6 +250,8 @@ class StreamUrlResolver(
     }
 
     private companion object {
+        /** `S01E05`, `s1e5`, `S01.E05`, `S01_E05` — season, then episode digits (group 2). */
+        private val EPISODE_MARK = Regex("(?i)s(\\d{1,3})[._ -]?e(\\d{1,4})(?!\\d)")
         const val TAG = "StreamUrlResolver"
 
         /** A day of guide is a handful of pages; the cap only stops a portal that miscounts its totals. */

@@ -62,6 +62,8 @@ import java.text.NumberFormat
 /** The pickers the tool bar opens. Each one is a sheet; each one also has a gesture. */
 enum class PlayerSheet {
     VOLUME, BRIGHTNESS, SUBTITLES, SUBTITLE_SEARCH, AUDIO, ASPECT, QUALITY, SPEED, INFO, CHANNELS, CATCHUP, SLEEP_TIMER,
+    /** The season playing — jump to any episode. */
+    EPISODES,
 }
 
 /**
@@ -219,6 +221,7 @@ fun PlayerControls(
                 behindLive = behindLive,
                 onChannelPrevious = onChannelPrevious,
                 onChannelNext = onChannelNext,
+                onOpenEpisodes = { onOpenSheet(PlayerSheet.EPISODES) },
                 modifier = Modifier.align(Alignment.Center),
             )
 
@@ -338,9 +341,12 @@ private fun TransportRow(
     /** Step within the channel list; null hides the button (live only). */
     onChannelPrevious: (() -> Unit)? = null,
     onChannelNext: (() -> Unit)? = null,
+    /** Opens the season's episode list; shown only while a queue of 2+ episodes plays. */
+    onOpenEpisodes: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
     val playing by player.isPlaying.collectAsStateWithLifecycle()
+    val queueItems by player.queueItems.collectAsStateWithLifecycle()
     val step by player.seekStepMs.collectAsStateWithLifecycle()
     // Whether there is an episode either side of this one. The engine answers "no" for a film and for
     // live, so the two buttons appear only where they mean something.
@@ -350,7 +356,7 @@ private fun TransportRow(
     Column(modifier, horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(10.dp)) {
         TransportCapsule {
             if (nav.hasPrev) {
-                RoundControl(MobileIcons.SkipPrevious, R.string.settings_remote_button_previous) { player.previous() }
+                LabelledRoundControl(MobileIcons.SkipPrevious, R.string.player_btn_prev_episode, size = 72.dp) { player.previous() }
             }
             if (liveLike && onCatchup != null) {
                 LabelledRoundControl(MobileIcons.Catchup, R.string.player_tool_catchup, size = 80.dp, onClick = onCatchup)
@@ -379,7 +385,12 @@ private fun TransportRow(
                 LabelledRoundControl(MobileIcons.PlayArrow, R.string.player_go_live, size = 72.dp, onClick = onGoLive)
             }
             if (nav.hasNext) {
-                RoundControl(MobileIcons.SkipNext, R.string.settings_remote_button_next) { player.next() }
+                LabelledRoundControl(MobileIcons.SkipNext, R.string.player_btn_next_episode, size = 72.dp) { player.next() }
+            }
+        }
+        if (!liveLike && onOpenEpisodes != null && queueItems.size > 1) {
+            TransportCapsule {
+                LabelledRoundControl(MobileIcons.FormatListBulleted, R.string.player_btn_episodes, size = 72.dp, onClick = onOpenEpisodes)
             }
         }
         // Live or archive: the neighbouring channels of the list, named in full so nobody has to guess.

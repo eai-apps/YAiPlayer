@@ -4886,6 +4886,7 @@
 2	url	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	?
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	Portal listed no file for episode ${ref.episodeId}
 4	log	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	Stalker source ${source.id} has no valid MAC
+1	log	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	episode pinned in url: E$digits -> E$padded
 1	log	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	episode resolve sourceId=${source?.id} episodeId=${episode.id} season=${episode.seasonNumber} episode=${episode.episodeNumber}
 1	log	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	film create_link failed (${e.javaClass.simpleName}) — playing the stored URL
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	itv
@@ -4895,6 +4896,7 @@
 1	protocol	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	tv_archive
 2	protocol	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	vod
 1	locale	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	yyyy-MM-dd
+1	regex	core/src/main/java/tv/own/owntv/core/stalker/StreamUrlResolver.kt	(?i)s(\\d{1,3})[._ -]?e(\\d{1,4})(?!\\d)
 1	file-path	core/src/main/java/tv/own/owntv/core/storage/MediaFolders.kt	$SERIES/${StorageAccess.sanitize(showName)}/$SEASON_PREFIX $seasonNumber
 1	file-path	core/src/main/java/tv/own/owntv/core/storage/MediaFolders.kt	Movies
 1	file-path	core/src/main/java/tv/own/owntv/core/storage/MediaFolders.kt	Season

@@ -290,6 +290,8 @@ internal fun CenterControls(
     onOpenRecent: (() -> Unit)? = null,
     /** Back to the live edge, shown while an archive is playing. */
     onGoLive: (() -> Unit)? = null,
+    /** VOD queue (a season): opens the in-player episode list. Null = no list (single item / live). */
+    onOpenEpisodes: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
     val seekStep by player.seekStepMs.collectAsStateWithLifecycle() // Settings -> Seek step
@@ -311,7 +313,8 @@ internal fun CenterControls(
         val liveLike = isLive || onOpenArchive != null
         TransportCapsule {
             if (liveLike && onPrevInList != null) LabelledCircleButton(OwnTVIcon.SKIP_PREVIOUS, stringResource(R.string.player_btn_prev_channel), size = 100) { onPrevInList() }
-            if (nav.hasPrev) CircleButton(OwnTVIcon.SKIP_PREVIOUS, size = 44) { player.previous() }
+            // Episodes: labelled like the channel steps — a bare 44-px arrow went unnoticed (owner, 10.11).
+            if (nav.hasPrev) LabelledCircleButton(OwnTVIcon.SKIP_PREVIOUS, stringResource(R.string.player_btn_prev_episode), size = 100) { player.previous() }
             if (liveLike && onOpenArchive != null) LabelledCircleButton(OwnTVIcon.CATCHUP, stringResource(R.string.player_tool_catchup), size = 112) { onOpenArchive() }
             if (liveLike && onPlayFromStart != null) LabelledCircleButton(OwnTVIcon.REWIND, stringResource(R.string.on_air_from_start), size = 100) { onPlayFromStart() }
             when {
@@ -326,7 +329,8 @@ internal fun CenterControls(
             }
             // From an archive, one press back to the live picture.
             if (onGoLive != null && (timeshifting || !isLive)) LabelledCircleButton(OwnTVIcon.LIVE_DOT, stringResource(R.string.player_go_live), size = 100) { onGoLive() }
-            if (nav.hasNext) CircleButton(OwnTVIcon.SKIP_NEXT, size = 44) { player.next() }
+            if (nav.hasNext) LabelledCircleButton(OwnTVIcon.SKIP_NEXT, stringResource(R.string.player_btn_next_episode), size = 100) { player.next() }
+            if (!liveLike && onOpenEpisodes != null) LabelledCircleButton(OwnTVIcon.LIST_GRID, stringResource(R.string.player_btn_episodes), size = 100) { onOpenEpisodes() }
             if (liveLike && onNextInList != null) LabelledCircleButton(OwnTVIcon.SKIP_NEXT, stringResource(R.string.player_btn_next_channel), size = 100) { onNextInList() }
             if (liveLike && onOpenRecent != null) LabelledCircleButton(OwnTVIcon.HISTORY, stringResource(R.string.player_btn_recent_channels), size = 100) { onOpenRecent() }
         }

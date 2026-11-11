@@ -128,6 +128,31 @@ fun PlayerSheetHost(
         PlayerSheet.CHANNELS -> ChannelSheet(channelsTitle, channels, onTuneToNumber, onPickChannel, onDismiss)
         PlayerSheet.CATCHUP -> catchup?.let { CatchupSheet(it, onDismiss) } ?: onDismiss()
         PlayerSheet.SLEEP_TIMER -> SleepTimerSheet(programmeEndMs = programmeEndMs, onDismiss = onDismiss)
+        PlayerSheet.EPISODES -> EpisodesSheet(player, onDismiss)
+    }
+}
+
+/** The season playing, one row per episode, the one on screen ticked — the television's list. */
+@Composable
+private fun EpisodesSheet(player: PlaybackEngine, onDismiss: () -> Unit) {
+    val items by player.queueItems.collectAsStateWithLifecycle()
+    val current by player.queueIndex.collectAsStateWithLifecycle()
+    val title = stringResource(R.string.player_btn_episodes)
+    val separator = stringResource(R.string.content_epg_bits_separator)
+    MobileBottomSheet(onDismissRequest = onDismiss, title = title) {
+        StageSheetHeader(title)
+        SheetScroll {
+            items.forEachIndexed { index, m ->
+                val number = m.episodeNumber ?: (index + 1)
+                val label = m.seasonNumber?.let { stringResource(R.string.player_episode_row, it, number) }
+                    ?: stringResource(R.string.player_episode_number, number)
+                StageMenuItem(
+                    listOfNotNull(label, m.title?.takeIf { it.isNotBlank() }).joinToString(separator),
+                    onClick = { player.playQueueAt(index); onDismiss() },
+                    checked = index == current,
+                )
+            }
+        }
     }
 }
 

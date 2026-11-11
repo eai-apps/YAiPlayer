@@ -130,6 +130,11 @@ interface PlaybackEngine {
     /** Title of the next queued item (in-season next episode), for the HUD next-episode countdown card.
      *  Null when there is no next item — a live engine leaves it null. */
     val nextUpTitle: StateFlow<String?> get() = NULL_STRING
+    /** The loaded queue (a season's episodes), for the in-player episode list. Empty on a live engine
+     *  or a single item. [queueIndex] is the playing one; [playQueueAt] jumps to another. */
+    val queueItems: StateFlow<List<MediaMeta>> get() = NO_QUEUE
+    val queueIndex: StateFlow<Int> get() = ZERO_INT
+    fun playQueueAt(index: Int) {}
     /** True while the sleep timer waits for this item's end — the HUD then shows no next-episode card. */
     val stopsAtItemEnd: StateFlow<Boolean> get() = FALSE_FLOW
     /** In-player A/V-sync nudge (ms); positive = sound later. 0 on an engine that cannot shift it. */
@@ -168,6 +173,7 @@ interface PlaybackEngine {
         private val NO_CHIPS: StateFlow<List<String>> = MutableStateFlow(emptyList())
         private val NULL_STRING: StateFlow<String?> = MutableStateFlow(null)
         private val FALSE_FLOW: StateFlow<Boolean> = MutableStateFlow(false)
+        private val NO_QUEUE: StateFlow<List<MediaMeta>> = MutableStateFlow(emptyList())
         private val NO_QUALITIES: StateFlow<List<Int>> = MutableStateFlow(emptyList())
         private val NULL_INT: StateFlow<Int?> = MutableStateFlow(null)
         private val NULL_LONG: StateFlow<Long?> = MutableStateFlow(null)
@@ -201,6 +207,9 @@ class MpvPlaybackEngine(private val p: OwnTVPlayer) : PlaybackEngine {
     override val speed get() = p.speed
     override val nav get() = p.nav
     override val nextUpTitle get() = p.nextUpTitle
+    override val queueItems get() = p.queueItems
+    override val queueIndex get() = p.queueIndex
+    override fun playQueueAt(index: Int) = p.playQueueAt(index)
     override val stopsAtItemEnd get() = p.stopsAtItemEnd
     override val audioDelayMs get() = p.audioDelayMs
     override fun audioDelayAvailable() = true

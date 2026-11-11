@@ -1284,6 +1284,11 @@ class OwnTVPlayer(
     // Null when there's no next item (single movie, or the season's last episode).
     private val _nextUpTitle = MutableStateFlow<String?>(null)
     val nextUpTitle: StateFlow<String?> = _nextUpTitle.asStateFlow()
+    private val _queueItems = MutableStateFlow<List<MediaMeta>>(emptyList())
+    /** The current queue's items (episode list in the player); empty unless [playEpisodes] loaded 2+. */
+    val queueItems: StateFlow<List<MediaMeta>> = _queueItems.asStateFlow()
+    private val _queueIndex = MutableStateFlow(0)
+    val queueIndex: StateFlow<Int> = _queueIndex.asStateFlow()
 
 
     /** HUD "Cancel" on the next-episode countdown: skip the automatic advance for the current item. */
@@ -2828,6 +2833,13 @@ class OwnTVPlayer(
         }
     }
 
+    /** Jump straight to queue item [index] (the in-player episode list). */
+    fun playQueueAt(index: Int) {
+        if (index !in playlist.indices || index == playlistIndex) return
+        playlistIndex = index
+        playCurrent()
+    }
+
     private fun playCurrent() {
         val item = playlist.getOrNull(playlistIndex) ?: return
         loadItem(item, startPositionMs = 0)
@@ -2880,6 +2892,8 @@ class OwnTVPlayer(
     private fun updateNav() {
         _nav.value = NavState(playlistIndex > 0, playlistIndex < playlist.size - 1)
         _nextUpTitle.value = playlist.getOrNull(playlistIndex + 1)?.meta?.title
+        _queueItems.value = if (playlist.size > 1) playlist.map { it.meta } else emptyList()
+        _queueIndex.value = playlistIndex
     }
 
     /** The metadata of the item currently loaded — every reload (retry, reconnect, engine switch,

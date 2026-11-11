@@ -98,6 +98,35 @@ class SelectedEpisodePlaybackTest {
         assertEquals(-1, episodePlaybackIndex(selected, selected[0].copy(seriesId = 999)))
     }
 
+    /** The operator's portal (10.11.2026): the season record is one "Custom URL" — the first episode's
+     *  file — and create_link ignores `series=` (answering with that file or just `?token=…`). */
+    @Test fun customUrlSeasonPlaysTheSelectedEpisodeNotTheFirst() = runBlocking {
+        val seasonCmd = "http://files:82/2025/SERIAL_2/MobLand/s02/S02E01.mkv"
+        for (answer in listOf("?token=abc", "$seasonCmd?token=abc", "ffmpeg $seasonCmd?token=abc")) {
+            val client = object : StalkerClient(OkHttpClient()) {
+                override suspend fun createLink(apiBase: String, mac: String, token: String,
+                    userAgent: String?, cmd: String, type: String, episode: Int?): String =
+                    StalkerClient.stripCmdPrefix(answer)
+            }
+            val resolver = resolver(client)
+            for (n in listOf(1, 2, 5, 12)) {
+                val ep = episode(2, n).copy(streamUrl = seasonCmd)
+                val expected = "http://files:82/2025/SERIAL_2/MobLand/s02/S02E${n.toString().padStart(2, '0')}.mkv?token=abc"
+                assertEquals("answer=$answer episode=$n", expected, resolver.resolveEpisode(source, ep))
+            }
+        }
+    }
+
+    @Test fun pinEpisodeLeavesCorrectOrUnmarkedUrlsAlone() {
+        val r = resolver(StalkerClient(OkHttpClient()))
+        assertEquals("http://h/s01/S01E05.mkv?t=1", r.pinEpisodeInUrl("http://h/s01/S01E05.mkv?t=1", 5))
+        assertEquals("http://h/film.mkv?t=1", r.pinEpisodeInUrl("http://h/film.mkv?t=1", 5))
+        assertEquals("http://h/S1E10.mp4", r.pinEpisodeInUrl("http://h/S1E9.mp4", 10))
+        assertEquals("http://h/Show.s01.e007.mkv", r.pinEpisodeInUrl("http://h/Show.s01.e001.mkv", 7))
+        // Only the file name counts: a folder or the query must never be rewritten.
+        assertEquals("http://h/S01E01-pack/ep.mkv?x=S01E01", r.pinEpisodeInUrl("http://h/S01E01-pack/ep.mkv?x=S01E01", 3))
+    }
+
     private fun resolver(client: StalkerClient): StreamUrlResolver {
         val auth = object : StalkerAuthManager(client) {
             override suspend fun <T> withAuthRetry(creds: StalkerCredentials,

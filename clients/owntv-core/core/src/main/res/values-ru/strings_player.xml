@@ -340,4 +340,8 @@
     <string name="player_trailer_blocked_title">Этот трейлер нельзя воспроизвести в YAiPlayer</string>
     <string name="player_trailer_blocked_body">Владелец разрешает воспроизведение только на YouTube.</string>
     <string name="player_trailer_open_youtube">Открыть в YouTube</string>
+    <string name="player_btn_prev_episode">Пред. серия</string>
+    <string name="player_btn_next_episode">След. серия</string>
+    <string name="player_btn_episodes">Серии</string>
+    <string name="player_episode_row">Сезон <xliff:g id="season">%1$d</xliff:g> · Серия <xliff:g id="episode">%2$d</xliff:g></string>
 </resources>

@@ -368,6 +368,30 @@ internal fun SourcesDialog(sources: HudSources, onDismiss: () -> Unit) {
     }
 }
 
+/** The season playing, one row per episode, the one on screen ringed and focused. */
+@Composable
+internal fun EpisodesDialog(items: List<MediaMeta>, current: Int, onSelect: (Int) -> Unit, onDismiss: () -> Unit) {
+    val focus = remember { FocusRequester() }
+    LaunchedEffect(Unit) { requestFocusRetrying(focus) }
+    BackHandler { onDismiss() }
+    val state = androidx.compose.foundation.lazy.rememberLazyListState(initialFirstVisibleItemIndex = (current - 2).coerceAtLeast(0))
+    val separator = stringResource(R.string.content_epg_bits_separator)
+    DialogScaffold(title = stringResource(R.string.player_btn_episodes), onDismiss = onDismiss, state = state) {
+        items(items.size) { index ->
+            val m = items[index]
+            val number = m.episodeNumber ?: (index + 1)
+            val label = m.seasonNumber?.let { stringResource(R.string.player_episode_row, it, number) }
+                ?: stringResource(R.string.player_episode_number, number)
+            OptionRow(
+                label = listOfNotNull(label, m.title?.takeIf { it.isNotBlank() }).joinToString(separator),
+                selected = index == current,
+                modifier = if (index == current) Modifier.focusRequester(focus) else Modifier,
+                onClick = { onSelect(index) },
+            )
+        }
+    }
+}
+
 @Composable
 internal fun QualityDialog(heights: List<Int>, current: Int?, onSelect: (Int?) -> Unit, onDismiss: () -> Unit) {
     val focus = remember { FocusRequester() }
