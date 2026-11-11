@@ -17,6 +17,8 @@ sealed interface RadioMode {
     data object Collections : RadioMode
     data object Favorites : RadioMode
     data class Search(val query: String) : RadioMode
+    /** Sign-in to the YAiPlay Radio account: favourites shared with the site and the user's other devices. */
+    data object Account : RadioMode
 }
 
 /** The radio screen's state, shared by the TV and the phone. */
@@ -35,9 +37,48 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
     private val _failed = MutableStateFlow(false)
     val failed: StateFlow<Boolean> = _failed.asStateFlow()
     private var job: Job? = null
+    private var syncJob: Job? = null
+
+    /** Signed-in login, or null. */
+    val account: StateFlow<String?> get() = repository.account
+    private val _busy = MutableStateFlow(false)
+    /** A sign-in or a manual sync is running. */
+    val busy: StateFlow<Boolean> = _busy.asStateFlow()
+    private val _failure = MutableStateFlow<RadioSync.Failure?>(null)
+    /** Why the last sign-in or manual sync failed; null = it did not. */
+    val failure: StateFlow<RadioSync.Failure?> = _failure.asStateFlow()
 
     init {
         load(_mode.value)
+        // Signed in on this device: take what changed on the others.
+        if (repository.account.value != null) viewModelScope.launch { repository.syncNow() }
+        // A sync may change the favourites while they are on screen.
+        viewModelScope.launch {
+            repository.favorites.collect { if (_mode.value == RadioMode.Favorites) _stations.value = it }
+        }
+    }
+
+    fun signIn(login: String, password: String, create: Boolean) {
+        if (_busy.value) return
+        viewModelScope.launch {
+            _busy.value = true
+            _failure.value = repository.signIn(login, password, create)
+            _busy.value = false
+        }
+    }
+
+    fun signOut() {
+        _failure.value = null
+        repository.signOut()
+    }
+
+    fun syncNow() {
+        if (_busy.value) return
+        viewModelScope.launch {
+            _busy.value = true
+            _failure.value = if (repository.syncNow()) null else RadioSync.Failure.NETWORK
+            _busy.value = false
+        }
     }
 
     fun select(mode: RadioMode) {
@@ -66,6 +107,11 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
             when (mode) {
                 is RadioMode.Genre -> fetch { repository.search(mode.genre.tag) }
                 is RadioMode.Search -> fetch { repository.search(null, mode.query) }
+                RadioMode.Account -> {
+                    _loading.value = false
+                    _failed.value = false
+                    _failure.value = null
+                }
                 RadioMode.Favorites -> {
                     _failed.value = false
                     _stations.value = repository.favorites.value
@@ -95,6 +141,14 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
     fun toggleFavorite(s: RadioStation) {
         repository.toggleFavorite(s)
         if (_mode.value == RadioMode.Favorites) _stations.value = repository.favorites.value
+        // Like the site: send changes after a short pause, so several taps go as one.
+        if (repository.account.value != null) {
+            syncJob?.cancel()
+            syncJob = viewModelScope.launch {
+                delay(2_000)
+                repository.syncNow()
+            }
+        }
     }
 
     override fun onCleared() {

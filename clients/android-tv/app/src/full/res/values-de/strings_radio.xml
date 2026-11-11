@@ -58,4 +58,19 @@
     <string name="radio_genre_christmas">Weihnachten</string>
     <string name="radio_genre_comedy">Comedy</string>
     <string name="radio_genre_news">Nachrichten &amp; Talk</string>
+    <string name="radio_account">Konto und Synchronisierung</string>
+    <string name="radio_account_hint">Dasselbe Konto wie auf der YAiPlay-Radio-Website: Favoriten werden zwischen diesem TV, dem Handy und der Website geteilt.</string>
+    <string name="radio_login">Benutzername</string>
+    <string name="radio_password">Passwort</string>
+    <string name="radio_sign_in">Anmelden</string>
+    <string name="radio_create_account">Konto erstellen</string>
+    <string name="radio_signed_in_as">Angemeldet als %1$s</string>
+    <string name="radio_sync_now">Jetzt synchronisieren</string>
+    <string name="radio_sign_out">Abmelden</string>
+    <string name="radio_err_wrong">Falscher Benutzername oder falsches Passwort.</string>
+    <string name="radio_err_taken">Dieser Benutzername ist bereits vergeben.</string>
+    <string name="radio_err_invalid">Benutzername: 3–32 Buchstaben, Ziffern, _ . -; Passwort: mindestens 6 Zeichen.</string>
+    <string name="radio_err_too_many">Zu viele Versuche. Bitte in einer Stunde erneut versuchen.</string>
+    <string name="radio_err_unavailable">Die Synchronisierung ist gerade nicht verfügbar. Bitte später erneut versuchen.</string>
+    <string name="radio_err_network">Keine Verbindung zum Synchronisierungsserver.</string>
 </resources>

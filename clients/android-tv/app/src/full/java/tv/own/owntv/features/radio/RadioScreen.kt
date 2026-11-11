@@ -99,6 +99,10 @@ fun RadioScreen(onBack: () -> Unit, vm: RadioViewModel = viewModel()) {
                 StageMenuItem(text = stringResource(R.string.radio_collections), icon = OwnTVIcon.LIST,
                     checked = mode == RadioMode.Collections, onClick = { vm.select(RadioMode.Collections) })
             }
+            item {
+                StageMenuItem(text = stringResource(R.string.radio_account), icon = OwnTVIcon.PERSON,
+                    checked = mode == RadioMode.Account, onClick = { vm.select(RadioMode.Account) })
+            }
             items(RadioGenres.all, key = { it.id }) { g ->
                 StageMenuItem(
                     text = genreName(g.id),
@@ -136,6 +140,7 @@ fun RadioScreen(onBack: () -> Unit, vm: RadioViewModel = viewModel()) {
             }
             Box(Modifier.fillMaxSize()) {
                 when {
+                    mode == RadioMode.Account -> RadioAccountPanel(vm)
                     loading -> OwnTVSpinner(sizeDp = 48, modifier = Modifier.align(Alignment.Center))
                     failed && stations.isEmpty() -> Column(Modifier.align(Alignment.Center), horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(stringResource(R.string.radio_failed), style = stageText(22, 600), color = StageColors.Muted)

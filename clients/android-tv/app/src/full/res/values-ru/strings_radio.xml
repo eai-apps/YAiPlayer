@@ -58,4 +58,19 @@
     <string name="radio_genre_christmas">Новогоднее</string>
     <string name="radio_genre_comedy">Юмор</string>
     <string name="radio_genre_news">Новости и разговорное</string>
+    <string name="radio_account">Аккаунт и синхронизация</string>
+    <string name="radio_account_hint">Тот же аккаунт, что на сайте YAiPlay Radio: избранное общее у этого ТВ, телефона и сайта.</string>
+    <string name="radio_login">Логин</string>
+    <string name="radio_password">Пароль</string>
+    <string name="radio_sign_in">Войти</string>
+    <string name="radio_create_account">Создать аккаунт</string>
+    <string name="radio_signed_in_as">Вы вошли как %1$s</string>
+    <string name="radio_sync_now">Синхронизировать</string>
+    <string name="radio_sign_out">Выйти</string>
+    <string name="radio_err_wrong">Неверный логин или пароль.</string>
+    <string name="radio_err_taken">Такой логин уже занят.</string>
+    <string name="radio_err_invalid">Логин: 3–32 символа (буквы, цифры, _ . -); пароль: минимум 6 символов.</string>
+    <string name="radio_err_too_many">Слишком много попыток. Подождите час.</string>
+    <string name="radio_err_unavailable">Синхронизация сейчас недоступна. Попробуйте позже.</string>
+    <string name="radio_err_network">Нет связи с сервером синхронизации.</string>
 </resources>

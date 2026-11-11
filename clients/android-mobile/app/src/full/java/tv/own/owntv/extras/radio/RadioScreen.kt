@@ -82,7 +82,8 @@ fun RadioScreen(onBack: () -> Unit, vm: RadioViewModel = viewModel()) {
     Column(Modifier.fillMaxSize().stageBackground().statusBarsPadding().navigationBarsPadding()) {
         Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
             StagePill(onClick = onBack, icon = MobileIcons.ArrowBack, contentDescription = stringResource(R.string.radio_back))
-            Text(stringResource(R.string.radio_title), style = stageText(18f, 800), color = palette.text, modifier = Modifier.padding(start = 12.dp))
+            Text(stringResource(R.string.radio_title), style = stageText(18f, 800), color = palette.text, modifier = Modifier.padding(start = 12.dp).weight(1f))
+            StagePill(onClick = { query = ""; vm.select(RadioMode.Account) }, icon = MobileIcons.Person, contentDescription = stringResource(R.string.radio_account))
         }
         Column(Modifier.padding(horizontal = 16.dp)) {
             StageSearchField(value = query, onValueChange = { query = it; vm.search(it) }, placeholder = stringResource(R.string.radio_search_hint))
@@ -120,6 +121,7 @@ fun RadioScreen(onBack: () -> Unit, vm: RadioViewModel = viewModel()) {
         }
         Box(Modifier.weight(1f).fillMaxWidth()) {
             when {
+                mode == RadioMode.Account -> RadioAccountPanel(vm)
                 failed && stations.isEmpty() -> Column(Modifier.align(Alignment.Center).padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(stringResource(R.string.radio_failed), style = stageText(14f, 600), color = palette.muted)
                     StageButton(onClick = vm::retry, text = stringResource(R.string.radio_retry), modifier = Modifier.padding(top = 10.dp))

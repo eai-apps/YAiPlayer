@@ -19,7 +19,8 @@
 # category protocol: Stable protocol or comparison identifier.
 # category technical: Reviewed non-user-facing technical literal.
 
-2	empty	app/src/full/java/tv/own/owntv/extras/radio/RadioScreen.kt	\0
+3	empty	app/src/full/java/tv/own/owntv/extras/radio/RadioAccount.kt	\0
+3	empty	app/src/full/java/tv/own/owntv/extras/radio/RadioScreen.kt	\0
 1	technical	app/src/full/java/tv/own/owntv/extras/radio/RadioScreen.kt	,
 1	compiler	app/src/full/java/tv/own/owntv/extras/radio/RadioScreen.kt	DiscouragedApi
 1	compiler	app/src/full/java/tv/own/owntv/extras/radio/RadioScreen.kt	LocalContextResourcesRead
