@@ -114,6 +114,8 @@ fun MoreScreen(
     var logVersion by remember { mutableStateOf(0) }
     var showCategoriesSheet by remember { mutableStateOf(false) }
     var showLightMode by remember { mutableStateOf(false) }
+    var showQuickStart by remember { mutableStateOf(false) }
+    var showPreview by remember { mutableStateOf(false) }
     var showResync by remember { mutableStateOf(false) }
     LifecycleResumeEffect(Unit) { logVersion++; onPauseOrDispose { } }
     val logCount by produceState(0, logVersion) { value = withContext(Dispatchers.IO) { PlaybackErrorLog.read(context).size } }
@@ -169,15 +171,21 @@ fun MoreScreen(
                 MoreItem(R.string.local_sync_title, MobileIcons.Phone, stringResource(if (syncOn) R.string.common_on else R.string.common_off)) { onOpenLeaf(MoreLeaf.LOCAL_SYNC) }
                 StageMenuItem(label = stringResource(tv.own.owntv.core.R.string.remote_title), onClick = { onOpenLeaf(MoreLeaf.REMOTE) }, icon = MobileIcons.Tv, height = 48.dp, chevron = true)
                 StageGroupLabel(stringResource(R.string.more_group_quick_actions))
+                if (showQuickStart) {
+                    tv.own.owntv.mobile.ui.shell.OnOffSheet(
+                        title = stringResource(R.string.quick_start_title),
+                        description = stringResource(R.string.quick_start_hint),
+                        enabled = quickStart,
+                        onSet = { on -> scope.launch { activeId?.takeIf { it >= 0L }?.let { settings.setQuickStart(it, on) } } },
+                        onDismiss = { showQuickStart = false },
+                    )
+                }
                 StageMenuItem(
                     label = stringResource(R.string.quick_start_title),
-                    onClick = {
-                        scope.launch {
-                            activeId?.takeIf { it >= 0L }?.let { settings.setQuickStart(it, !quickStart) }
-                        }
-                    },
+                    onClick = { showQuickStart = true },
                     icon = MobileIcons.PlayCircle,
                     value = stringResource(if (quickStart) R.string.common_on else R.string.common_off),
+                    selected = quickStart,
                     height = 48.dp,
                 )
                 if (playlists.isNotEmpty()) {
@@ -190,13 +198,24 @@ fun MoreScreen(
                         height = 48.dp,
                     )
                     val livePreview by settings.livePreviewEnabled.collectAsStateWithLifecycle(initialValue = true)
+                    val lightModeNow by settings.lightModeEnabled.collectAsStateWithLifecycle(initialValue = false)
+                    // Light mode overrides the preview, so the row shows what actually happens.
+                    val previewShown = livePreview && !lightModeNow
+                    if (showPreview) {
+                        tv.own.owntv.mobile.ui.shell.OnOffSheet(
+                            title = stringResource(tv.own.owntv.core.R.string.channel_preview),
+                            description = stringResource(tv.own.owntv.core.R.string.channel_preview_description),
+                            enabled = livePreview,
+                            onSet = { on -> scope.launch { settings.setLivePreviewEnabled(on) } },
+                            onDismiss = { showPreview = false },
+                        )
+                    }
                     StageMenuItem(
                         label = stringResource(tv.own.owntv.core.R.string.channel_preview),
-                        onClick = {
-                            scope.launch { settings.setLivePreviewEnabled(!livePreview) }
-                        },
+                        onClick = { showPreview = true },
                         icon = MobileIcons.Tv,
-                        value = stringResource(if (livePreview) R.string.common_on else R.string.common_off),
+                        value = stringResource(if (previewShown) R.string.common_on else R.string.common_off),
+                        selected = previewShown,
                         height = 48.dp,
                     )
                     val lightMode by settings.lightModeEnabled.collectAsStateWithLifecycle(initialValue = false)
@@ -212,6 +231,7 @@ fun MoreScreen(
                         onClick = { showLightMode = true },
                         icon = MobileIcons.AutoAwesome,
                         value = stringResource(if (lightMode) R.string.common_on else R.string.common_off),
+                        selected = lightMode,
                         height = 48.dp,
                     )
                     StageMenuItem(

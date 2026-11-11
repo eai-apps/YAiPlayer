@@ -177,6 +177,8 @@ fun MoreScreen(
     var logVersion by remember { mutableIntStateOf(0) }
     var showCategories by remember { mutableStateOf(false) }
     var showLightMode by remember { mutableStateOf(false) }
+    var showQuickStart by remember { mutableStateOf(false) }
+    var showPreview by remember { mutableStateOf(false) }
     var showResync by remember { mutableStateOf(false) }
     val logCount by produceState(0, logVersion) { value = withContext(Dispatchers.IO) { PlaybackErrorLog.read(context).size } }
 
@@ -221,15 +223,18 @@ fun MoreScreen(
                 text = stringResource(R.string.quick_start_title),
                 icon = OwnTVIcon.PLAY_CIRCLE,
                 value = stringResource(if (quickStart) R.string.common_on else R.string.common_off),
-                selected = false,
-                onClick = {
-                    scope.launch {
-                        if (activeProfileId >= 0L) {
-                            settings.setQuickStart(activeProfileId, !quickStart)
-                        }
-                    }
-                },
+                selected = quickStart,
+                onClick = { showQuickStart = true },
             )
+            if (showQuickStart) {
+                tv.own.owntv.features.shell.components.OnOffDialog(
+                    title = stringResource(R.string.quick_start_title),
+                    body = stringResource(R.string.quick_start_hint),
+                    enabled = quickStart,
+                    onSet = { on -> scope.launch { if (activeProfileId >= 0L) settings.setQuickStart(activeProfileId, on) } },
+                    onDismiss = { showQuickStart = false },
+                )
+            }
             if (playlistSources.isNotEmpty()) {
                 val refreshLabel = stringResource(if (activeSource?.type == tv.own.owntv.core.model.SourceType.STALKER) R.string.quick_refresh_portal else R.string.quick_refresh_playlist)
                 StageGroupItem(
@@ -258,21 +263,31 @@ fun MoreScreen(
                     )
                 }
                 val livePreview by settings.livePreviewEnabled.collectAsStateWithLifecycle(initialValue = true)
+                val lightModeNow by settings.lightModeEnabled.collectAsStateWithLifecycle(initialValue = false)
+                // Light mode overrides the preview, so the row shows what actually happens.
+                val previewShown = livePreview && !lightModeNow
                 StageGroupItem(
                     text = stringResource(tv.own.owntv.core.R.string.channel_preview),
                     icon = OwnTVIcon.PIP,
-                    value = stringResource(if (livePreview) R.string.common_on else R.string.common_off),
-                    selected = false,
-                    onClick = {
-                        scope.launch { settings.setLivePreviewEnabled(!livePreview) }
-                    },
+                    value = stringResource(if (previewShown) R.string.common_on else R.string.common_off),
+                    selected = previewShown,
+                    onClick = { showPreview = true },
                 )
+                if (showPreview) {
+                    tv.own.owntv.features.shell.components.OnOffDialog(
+                        title = stringResource(tv.own.owntv.core.R.string.channel_preview),
+                        body = stringResource(tv.own.owntv.core.R.string.channel_preview_description),
+                        enabled = livePreview,
+                        onSet = { on -> scope.launch { settings.setLivePreviewEnabled(on) } },
+                        onDismiss = { showPreview = false },
+                    )
+                }
                 val lightMode by settings.lightModeEnabled.collectAsStateWithLifecycle(initialValue = false)
                 StageGroupItem(
                     text = stringResource(R.string.light_mode_title),
                     icon = OwnTVIcon.MOTION,
                     value = stringResource(if (lightMode) R.string.common_on else R.string.common_off),
-                    selected = false,
+                    selected = lightMode,
                     onClick = { showLightMode = true },
                 )
                 if (showLightMode) {

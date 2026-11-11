@@ -173,6 +173,7 @@ fun StageRail(
     val quickStart by quickStartFlow.collectAsStateWithLifecycle(initialValue = false)
     var showQuickStartMenu by remember { mutableStateOf(false) }
     var showLightModeMenu by remember { mutableStateOf(false) }
+    var showPreviewMenu by remember { mutableStateOf(false) }
     val sourceRepo: tv.own.owntv.core.repository.SourceRepository = org.koin.compose.koinInject()
     val activePlaylistId by settings.defaultSourceId.collectAsStateWithLifecycle(initialValue = -1L)
     val railSources by remember(activeProfileId) {
@@ -359,18 +360,19 @@ fun StageRail(
                 )
             }
             val livePreview by settings.livePreviewEnabled.collectAsStateWithLifecycle(initialValue = true)
+            val lightModeForPreview by settings.lightModeEnabled.collectAsStateWithLifecycle(initialValue = false)
+            // Light mode overrides the preview, so the row shows what actually happens.
+            val previewShown = livePreview && !lightModeForPreview
             RailItem(
                 icon = OwnTVIcon.PIP,
                 label = stringResource(tv.own.owntv.core.R.string.channel_preview),
-                trailing = stringResource(if (livePreview) R.string.common_on else R.string.common_off),
+                trailing = stringResource(if (previewShown) R.string.common_on else R.string.common_off),
                 detail = null,
                 open = shown,
                 namesAlpha = namesAlpha,
-                active = livePreview,
-                accentIcon = livePreview,
-                onClick = {
-                    scope.launch { settings.setLivePreviewEnabled(!livePreview) }
-                },
+                active = previewShown,
+                accentIcon = previewShown,
+                onClick = { showPreviewMenu = true },
             )
             val lightMode by settings.lightModeEnabled.collectAsStateWithLifecycle(initialValue = false)
             RailItem(
@@ -396,43 +398,23 @@ fun StageRail(
         }
     }
     if (showQuickStartMenu) {
-        val firstRequester = remember { FocusRequester() }
-        LaunchedEffect(Unit) {
-            kotlinx.coroutines.delay(60)
-            runCatching { firstRequester.requestFocus() }
-        }
-        tv.own.owntv.ui.stage.StagePopup(
-            onDismiss = { showQuickStartMenu = false },
+        OnOffDialog(
             title = stringResource(R.string.quick_start_title),
-            width = 560.mpx,
-        ) {
-            tv.own.owntv.ui.stage.StagePopupOption(
-                title = stringResource(R.string.quick_start_turn_on),
-                onClick = {
-                    scope.launch {
-                        if (activeProfileId >= 0L) {
-                            settings.setQuickStart(activeProfileId, true)
-                        }
-                    }
-                    showQuickStartMenu = false
-                },
-                modifier = if (quickStart) Modifier.focusRequester(firstRequester) else Modifier,
-                leading = { focused -> tv.own.owntv.ui.stage.StagePopupRadio(on = quickStart, focused = focused) },
-            )
-            tv.own.owntv.ui.stage.StagePopupOption(
-                title = stringResource(R.string.quick_start_turn_off),
-                onClick = {
-                    scope.launch {
-                        if (activeProfileId >= 0L) {
-                            settings.setQuickStart(activeProfileId, false)
-                        }
-                    }
-                    showQuickStartMenu = false
-                },
-                modifier = if (!quickStart) Modifier.focusRequester(firstRequester) else Modifier,
-                leading = { focused -> tv.own.owntv.ui.stage.StagePopupRadio(on = !quickStart, focused = focused) },
-            )
-        }
+            body = stringResource(R.string.quick_start_hint),
+            enabled = quickStart,
+            onSet = { on -> scope.launch { if (activeProfileId >= 0L) settings.setQuickStart(activeProfileId, on) } },
+            onDismiss = { showQuickStartMenu = false },
+        )
+    }
+    if (showPreviewMenu) {
+        val previewSaved by settings.livePreviewEnabled.collectAsStateWithLifecycle(initialValue = true)
+        OnOffDialog(
+            title = stringResource(tv.own.owntv.core.R.string.channel_preview),
+            body = stringResource(tv.own.owntv.core.R.string.channel_preview_description),
+            enabled = previewSaved,
+            onSet = { on -> scope.launch { settings.setLivePreviewEnabled(on) } },
+            onDismiss = { showPreviewMenu = false },
+        )
     }
 }
 

@@ -61,6 +61,7 @@ fun PlaylistSheet(
     val scope = androidx.compose.runtime.rememberCoroutineScope()
     var askResync by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
     var showQuickStartSheet by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+    var showPreviewSheet by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
     var showCategoriesSheet by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
     if (showCategoriesSheet) {
         val targets = playlists.filter { it.id == activeId }.ifEmpty { playlists }
@@ -72,36 +73,24 @@ fun PlaylistSheet(
         return
     }
     if (showQuickStartSheet) {
-        val sheetTitle = stringResource(R.string.quick_start_title)
-        MobileBottomSheet(onDismissRequest = { showQuickStartSheet = false }, title = sheetTitle) {
-            StageSheetHeader(title = sheetTitle, subtitle = stringResource(R.string.quick_start_hint))
-            StageMenuItem(
-                label = stringResource(R.string.quick_start_turn_on),
-                onClick = {
-                    scope.launch {
-                        if (activeProfileId >= 0L) {
-                            settings.setQuickStart(activeProfileId, true)
-                        }
-                    }
-                    showQuickStartSheet = false
-                },
-                checked = quickStart,
-                filled = quickStart,
-            )
-            StageMenuItem(
-                label = stringResource(R.string.quick_start_turn_off),
-                onClick = {
-                    scope.launch {
-                        if (activeProfileId >= 0L) {
-                            settings.setQuickStart(activeProfileId, false)
-                        }
-                    }
-                    showQuickStartSheet = false
-                },
-                checked = !quickStart,
-                filled = !quickStart,
-            )
-        }
+        OnOffSheet(
+            title = stringResource(R.string.quick_start_title),
+            description = stringResource(R.string.quick_start_hint),
+            enabled = quickStart,
+            onSet = { on -> scope.launch { if (activeProfileId >= 0L) settings.setQuickStart(activeProfileId, on) } },
+            onDismiss = { showQuickStartSheet = false },
+        )
+        return
+    }
+    if (showPreviewSheet) {
+        val livePreviewNow by settings.livePreviewEnabled.collectAsStateWithLifecycle(initialValue = true)
+        OnOffSheet(
+            title = stringResource(tv.own.owntv.core.R.string.channel_preview),
+            description = stringResource(tv.own.owntv.core.R.string.channel_preview_description),
+            enabled = livePreviewNow,
+            onSet = { on -> scope.launch { settings.setLivePreviewEnabled(on) } },
+            onDismiss = { showPreviewSheet = false },
+        )
         return
     }
     if (askResync) {
@@ -172,14 +161,15 @@ fun PlaylistSheet(
             icon = MobileIcons.Refresh,
         )
         val livePreview by settings.livePreviewEnabled.collectAsStateWithLifecycle(initialValue = true)
+        val lightModeOn by settings.lightModeEnabled.collectAsStateWithLifecycle(initialValue = false)
+        // Light mode overrides the preview, so the row shows what actually happens.
+        val previewShown = livePreview && !lightModeOn
         StageMenuItem(
             label = stringResource(tv.own.owntv.core.R.string.channel_preview),
-            onClick = {
-                scope.launch { settings.setLivePreviewEnabled(!livePreview) }
-            },
+            onClick = { showPreviewSheet = true },
             icon = MobileIcons.Tv,
-            value = stringResource(if (livePreview) R.string.common_on else R.string.common_off),
-            selected = livePreview,
+            value = stringResource(if (previewShown) R.string.common_on else R.string.common_off),
+            selected = previewShown,
         )
         StageMenuItem(
             label = stringResource(R.string.quick_categories),

@@ -12,11 +12,12 @@ import tv.own.owntv.R
 import tv.own.owntv.ui.theme.mpx
 
 /**
- * «Лёгкий режим» asks instead of flipping on the spot (П4, 10.11.2026): a bare on/off row gave no
- * hint of what the mode does. The body says it in one sentence; the current state is ringed.
+ * A setting that asks instead of flipping on the spot (П4, 11.11.2026): a bare on/off row gave no
+ * hint of what it does. The body says it in a sentence; the current state is ringed. «Лёгкий
+ * режим», «Превью каналов» and «Быстрая загрузка портала» all use it, so the three read alike.
  */
 @Composable
-fun LightModeDialog(enabled: Boolean, onSet: (Boolean) -> Unit, onDismiss: () -> Unit) {
+fun OnOffDialog(title: String, body: String, enabled: Boolean, onSet: (Boolean) -> Unit, onDismiss: () -> Unit) {
     val focus = remember { FocusRequester() }
     LaunchedEffect(Unit) {
         kotlinx.coroutines.delay(60)
@@ -24,8 +25,8 @@ fun LightModeDialog(enabled: Boolean, onSet: (Boolean) -> Unit, onDismiss: () ->
     }
     tv.own.owntv.ui.stage.StagePopup(
         onDismiss = onDismiss,
-        title = stringResource(R.string.light_mode_title),
-        body = stringResource(R.string.light_mode_description),
+        title = title,
+        body = body,
         width = 640.mpx,
     ) {
         tv.own.owntv.ui.stage.StagePopupOption(
@@ -41,4 +42,16 @@ fun LightModeDialog(enabled: Boolean, onSet: (Boolean) -> Unit, onDismiss: () ->
             leading = { focused -> tv.own.owntv.ui.stage.StagePopupRadio(on = !enabled, focused = focused) },
         )
     }
+}
+
+/** «Лёгкий режим»: one sentence on what it does, then Включить / Выключить (П4). */
+@Composable
+fun LightModeDialog(enabled: Boolean, onSet: (Boolean) -> Unit, onDismiss: () -> Unit) {
+    OnOffDialog(
+        title = stringResource(R.string.light_mode_title),
+        body = stringResource(R.string.light_mode_description),
+        enabled = enabled,
+        onSet = onSet,
+        onDismiss = onDismiss,
+    )
 }

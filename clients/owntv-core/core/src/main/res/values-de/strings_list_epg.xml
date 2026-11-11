@@ -3,4 +3,5 @@
     <!-- Copyright (C) 2026 YAiPlayer authors. Original code, written for YAiPlayer. -->
     <string name="refresh_list_epg">Programm in der Liste aktualisieren</string>
     <string name="channel_preview">Kanalvorschau</string>
+    <string name="channel_preview_description">Der ausgewählte Sender läuft in einem kleinen Fenster neben der Liste. Der Leicht-Modus schaltet die Vorschau unabhängig von dieser Einstellung ab.</string>
 </resources>
