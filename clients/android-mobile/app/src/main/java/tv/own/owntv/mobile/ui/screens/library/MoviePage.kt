@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
@@ -107,7 +109,9 @@ internal fun MoviePage(
     val titleChrome = LocalTitleChrome.current
     DisposableEffect(titleChrome) { onDispose { titleChrome?.backdropUrl = null } }
     SideEffect {
-        titleChrome?.backdropUrl = film?.let { MetadataImages.backdrop(meta?.backdropPath, size = "w1280") ?: it.backdropUrl ?: it.posterUrl }
+        // Only a real wide picture goes across the top; a portrait poster is shown small as a cover in the header,
+        // as on the series page — stretched to the full width it was a blurry crop (П7, 3).
+        titleChrome?.backdropUrl = film?.let { MetadataImages.backdrop(meta?.backdropPath, size = "w1280") ?: it.backdropUrl?.takeIf { u -> u.isNotBlank() } }
         titleChrome?.backdropHeight = 420.dp
         titleChrome?.backdropAlignment = BiasAlignment(0.4f, -0.4f)
     }
@@ -156,6 +160,9 @@ internal fun MoviePage(
             .verticalScroll(scroll)
             .padding(start = 18.dp, end = 18.dp, top = topGap, bottom = 22.dp),
     ) {
+        val coverUrl = MetadataImages.poster(meta?.posterPath) ?: film.posterUrl?.takeIf { it.isNotBlank() }
+        Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+        Column(Modifier.weight(1f)) {
         var logoFailed by remember(meta?.logoPath) { mutableStateOf(false) }
         val logo = MetadataImages.logo(meta?.logoPath)?.takeIf { !logoFailed }
         if (logo != null) {
@@ -171,6 +178,18 @@ internal fun MoviePage(
         }
         film.originalTitle?.takeIf { it.isNotBlank() && it.trim() != title.trim() }?.let {
             Text(it, style = stageText(12f, 400), color = palette.muted, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 2.dp))
+        }
+        }
+        // The cover, small and in its own proportions — never stretched over the page.
+        if (coverUrl != null) {
+            coil3.compose.AsyncImage(
+                model = coverUrl,
+                contentDescription = null,
+                contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                modifier = Modifier.padding(top = 4.dp).size(width = 96.dp, height = 144.dp)
+                    .clip(androidx.compose.foundation.shape.RoundedCornerShape(10.dp)),
+            )
+        }
         }
         Spacer(Modifier.height(8.dp))
         // "Movies · Disney+ Kids Movies" (`.crumb`): where it sits, the category in the accent.

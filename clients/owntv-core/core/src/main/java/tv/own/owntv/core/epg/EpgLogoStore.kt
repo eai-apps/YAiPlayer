@@ -45,6 +45,14 @@ object EpgLogoStore {
     /** Normalized guide channel NAME (every alias) → icon: logos for channels whose playlist has none. */
     private var nameIcons by mutableStateOf<Map<String, String>>(emptyMap())
 
+    /**
+     * Automatic fallback for channels that come with NO logo at all (they showed only their name): any stored
+     * guide's icon, by id or exact name. Built off the main thread from epg_channels only (written once per guide
+     * sync), so it costs nothing while browsing. A provider logo, or a feed the user opted into, always wins.
+     */
+    private var fallbackIds by mutableStateOf<Map<String, String>>(emptyMap())
+    private var fallbackNames by mutableStateOf<Map<String, String>>(emptyMap())
+
     /** Playlists the user switched "Logos from the guide" on for. */
     private var guideLogoSources by mutableStateOf<Set<Long>>(emptySet())
 
@@ -84,6 +92,20 @@ object EpgLogoStore {
                         nameIcons = withContext(Dispatchers.Default) { buildNameIcons(rows) }
                     }
                 }
+            }
+        }
+        scope.launch {
+            epgDao.observeAllChannelIcons().collectLatest { rows ->
+                fallbackIds = withContext(Dispatchers.Default) {
+                    val out = HashMap<String, String>(rows.size)
+                    rows.forEach { out.putIfAbsent(it.epgChannelId.trim().lowercase(), it.iconUrl) }
+                    out
+                }
+            }
+        }
+        scope.launch {
+            epgDao.observeAllChannelNameIcons().collectLatest { rows ->
+                fallbackNames = withContext(Dispatchers.Default) { buildNameIcons(rows) }
             }
         }
         scope.launch {
@@ -130,6 +152,15 @@ object EpgLogoStore {
         return byNameIcon(channel)
     }
 
+    /** A guide icon for a channel whose playlist gave it no logo; null when no guide has one. */
+    fun fallbackFor(channel: ChannelEntity): String? {
+        if (!channel.logoUrl.isNullOrBlank()) return null
+        if (fallbackIds.isEmpty() && fallbackNames.isEmpty()) return null
+        matches.epgIdFor(channel)?.let { id -> fallbackIds[id.trim().lowercase()]?.let { return it } }
+        channel.epgChannelId?.takeIf { it.isNotBlank() }?.let { id -> fallbackIds[id.trim().lowercase()]?.let { return it } }
+        return fallbackNames[EpgMatcher.normalizeForEpg(channel.name)]
+    }
+
     /** Exact-name logo for a channel of an opted-in playlist that carries none itself. */
     private fun byNameIcon(channel: ChannelEntity): String? {
         if (nameIcons.isEmpty() || channel.sourceId !in guideLogoSources) return null
@@ -145,4 +176,4 @@ object EpgLogoStore {
  * "what the playlist said".
  */
 val ChannelEntity.displayLogoUrl: String?
-    get() = EpgLogoStore.iconFor(this) ?: logoUrl
+    get() = EpgLogoStore.iconFor(this) ?: logoUrl?.takeIf { it.isNotBlank() } ?: EpgLogoStore.fallbackFor(this)

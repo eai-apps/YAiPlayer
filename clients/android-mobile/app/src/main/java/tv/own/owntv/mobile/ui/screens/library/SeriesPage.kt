@@ -513,34 +513,32 @@ private fun SeasonBar(
             },
     ) {
         Row(verticalAlignment = Alignment.Bottom) {
-            Row(
-                Modifier.weight(1f).horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.Bottom,
-            ) {
-                seasons.forEach { number ->
-                    val on = number == selected
-                    val interaction = remember { MutableInteractionSource() }
-                    Column(
-                        Modifier
-                            .stageClickable(interaction, { onSelect(number) }, null, Role.Tab)
-                            .width(androidx.compose.foundation.layout.IntrinsicSize.Max),
-                    ) {
-                        Text(
-                            buildAnnotatedString {
-                                append(if (number == 0) stringResource(R.string.content_season_specials) else stringResource(R.string.content_season, number))
-                                counts[number]?.let {
-                                    append(" ")
-                                    withStyle(SpanStyle(color = palette.dim, fontSize = stageText(11f, 700).fontSize)) { append(NumberFormat.getIntegerInstance().format(it)) }
-                                }
+            // «Сезон N ▾» and a list of every season (13, 20, 30), as on the TV (3б): tabs ran off the row.
+            Box(Modifier.weight(1f).padding(bottom = 6.dp)) {
+                var open by remember { mutableStateOf(false) }
+                val label: @Composable (Int) -> String = { n ->
+                    if (n == 0) stringResource(R.string.content_season_specials) else stringResource(R.string.content_season, n)
+                }
+                if (selected != null) {
+                    StageButton(
+                        onClick = { if (seasons.size > 1) open = true },
+                        text = label(selected) + (counts[selected]?.let { " · " + NumberFormat.getIntegerInstance().format(it) } ?: ""),
+                        trailingIcon = if (seasons.size > 1) MobileIcons.KeyboardArrowDown else null,
+                        small = true,
+                    )
+                }
+                androidx.compose.material3.DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+                    seasons.forEach { number ->
+                        androidx.compose.material3.DropdownMenuItem(
+                            text = {
+                                Text(
+                                    label(number) + (counts[number]?.let { " · " + NumberFormat.getIntegerInstance().format(it) } ?: ""),
+                                    style = stageText(14f, if (number == selected) 800 else 600),
+                                    color = if (number == selected) accent else palette.text,
+                                )
                             },
-                            style = stageText(13f, if (on) 800 else 700),
-                            color = if (on) palette.text else palette.muted,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.padding(bottom = 8.dp),
+                            onClick = { open = false; onSelect(number) },
                         )
-                        Box(Modifier.fillMaxWidth().height(3.dp).background(if (on) accent else Color.Transparent))
                     }
                 }
             }

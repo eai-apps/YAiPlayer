@@ -807,7 +807,13 @@ class SeriesViewModel(
         }
     }
 
-    fun selectSeason(season: Int) { _selectedSeason.value = season }
+    fun selectSeason(season: Int) {
+        _selectedSeason.value = season
+        _openedSeries.value?.id?.let { chosenSeasons[it] = season }
+    }
+
+    /** The season last picked per show while the app runs, so coming back opens it again (3б). */
+    private val chosenSeasons = java.util.concurrent.ConcurrentHashMap<Long, Int>()
 
     // --- Episode enrichment: the focused episode's TMDB still/plot/rating for the right detail pane ---
     private val _selectedEpisode = MutableStateFlow<EpisodeEntity?>(null)
@@ -927,6 +933,7 @@ class SeriesViewModel(
                 _selectedSeason.value = lastEp.seasonNumber
                 _lastPlayedEpisodeId.value = lastEp.id
             }
+            chosenSeasons[s.id]?.takeIf { season -> eps.any { it.seasonNumber == season } }?.let { _selectedSeason.value = it }
             _episodesLoading.value = false
         }
     }
