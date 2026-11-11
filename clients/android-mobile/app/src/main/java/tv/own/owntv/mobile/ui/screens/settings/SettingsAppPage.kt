@@ -144,7 +144,7 @@ fun AboutPage(onOpenLanguage: () -> Unit, modifier: Modifier = Modifier) {
             StageTool(onClick = { openLink(context, TELEGRAM_SUPPORT_URL) }, label = stringResource(R.string.about_telegram_support), icon = MobileIcons.Translate)
             val languages = tv.own.owntv.core.i18n.SupportedLocales.all.count { it.packaged }
             StageTool(onClick = onOpenLanguage, label = pluralStringResource(R.plurals.more_about_languages, languages, languages), icon = MobileIcons.Translate)
-            StageTool(onClick = { updateSheet = true }, label = stringResource(R.string.settings_check_updates), icon = MobileIcons.Refresh)
+            if (tv.own.owntv.mobile.BuildConfig.SELF_UPDATE) StageTool(onClick = { updateSheet = true }, label = stringResource(R.string.settings_check_updates), icon = MobileIcons.Refresh)
         }
     }
     if (updateSheet) UpdateSheet(onDismiss = { updateSheet = false }, checkOnOpen = true)

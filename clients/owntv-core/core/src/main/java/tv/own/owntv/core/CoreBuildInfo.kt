@@ -84,4 +84,10 @@ object CoreBuildInfo {
 
     /** Whether channel preview (small player) is on until the user chooses; the phone app turns it off so a tap opens full screen. */
     var livePreviewDefault: Boolean = true
+
+    /**
+     * False in the Google Play build (flavor `play`): updates come from the store, so the app never downloads
+     * or installs an APK itself and does not even ask for the permission to.
+     */
+    var selfUpdate: Boolean = true
 }

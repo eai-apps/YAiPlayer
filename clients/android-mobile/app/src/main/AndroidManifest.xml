@@ -16,7 +16,6 @@
          media player. That is still true, and it is the owner's decision to carry it: Play is out of
          scope, and an update nobody hears about is not an update. **If this app ever goes to Play,
          this line and the update rows in Settings → App come out together.** -->
-    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
     <!-- androidx.tvprovider declares both TV-provider permissions in its own manifest, and :core
          depends on it because LauncherIntegrationRepository (the facade core's sync worker calls)

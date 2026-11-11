@@ -159,6 +159,8 @@ fun OwnTVShell(
     var showAvatarPicker by remember { mutableStateOf(false) }
     var showResync by remember { mutableStateOf(false) }
     var showCategories by remember { mutableStateOf(false) }
+    // Radio (APK / RuStore build only): from the rail item above Live TV.
+    var showRadio by remember { mutableStateOf(false) }
     var showAvatarChooser by remember { mutableStateOf(false) }
     var showPlaylistPicker by remember { mutableStateOf(false) }
     // Held by the Activity-scoped ShellViewModel, so a recreation (a script-family language switch)
@@ -1573,6 +1575,8 @@ fun OwnTVShell(
                 onNowPlaying = enterNowPlaying,
                 onResync = { showResync = true },
                 onManageCategories = { showCategories = true },
+                onRadio = if (tv.own.owntv.features.radio.RadioFeature.AVAILABLE) ({ showRadio = true }) else null,
+                radioLabel = if (tv.own.owntv.features.radio.RadioFeature.AVAILABLE) tv.own.owntv.features.radio.RadioFeature.label() else null,
             )
           }
         }
@@ -2122,6 +2126,11 @@ fun OwnTVShell(
                 onDismiss = { showAvatarChooser = false },
             )
     }
+    if (showRadio) {
+        androidx.compose.foundation.layout.Box(Modifier.fillMaxSize()) {
+            tv.own.owntv.features.radio.RadioFeature.Screen(onBack = { showRadio = false })
+        }
+    }
     if (showCategories) {
         val catSourceIds = playlists.filter { it.id == activePlaylistId }.ifEmpty { playlists }.map { it.id }
         tv.own.owntv.extras.categories.CategoriesVisibilityDialog(
@@ -2203,7 +2212,7 @@ fun OwnTVShell(
             }
         }
         tv.own.owntv.features.update.SubscriptionExpiryHost(enabled = selectedSection != MainSection.SETTINGS && playerMode == PlayerMode.NONE)
-        tv.own.owntv.features.update.VersionGateHost()
+        if (tv.own.owntv.BuildConfig.SELF_UPDATE) tv.own.owntv.features.update.VersionGateHost()
 
         val lightModePromptDismissed by settingsRepo.lightModePromptDismissed.collectAsStateWithLifecycle(initialValue = null)
         val lightModeOn by settingsRepo.lightModeEnabled.collectAsStateWithLifecycle(initialValue = false)

@@ -157,6 +157,9 @@ fun StageRail(
     /** The "Resync portal" button under the profile; null hides it. */
     onResync: (() -> Unit)? = null,
     onManageCategories: (() -> Unit)? = null,
+    /** Radio (APK / RuStore build): an item just above Live TV; null hides it (Google Play build). */
+    onRadio: (() -> Unit)? = null,
+    radioLabel: String? = null,
     modifier: Modifier = Modifier,
 ) {
     val open = (state == RailState.OPEN || state == RailState.PINNED) && size != NavSize.COMPACT
@@ -317,6 +320,18 @@ fun StageRail(
                 RailSeparator(shown)
             }
             items.forEach { section ->
+                if (section == MainSection.LIVE_TV && onRadio != null && radioLabel != null) {
+                    RailItem(
+                        icon = OwnTVIcon.EQ,
+                        label = radioLabel,
+                        trailing = null,
+                        detail = null,
+                        open = shown,
+                        namesAlpha = namesAlpha,
+                        active = false,
+                        onClick = onRadio,
+                    )
+                }
                 RailItem(
                     icon = section.stageIcon,
                     label = stringResource(section.labelRes),

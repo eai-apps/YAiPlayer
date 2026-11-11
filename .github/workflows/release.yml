@@ -55,11 +55,11 @@ jobs:
         run: |
           export KEYSTORE_FILE="$RUNNER_TEMP/yaiplayer-release.jks"
           chmod +x gradlew
-          ./gradlew :app:assembleStandardRelease -Powntv.corePath=${GITHUB_WORKSPACE}/clients/owntv-core --no-daemon --stacktrace
+          ./gradlew :app:assembleStandardFullRelease -Powntv.corePath=${GITHUB_WORKSPACE}/clients/owntv-core --no-daemon --stacktrace
       - name: Collect APK
         run: |
           mkdir -p out
-          apk=$(ls clients/${{ matrix.app }}/app/build/outputs/apk/standard/release/*.apk | head -n1)
+          apk=$(ls clients/${{ matrix.app }}/app/build/outputs/apk/standardFull/release/*.apk | head -n1)
           cp "$apk" out/YAiPlayer-${{ matrix.name }}.apk
           ls -l out
       - name: Verify signature

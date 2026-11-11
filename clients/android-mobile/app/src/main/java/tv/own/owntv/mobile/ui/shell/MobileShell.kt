@@ -407,6 +407,8 @@ fun MobileShell(
     val updateState by updateManager.state.collectAsStateWithLifecycle()
     var updateChecked by remember { mutableStateOf(false) }
     var updateSheetOpen by remember { mutableStateOf(false) }
+    // Radio (APK / RuStore build only; RadioFeature.AVAILABLE is false in the Google Play build).
+    var radioOpen by remember { mutableStateOf(false) }
     LaunchedEffect(updateCheckOnStart) {
         if (updateCheckOnStart && !updateChecked) {
             updateChecked = true
@@ -425,7 +427,7 @@ fun MobileShell(
         }
     }
     tv.own.owntv.mobile.ui.screens.settings.SubscriptionExpiryHost(enabled = !fullscreen && !updateSheetOpen)
-    tv.own.owntv.mobile.ui.screens.settings.VersionGateHost()
+    if (tv.own.owntv.mobile.BuildConfig.SELF_UPDATE) tv.own.owntv.mobile.ui.screens.settings.VersionGateHost()
 
     val lightScope = androidx.compose.runtime.rememberCoroutineScope()
     val lightModePromptDismissed by settings.lightModePromptDismissed.collectAsStateWithLifecycle(initialValue = null)
@@ -455,6 +457,14 @@ fun MobileShell(
                     }
                 },
             )
+        }
+    }
+    if (radioOpen && tv.own.owntv.extras.radio.RadioFeature.AVAILABLE) {
+        androidx.compose.ui.window.Dialog(
+            onDismissRequest = { radioOpen = false },
+            properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false),
+        ) {
+            tv.own.owntv.extras.radio.RadioFeature.Screen(onBack = { radioOpen = false })
         }
     }
     // Not over the player, and not over setup: both own the whole screen for a reason.
@@ -623,6 +633,9 @@ fun MobileShell(
                             // It appears only when there is a receiver to send to; which way round it is
                             // drawn follows the app's own theme, not the phone's night mode.
                             CastRouteButton(light = onSurfaceLight)
+                            if (tv.own.owntv.extras.radio.RadioFeature.AVAILABLE) {
+                                StagePill(onClick = { radioOpen = true }, icon = MobileIcons.MusicNote, contentDescription = tv.own.owntv.extras.radio.RadioFeature.label())
+                            }
                             StagePill(onClick = { navController.navigate(MoreLeaf.REMOTE.route) { launchSingleTop = true } }, icon = MobileIcons.Tv, contentDescription = stringResource(tv.own.owntv.core.R.string.remote_title))
                         },
                     )

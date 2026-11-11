@@ -33,6 +33,7 @@ android {
         // so recording happens on the real device, against the real arm APK, on the real hardware
         // the profile is for.
         missingDimensionStrategy("abi", "standard")
+        missingDimensionStrategy("store", "full")
     }
 
     targetProjectPath = ":app"

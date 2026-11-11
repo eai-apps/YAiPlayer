@@ -102,7 +102,7 @@ android {
     //
     // Local dev: pick a flavor in Android Studio's "Build Variants" panel before Run (standard for
     // real devices / arm emulators, x86_64 for an x86_64 emulator). `assembleRelease` builds BOTH.
-    flavorDimensions += "abi"
+    flavorDimensions += listOf("abi", "store")
     productFlavors {
         create("standard") {
             dimension = "abi"
@@ -112,6 +112,22 @@ android {
             dimension = "abi"
             ndk { abiFilters += listOf("x86_64") }
         }
+        // Store: `full` is the APK (GitHub, RuStore) with radio and self-update; `play` is the Google Play build
+        // without either. Radio code lives only in src/full (plus clients/radio-shared), so a Play APK carries none.
+        create("full") {
+            dimension = "store"
+            buildConfigField("boolean", "SELF_UPDATE", "true")
+            buildConfigField("boolean", "RADIO", "true")
+        }
+        create("play") {
+            dimension = "store"
+            buildConfigField("boolean", "SELF_UPDATE", "false")
+            buildConfigField("boolean", "RADIO", "false")
+        }
+    }
+    sourceSets {
+        getByName("full") { java.srcDir("../../radio-shared/src/main/java") }
+        getByName("testFull") { java.srcDir("../../radio-shared/src/test/java") }
     }
 
     // Release signing: env vars first (that is how CI injects the GitHub secrets), then Gradle
@@ -328,6 +344,8 @@ val verifyI18nLiterals = tasks.register<VerifyI18nLiterals>("verifyI18nLiterals"
     // Only :app lives in this repo now. Core's own Kotlin is gated by the identical task in the
     // core repo, so a literal cannot escape by moving between the two.
     kotlinSources.from(fileTree("src/main/java") { include("**/*.kt") })
+    kotlinSources.from(fileTree("src/full/java") { include("**/*.kt") })
+    kotlinSources.from(fileTree("src/play/java") { include("**/*.kt") })
     toolInputs.from(
         rootProject.file("tools/i18n/check_hardcoded_strings.py"),
         rootProject.file("tools/i18n/hardcoded_baseline.txt"),

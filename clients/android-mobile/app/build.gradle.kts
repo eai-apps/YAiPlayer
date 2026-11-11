@@ -87,7 +87,7 @@ android {
     // ABI split via product flavors, mirroring the TV app: `standard` is what real phones and tablets
     // run, `x86_64` exists for the emulator. The player engine ships large prebuilt .so files, so a
     // universal APK would be roughly double the size for no one's benefit.
-    flavorDimensions += "abi"
+    flavorDimensions += listOf("abi", "store")
     productFlavors {
         create("standard") {
             dimension = "abi"
@@ -97,6 +97,22 @@ android {
             dimension = "abi"
             ndk { abiFilters += listOf("x86_64") }
         }
+        // Store: `full` is the APK (GitHub, RuStore) with radio and self-update; `play` is the Google Play build
+        // without either. Radio code lives only in src/full (plus clients/radio-shared), so a Play APK carries none.
+        create("full") {
+            dimension = "store"
+            buildConfigField("boolean", "SELF_UPDATE", "true")
+            buildConfigField("boolean", "RADIO", "true")
+        }
+        create("play") {
+            dimension = "store"
+            buildConfigField("boolean", "SELF_UPDATE", "false")
+            buildConfigField("boolean", "RADIO", "false")
+        }
+    }
+    sourceSets {
+        getByName("full") { java.srcDir("../../radio-shared/src/main/java") }
+        getByName("testFull") { java.srcDir("../../radio-shared/src/test/java") }
     }
 
     // The SAME keystore and the same property names as the TV app. A signing certificate must be
@@ -290,6 +306,8 @@ val verifyI18nLiterals = tasks.register<VerifyI18nLiterals>("verifyI18nLiterals"
     // line added HERE as well as in check_hardcoded_strings.py's SRC_ROOTS — an undeclared input
     // silently skips the gate whenever only that module changed.
     kotlinSources.from(fileTree("src/main/java") { include("**/*.kt") })
+    kotlinSources.from(fileTree("src/full/java") { include("**/*.kt") })
+    kotlinSources.from(fileTree("src/play/java") { include("**/*.kt") })
     toolInputs.from(
         rootProject.file("tools/i18n/check_hardcoded_strings.py"),
         rootProject.file("tools/i18n/hardcoded_baseline.txt"),
@@ -350,6 +368,9 @@ dependencies {
     // Image loading
     // Media3's SubtitleView, for the image subtitles the engine renders through ExoPlayer.
     implementation(libs.androidx.media3.ui)
+    // Radio (APK / RuStore only): plays internet radio streams in its own small player.
+    "fullImplementation"("androidx.media3:media3-exoplayer:${libs.versions.media3.get()}")
+    "fullImplementation"("androidx.media3:media3-exoplayer-hls:${libs.versions.media3.get()}")
 
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
@@ -377,6 +398,8 @@ dependencies {
 
     // Test
     testImplementation(libs.junit)
+    // The real org.json, so parsers (radio catalogue) are tested with the same code as on the phone.
+    testImplementation("org.json:json:20260814")
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
