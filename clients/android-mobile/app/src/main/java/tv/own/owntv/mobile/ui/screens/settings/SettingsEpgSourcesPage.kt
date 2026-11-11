@@ -67,6 +67,7 @@ fun SettingsEpgSourcesPage(
     val sources by vm.sources.collectAsStateWithLifecycle()
     val autoRefresh by vm.autoRefresh.collectAsStateWithLifecycle()
     val useLogos by vm.useLogos.collectAsStateWithLifecycle()
+    val stalkerCatchupEnabled by vm.stalkerCatchupEnabled.collectAsStateWithLifecycle()
     val builtinEnabled by vm.builtinEnabled.collectAsStateWithLifecycle()
     val builtinStatus by vm.builtinStatus.collectAsStateWithLifecycle()
     val builtinSchedule by vm.builtinSchedule.collectAsStateWithLifecycle()
@@ -110,6 +111,15 @@ fun SettingsEpgSourcesPage(
                 minHeight = 48.dp,
                 onClick = { vm.setAutoRefreshOnStartup(!autoRefreshOnStartup) },
             ) { StageSwitch(autoRefreshOnStartup) }
+        }
+        item(key = "stalker_catchup") {
+            StageSettingRow(
+                title = stringResource(R.string.settings_epg_stalker_catchup),
+                subtitle = stringResource(R.string.settings_epg_stalker_catchup_desc),
+                icon = MobileIcons.Refresh,
+                minHeight = 48.dp,
+                onClick = { vm.setStalkerCatchupEnabled(!stalkerCatchupEnabled) },
+            ) { StageSwitch(stalkerCatchupEnabled) }
         }
         item(key = "builtin") {
             StageSettingRow(

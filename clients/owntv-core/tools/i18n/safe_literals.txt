@@ -1333,6 +1333,7 @@
 3	sql	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	NULL AS categories, NULL AS year, NULL AS rating, NULL AS lengthMin, NULL AS episode
 1	sql	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	ORDER BY startMs ASC LIMIT :limit
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	SELECT (MAX(stopMs) - MIN(startMs)) / 86400000 FROM epg_programmes WHERE epgChannelId = :epgChannelId
+1	sql	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	SELECT * FROM epg_channels WHERE sourceId = :sourceId
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	SELECT * FROM epg_programmes WHERE epgChannelId = :epgChannelId AND stopMs <= :now ORDER BY stopMs DESC LIMIT 1
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	SELECT * FROM epg_programmes WHERE epgChannelId = :epgChannelId AND stopMs > :now ORDER BY startMs ASC LIMIT :limit
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	SELECT * FROM epg_programmes WHERE epgChannelId = :epgKey
@@ -1343,6 +1344,7 @@
 1	technical	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	SELECT COUNT(DISTINCT epgChannelId) FROM epg_programmes WHERE sourceId = :sourceId
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	SELECT COUNT(DISTINCT epgChannelId) FROM epg_programmes WHERE sourceId IN (:sourceIds)
 1	sql	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	SELECT DISTINCT epgChannelId FROM epg_programmes LIMIT :limit
+1	sql	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	SELECT DISTINCT epgChannelId FROM epg_programmes WHERE epgChannelId IN (:keys) AND startMs < :to AND stopMs > :from
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	SELECT DISTINCT sourceId FROM epg_channels WHERE epgChannelId IN (:epgChannelIds) AND iconUrl IS NOT NULL AND iconUrl != ''
 1	sql	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	SELECT MAX(id) FROM epg_programmes
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	SELECT description FROM epg_programmes WHERE id = :programmeId LIMIT 1
@@ -2039,6 +2041,9 @@
 1	log	core/src/main/java/tv/own/owntv/core/epg/EpgAutoMatcher.kt	totalMs=${SystemClock.elapsedRealtime() - startedAt}
 1	empty	core/src/main/java/tv/own/owntv/core/epg/EpgDedupe.kt	\0
 1	regex	core/src/main/java/tv/own/owntv/core/epg/EpgDedupe.kt	\\s+
+1	log	core/src/main/java/tv/own/owntv/core/epg/EpgGapFill.kt	EpgGapFill
+1	performance	core/src/main/java/tv/own/owntv/core/epg/EpgGapFill.kt	epg_gap_pass atMs=${SystemClock.elapsedRealtime()} stalker=$stalkerOnly filled=$filled ms=${SystemClock.elapsedRealtime() - started}
+1	log	core/src/main/java/tv/own/owntv/core/epg/EpgGapFill.kt	sourceId=${source.id} failed: ${e.javaClass.simpleName}
 1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgLogoStore.kt	5 канал
 12	technical	core/src/main/java/tv/own/owntv/core/epg/EpgMatcher.kt	\0
 1	regex	core/src/main/java/tv/own/owntv/core/epg/EpgMatcher.kt	(?<![\\p{L}\\p{N}])\\+(\\d{1,2})(?![\\p{L}\\p{N}])
@@ -2219,6 +2224,7 @@
 1	preference-key	core/src/main/java/tv/own/owntv/core/epg/EpgSourceStore.kt	next_id
 1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgSourceStore.kt	owntv_epg_sources
 1	preference-key	core/src/main/java/tv/own/owntv/core/epg/EpgSourceStore.kt	sources
+1	preference-key	core/src/main/java/tv/own/owntv/core/epg/EpgSourceStore.kt	stalker_catchup_off
 2	empty	core/src/main/java/tv/own/owntv/core/epg/GuideCandidates.kt	\0
 1	log	core/src/main/java/tv/own/owntv/core/epg/GuideCandidates.kt	Guide candidate limit $limit reached (named=${named.size} withProgrammes=${withProgrammes.size}) — list truncated
 1	log	core/src/main/java/tv/own/owntv/core/epg/GuideCandidates.kt	GuideCandidates
@@ -2250,6 +2256,8 @@
 1	protocol	core/src/main/java/tv/own/owntv/core/home/HomeFeed.kt	SD
 1	locale	core/src/main/java/tv/own/owntv/core/home/HomeFeed.kt	en
 1	technical	core/src/main/java/tv/own/owntv/core/home/HomeFeed.kt	episode:${episode.id}
+1	performance	core/src/main/java/tv/own/owntv/core/home/HomeFeed.kt	home_ready atMs=${android.os.SystemClock.elapsedRealtime()} profile=$profileId guide=$withGuide ms=${android.os.SystemClock.elapsedRealtime() - homeStarted}
+1	performance	core/src/main/java/tv/own/owntv/core/home/HomeFeed.kt	home_start atMs=$homeStarted profile=$profileId guide=$withGuide
 1	technical	core/src/main/java/tv/own/owntv/core/home/HomeFeed.kt	live:${channel.id}
 1	technical	core/src/main/java/tv/own/owntv/core/home/HomeFeed.kt	movie:${movie.id}
 1	technical	core/src/main/java/tv/own/owntv/core/home/OnAirGenreClassifier.kt	[${EpgDetails.CATEGORY_SEPARATOR},;/|]
@@ -3381,7 +3389,8 @@
 1	file-path	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	epg_$storeId$EPG_CACHE_SUFFIX
 1	file-path	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	epg_$storeId$EPG_CACHE_TEMP_SUFFIX
 2	sql	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	epg_channels
-6	sql	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	epg_programmes
+1	performance	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	epg_commit atMs=${SystemClock.elapsedRealtime()} rows=${part.size} ms=${SystemClock.elapsedRealtime() - started}
+5	sql	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	epg_programmes
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	epg_retention catchupIds=${keep.size} recentPastH=${RECENT_PAST_MS / 3_600_000} archiveH=${WINDOW_BACK_MS / 3_600_000}
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	epg_retention catchupIds=0 recentPastH=${RECENT_PAST_MS / 3_600_000}
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	epg_retention skipped=unknown-catchup archiveH=${WINDOW_BACK_MS / 3_600_000}
@@ -5160,6 +5169,7 @@
 1	log	core/src/main/java/tv/own/owntv/core/sync/ImportFinalizer.kt	ensureContentIndexes start
 1	log	core/src/main/java/tv/own/owntv/core/sync/ImportFinalizer.kt	guide: queued=${timeStale || thin || refreshGuide} stale=$timeStale thin=$thin manual=$refreshGuide
 2	technical	core/src/main/java/tv/own/owntv/core/sync/ImportFinalizer.kt	movies
+1	protocol	core/src/main/java/tv/own/owntv/core/sync/ImportFinalizer.kt	playlist
 1	technical	core/src/main/java/tv/own/owntv/core/sync/ImportFinalizer.kt	portal
 2	technical	core/src/main/java/tv/own/owntv/core/sync/ImportFinalizer.kt	series
 2	technical	core/src/main/java/tv/own/owntv/core/sync/LocalPlaylistFile.kt	/
@@ -5551,8 +5561,6 @@
 1	log	core/src/main/java/tv/own/owntv/core/sync/work/EpgSyncWorker.kt	Starting EPG sync sourceId=${source.id} reason=$reason
 1	log	core/src/main/java/tv/own/owntv/core/sync/work/EpgSyncWorker.kt	auto refresh waiting for playback to stop sourceId=$sourceId
 1	preference-key	core/src/main/java/tv/own/owntv/core/sync/work/EpgSyncWorker.kt	baseProgrammes
-1	log	core/src/main/java/tv/own/owntv/core/sync/work/EpgSyncWorker.kt	built-in auto-match failed: ${it.message}
-1	technical	core/src/main/java/tv/own/owntv/core/sync/work/EpgSyncWorker.kt	builtin_next
 1	preference-key	core/src/main/java/tv/own/owntv/core/sync/work/EpgSyncWorker.kt	channels
 1	log	core/src/main/java/tv/own/owntv/core/sync/work/EpgSyncWorker.kt	guide: failed (${e.javaClass.simpleName})
 1	log	core/src/main/java/tv/own/owntv/core/sync/work/EpgSyncWorker.kt	guide: started ($reason)
@@ -5564,6 +5572,8 @@
 1	preference-key	core/src/main/java/tv/own/owntv/core/sync/work/EpgSyncWorker.kt	sourceId
 3	technical	core/src/main/java/tv/own/owntv/core/sync/work/EpgSyncWorker.kt	stalker://
 1	technical	core/src/main/java/tv/own/owntv/core/sync/work/EpgSyncWorker.kt	unknown
+1	protocol	core/src/main/java/tv/own/owntv/core/sync/work/StalkerCatchupWorker.kt	$TAG-${next.toEpochSecond()}
+1	protocol	core/src/main/java/tv/own/owntv/core/sync/work/StalkerCatchupWorker.kt	stalker-epg-catchup
 1	log	core/src/main/java/tv/own/owntv/core/sync/work/TrendingRefreshWorker.kt	Finished sourceId=$sourceId outcome=${outcome.diagnosticName()}
 1	log	core/src/main/java/tv/own/owntv/core/sync/work/TrendingRefreshWorker.kt	TrendingRefreshWorker
 1	log	core/src/main/java/tv/own/owntv/core/sync/work/TrendingRefreshWorker.kt	Unexpected refresh failure sourceId=$sourceId; preserving snapshot

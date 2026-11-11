@@ -3280,4 +3280,6 @@
     <string name="settings_log_export_downloaded">File downloaded successfully</string>
     <string name="settings_log_export_stop">Stop server</string>
     <string name="settings_log_export_share_title">Share diagnostic log</string>
+    <string name="settings_epg_stalker_catchup">Automatic Stalker guide top-up</string>
+    <string name="settings_epg_stalker_catchup_desc">Missing guide only: Monday 09:00, 12:00, 15:00, 18:00, 21:00; Tuesday 09:00. Device time, network required, battery not low. System may delay.</string>
 </resources>

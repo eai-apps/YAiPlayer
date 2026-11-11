@@ -476,6 +476,7 @@
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsEpgSourcesPage.kt	builtin_status
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsEpgSourcesPage.kt	empty
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsEpgSourcesPage.kt	note
+1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsEpgSourcesPage.kt	stalker_catchup
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsEpgSourcesPage.kt	startup_refresh
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsFontsPage.kt	preview
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsFontsPage.kt	sizes

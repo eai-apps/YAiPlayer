@@ -1752,4 +1752,6 @@
     <string name="settings_log_export_downloaded">Datei erfolgreich heruntergeladen</string>
     <string name="settings_log_export_stop">Server stoppen</string>
     <string name="settings_log_export_share_title">Diagnoseprotokoll teilen</string>
+    <string name="settings_epg_stalker_catchup">Stalker-Programm automatisch ergänzen</string>
+    <string name="settings_epg_stalker_catchup_desc">Nur fehlendes Programm: Mo 9, 12, 15, 18, 21 Uhr; Di 9 Uhr. Gerätezeit, Netzwerk und ausreichender Akku erforderlich. System kann den Start verzögern.</string>
 </resources>

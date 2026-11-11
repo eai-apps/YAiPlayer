@@ -72,6 +72,12 @@ class EpgSyncWorker(
             .onFailure { Log.i(TAG, "EPG sync stays in the background: ${it.message}") }
 
         try {
+            if (source.builtin) {
+                val koin = org.koin.core.context.GlobalContext.get()
+                tv.own.owntv.core.epg.EpgGapFill(koin.get(), store, epgRepository, koin.get())
+                    .run(onlyFeed = source.id.takeIf { reason == "manual_feed" })
+                return Result.success()
+            }
             val programmes = try {
                 epgRepository.refreshUrl(source.id, source.url, source.userAgent) { channels, count ->
                     progress.publish(channels, count)
@@ -85,7 +91,7 @@ class EpgSyncWorker(
             progress.flush()
             if (source.url.startsWith("stalker://")) tv.own.owntv.core.util.GuideTrace.add("guide: stored $programmes programmes")
             store.setSynced(source.id, System.currentTimeMillis(), null)
-            if (source.builtin) continueBuiltinChain(source.id, chain = reason != "manual_feed")
+            tv.own.owntv.core.sync.BuiltinGuide.fromKoin().onPlaylistImported()
             // A series rule is a standing instruction about programmes that do not exist in the
             // database until the guide mentioning them is fetched — so this is the moment "record
             // every showing" becomes actual timers. Best-effort: a rule that could not be
@@ -124,22 +130,6 @@ class EpgSyncWorker(
             // Always clear the pill entry — success, failure, retry, or cancellation — so it never sticks.
             activityTracker.finished(source.id)
         }
-    }
-
-    /**
-     * The built-in guide is three feeds tried one after another, not three downloads at once: after each,
-     * the playlists' channels are matched by name; the next feed is fetched only while some channel
-     * still has no guide.
-     */
-    private suspend fun continueBuiltinChain(thisId: Long, chain: Boolean = true) {
-        val result = runCatching {
-            org.koin.core.context.GlobalContext.get().get<tv.own.owntv.core.epg.BuiltinGuideMatcher>().run()
-        }.onFailure { Log.w(TAG, "built-in auto-match failed: ${it.message}") }.getOrNull() ?: return
-        if (!chain || result.stillWithoutGuide == 0) return
-        val builtin = store.getAll().filter { it.builtin }
-        val next = builtin.getOrNull(builtin.indexOfFirst { it.id == thisId } + 1) ?: return
-        tv.own.owntv.core.sync.work.EpgSyncScheduler(applicationContext)
-            .enqueueSync(next.id, "builtin_next", policy = androidx.work.ExistingWorkPolicy.KEEP)
     }
 
     private inner class ProgressPublisher(

@@ -209,6 +209,8 @@ class HomeFeedReader(
      * blank for minutes. Callers paint this result first and then fetch the full one.
      */
     suspend fun load(profileId: Long, withGuide: Boolean = true): HomeFeed = withContext(Dispatchers.IO) {
+        val homeStarted = android.os.SystemClock.elapsedRealtime()
+        tv.own.owntv.core.CorePerf.log { "home_start atMs=$homeStarted profile=$profileId guide=$withGuide" }
         coroutineScope {
             val configAsync = async { settings.homeConfig(profileId).first() }
             val metadataAsync = async { settings.metadataConfig() }
@@ -333,7 +335,7 @@ class HomeFeedReader(
             // Customize renames go on last: every key and guide lookup above ran on the provider's name,
             // which is what a channel without a provider id is keyed by.
             val names = Names(hidden.live, hidden.movie, hidden.series)
-            HomeFeed(
+            val result = HomeFeed(
                 trendingItems = trending,
                 trendingPreferredLanguage = preferredLanguage,
                 trendingSeasonCounts = trendingSeasonCounts,
@@ -353,6 +355,8 @@ class HomeFeedReader(
                 recentMovies = recentMoviesAsync.await().map { names.of(it) },
                 onAirItems = onAirItemsAsync.await().map { it.copy(channel = names.of(it.channel)) },
             )
+            tv.own.owntv.core.CorePerf.log { "home_ready atMs=${android.os.SystemClock.elapsedRealtime()} profile=$profileId guide=$withGuide ms=${android.os.SystemClock.elapsedRealtime() - homeStarted}" }
+            result
         }
     }
 

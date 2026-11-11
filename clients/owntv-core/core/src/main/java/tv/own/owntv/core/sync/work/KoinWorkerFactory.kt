@@ -16,6 +16,7 @@ class KoinWorkerFactory : WorkerFactory() {
     ): ListenableWorker? {
         val koin = GlobalContext.get()
         return when (workerClassName) {
+            StalkerCatchupWorker::class.java.name -> StalkerCatchupWorker(appContext, workerParameters)
             EpgSyncWorker::class.java.name -> EpgSyncWorker(
                 appContext,
                 workerParameters,

@@ -1832,4 +1832,6 @@
     <string name="settings_log_export_downloaded">Файл успешно скачан</string>
     <string name="settings_log_export_stop">Остановить</string>
     <string name="settings_log_export_share_title">Поделиться журналом</string>
+    <string name="settings_epg_stalker_catchup">Автодокачка программы Stalker</string>
+    <string name="settings_epg_stalker_catchup_desc">Только пустые каналы: пн 9, 12, 15, 18, 21; вт 9. Время устройства, нужна сеть и достаточный заряд. Система может отложить запуск.</string>
 </resources>
