@@ -460,7 +460,7 @@ Antigravity идёт по порядку: task-quick-actions, task-site-landing,
 
 
 ## 2026-11-11 (ночь, Claude Opus 5.5): задача 4 — радио и Play-сборка без радио
-Ветка `test/radio-play-flavor` от свежего `origin/main` (700cf5a). Build 43112536156 и Tests 43112536209 зелёные. В main не вливалось.
+Ветка `test/radio-play-flavor` от свежего `origin/main` (700cf5a). Build 43114364446 и Tests 43114364433 зелёные (последний коммит с синхронизацией). В main не вливалось.
 - Новое измерение flavor `store` в обоих приложениях: `full` (APK, RuStore: радио + самообновление, `BuildConfig.RADIO/SELF_UPDATE=true`) и `play` (Google Play: false/false). Варианты теперь `standardFullDebug`, `standardPlayDebug`, `standardFullRelease`, `standardPlayRelease` (для Play: `./gradlew :app:bundleStandardPlayRelease`). CI собирает оба варианта; release.yml публикует `standardFull`.
 - Play: кода радио нет вообще (src/play — только заглушка `RadioFeature.AVAILABLE=false`), `REQUEST_INSTALL_PACKAGES` перенесён в `src/full/AndroidManifest.xml`, `CoreBuildInfo.selfUpdate=false` → `UpdateManager.check()/downloadAndInstall()` ничего не скачивают; скрыты пункты «Проверить обновления»/«Проверять при запуске» (ТВ: настройки и поиск по настройкам, «Ещё»; телефон: настройки приложения), окно обязательного обновления (VersionGateHost). Шаг Build «Проверка Play-сборки» сверяет dex и манифест: в play нет `tv/own/owntv/radio/*`, `RadioScreenKt`, строк `radio_*` и разрешения на установку; в full — есть.
 - Общий код радио: `clients/radio-shared` (модель, парсер каталога YAiPlay-Radio, зеркала + `catalog.json`, избранное, плеер Media3 с ICY-названием, ViewModel). Подключается только к `full` через `kotlin.srcDir` (AGP 9 не видит `java.srcDir` для Kotlin). Тест `RadioParserTest` (Tests, job телефона).
