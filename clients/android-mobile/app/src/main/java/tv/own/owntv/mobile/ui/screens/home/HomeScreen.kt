@@ -891,14 +891,15 @@ private fun ChannelCard(channel: ChannelEntity, onClick: () -> Unit, onLongClick
         ) {
             ChannelLogoImage(
                 url = channel.displayLogoUrl,
-                // No logo from the playlist or the guide: the channel's number (or first letter), like the TV's plate.
+                // No logo from the playlist or the guide: the channel's name, not its number (11.11).
                 fallback = {
                     Text(
-                        channel.number?.toString() ?: channel.name.take(1).uppercase(),
-                        style = stageText(18f, 800), color = palette.text, maxLines = 1,
+                        channel.name,
+                        style = stageText(11f, 800), color = palette.text, maxLines = 3,
+                        overflow = TextOverflow.Ellipsis, textAlign = TextAlign.Center,
                     )
                 },
-                modifier = Modifier.fillMaxHeight(0.6f).fillMaxWidth(0.7f),
+                modifier = Modifier.fillMaxSize().padding(horizontal = 6.dp),
             )
         }
         Text(

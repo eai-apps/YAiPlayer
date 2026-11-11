@@ -155,7 +155,9 @@ internal fun SeriesPage(
     val titleChrome = LocalTitleChrome.current
     DisposableEffect(titleChrome) { onDispose { titleChrome?.backdropUrl = null } }
     SideEffect {
-        titleChrome?.backdropUrl = show?.let { MetadataImages.backdrop(meta?.backdropPath, size = "w1280") ?: it.backdropUrl ?: it.posterUrl }
+        // A portrait poster stretched across the top was the operator's complaint (11.11): only a real wide
+        // backdrop goes behind the header; the poster is shown small, as a cover, in the header itself.
+        titleChrome?.backdropUrl = show?.let { MetadataImages.backdrop(meta?.backdropPath, size = "w1280") ?: it.backdropUrl?.takeIf { u -> u.isNotBlank() } }
         titleChrome?.backdropHeight = 380.dp
         titleChrome?.backdropAlignment = BiasAlignment(0.4f, -0.6f)
     }
@@ -418,55 +420,69 @@ private fun SeriesHeader(series: SeriesEntity, page: DetailViewModel.TitlePage, 
     val palette = LocalStagePalette.current
     val meta = page.meta
     val tmdbWins = page.tmdbWins
-    // "Series · Crunchyroll" (`.crumb`): where it sits, the category in the accent.
-    Text(
-        buildAnnotatedString {
-            append(stringResource(R.string.common_nav_series))
-            page.categoryName?.let {
-                append(stringResource(R.string.content_epg_bits_separator))
-                withStyle(SpanStyle(color = stageAccent.accent, fontWeight = FontWeight.Bold)) { append(it) }
-            }
-        },
-        style = stageText(13f, 500),
-        color = palette.muted,
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis,
-    )
-    val headline = HeadlineTitle.of(series.name)
-    val headlineSize = headlineSizeFor(headline)
-    Text(
-        headline,
-        style = stageText(headlineSize, 800, (-1f / headlineSize).em, lineHeight = 1.12f),
-        color = palette.text,
-        maxLines = 2,
-        overflow = TextOverflow.Ellipsis,
-        modifier = Modifier.padding(top = 6.dp),
-    )
-    series.originalTitle?.takeIf { it.isNotBlank() && it.trim() != headline.trim() }?.let {
-        Text(it, style = stageText(12f, 400), color = palette.muted, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 2.dp))
-    }
-    // Specials are not counted as a season, as on Home and the TV.
-    val numbered = seasons.count { it > 0 }
-    Box(Modifier.padding(top = 8.dp)) {
-        MovieMeta(
-            parts = listOfNotNull(
-                (series.year ?: meta?.year)?.takeIf { it > 0 }?.let(::formatYear),
-                (series.genres?.split(',') ?: jsonList(meta?.genresJson)).take(3).takeIf { it.isNotEmpty() }?.joinToString(stringResource(R.string.content_epg_bits_separator)),
-                numbered.takeIf { it > 0 }?.let { pluralStringResource(R.plurals.home_trending_seasons, it, it) },
-            ),
-            rating = listOf(meta?.rating, series.rating).let { if (tmdbWins) it else it.reversed() }
-                .firstOrNull { it != null && it > 0 }?.let(::formatRating),
-            tags = ProviderVariantParser.displaySignals(series.name).let { listOfNotNull(it.quality.label) + it.capabilities },
-            size = 12.5f,
-        )
-    }
-    listOf(meta?.overview, series.plot).let { if (tmdbWins) it else it.reversed() }.firstOrNull { !it.isNullOrBlank() }?.let {
+    val coverUrl = MetadataImages.poster(meta?.posterPath) ?: series.posterUrl?.takeIf { it.isNotBlank() }
+    Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+        Column(Modifier.weight(1f)) {
+        // "Series · Crunchyroll" (`.crumb`): where it sits, the category in the accent.
         Text(
-            it,
-            style = stageText(12.5f, 500, lineHeight = 1.5f),
-            color = palette.body,
-            modifier = Modifier.padding(top = 8.dp),
+            buildAnnotatedString {
+                append(stringResource(R.string.common_nav_series))
+                page.categoryName?.let {
+                    append(stringResource(R.string.content_epg_bits_separator))
+                    withStyle(SpanStyle(color = stageAccent.accent, fontWeight = FontWeight.Bold)) { append(it) }
+                }
+            },
+            style = stageText(13f, 500),
+            color = palette.muted,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
         )
+        val headline = HeadlineTitle.of(series.name)
+        val headlineSize = headlineSizeFor(headline)
+        Text(
+            headline,
+            style = stageText(headlineSize, 800, (-1f / headlineSize).em, lineHeight = 1.12f),
+            color = palette.text,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.padding(top = 6.dp),
+        )
+        series.originalTitle?.takeIf { it.isNotBlank() && it.trim() != headline.trim() }?.let {
+            Text(it, style = stageText(12f, 400), color = palette.muted, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 2.dp))
+        }
+        // Specials are not counted as a season, as on Home and the TV.
+        val numbered = seasons.count { it > 0 }
+        Box(Modifier.padding(top = 8.dp)) {
+            MovieMeta(
+                parts = listOfNotNull(
+                    (series.year ?: meta?.year)?.takeIf { it > 0 }?.let(::formatYear),
+                    (series.genres?.split(',') ?: jsonList(meta?.genresJson)).take(3).takeIf { it.isNotEmpty() }?.joinToString(stringResource(R.string.content_epg_bits_separator)),
+                    numbered.takeIf { it > 0 }?.let { pluralStringResource(R.plurals.home_trending_seasons, it, it) },
+                ),
+                rating = listOf(meta?.rating, series.rating).let { if (tmdbWins) it else it.reversed() }
+                    .firstOrNull { it != null && it > 0 }?.let(::formatRating),
+                tags = ProviderVariantParser.displaySignals(series.name).let { listOfNotNull(it.quality.label) + it.capabilities },
+                size = 12.5f,
+            )
+        }
+        listOf(meta?.overview, series.plot).let { if (tmdbWins) it else it.reversed() }.firstOrNull { !it.isNullOrBlank() }?.let {
+            Text(
+                it,
+                style = stageText(12.5f, 500, lineHeight = 1.5f),
+                color = palette.body,
+                modifier = Modifier.padding(top = 8.dp),
+            )
+        }
+        }
+        // The cover, small and in its own proportions — never stretched over the page.
+        if (coverUrl != null) {
+            AsyncImage(
+                model = coverUrl,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.padding(top = 4.dp).size(width = 96.dp, height = 144.dp).clip(RoundedCornerShape(10.dp)),
+            )
+        }
     }
 }
 
