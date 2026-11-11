@@ -157,7 +157,7 @@ fun StageRail(
     /** The "Resync portal" button under the profile; null hides it. */
     onResync: (() -> Unit)? = null,
     onManageCategories: (() -> Unit)? = null,
-    /** Radio (APK / RuStore build): an item just above Live TV; null hides it (Google Play build). */
+    /** Radio: an item just above Live TV; null hides it (Play-store build). */
     onRadio: (() -> Unit)? = null,
     radioLabel: String? = null,
     modifier: Modifier = Modifier,

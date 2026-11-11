@@ -33,9 +33,9 @@ ROOT = Path(__file__).resolve().parents[2]
 # never scanned.
 SRC_ROOTS = [
     ROOT / "app" / "src" / "main" / "java",
-    # Store flavours: src/full (APK / RuStore: radio, self-update) and src/play (Google Play stubs).
-    ROOT / "app" / "src" / "full" / "java",
-    ROOT / "app" / "src" / "play" / "java",
+    # Radio: src/radio (normal build) and src/noradio (the stub of a Play-store build).
+    ROOT / "app" / "src" / "radio" / "java",
+    ROOT / "app" / "src" / "noradio" / "java",
 ]
 # The same modules as git pathspecs, for the scanner-migration guard in verify-ci.
 MODULE_MAIN_DIRS = [root.parent.relative_to(ROOT).as_posix() for root in SRC_ROOTS]

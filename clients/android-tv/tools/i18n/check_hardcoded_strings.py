@@ -32,9 +32,9 @@ ROOT = Path(__file__).resolve().parents[2]
 # so the scan follows the modules rather than assuming everything lives under app/.
 SRC_ROOTS = [
     ROOT / "app" / "src" / "main" / "java",
-    # Store flavours: src/full (APK / RuStore: radio, self-update) and src/play (Google Play stubs).
-    ROOT / "app" / "src" / "full" / "java",
-    ROOT / "app" / "src" / "play" / "java",
+    # Radio: src/radio (normal build) and src/noradio (the stub of a Play-store build).
+    ROOT / "app" / "src" / "radio" / "java",
+    ROOT / "app" / "src" / "noradio" / "java",
     ROOT / "core" / "src" / "main" / "java",
     ROOT / "player-core" / "src" / "main" / "java",
 ]

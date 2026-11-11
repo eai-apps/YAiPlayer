@@ -29,6 +29,9 @@ plugins {
     alias(libs.plugins.baselineprofile)
 }
 
+/** -Powntv.playStore=true: the Google Play build (no radio, no self-update). Default: the normal APK. */
+val playStore = (findProperty("owntv.playStore") as String?)?.toBoolean() == true
+
 android {
     // Distinct from the TV app's tv.own.owntv, so both install side by side on one device and each
     // keeps its own data. This value can never change after the first release — the launcher label
@@ -47,6 +50,10 @@ android {
     }
 
     defaultConfig {
+        buildConfigField("boolean", "SELF_UPDATE", (!playStore).toString())
+        buildConfigField("boolean", "RADIO", (!playStore).toString())
+        manifestPlaceholders["installPermission"] =
+            if (playStore) "android.permission.INTERNET" else "android.permission.REQUEST_INSTALL_PACKAGES"
         applicationId = "com.yai.iptv.player.mobile"
         minSdk = 26
         targetSdk = 36
@@ -87,7 +94,7 @@ android {
     // ABI split via product flavors, mirroring the TV app: `standard` is what real phones and tablets
     // run, `x86_64` exists for the emulator. The player engine ships large prebuilt .so files, so a
     // universal APK would be roughly double the size for no one's benefit.
-    flavorDimensions += listOf("abi", "store")
+    flavorDimensions += "abi"
     productFlavors {
         create("standard") {
             dimension = "abi"
@@ -97,23 +104,21 @@ android {
             dimension = "abi"
             ndk { abiFilters += listOf("x86_64") }
         }
-        // Store: `full` is the APK (GitHub, RuStore) with radio and self-update; `play` is the Google Play build
-        // without either. Radio code lives only in src/full (plus clients/radio-shared), so a Play APK carries none.
-        create("full") {
-            dimension = "store"
-            buildConfigField("boolean", "SELF_UPDATE", "true")
-            buildConfigField("boolean", "RADIO", "true")
-        }
-        create("play") {
-            dimension = "store"
-            buildConfigField("boolean", "SELF_UPDATE", "false")
-            buildConfigField("boolean", "RADIO", "false")
-        }
     }
+    // ONE build: the radio is part of the player. For a Google Play build later, add -Powntv.playStore=true:
+    // the radio code, its strings and its player library are left out, self-update and its install permission
+    // too. Nothing else differs, so every change to the player is in both builds by itself.
     sourceSets {
-        // AGP 9 built-in Kotlin compiles kotlin.srcDirs; java.srcDir alone is not seen by the Kotlin compiler.
-        getByName("full") { kotlin.srcDir("../../radio-shared/src/main/java") }
-        getByName("testFull") { kotlin.srcDir("../../radio-shared/src/test/java") }
+        getByName("main") {
+            if (playStore) {
+                kotlin.srcDir("src/noradio/java")
+            } else {
+                kotlin.srcDir("src/radio/java")
+                kotlin.srcDir("../../radio-shared/src/main/java")
+                res.srcDir("src/radio/res")
+            }
+        }
+        getByName("test") { if (!playStore) kotlin.srcDir("../../radio-shared/src/test/java") }
     }
 
     // The SAME keystore and the same property names as the TV app. A signing certificate must be
@@ -307,8 +312,8 @@ val verifyI18nLiterals = tasks.register<VerifyI18nLiterals>("verifyI18nLiterals"
     // line added HERE as well as in check_hardcoded_strings.py's SRC_ROOTS — an undeclared input
     // silently skips the gate whenever only that module changed.
     kotlinSources.from(fileTree("src/main/java") { include("**/*.kt") })
-    kotlinSources.from(fileTree("src/full/java") { include("**/*.kt") })
-    kotlinSources.from(fileTree("src/play/java") { include("**/*.kt") })
+    kotlinSources.from(fileTree("src/radio/java") { include("**/*.kt") })
+    kotlinSources.from(fileTree("src/noradio/java") { include("**/*.kt") })
     toolInputs.from(
         rootProject.file("tools/i18n/check_hardcoded_strings.py"),
         rootProject.file("tools/i18n/hardcoded_baseline.txt"),
@@ -369,9 +374,11 @@ dependencies {
     // Image loading
     // Media3's SubtitleView, for the image subtitles the engine renders through ExoPlayer.
     implementation(libs.androidx.media3.ui)
-    // Radio (APK / RuStore only): plays internet radio streams in its own small player.
-    "fullImplementation"("androidx.media3:media3-exoplayer:${libs.versions.media3.get()}")
-    "fullImplementation"("androidx.media3:media3-exoplayer-hls:${libs.versions.media3.get()}")
+    // Radio: plays internet radio streams in its own small player (left out of a Play-store build).
+    if (!playStore) {
+        implementation("androidx.media3:media3-exoplayer:${libs.versions.media3.get()}")
+        implementation("androidx.media3:media3-exoplayer-hls:${libs.versions.media3.get()}")
+    }
 
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)

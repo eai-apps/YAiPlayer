@@ -8,6 +8,9 @@
          from there — see core/src/main/AndroidManifest.xml. -->
 
     <!-- In-app updates: hand the downloaded release APK to the system installer. -->
+    <!-- ${installPermission}: REQUEST_INSTALL_PACKAGES in the normal build; the Play-store build
+         (-Powntv.playStore=true, app/build.gradle.kts) puts INTERNET here instead, which drops it. -->
+    <uses-permission android:name="${installPermission}" />
 
     <!-- MODIFY_AUDIO_SETTINGS is declared by :player-core, which owns VolumeBoost. -->
 

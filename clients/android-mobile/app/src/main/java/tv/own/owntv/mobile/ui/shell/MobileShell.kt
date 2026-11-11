@@ -407,7 +407,7 @@ fun MobileShell(
     val updateState by updateManager.state.collectAsStateWithLifecycle()
     var updateChecked by remember { mutableStateOf(false) }
     var updateSheetOpen by remember { mutableStateOf(false) }
-    // Radio (APK / RuStore build only; RadioFeature.AVAILABLE is false in the Google Play build).
+    // Radio (RadioFeature.AVAILABLE is false only in a Play-store build, -Powntv.playStore=true).
     var radioOpen by remember { mutableStateOf(false) }
     LaunchedEffect(updateCheckOnStart) {
         if (updateCheckOnStart && !updateChecked) {

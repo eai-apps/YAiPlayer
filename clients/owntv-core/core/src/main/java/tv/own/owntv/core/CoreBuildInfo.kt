@@ -86,7 +86,7 @@ object CoreBuildInfo {
     var livePreviewDefault: Boolean = true
 
     /**
-     * False in the Google Play build (flavor `play`): updates come from the store, so the app never downloads
+     * False in a Google Play build (-Powntv.playStore=true): updates come from the store, so the app never downloads
      * or installs an APK itself and does not even ask for the permission to.
      */
     var selfUpdate: Boolean = true

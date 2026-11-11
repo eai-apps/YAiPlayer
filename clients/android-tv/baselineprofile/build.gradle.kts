@@ -28,7 +28,6 @@ android {
         targetSdk = 36
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         missingDimensionStrategy("abi", "x86_64")
-        missingDimensionStrategy("store", "full")
     }
 
     // :app is multi-flavor (abi), but recording only ever happens on an x86_64 emulator: collection

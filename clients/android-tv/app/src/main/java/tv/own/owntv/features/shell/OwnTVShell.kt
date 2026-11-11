@@ -159,7 +159,7 @@ fun OwnTVShell(
     var showAvatarPicker by remember { mutableStateOf(false) }
     var showResync by remember { mutableStateOf(false) }
     var showCategories by remember { mutableStateOf(false) }
-    // Radio (APK / RuStore build only): from the rail item above Live TV.
+    // Radio: from the rail item above Live TV.
     var showRadio by remember { mutableStateOf(false) }
     var showAvatarChooser by remember { mutableStateOf(false) }
     var showPlaylistPicker by remember { mutableStateOf(false) }

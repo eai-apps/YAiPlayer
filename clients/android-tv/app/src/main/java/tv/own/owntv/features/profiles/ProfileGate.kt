@@ -65,7 +65,7 @@ fun ProfileGate(onEnter: (Long) -> Unit, onAddProfile: () -> Unit, modifier: Mod
     var pinForEnter by remember { mutableStateOf<ProfileEntity?>(null) }
     var pinForDelete by remember { mutableStateOf<ProfileEntity?>(null) }
     var pinError by remember { mutableStateOf(false) }
-    // Radio (APK / RuStore build only): a tile next to Guest; Back returns here.
+    // Radio: a tile next to Guest; Back returns here.
     var showRadio by remember { mutableStateOf(false) }
     if (showRadio) {
         tv.own.owntv.features.radio.RadioFeature.Screen(onBack = { showRadio = false })

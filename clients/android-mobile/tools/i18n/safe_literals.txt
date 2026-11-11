@@ -19,14 +19,14 @@
 # category protocol: Stable protocol or comparison identifier.
 # category technical: Reviewed non-user-facing technical literal.
 
-3	empty	app/src/full/java/tv/own/owntv/extras/radio/RadioAccount.kt	\0
-3	empty	app/src/full/java/tv/own/owntv/extras/radio/RadioScreen.kt	\0
-1	technical	app/src/full/java/tv/own/owntv/extras/radio/RadioScreen.kt	,
-1	compiler	app/src/full/java/tv/own/owntv/extras/radio/RadioScreen.kt	DiscouragedApi
-1	compiler	app/src/full/java/tv/own/owntv/extras/radio/RadioScreen.kt	LocalContextResourcesRead
-1	locale	app/src/full/java/tv/own/owntv/extras/radio/RadioScreen.kt	radio_genre_$id
-1	locale	app/src/full/java/tv/own/owntv/extras/radio/RadioScreen.kt	string
-1	technical	app/src/full/java/tv/own/owntv/extras/radio/RadioScreen.kt	·
+3	empty	app/src/radio/java/tv/own/owntv/extras/radio/RadioAccount.kt	\0
+3	empty	app/src/radio/java/tv/own/owntv/extras/radio/RadioScreen.kt	\0
+1	technical	app/src/radio/java/tv/own/owntv/extras/radio/RadioScreen.kt	,
+1	compiler	app/src/radio/java/tv/own/owntv/extras/radio/RadioScreen.kt	DiscouragedApi
+1	compiler	app/src/radio/java/tv/own/owntv/extras/radio/RadioScreen.kt	LocalContextResourcesRead
+1	locale	app/src/radio/java/tv/own/owntv/extras/radio/RadioScreen.kt	radio_genre_$id
+1	locale	app/src/radio/java/tv/own/owntv/extras/radio/RadioScreen.kt	string
+1	technical	app/src/radio/java/tv/own/owntv/extras/radio/RadioScreen.kt	·
 1	empty	app/src/main/java/tv/own/owntv/extras/categories/CategoriesVisibilitySheet.kt	\0
 1	technical	app/src/main/java/tv/own/owntv/extras/remote/RemoteNotificationHelper.kt	CH +
 1	technical	app/src/main/java/tv/own/owntv/extras/remote/RemoteNotificationHelper.kt	CH -
@@ -1180,4 +1180,4 @@
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/stage/StageRows.kt	•
 2	empty	app/src/main/java/tv/own/owntv/mobile/ui/theme/MobileColors.kt	\0
 4	empty	app/src/main/java/tv/own/owntv/mobile/ui/theme/MobileTheme.kt	\0
-1	empty	app/src/play/java/tv/own/owntv/extras/radio/RadioFeature.kt	\0
+1	empty	app/src/noradio/java/tv/own/owntv/extras/radio/RadioFeature.kt	\0

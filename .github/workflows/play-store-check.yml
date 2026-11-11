@@ -1,0 +1,43 @@
+name: Play-store build check
+# Запускается только вручную: GitHub → Actions → Play-store build check → Run workflow.
+# Собирает ту же программу с -Powntv.playStore=true (без радио и без самообновления) и проверяет,
+# что в APK нет кода и строк радио и нет разрешения на установку APK. Обычная сборка — с радио.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  android:
+    name: Play-store ${{ matrix.app }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [android-tv, android-mobile]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 25
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Принять лицензии Android SDK
+        run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+      - name: Сборка без радио
+        working-directory: clients/${{ matrix.app }}
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:assembleStandardDebug -Powntv.playStore=true -Powntv.corePath=${GITHUB_WORKSPACE}/clients/owntv-core --no-daemon --stacktrace
+      - name: Проверка (радио нет, самообновления нет)
+        run: |
+          apk=$(ls clients/${{ matrix.app }}/app/build/outputs/apk/standard/debug/*.apk | head -n1)
+          bt=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -n1)
+          rm -rf /tmp/p && mkdir -p /tmp/p
+          unzip -q -o "$apk" 'classes*.dex' -d /tmp/p
+          if grep -l -a -e 'Ltv/own/owntv/radio/' -e 'RadioScreenKt;' /tmp/p/classes*.dex; then echo "найден код радио"; exit 1; fi
+          if "$bt/aapt2" dump permissions "$apk" | grep -q REQUEST_INSTALL_PACKAGES; then echo "есть REQUEST_INSTALL_PACKAGES"; exit 1; fi
+          if "$bt/aapt2" dump strings "$apk" | grep -q -i 'radio_title'; then echo "строки радио"; exit 1; fi
+          echo "Сборка без радио чистая"

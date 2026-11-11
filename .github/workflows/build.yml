@@ -41,22 +41,7 @@ jobs:
           VERSION_NAME: 2.0.${{ github.run_number }}
         run: |
           chmod +x gradlew
-          ./gradlew :app:assembleStandardFullDebug :app:assembleStandardPlayDebug -Powntv.corePath=${GITHUB_WORKSPACE}/clients/owntv-core --no-daemon --stacktrace
-      - name: Проверка Play-сборки (без радио и без самообновления)
-        run: |
-          apk=$(ls clients/${{ matrix.app }}/app/build/outputs/apk/standardPlay/debug/*.apk | head -n1)
-          full=$(ls clients/${{ matrix.app }}/app/build/outputs/apk/standardFull/debug/*.apk | head -n1)
-          bt=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -n1)
-          rm -rf /tmp/p /tmp/f && mkdir -p /tmp/p /tmp/f
-          unzip -q -o "$apk" 'classes*.dex' -d /tmp/p
-          unzip -q -o "$full" 'classes*.dex' -d /tmp/f
-          # Контроль: в полной сборке радио есть (иначе проверка ниже ничего не значит).
-          grep -q -a 'Ltv/own/owntv/radio/RadioRepository;' /tmp/f/classes*.dex || { echo "FULL: радио не найдено"; exit 1; }
-          if grep -l -a -e 'Ltv/own/owntv/radio/' -e 'RadioScreenKt;' /tmp/p/classes*.dex; then echo "PLAY: найден код радио"; exit 1; fi
-          if "$bt/aapt2" dump permissions "$apk" | grep -q REQUEST_INSTALL_PACKAGES; then echo "PLAY: есть REQUEST_INSTALL_PACKAGES"; exit 1; fi
-          "$bt/aapt2" dump permissions "$full" | grep -q REQUEST_INSTALL_PACKAGES || { echo "FULL: нет REQUEST_INSTALL_PACKAGES"; exit 1; }
-          if "$bt/aapt2" dump strings "$apk" | grep -q -i 'radio_title'; then echo "PLAY: строки радио"; exit 1; fi
-          echo "Play-сборка чистая: радио нет, самообновления нет"
+          ./gradlew :app:assembleStandardDebug -Powntv.corePath=${GITHUB_WORKSPACE}/clients/owntv-core --no-daemon --stacktrace
       - name: Собрать APK в одно место
         run: |
           mkdir -p out
