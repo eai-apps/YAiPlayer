@@ -345,6 +345,5 @@ private fun AddProfileTile(onClick: () -> Unit, label: String = stringResource(R
     }
 }
 
-/** The "speed up the TV" tile stays hidden until the real ADB core works (see docs/codex/task-4). */
-/** «Ускорь телевизор» is hidden until a real ADB transport exists (only FakeAdbTransport today). */
-internal const val TV_OPTIMIZER_READY = false
+// Debug builds (the CI test APK) show the tile so the owner can check it on his TV; release builds only after that check.
+internal val TV_OPTIMIZER_READY: Boolean = tv.own.owntv.mobile.BuildConfig.DEBUG

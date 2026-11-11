@@ -127,7 +127,8 @@ fun AboutPage(onOpenLanguage: () -> Unit, modifier: Modifier = Modifier) {
             color = palette.body,
             modifier = Modifier.padding(top = 16.dp),
         )
-        if (tv.own.owntv.mobile.ui.profiles.TV_OPTIMIZER_READY) StageButton(
+        // Always shown: dadb (Apache-2.0) and the cleanyourtv lists and launcher (MIT) ship in every build.
+        StageButton(
             text = stringResource(R.string.tv_optimizer_licenses),
             onClick = {
                 android.app.AlertDialog.Builder(context)

@@ -293,3 +293,13 @@ No dadb binary artifact is used by this application.
 | tronikos/androidtvremote2 (Python) | порядок обмена при привязке и командах, формула секрета привязки, порты 6466/6467, тип службы `_androidtvremote2._tcp` | Apache-2.0 |
 
 Эталонные байты для тестов `AtvMessagesTest` получены официальной библиотекой protobuf (Python) из этих .proto-файлов. Коды клавиш совпадают с `android/keycodes.h` (AOSP, Apache-2.0).
+## «Ускорь телевизор»: ADB, списки моделей, лаунчер для ТВ
+
+| Что | Откуда | Лицензия | Где в YAiPlayer |
+|---|---|---|---|
+| Сетевой ADB на телефоне | библиотека dadb 2.0.0 (mobile-dev-inc/dadb), зависимость Gradle `dev.mobile:dadb` | Apache-2.0 | `clients/android-mobile`, `DadbTransport.kt` |
+| Списки отключаемых приложений для 468 моделей ТВ | Gathin23/cleanyourtv, папка `examples/` (коммит `b953804`), переведены в JSON скриптом `tools/tvoptimizer/build_catalog.py` | MIT | `assets/tvoptimizer/catalog.json` |
+| Лаунчер для ТВ (главный экран без рекламы) | Gathin23/cleanyourtv, папка `launcher/` (коммит `b953804`), без изменений; собирается в CI и кладётся в телефонный APK | MIT; шрифт Outfit — SIL OFL 1.1; картинки Fluent Emoji — MIT | `clients/tv-launcher/` |
+| Порядок шагов мастера, схема «сторожа» главного экрана (фоновая задача на ТВ возвращает старый главный экран, если телефон не подтвердил) | udhaykumarbala/cleanyourtv-app | MIT | код не копировался, написан заново в `OptimizerCore.kt` |
+
+Тексты лицензий показываются в приложении: Настройки → О приложении → «Лицензии оптимизатора ТВ» (`assets/tvoptimizer/licenses.txt`).
