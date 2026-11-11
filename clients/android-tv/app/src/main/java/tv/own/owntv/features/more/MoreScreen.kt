@@ -177,6 +177,7 @@ fun MoreScreen(
     var logVersion by remember { mutableIntStateOf(0) }
     var showCategories by remember { mutableStateOf(false) }
     var showLightMode by remember { mutableStateOf(false) }
+    var showResync by remember { mutableStateOf(false) }
     val logCount by produceState(0, logVersion) { value = withContext(Dispatchers.IO) { PlaybackErrorLog.read(context).size } }
 
     Box(modifier.fillMaxSize().onFocusChanged { if (it.hasFocus) onChildFocused() }) {
@@ -235,13 +236,27 @@ fun MoreScreen(
                     text = refreshLabel,
                     icon = OwnTVIcon.REFRESH,
                     selected = false,
-                    onClick = {
-                        run {
-                            val targets = playlistSources.filter { it.id == activePlaylistId }.ifEmpty { playlistSources }
-                            targets.forEach { quickActionsSync.refreshPlaylist(it) }
-                        }
-                    },
+                    // One entry with the side rail's submenu (П3): all / channels / guide / both / films & series.
+                    onClick = { showResync = true },
                 )
+                if (showResync) {
+                    tv.own.owntv.extras.portal.PortalResyncDialog(
+                        source = activeSource,
+                        onSelectOption = { option ->
+                            val targets = playlistSources.filter { it.id == activePlaylistId }.ifEmpty { playlistSources }
+                            targets.forEach { src ->
+                                when (option) {
+                                    tv.own.owntv.extras.portal.PortalResyncOption.ALL -> quickActionsSync.refreshAll(src)
+                                    tv.own.owntv.extras.portal.PortalResyncOption.CHANNELS_ONLY -> quickActionsSync.refreshChannelsOnly(src)
+                                    tv.own.owntv.extras.portal.PortalResyncOption.EPG_ONLY -> quickActionsSync.refreshEpg(src)
+                                    tv.own.owntv.extras.portal.PortalResyncOption.CHANNELS_AND_EPG -> quickActionsSync.refreshChannelsAndEpg(src)
+                                    tv.own.owntv.extras.portal.PortalResyncOption.VOD_ONLY -> quickActionsSync.refreshVod(src)
+                                }
+                            }
+                        },
+                        onDismiss = { showResync = false },
+                    )
+                }
                 val livePreview by settings.livePreviewEnabled.collectAsStateWithLifecycle(initialValue = true)
                 StageGroupItem(
                     text = stringResource(tv.own.owntv.core.R.string.channel_preview),
@@ -273,34 +288,6 @@ fun MoreScreen(
                     selected = false,
                     onClick = { showCategories = true },
                 )
-                StageGroupItem(
-                    text = stringResource(R.string.quick_refresh_epg),
-                    icon = OwnTVIcon.EPG,
-                    selected = false,
-                    onClick = {
-                        run {
-                            val targets = playlistSources.filter { it.id == activePlaylistId }.ifEmpty { playlistSources }
-                            targets.forEach { quickActionsSync.refreshEpg(it) }
-                        }
-                    },
-                )
-                if (hasLibrary) {
-                    StageGroupItem(
-                        text = stringResource(R.string.quick_refresh_vod),
-                        icon = OwnTVIcon.MOVIES,
-                        selected = false,
-                        onClick = {
-                            run {
-                                val targets = playlistSources.filter { it.id == activePlaylistId }.ifEmpty { playlistSources }
-                                targets.forEach {
-                                    if (it.type == tv.own.owntv.core.model.SourceType.STALKER || it.type == tv.own.owntv.core.model.SourceType.XTREAM) {
-                                        quickActionsSync.refreshVod(it)
-                                    }
-                                }
-                            }
-                        },
-                    )
-                }
             }
             GroupLabel(stringResource(R.string.settings_app_group))
             item(MoreItem.ERROR_LOG, OwnTVIcon.WARNING, stringResource(R.string.settings_playback_error_log), logCount.toString(), false)

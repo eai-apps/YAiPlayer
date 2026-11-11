@@ -114,6 +114,7 @@ fun MoreScreen(
     var logVersion by remember { mutableStateOf(0) }
     var showCategoriesSheet by remember { mutableStateOf(false) }
     var showLightMode by remember { mutableStateOf(false) }
+    var showResync by remember { mutableStateOf(false) }
     LifecycleResumeEffect(Unit) { logVersion++; onPauseOrDispose { } }
     val logCount by produceState(0, logVersion) { value = withContext(Dispatchers.IO) { PlaybackErrorLog.read(context).size } }
 
@@ -183,12 +184,8 @@ fun MoreScreen(
                     val refreshLabel = stringResource(if (activeSource?.type == tv.own.owntv.core.model.SourceType.STALKER) R.string.quick_refresh_portal else R.string.quick_refresh_playlist)
                     StageMenuItem(
                         label = refreshLabel,
-                        onClick = {
-                            run {
-                                val targets = playlists.filter { it.id == activePlaylistId }.ifEmpty { playlists }
-                                targets.forEach { quickActionsSync.refreshPlaylist(it) }
-                            }
-                        },
+                        // One entry with the side menu's choices (П3), the television's dialog as a sheet.
+                        onClick = { showResync = true },
                         icon = MobileIcons.Refresh,
                         height = 48.dp,
                     )
@@ -223,32 +220,22 @@ fun MoreScreen(
                         icon = MobileIcons.Folder,
                         height = 48.dp,
                     )
-                    StageMenuItem(
-                        label = stringResource(R.string.quick_refresh_epg),
-                        onClick = {
-                            run {
+                    if (showResync) {
+                        tv.own.owntv.extras.portal.PortalResyncSheet(
+                            source = activeSource,
+                            onSelectOption = { option ->
                                 val targets = playlists.filter { it.id == activePlaylistId }.ifEmpty { playlists }
-                                targets.forEach { quickActionsSync.refreshEpg(it) }
-                            }
-                        },
-                        icon = MobileIcons.Guide,
-                        height = 48.dp,
-                    )
-                    if (hasLibrary) {
-                        StageMenuItem(
-                            label = stringResource(R.string.quick_refresh_vod),
-                            onClick = {
-                                run {
-                                    val targets = playlists.filter { it.id == activePlaylistId }.ifEmpty { playlists }
-                                    targets.forEach {
-                                        if (it.type == tv.own.owntv.core.model.SourceType.STALKER || it.type == tv.own.owntv.core.model.SourceType.XTREAM) {
-                                            quickActionsSync.refreshVod(it)
-                                        }
+                                targets.forEach { src ->
+                                    when (option) {
+                                        tv.own.owntv.extras.portal.PortalResyncOption.ALL -> quickActionsSync.refreshAll(src)
+                                        tv.own.owntv.extras.portal.PortalResyncOption.CHANNELS_ONLY -> quickActionsSync.refreshChannelsOnly(src)
+                                        tv.own.owntv.extras.portal.PortalResyncOption.EPG_ONLY -> quickActionsSync.refreshEpg(src)
+                                        tv.own.owntv.extras.portal.PortalResyncOption.CHANNELS_AND_EPG -> quickActionsSync.refreshChannelsAndEpg(src)
+                                        tv.own.owntv.extras.portal.PortalResyncOption.VOD_ONLY -> quickActionsSync.refreshVod(src)
                                     }
                                 }
                             },
-                            icon = MobileIcons.Movie,
-                            height = 48.dp,
+                            onDismiss = { showResync = false },
                         )
                     }
                 }
