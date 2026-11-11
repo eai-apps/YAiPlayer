@@ -9,6 +9,30 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class TvOptimizerTest {
+    @Test
+    fun `analysis refuses malformed package output`() {
+        assertEquals(setOf("com.vendor.ads"), OptimizerSafety.parsePackageList("package:com.vendor.ads\n"))
+        assertEquals(emptySet<String>(), OptimizerSafety.parsePackageList(""))
+        assertNull(OptimizerSafety.parsePackageList("Error: device offline"))
+        assertNull(OptimizerSafety.parsePackageList("package:com.vendor.ads;reboot"))
+    }
+
+    @Test
+    fun `core packages and launchers are protected`() {
+        for (name in listOf("android", "com.android.settings", "com.google.android.gms", "com.yai.iptv.player.tv", "com.vendor.launcher")) {
+            assertTrue(name, OptimizerSafety.isProtected(name))
+        }
+        assertFalse(OptimizerSafety.isProtected("com.vendor.ads"))
+    }
+
+    @Test
+    fun `shell transport success alone is not a confirmed package change`() {
+        assertFalse(OptimizerSafety.confirmedState("Error", "com.vendor.ads", true))
+        assertFalse(OptimizerSafety.confirmedState("Success", "com.vendor.ads", true))
+        assertFalse(OptimizerSafety.confirmedState("Package com.other.ads new state: enabled", "com.vendor.ads", true))
+        assertTrue(OptimizerSafety.confirmedState("Package com.vendor.ads new state: enabled\n", "com.vendor.ads", true))
+        assertTrue(OptimizerSafety.confirmedState("Package com.vendor.ads new state: disabled-user", "com.vendor.ads", false))
+    }
 
     @Test
     fun `adb disable command formatting`() {
@@ -40,6 +64,16 @@ class TvOptimizerTest {
     fun `command parser returns null on malformed commands`() {
         assertNull(AdbCommandHelper.parsePackageFromDisable("pm uninstall com.test"))
         assertNull(AdbCommandHelper.parsePackageFromEnable("pm disable com.test"))
+        assertNull(AdbCommandHelper.parsePackageFromDisable("pm disable-user --user 0 com.test;reboot"))
+        assertNull(AdbCommandHelper.parsePackageFromEnable("pm enable com.test extra"))
+    }
+
+    @Test
+    fun `command builders reject shell metacharacters and whitespace`() {
+        for (name in listOf("com.test;reboot", "com.test\nreboot", "com.test extra", "-x", "com..test")) {
+            assertTrue(runCatching { AdbCommandHelper.buildDisableCommand(name) }.isFailure)
+            assertTrue(runCatching { AdbCommandHelper.buildEnableCommand(name) }.isFailure)
+        }
     }
 
     @Test

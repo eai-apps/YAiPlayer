@@ -346,4 +346,5 @@ private fun AddProfileTile(onClick: () -> Unit, label: String = stringResource(R
 }
 
 /** The "speed up the TV" tile stays hidden until the real ADB core works (see docs/codex/task-4). */
-private const val TV_OPTIMIZER_READY = false
+/** «Ускорь телевизор» is hidden until a real ADB transport exists (only FakeAdbTransport today). */
+internal const val TV_OPTIMIZER_READY = false

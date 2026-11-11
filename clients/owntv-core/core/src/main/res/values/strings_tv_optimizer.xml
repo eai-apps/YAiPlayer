@@ -80,4 +80,5 @@
     <string name="pkg_print_spooler_desc">Printer spooler service. TVs do not need printing capabilities.</string>
     <string name="pkg_google_music_title">Google Play Music</string>
     <string name="pkg_google_music_desc">Legacy discontinued music app. Completely safe to disable.</string>
+    <string name="tv_optimizer_licenses">Licenses</string>
 </resources>

@@ -59,17 +59,27 @@
 2	json	app/src/main/java/tv/own/owntv/extras/remote/RemoteViewModel.kt	token
 1	log	app/src/main/java/tv/own/owntv/extras/remote/RemoteViewModel.kt	tv_logs
 1	log	app/src/main/java/tv/own/owntv/extras/remote/RemoteViewModel.kt	yaiplayer_tv_log_${System.currentTimeMillis()}.txt
-2	assertion	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbCommandHelper.kt	Package name must not be blank
+2	assertion	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbCommandHelper.kt	Invalid package name
+1	regex	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbCommandHelper.kt	[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z][A-Za-z0-9_]*)+
 1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbCommandHelper.kt	pm disable-user --user 0
-1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbCommandHelper.kt	pm disable-user --user 0 ${packageName.trim()}
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbCommandHelper.kt	pm disable-user --user 0 $packageName
 1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbCommandHelper.kt	pm enable
-1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbCommandHelper.kt	pm enable ${packageName.trim()}
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbCommandHelper.kt	pm enable $packageName
 1	assertion	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbTransport.kt	ADB not connected
 1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbTransport.kt	Package new state: default
 1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbTransport.kt	Package new state: disabled-user
 1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbTransport.kt	Success
 1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbTransport.kt	pm disable-user
 1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbTransport.kt	pm enable
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	Package $name new state: disabled-user
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	Package $name new state: enabled
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	android
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	com.android.
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	com.google.
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	com.yai.
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	launcher
+2	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	package:
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	systemui
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerModels.kt	caution
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerModels.kt	danger
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerModels.kt	high
@@ -143,6 +153,7 @@
 1	empty	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	\0
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	192.168.1.100
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	5555
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	pm list packages -e --user 0
 1	technical	app/src/main/java/tv/own/owntv/mobile/MainActivity.kt	back
 1	technical	app/src/main/java/tv/own/owntv/mobile/MainActivity.kt	forward
 1	uri	app/src/main/java/tv/own/owntv/mobile/MainActivity.kt	open_player
@@ -486,6 +497,7 @@
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsAppPage.kt	log-head
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsAppPage.kt	mpv
 1	mime	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsAppPage.kt	text/plain
+1	file-path	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsAppPage.kt	tvoptimizer/licenses.txt
 3	empty	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsBackupPage.kt	\0
 2	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsBackupPage.kt	.share
 2	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsBackupPage.kt	application/json

@@ -36,7 +36,7 @@ class TvOptimizerStore(context: Context) {
         prefs.edit()
             .putStringSet(KEY_DISABLED_PACKAGES, updated)
             .putLong(KEY_BACKUP_TIMESTAMP, now)
-            .apply()
+            .commit().also { check(it) }
         _disabledPackages.value = updated
         _backupTimestamp.value = now
     }
@@ -46,7 +46,7 @@ class TvOptimizerStore(context: Context) {
         val updated = current - packages
         prefs.edit()
             .putStringSet(KEY_DISABLED_PACKAGES, updated)
-            .apply()
+            .commit().also { check(it) }
         _disabledPackages.value = updated
     }
 
@@ -54,7 +54,7 @@ class TvOptimizerStore(context: Context) {
         prefs.edit()
             .remove(KEY_DISABLED_PACKAGES)
             .remove(KEY_BACKUP_TIMESTAMP)
-            .apply()
+            .commit().also { check(it) }
         _disabledPackages.value = emptySet()
         _backupTimestamp.value = null
     }

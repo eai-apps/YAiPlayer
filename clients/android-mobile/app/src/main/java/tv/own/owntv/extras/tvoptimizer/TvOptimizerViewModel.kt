@@ -246,7 +246,7 @@ class TvOptimizerViewModel(
 
     fun applyOptimizations() {
         val targets = _uiState.value.selectedPackageNames.toList()
-        if (targets.isEmpty()) return
+        if (targets.isEmpty() || !_uiState.value.understandRiskChecked || !transport.isConnected || _uiState.value.isApplying) return
 
         viewModelScope.launch {
             _uiState.update {
@@ -259,17 +259,30 @@ class TvOptimizerViewModel(
                 )
             }
 
-            // Automatic backup before applying changes
-            store.saveDisabledPackages(targets.toSet())
+            // Read-only analysis: restrict changes to packages confirmed enabled on this TV.
+            val enabled = transport.runShell("pm list packages -e --user 0")
+                .getOrNull()?.let(OptimizerSafety::parsePackageList)
+            if (enabled == null) {
+                _uiState.update { it.copy(isApplying = false, disabledFailedPackages = targets, currentStep = TvOptimizerStep.RESULT) }
+                return@launch
+            }
+            val allowed = targets.filter { it in enabled && !OptimizerSafety.isProtected(it) }
+            try {
+                // Durable write must complete before the first change.
+                store.saveDisabledPackages(allowed.toSet())
+            } catch (e: Exception) {
+                _uiState.update { it.copy(isApplying = false, disabledFailedPackages = targets, currentStep = TvOptimizerStep.RESULT) }
+                return@launch
+            }
 
             val successful = mutableListOf<String>()
-            val failed = mutableListOf<String>()
+            val failed = (targets - allowed.toSet()).toMutableList()
 
-            for ((index, pkg) in targets.withIndex()) {
+            for ((index, pkg) in allowed.withIndex()) {
                 _uiState.update { it.copy(applyProgressIndex = index + 1) }
                 val cmd = AdbCommandHelper.buildDisableCommand(pkg)
                 val res = transport.runShell(cmd)
-                if (res.isSuccess) {
+                if (res.getOrNull()?.let { OptimizerSafety.confirmedState(it, pkg, false) } == true) {
                     successful.add(pkg)
                 } else {
                     failed.add(pkg)
@@ -301,39 +314,23 @@ class TvOptimizerViewModel(
 
         viewModelScope.launch {
             _uiState.update { it.copy(isRollingBack = true) }
-            for (pkg in targets) {
-                val cmd = AdbCommandHelper.buildEnableCommand(pkg)
-                transport.runShell(cmd)
-            }
-            store.removeDisabledPackages(targets.toSet())
+            val restored = targets.filter { pkg ->
+                transport.runShell(AdbCommandHelper.buildEnableCommand(pkg)).getOrNull()
+                    ?.let { OptimizerSafety.confirmedState(it, pkg, true) } == true
+            }.toSet()
+            store.removeDisabledPackages(restored)
             _uiState.update {
                 it.copy(
                     isRollingBack = false,
-                    rollbackDone = true,
-                    selectedRollbackPackages = emptySet(),
+                    rollbackDone = restored.size == targets.size,
+                    selectedRollbackPackages = targets.toSet() - restored,
                 )
             }
         }
     }
 
     fun rollbackAll() {
-        val targets = _uiState.value.savedDisabledPackages.toList()
-        if (targets.isEmpty()) return
-
-        viewModelScope.launch {
-            _uiState.update { it.copy(isRollingBack = true) }
-            for (pkg in targets) {
-                val cmd = AdbCommandHelper.buildEnableCommand(pkg)
-                transport.runShell(cmd)
-            }
-            store.clearAll()
-            _uiState.update {
-                it.copy(
-                    isRollingBack = false,
-                    rollbackDone = true,
-                    selectedRollbackPackages = emptySet(),
-                )
-            }
-        }
+        _uiState.update { it.copy(selectedRollbackPackages = it.savedDisabledPackages) }
+        rollbackSelected()
     }
 }

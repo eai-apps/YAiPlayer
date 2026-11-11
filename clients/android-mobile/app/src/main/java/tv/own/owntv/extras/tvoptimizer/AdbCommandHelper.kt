@@ -5,21 +5,24 @@ package tv.own.owntv.extras.tvoptimizer
  * Pure functions for building and parsing package manager shell commands.
  */
 object AdbCommandHelper {
+    private val packagePattern = Regex("[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z][A-Za-z0-9_]*)+")
+
+    private fun validPackage(value: String): Boolean = packagePattern.matches(value)
 
     /**
      * Builds the ADB command to safely disable an application package for the primary user.
      */
     fun buildDisableCommand(packageName: String): String {
-        require(packageName.isNotBlank()) { "Package name must not be blank" }
-        return "pm disable-user --user 0 ${packageName.trim()}"
+        require(validPackage(packageName)) { "Invalid package name" }
+        return "pm disable-user --user 0 $packageName"
     }
 
     /**
      * Builds the ADB command to re-enable a previously disabled application package.
      */
     fun buildEnableCommand(packageName: String): String {
-        require(packageName.isNotBlank()) { "Package name must not be blank" }
-        return "pm enable ${packageName.trim()}"
+        require(validPackage(packageName)) { "Invalid package name" }
+        return "pm enable $packageName"
     }
 
     /**
@@ -28,7 +31,7 @@ object AdbCommandHelper {
     fun parsePackageFromDisable(cmd: String): String? {
         val prefix = "pm disable-user --user 0 "
         if (!cmd.startsWith(prefix)) return null
-        return cmd.removePrefix(prefix).trim().takeIf { it.isNotEmpty() }
+        return cmd.removePrefix(prefix).takeIf(::validPackage)
     }
 
     /**
@@ -37,6 +40,6 @@ object AdbCommandHelper {
     fun parsePackageFromEnable(cmd: String): String? {
         val prefix = "pm enable "
         if (!cmd.startsWith(prefix)) return null
-        return cmd.removePrefix(prefix).trim().takeIf { it.isNotEmpty() }
+        return cmd.removePrefix(prefix).takeIf(::validPackage)
     }
 }

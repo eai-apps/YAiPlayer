@@ -80,4 +80,5 @@
     <string name="pkg_print_spooler_desc">Druckdienst. Fernseher benötigen keine Druckfunktionen.</string>
     <string name="pkg_google_music_title">Google Play Musik</string>
     <string name="pkg_google_music_desc">Veralteter Musikdienst. Gefahrlos zu deaktivieren.</string>
+    <string name="tv_optimizer_licenses">Lizenzen</string>
 </resources>
