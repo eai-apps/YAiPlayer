@@ -126,8 +126,9 @@ android {
         }
     }
     sourceSets {
-        getByName("full") { java.srcDir("../../radio-shared/src/main/java") }
-        getByName("testFull") { java.srcDir("../../radio-shared/src/test/java") }
+        // AGP 9 built-in Kotlin compiles kotlin.srcDirs; java.srcDir alone is not seen by the Kotlin compiler.
+        getByName("full") { kotlin.srcDir("../../radio-shared/src/main/java") }
+        getByName("testFull") { kotlin.srcDir("../../radio-shared/src/test/java") }
     }
 
     // Release signing: env vars first (that is how CI injects the GitHub secrets), then Gradle

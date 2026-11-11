@@ -111,8 +111,9 @@ android {
         }
     }
     sourceSets {
-        getByName("full") { java.srcDir("../../radio-shared/src/main/java") }
-        getByName("testFull") { java.srcDir("../../radio-shared/src/test/java") }
+        // AGP 9 built-in Kotlin compiles kotlin.srcDirs; java.srcDir alone is not seen by the Kotlin compiler.
+        getByName("full") { kotlin.srcDir("../../radio-shared/src/main/java") }
+        getByName("testFull") { kotlin.srcDir("../../radio-shared/src/test/java") }
     }
 
     // The SAME keystore and the same property names as the TV app. A signing certificate must be
