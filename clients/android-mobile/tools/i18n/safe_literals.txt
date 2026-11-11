@@ -72,6 +72,7 @@
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	adbkey
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	adbkey.pub
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	echo ok
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	install failed
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	no shell
 2	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	not connected
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	not local

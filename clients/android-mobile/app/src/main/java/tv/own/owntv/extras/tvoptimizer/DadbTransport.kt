@@ -57,7 +57,8 @@ class DadbTransport(context: Context) : AdbTransport {
     override suspend fun install(apk: File): Result<Unit> = withContext(Dispatchers.IO) {
         runCatching {
             val d = dadb ?: error("not connected")
-            d.install(apk, "-r", "--user", "0")
+            val result = d.install(apk, "-r", "--user", "0")
+            check(result is dadb.InstallResult.Success) { (result as? dadb.InstallResult.Failure)?.reason ?: "install failed" }
         }
     }
 
