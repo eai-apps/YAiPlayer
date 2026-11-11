@@ -86,7 +86,11 @@ class RefreshQueueTracker {
         _progress.value = if (total <= 0) null else Progress(current.coerceIn(1, total), total)
     }
 
+    /** The WorkManager unique name of the job the queue waits on now (so pausing can stop it too). */
+    @Volatile var currentWork: String? = null
+
     fun finished() {
         _progress.value = null
+        currentWork = null
     }
 }

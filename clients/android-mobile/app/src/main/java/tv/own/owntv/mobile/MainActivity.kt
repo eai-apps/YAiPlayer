@@ -288,6 +288,8 @@ open class MainActivity : FragmentActivity() {
     override fun onStop() {
         super.onStop()
         if (isChangingConfigurations) return
+        // Off screen: the automatic refresh queue stops (it drained the battery); onStart picks it up again.
+        autoRefresh.onAppBackground(applicationContext)
         // The relock first: it reads what is playing before anything below pauses or drops it.
         relock.leftApp()
         // Stopped after the floating window was up, without ever resuming in between: the window was

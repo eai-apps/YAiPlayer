@@ -54,8 +54,8 @@ class StaleResyncWorker(
         val thresholdHours = settings.backgroundResyncHours.first()
         val nowMs = System.currentTimeMillis()
 
-        // One queue for everything (RefreshQueuePlanner): the active profile first, then the other profiles,
-        // one source at a time, instead of every stale source at once.
+        // One queue (RefreshQueuePlanner), one source at a time, and only the profile in use: other profiles
+        // are refreshed when they are opened (owner, 11.11 — every profile at once drained a phone).
         val epgRepository = org.koin.core.context.GlobalContext.get().get<tv.own.owntv.core.repository.EpgRepository>()
         val activeId = profileDao.resolveExistingProfileId(settings.activeProfileId.first())
         val profiles = profileDao.getAllOnce().sortedBy { if (it.id == activeId) 0 else 1 }
@@ -78,7 +78,7 @@ class StaleResyncWorker(
             val due = isStale(src.lastSyncAt, nowMs, thresholdHours)
             tv.own.owntv.core.sync.GuideFeedInfo(src.id, src.url, src.builtin, due, if (due) epgDao.countForSources(listOf(src.id)) else 0)
         }
-        val jobs = tv.own.owntv.core.sync.RefreshQueuePlanner.plan(playlists, feeds, includeOtherProfiles = true)
+        val jobs = tv.own.owntv.core.sync.RefreshQueuePlanner.plan(playlists, feeds, includeOtherProfiles = false)
         Log.i(TAG, "stale resync queue=${jobs.size}")
         RefreshQueueScheduler.start(applicationContext, jobs)
 
@@ -98,6 +98,8 @@ object StaleResyncScheduler {
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .setRequiresBatteryNotLow(true)
+            // A phone: only while it charges, so a forgotten app never empties the battery.
+            .setRequiresCharging(tv.own.owntv.core.CoreBuildInfo.batteryPowered)
             .build()
         val request = PeriodicWorkRequestBuilder<StaleResyncWorker>(
             INTERVAL_HOURS,
@@ -107,7 +109,8 @@ object StaleResyncScheduler {
             .build()
         WorkManager.getInstance(context).enqueueUniquePeriodicWork(
             UNIQUE_WORK_NAME,
-            ExistingPeriodicWorkPolicy.KEEP,
+            // UPDATE: an install that scheduled this without the charging rule gets it now (the period is kept).
+            ExistingPeriodicWorkPolicy.UPDATE,
             request,
         )
     }

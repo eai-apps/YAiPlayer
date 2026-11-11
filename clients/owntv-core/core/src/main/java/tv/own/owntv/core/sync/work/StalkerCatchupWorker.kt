@@ -39,7 +39,9 @@ object StalkerCatchupScheduler {
         val request = OneTimeWorkRequestBuilder<StalkerCatchupWorker>()
             .setInitialDelay(java.time.Duration.between(now, next).toMillis(), TimeUnit.MILLISECONDS)
             .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED)
-                .setRequiresBatteryNotLow(true).build())
+                .setRequiresBatteryNotLow(true)
+                // A phone: only on the charger (a background guide download drained one, owner 11.11).
+                .setRequiresCharging(tv.own.owntv.core.CoreBuildInfo.batteryPowered).build())
             .addTag(TAG).build()
         WorkManager.getInstance(context).enqueueUniqueWork("$TAG-${next.toEpochSecond()}", ExistingWorkPolicy.KEEP, request)
     }
