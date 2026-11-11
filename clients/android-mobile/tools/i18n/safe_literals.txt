@@ -19,6 +19,15 @@
 # category protocol: Stable protocol or comparison identifier.
 # category technical: Reviewed non-user-facing technical literal.
 
+6	empty	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	\0
+1	technical	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	0123456789ABCDEF
+1	regex	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	\\d{1,3}(\\.\\d{1,3}){3}
+1	protocol	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	com.yai.iptv.player.tv
+1	url	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	https://www.youtube.com
+1	technical	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	·
+1	empty	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteViewModel.kt	\0
+1	protocol	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteViewModel.kt	YAiPlayer
+1	technical	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteViewModel.kt	·
 1	empty	app/src/main/java/tv/own/owntv/extras/categories/CategoriesVisibilitySheet.kt	\0
 1	technical	app/src/main/java/tv/own/owntv/extras/remote/RemoteNotificationHelper.kt	CH +
 1	technical	app/src/main/java/tv/own/owntv/extras/remote/RemoteNotificationHelper.kt	CH -

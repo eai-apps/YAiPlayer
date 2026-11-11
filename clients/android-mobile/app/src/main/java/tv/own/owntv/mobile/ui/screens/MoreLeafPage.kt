@@ -30,6 +30,6 @@ fun MoreLeafPage(
         MoreLeaf.LOCAL_SYNC -> SettingsLocalSyncPage()
         MoreLeaf.ERROR_LOG -> SettingsErrorLogPage()
         MoreLeaf.ABOUT -> AboutPage(onOpenLanguage)
-        MoreLeaf.REMOTE -> tv.own.owntv.extras.remote.RemoteScreen(onBack = { onBack?.invoke() })
+        MoreLeaf.REMOTE -> tv.own.owntv.extras.remote.RemoteHubScreen(onBack = { onBack?.invoke() })
     }
 }

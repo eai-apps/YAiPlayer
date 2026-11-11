@@ -85,7 +85,7 @@ fun ProfileGate(
     val fallbackName = stringResource(R.string.profiles_default_name)
 
     if (showRemote) {
-        tv.own.owntv.extras.remote.RemoteScreen(onBack = { showRemote = false })
+        tv.own.owntv.extras.remote.RemoteHubScreen(onBack = { showRemote = false })
         return
     }
 
