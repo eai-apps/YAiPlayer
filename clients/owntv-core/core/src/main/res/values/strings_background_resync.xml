@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2026 YAiPlayer authors. Original code, written for YAiPlayer. -->
+<resources>
+    <string name="settings_epg_background_resync">Update in background if inactive</string>
+    <string name="settings_epg_background_resync_desc">Keep TV guide and playlists fresh for all profiles even when closed</string>
+    <string name="settings_epg_background_resync_threshold">How long ago</string>
+    <string name="settings_epg_background_resync_12h">12 hours</string>
+    <string name="settings_epg_background_resync_24h">1 day</string>
+    <string name="settings_epg_background_resync_48h">2 days</string>
+    <string name="settings_epg_background_resync_72h">3 days</string>
+</resources>

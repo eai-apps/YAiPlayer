@@ -38,6 +38,8 @@ fun EpgSourcesScreen(onBack: () -> Unit, modifier: Modifier = Modifier, startOnA
     val builtinSchedule by vm.builtinSchedule.collectAsStateWithLifecycle()
     val builtinFeeds by vm.builtinFeeds.collectAsStateWithLifecycle()
     val autoRefreshOnStartup by vm.autoRefreshOnStartup.collectAsStateWithLifecycle()
+    val backgroundResyncEnabled by vm.backgroundResyncEnabled.collectAsStateWithLifecycle()
+    val backgroundResyncHours by vm.backgroundResyncHours.collectAsStateWithLifecycle()
 
     var editing by remember { mutableStateOf<EpgSource?>(null) }
     var adding by remember { mutableStateOf(startOnAdd) }
@@ -182,6 +184,33 @@ fun EpgSourcesScreen(onBack: () -> Unit, modifier: Modifier = Modifier, startOnA
             onClick = { vm.setAutoRefreshOnStartup(!autoRefreshOnStartup) },
             help = SettingHelp(startupRefreshTitle, startupRefreshDesc, hints = listOf(ok to stringResource(R.string.settings_key_switch), back to parent)),
         )
+        val bgResyncTitle = stringResource(R.string.settings_epg_background_resync)
+        val bgResyncDesc = stringResource(R.string.settings_epg_background_resync_desc)
+        StageSettingRow(
+            icon = OwnTVIcon.REFRESH,
+            title = bgResyncTitle,
+            desc = bgResyncDesc,
+            value = SettingValue.Switch(backgroundResyncEnabled),
+            onClick = { vm.setBackgroundResyncEnabled(!backgroundResyncEnabled) },
+            help = SettingHelp(bgResyncTitle, bgResyncDesc, hints = listOf(ok to stringResource(R.string.settings_key_switch), back to parent)),
+        )
+        if (backgroundResyncEnabled) {
+            val thresholdTitle = stringResource(R.string.settings_epg_background_resync_threshold)
+            val thresholdText = when (backgroundResyncHours) {
+                12 -> stringResource(R.string.settings_epg_background_resync_12h)
+                48 -> stringResource(R.string.settings_epg_background_resync_48h)
+                72 -> stringResource(R.string.settings_epg_background_resync_72h)
+                else -> stringResource(R.string.settings_epg_background_resync_24h)
+            }
+            StageSettingRow(
+                icon = OwnTVIcon.REFRESH,
+                title = thresholdTitle,
+                desc = null,
+                value = SettingValue.Choice(thresholdText),
+                onClick = { vm.cycleBackgroundResyncHours() },
+                help = SettingHelp(thresholdTitle, bgResyncDesc, hints = listOf(ok to thresholdTitle, back to parent)),
+            )
+        }
         if (builtinEnabled) {
             val scheduleTitle = stringResource(R.string.settings_epg_builtin_schedule)
             StageSettingRow(

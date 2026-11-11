@@ -3511,6 +3511,8 @@
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	auto_refresh_on_startup
 1	technical	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	auto_widescreen
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	background_playback
+1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	background_resync_enabled
+1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	background_resync_hours
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	bg_accent_light
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	bg_blur
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	bg_dim
@@ -5572,6 +5574,11 @@
 1	preference-key	core/src/main/java/tv/own/owntv/core/sync/work/EpgSyncWorker.kt	sourceId
 3	technical	core/src/main/java/tv/own/owntv/core/sync/work/EpgSyncWorker.kt	stalker://
 1	technical	core/src/main/java/tv/own/owntv/core/sync/work/EpgSyncWorker.kt	unknown
+1	log	core/src/main/java/tv/own/owntv/core/sync/work/StaleResyncWorker.kt	Background resync is disabled, skipping
+1	log	core/src/main/java/tv/own/owntv/core/sync/work/StaleResyncWorker.kt	StaleResync
+1	log	core/src/main/java/tv/own/owntv/core/sync/work/StaleResyncWorker.kt	stale epg sourceId=${src.id} — enqueuing
+1	log	core/src/main/java/tv/own/owntv/core/sync/work/StaleResyncWorker.kt	stale playlist sourceId=${source.id} — enqueuing
+1	technical	core/src/main/java/tv/own/owntv/core/sync/work/StaleResyncWorker.kt	stale_resync_periodic
 1	protocol	core/src/main/java/tv/own/owntv/core/sync/work/StalkerCatchupWorker.kt	$TAG-${next.toEpochSecond()}
 1	protocol	core/src/main/java/tv/own/owntv/core/sync/work/StalkerCatchupWorker.kt	stalker-epg-catchup
 1	log	core/src/main/java/tv/own/owntv/core/sync/work/TrendingRefreshWorker.kt	Finished sourceId=$sourceId outcome=${outcome.diagnosticName()}

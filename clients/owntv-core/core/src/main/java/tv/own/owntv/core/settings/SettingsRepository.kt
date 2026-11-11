@@ -353,6 +353,8 @@ class SettingsRepository(private val context: Context, private val localeStore: 
         val PLAYLIST_AUTO_REFRESH = stringPreferencesKey("playlist_auto_refresh")
         val EPG_AUTO_REFRESH = stringPreferencesKey("epg_auto_refresh")
         val AUTO_REFRESH_ON_STARTUP = booleanPreferencesKey("auto_refresh_on_startup")
+        val BACKGROUND_RESYNC_ENABLED = booleanPreferencesKey("background_resync_enabled")
+        val BACKGROUND_RESYNC_HOURS = intPreferencesKey("background_resync_hours")
         // Per-EPG-source: use that feed's own <icon src> channel logos instead of the playlist's.
         val EPG_USE_LOGOS = stringPreferencesKey("epg_use_logos")
         val GUIDE_LOGO_SOURCES = stringPreferencesKey("guide_logo_sources")
@@ -2345,6 +2347,29 @@ class SettingsRepository(private val context: Context, private val localeStore: 
         context.dataStore.edit { it[Keys.AUTO_REFRESH_ON_STARTUP] = enabled }
     }
 
+    /** Whether background resync runs periodically when inactive (default on). */
+    val backgroundResyncEnabled: Flow<Boolean> =
+        prefsFlow { it[Keys.BACKGROUND_RESYNC_ENABLED] ?: DEFAULT_BACKGROUND_RESYNC_ENABLED }
+
+    suspend fun setBackgroundResyncEnabled(enabled: Boolean) {
+        context.dataStore.edit { it[Keys.BACKGROUND_RESYNC_ENABLED] = enabled }
+        runCatching {
+            if (enabled) {
+                tv.own.owntv.core.sync.work.StaleResyncScheduler.schedule(context)
+            } else {
+                tv.own.owntv.core.sync.work.StaleResyncScheduler.cancel(context)
+            }
+        }
+    }
+
+    /** Inactivity threshold in hours before resyncing (default 24). */
+    val backgroundResyncHours: Flow<Int> =
+        prefsFlow { it[Keys.BACKGROUND_RESYNC_HOURS] ?: DEFAULT_BACKGROUND_RESYNC_HOURS }
+
+    suspend fun setBackgroundResyncHours(hours: Int) {
+        context.dataStore.edit { it[Keys.BACKGROUND_RESYNC_HOURS] = hours }
+    }
+
     /** Per-source EPG auto-refresh selection. Missing ids default to [EpgAutoRefresh.OFF]. */
     val epgAutoRefresh: Flow<Map<Long, EpgRefresh>> =
         prefsFlow { prefs ->
@@ -3362,7 +3387,7 @@ class SettingsRepository(private val context: Context, private val localeStore: 
             Keys.GUIDE_WIDTH_CHANNELS, Keys.GUIDE_WIDTH_EPG,
             Keys.POPUP_FONT_SIZE_PCT, Keys.POPUP_SIZE_PCT, Keys.VOD_GRID_COLUMNS, Keys.GUIDE_DENSITY_PCT,
             Keys.GESTURE_SENSITIVITY_PCT,
-            Keys.NAV_HIDE_AFTER_MS, Keys.REMINDER_LEAD_MIN,
+            Keys.NAV_HIDE_AFTER_MS, Keys.REMINDER_LEAD_MIN, Keys.BACKGROUND_RESYNC_HOURS,
             // Multiview's tile count and recording's start-early / finish-late minutes (readers clamp them).
             Keys.MULTIVIEW_TILES, Keys.RECORDING_PRE_ROLL_MINUTES, Keys.RECORDING_POST_ROLL_MINUTES,
             // Auto frame rate's pause and films' buffer / timeout / reconnects; the readers
@@ -3395,7 +3420,7 @@ class SettingsRepository(private val context: Context, private val localeStore: 
             Keys.MULTIVIEW_ENABLED, Keys.MULTIVIEW_WARNING_ACCEPTED,
             Keys.RECORDING_RESERVE_CONNECTION, Keys.RECORD_WHAT_IM_WATCHING, Keys.RECORDING_OVER_MOBILE_DATA,
             Keys.AUDIO_PASSTHROUGH, Keys.NIGHT_MODE, Keys.VOLUME_LEVELLING, Keys.TUNNELED_PLAYBACK,
-            Keys.TIMESHIFT_ENABLED, Keys.AUTO_WIDESCREEN,
+            Keys.TIMESHIFT_ENABLED, Keys.AUTO_WIDESCREEN, Keys.AUTO_REFRESH_ON_STARTUP, Keys.BACKGROUND_RESYNC_ENABLED,
         )
         val floats = listOf(Keys.SUB_SCALE, Keys.SUB_SCALE_MPV, Keys.SUB_SCALE_EXO)
 
@@ -3545,6 +3570,10 @@ class SettingsRepository(private val context: Context, private val localeStore: 
     }
 
     companion object {
+        const val DEFAULT_BACKGROUND_RESYNC_ENABLED = true
+        const val DEFAULT_BACKGROUND_RESYNC_HOURS = 24
+        val BACKGROUND_RESYNC_HOUR_OPTIONS = listOf(12, 24, 48, 72)
+
         /** Glass opacity when glass is on: the Stage default and Reset. */
         const val GLASS_ALPHA_DEFAULT_PCT = 50
 

@@ -73,6 +73,8 @@ fun SettingsEpgSourcesPage(
     val builtinSchedule by vm.builtinSchedule.collectAsStateWithLifecycle()
     val builtinFeeds by vm.builtinFeeds.collectAsStateWithLifecycle()
     val autoRefreshOnStartup by vm.autoRefreshOnStartup.collectAsStateWithLifecycle()
+    val backgroundResyncEnabled by vm.backgroundResyncEnabled.collectAsStateWithLifecycle()
+    val backgroundResyncHours by vm.backgroundResyncHours.collectAsStateWithLifecycle()
     val deleting by vm.deletingIds.collectAsStateWithLifecycle()
 
     var menuSource by remember { mutableStateOf<EpgSource?>(null) }
@@ -120,6 +122,30 @@ fun SettingsEpgSourcesPage(
                 minHeight = 48.dp,
                 onClick = { vm.setStalkerCatchupEnabled(!stalkerCatchupEnabled) },
             ) { StageSwitch(stalkerCatchupEnabled) }
+        }
+        item(key = "background_resync") {
+            StageSettingRow(
+                title = stringResource(R.string.settings_epg_background_resync),
+                subtitle = stringResource(R.string.settings_epg_background_resync_desc),
+                icon = MobileIcons.Refresh,
+                minHeight = 48.dp,
+                onClick = { vm.setBackgroundResyncEnabled(!backgroundResyncEnabled) },
+            ) { StageSwitch(backgroundResyncEnabled) }
+        }
+        if (backgroundResyncEnabled) item(key = "background_resync_threshold") {
+            val thresholdText = when (backgroundResyncHours) {
+                12 -> stringResource(R.string.settings_epg_background_resync_12h)
+                48 -> stringResource(R.string.settings_epg_background_resync_48h)
+                72 -> stringResource(R.string.settings_epg_background_resync_72h)
+                else -> stringResource(R.string.settings_epg_background_resync_24h)
+            }
+            StageSettingRow(
+                title = stringResource(R.string.settings_epg_background_resync_threshold),
+                subtitle = thresholdText,
+                icon = MobileIcons.Refresh,
+                minHeight = 48.dp,
+                onClick = { vm.cycleBackgroundResyncHours() },
+            ) {}
         }
         item(key = "builtin") {
             StageSettingRow(
