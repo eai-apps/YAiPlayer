@@ -241,7 +241,6 @@
 1	json	app/src/main/java/tv/own/owntv/mobile/ui/player/SubtitleSearchViewModel.kt	machine_translated
 1	json	app/src/main/java/tv/own/owntv/mobile/ui/player/SubtitleSearchViewModel.kt	movie_name
 1	json	app/src/main/java/tv/own/owntv/mobile/ui/player/SubtitleSearchViewModel.kt	release
-1	locale	app/src/main/java/tv/own/owntv/mobile/ui/player/TrackOptionText.kt	und
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/profiles/ProfileAvatar.kt	\0
 1	uri	app/src/main/java/tv/own/owntv/mobile/ui/profiles/ProfileAvatar.kt	content:
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/profiles/ProfileGate.kt	add

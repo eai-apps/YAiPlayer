@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="quick_start_on">Schnellstart: Ein</string>
-    <string name="quick_start_off">Schnellstart: Aus</string>
-    <string name="quick_start_hint">Den letzten Sender sofort im Vollbildmodus öffnen, ohne ein Profil auszuwählen. Ausschalten, um wieder ein Profil auszuwählen. Ein Profil mit PIN fragt weiterhin nach der PIN.</string>
+    <string name="quick_start_on">Schneller Portalstart: Ein</string>
+    <string name="quick_start_off">Schneller Portalstart: Aus</string>
+    <string name="quick_start_hint">Beim Starten der App wird direkt das zuletzt aktive Profil geladen. Ausschalten, um beim Start wieder ein Profil auszuwählen. Ein Profil mit PIN fragt weiterhin nach der PIN.</string>
 </resources>

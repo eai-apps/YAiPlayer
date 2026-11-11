@@ -244,7 +244,7 @@ internal fun videoQuickBinding(key: String, vm: SettingsViewModel): VideoQuickBi
     return when (key) {
         "vp_light_mode" -> {
             val on by vm.lightModeEnabled.collectAsStateWithLifecycle()
-            toggle(onOff(on), on) { vm.setLightModeEnabled(!on) }
+            link(if (on) stringResource(R.string.common_on) else stringResource(R.string.common_off), on)
         }
         "vp_hw" -> {
             val on by vm.hwDecoding.collectAsStateWithLifecycle()
@@ -1016,8 +1016,9 @@ internal fun VideoPlayerGroupRows(
             icon = OwnTVIcon.MOTION,
             title = stringResource(R.string.light_mode_title),
             desc = stringResource(R.string.light_mode_description),
-            value = SettingValue.Switch(lightModeOn),
-            onClick = { vm.setLightModeEnabled(!lightModeOn) },
+            value = SettingValue.Opens(if (lightModeOn) stringResource(R.string.common_on) else stringResource(R.string.common_off)),
+            modifier = Modifier.focusRequester(dialogRowFocus.getValue(Dialog.LIGHT_MODE)),
+            onClick = { savedScroll = scrollState.value; dialog = Dialog.LIGHT_MODE },
         )
         KeyedSettingRow(
             quickKey = "vp_live_preview",
@@ -1938,6 +1939,7 @@ internal fun VideoPlayerGroupRows(
                 },
             )
         }
+        Dialog.LIGHT_MODE -> tv.own.owntv.extras.lightmode.LightModeTvDialog(onDismiss = { dialog = Dialog.NONE })
         Dialog.LIVE_PREVIEW_PANEL -> LivePreviewPanelHiddenDialog(onDismiss = { dialog = Dialog.NONE })
         Dialog.NONE -> Unit
     }
@@ -1999,6 +2001,7 @@ private fun dialogForQuickKey(key: String): Dialog? = when (key) {
     "vp_vod_timeout" -> Dialog.VOD_TIMEOUT
     "vp_vod_reconnects" -> Dialog.VOD_RECONNECTS
     "vp_rewind_step" -> Dialog.LIVE_REWIND_STEP
+    "vp_light_mode" -> Dialog.LIGHT_MODE
     "vp_live_preview" -> Dialog.LIVE_PREVIEW_PANEL
     "vp_live_latency" -> Dialog.LIVE_LATENCY
     "vp_latency_sources" -> Dialog.LIVE_LATENCY_SOURCES
@@ -2019,7 +2022,7 @@ private fun dialogForQuickKey(key: String): Dialog? = when (key) {
     else -> null
 }
 
-private enum class Dialog { NONE, LIVE_ENGINE, LIVE_ENGINE_SOURCES, LIVE_ENGINE_SOURCE, LIVE_LATENCY_SOURCES, LIVE_LATENCY_SOURCE, LIVE_LATENCY_CUSTOM_SOURCE, VOD_ENGINE, VOD_ENGINE_SOURCES, VOD_ENGINE_SOURCE, ZOOM, VOLUME, RESET_SAVED_ZOOM, RESET_SAVED_VOLUME, RESET_SAVED_AUDIO_DELAY, SEEK_STEP, LIVE_REWIND_STEP, SUB_STYLE, SUB_LANG, AUDIO_LANG, SURROUND, FFMPEG_AUDIO, AUDIO_SYNC, OUTPUT_AUDIO_DELAY, RESUME, LIVE_LATENCY, LIVE_CUSTOM, LIVE_PREROLL, LIVE_TUNE_TIMEOUT, LIVE_TUNE_TIMEOUT_SOURCES, LIVE_TUNE_TIMEOUT_SOURCE, LIVE_PREROLL_SOURCES, LIVE_PREROLL_SOURCE, EXTERNAL_PLAYER, RESET_PINS, RESET_LIVE_PINS, AFR_WARNING, AFR_LIVE_WARNING, AFR_PAUSE, VOD_BUFFER, VOD_TIMEOUT, VOD_RECONNECTS, TIMESHIFT_WINDOW, TIMESHIFT_RESUME, MAX_QUALITY, LIVE_PREVIEW_PANEL, MINI_PLAYER, MULTIVIEW_TILES, MULTIVIEW_WARNING }
+private enum class Dialog { NONE, LIGHT_MODE, LIVE_ENGINE, LIVE_ENGINE_SOURCES, LIVE_ENGINE_SOURCE, LIVE_LATENCY_SOURCES, LIVE_LATENCY_SOURCE, LIVE_LATENCY_CUSTOM_SOURCE, VOD_ENGINE, VOD_ENGINE_SOURCES, VOD_ENGINE_SOURCE, ZOOM, VOLUME, RESET_SAVED_ZOOM, RESET_SAVED_VOLUME, RESET_SAVED_AUDIO_DELAY, SEEK_STEP, LIVE_REWIND_STEP, SUB_STYLE, SUB_LANG, AUDIO_LANG, SURROUND, FFMPEG_AUDIO, AUDIO_SYNC, OUTPUT_AUDIO_DELAY, RESUME, LIVE_LATENCY, LIVE_CUSTOM, LIVE_PREROLL, LIVE_TUNE_TIMEOUT, LIVE_TUNE_TIMEOUT_SOURCES, LIVE_TUNE_TIMEOUT_SOURCE, LIVE_PREROLL_SOURCES, LIVE_PREROLL_SOURCE, EXTERNAL_PLAYER, RESET_PINS, RESET_LIVE_PINS, AFR_WARNING, AFR_LIVE_WARNING, AFR_PAUSE, VOD_BUFFER, VOD_TIMEOUT, VOD_RECONNECTS, TIMESHIFT_WINDOW, TIMESHIFT_RESUME, MAX_QUALITY, LIVE_PREVIEW_PANEL, MINI_PLAYER, MULTIVIEW_TILES, MULTIVIEW_WARNING }
 
 /** "Auto" for 0, else seconds ("60s") — the film buffer and network timeout choices. */
 @Composable

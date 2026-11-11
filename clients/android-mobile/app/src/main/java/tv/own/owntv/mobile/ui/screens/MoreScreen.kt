@@ -113,6 +113,8 @@ fun MoreScreen(
     val context = LocalContext.current
     var logVersion by remember { mutableStateOf(0) }
     var showCategoriesSheet by remember { mutableStateOf(false) }
+    var showLightModeSheet by remember { mutableStateOf(false) }
+    var showQuickStartSheet by remember { mutableStateOf(false) }
     LifecycleResumeEffect(Unit) { logVersion++; onPauseOrDispose { } }
     val logCount by produceState(0, logVersion) { value = withContext(Dispatchers.IO) { PlaybackErrorLog.read(context).size } }
 
@@ -168,11 +170,7 @@ fun MoreScreen(
                 StageGroupLabel(stringResource(R.string.more_group_quick_actions))
                 StageMenuItem(
                     label = stringResource(R.string.quick_start_title),
-                    onClick = {
-                        scope.launch {
-                            activeId?.takeIf { it >= 0L }?.let { settings.setQuickStart(it, !quickStart) }
-                        }
-                    },
+                    onClick = { showQuickStartSheet = true },
                     icon = MobileIcons.PlayCircle,
                     value = stringResource(if (quickStart) R.string.common_on else R.string.common_off),
                     height = 48.dp,
@@ -203,9 +201,7 @@ fun MoreScreen(
                     val lightMode by settings.lightModeEnabled.collectAsStateWithLifecycle(initialValue = false)
                     StageMenuItem(
                         label = stringResource(R.string.light_mode_title),
-                        onClick = {
-                            scope.launch { settings.setLightModeEnabled(!lightMode) }
-                        },
+                        onClick = { showLightModeSheet = true },
                         icon = MobileIcons.AutoAwesome,
                         value = stringResource(if (lightMode) R.string.common_on else R.string.common_off),
                         height = 48.dp,
@@ -276,6 +272,39 @@ fun MoreScreen(
                 profileId = pid,
                 sourceIds = catSourceIds,
                 onDismiss = { showCategoriesSheet = false },
+            )
+        }
+    }
+    if (showLightModeSheet) {
+        tv.own.owntv.extras.lightmode.LightModeMobileSheet(
+            onDismiss = { showLightModeSheet = false },
+        )
+    }
+    if (showQuickStartSheet) {
+        val sheetTitle = stringResource(R.string.quick_start_title)
+        tv.own.owntv.mobile.ui.components.MobileBottomSheet(onDismissRequest = { showQuickStartSheet = false }, title = sheetTitle) {
+            tv.own.owntv.mobile.ui.components.StageSheetHeader(title = sheetTitle, subtitle = stringResource(R.string.quick_start_hint))
+            StageMenuItem(
+                label = stringResource(R.string.quick_start_turn_on),
+                onClick = {
+                    scope.launch {
+                        activeId?.takeIf { it >= 0L }?.let { settings.setQuickStart(it, true) }
+                    }
+                    showQuickStartSheet = false
+                },
+                checked = quickStart,
+                filled = quickStart,
+            )
+            StageMenuItem(
+                label = stringResource(R.string.quick_start_turn_off),
+                onClick = {
+                    scope.launch {
+                        activeId?.takeIf { it >= 0L }?.let { settings.setQuickStart(it, false) }
+                    }
+                    showQuickStartSheet = false
+                },
+                checked = !quickStart,
+                filled = !quickStart,
             )
         }
     }

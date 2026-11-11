@@ -1057,6 +1057,7 @@ class ExoSubtitleEngine(
                 val image = mime == androidx.media3.common.MimeTypes.APPLICATION_PGS ||
                     mime == androidx.media3.common.MimeTypes.APPLICATION_VOBSUB ||
                     mime == androidx.media3.common.MimeTypes.APPLICATION_DVBSUBS
+                val forced = (format.selectionFlags and androidx.media3.common.C.SELECTION_FLAG_FORCED) != 0
                 // Side-loaded external subs keep their raw configured label, which already carries their
                 // source in its prefix (see SubtitleTrackLabel). The raw value remains an engine identity
                 // for selection and engine-toggle carry-over, never a translated sentence.
@@ -1069,6 +1070,7 @@ class ExoSubtitleEngine(
                         lang = format.language,
                         typeIndex = id,
                         labelKind = TrackLabelKind.SUBTITLE,
+                        forced = forced,
                     ),
                 )
                 id++

@@ -3,6 +3,11 @@
     <!-- Copyright (C) 2026 YAiPlayer authors. Original code, written for YAiPlayer. -->
     <string name="light_mode_title">Лёгкий режим</string>
     <string name="light_mode_description">Оптимизация для слабых устройств: отключает видео-превью в меню и снижает анимации.</string>
+    <string name="light_mode_dialog_description">Лёгкий режим отключает превью воспроизведения телеканалов. Рекомендуется для слабых устройств, если что-то тормозит.</string>
+    <string name="light_mode_turn_on">Включить</string>
+    <string name="light_mode_turn_off">Выключить</string>
+    <string name="light_mode_on">Лёгкий режим: вкл</string>
+    <string name="light_mode_off">Лёгкий режим: выкл</string>
     <string name="light_mode_prompt_title">Включить лёгкий режим?</string>
     <string name="light_mode_prompt_body">Меню будет быстрее на этом устройстве.</string>
     <string name="light_mode_action_enable">Включить</string>

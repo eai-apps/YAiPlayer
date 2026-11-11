@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Copyright (C) 2026 YAiPlayer authors. Original code, written for YAiPlayer. -->
+    <string name="track_type_dubbing">дубляж</string>
+    <string name="track_type_original">оригинал</string>
+    <string name="track_type_forced">форсированные</string>
+    <string name="track_type_full">полные</string>
+    <string name="track_type_multi_voice">многоголосый</string>
+    <string name="track_type_two_voice">двухголосый</string>
+    <string name="track_type_single_voice">одноголосый</string>
+    <string name="track_type_commentary">комментарии</string>
+    <string name="track_type_sdh">для слабослышащих</string>
+</resources>

@@ -407,7 +407,14 @@ internal fun liveSections(vm: SettingsViewModel): List<SettingSection> {
             stringResource(R.string.settings_live_tv),
             listOfNotNull(
                 quickSwitch(vm, "vp_channel_numbers", MobileIcons.FormatListBulleted, R.string.settings_channel_numbers, R.string.settings_line_channel_numbers),
-                quickSwitch(vm, "vp_light_mode", MobileIcons.AutoAwesome, R.string.light_mode_title, R.string.light_mode_description),
+                SettingItem(
+                    key = "vp_light_mode",
+                    icon = MobileIcons.AutoAwesome,
+                    title = stringResource(R.string.light_mode_title),
+                    line = stringResource(R.string.light_mode_description),
+                    value = SettingValue.Choice(if (s.lightModeEnabled.pref(false)) stringResource(R.string.common_on) else stringResource(R.string.common_off)),
+                    sheet = { dismiss -> tv.own.owntv.extras.lightmode.LightModeMobileSheet(onDismiss = dismiss) },
+                ),
                 switchItem(
                     "vp_live_preview", MobileIcons.LiveTv, stringResource(R.string.settings_quick_live_preview),
                     stringResource(R.string.settings_line_live_preview_mobile), s.livePreviewEnabled.pref(true),

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Copyright (C) 2026 YAiPlayer authors. Original code, written for YAiPlayer. -->
+    <string name="track_type_dubbing">Synchron</string>
+    <string name="track_type_original">Original</string>
+    <string name="track_type_forced">forciert</string>
+    <string name="track_type_full">vollständig</string>
+    <string name="track_type_multi_voice">Mehrstimmig</string>
+    <string name="track_type_two_voice">Zweistimmig</string>
+    <string name="track_type_single_voice">Einzelstimme</string>
+    <string name="track_type_commentary">Kommentar</string>
+    <string name="track_type_sdh">SDH</string>
+</resources>

@@ -172,6 +172,7 @@ fun StageRail(
     }
     val quickStart by quickStartFlow.collectAsStateWithLifecycle(initialValue = false)
     var showQuickStartMenu by remember { mutableStateOf(false) }
+    var showLightModeDialog by remember { mutableStateOf(false) }
     val sourceRepo: tv.own.owntv.core.repository.SourceRepository = org.koin.compose.koinInject()
     val activePlaylistId by settings.defaultSourceId.collectAsStateWithLifecycle(initialValue = -1L)
     val railSources by remember(activeProfileId) {
@@ -382,21 +383,9 @@ fun StageRail(
                 active = lightMode,
                 accentIcon = lightMode,
                 onClick = {
-                    scope.launch { settings.setLightModeEnabled(!lightMode) }
+                    showLightModeDialog = true
                 },
             )
-            if (onManageCategories != null) {
-                RailItem(
-                    icon = OwnTVIcon.FOLDER,
-                    label = stringResource(R.string.quick_categories),
-                    trailing = null,
-                    detail = stringResource(R.string.quick_categories_hint),
-                    open = shown,
-                    namesAlpha = namesAlpha,
-                    active = false,
-                    onClick = onManageCategories,
-                )
-            }
         }
     }
     if (showQuickStartMenu) {
@@ -437,6 +426,11 @@ fun StageRail(
                 leading = { focused -> tv.own.owntv.ui.stage.StagePopupRadio(on = !quickStart, focused = focused) },
             )
         }
+    }
+    if (showLightModeDialog) {
+        tv.own.owntv.extras.lightmode.LightModeTvDialog(
+            onDismiss = { showLightModeDialog = false },
+        )
     }
 }
 

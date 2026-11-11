@@ -176,6 +176,8 @@ fun MoreScreen(
     val context = LocalContext.current
     var logVersion by remember { mutableIntStateOf(0) }
     var showCategories by remember { mutableStateOf(false) }
+    var showLightModeDialog by remember { mutableStateOf(false) }
+    var showQuickStartDialog by remember { mutableStateOf(false) }
     val logCount by produceState(0, logVersion) { value = withContext(Dispatchers.IO) { PlaybackErrorLog.read(context).size } }
 
     Box(modifier.fillMaxSize().onFocusChanged { if (it.hasFocus) onChildFocused() }) {
@@ -220,13 +222,7 @@ fun MoreScreen(
                 icon = OwnTVIcon.PLAY_CIRCLE,
                 value = stringResource(if (quickStart) R.string.common_on else R.string.common_off),
                 selected = false,
-                onClick = {
-                    scope.launch {
-                        if (activeProfileId >= 0L) {
-                            settings.setQuickStart(activeProfileId, !quickStart)
-                        }
-                    }
-                },
+                onClick = { showQuickStartDialog = true },
             )
             if (playlistSources.isNotEmpty()) {
                 val refreshLabel = stringResource(if (activeSource?.type == tv.own.owntv.core.model.SourceType.STALKER) R.string.quick_refresh_portal else R.string.quick_refresh_playlist)
@@ -257,9 +253,7 @@ fun MoreScreen(
                     icon = OwnTVIcon.MOTION,
                     value = stringResource(if (lightMode) R.string.common_on else R.string.common_off),
                     selected = false,
-                    onClick = {
-                        scope.launch { settings.setLightModeEnabled(!lightMode) }
-                    },
+                    onClick = { showLightModeDialog = true },
                 )
                 StageGroupItem(
                     text = stringResource(R.string.quick_categories),
@@ -351,6 +345,50 @@ fun MoreScreen(
             sourceIds = catSourceIds,
             onDismiss = { showCategories = false },
         )
+    }
+    if (showLightModeDialog) {
+        tv.own.owntv.extras.lightmode.LightModeTvDialog(
+            onDismiss = { showLightModeDialog = false },
+        )
+    }
+    if (showQuickStartDialog) {
+        val firstRequester = remember { FocusRequester() }
+        LaunchedEffect(Unit) {
+            kotlinx.coroutines.delay(60)
+            runCatching { firstRequester.requestFocus() }
+        }
+        tv.own.owntv.ui.stage.StagePopup(
+            onDismiss = { showQuickStartDialog = false },
+            title = stringResource(R.string.quick_start_title),
+            width = 560.mpx,
+        ) {
+            tv.own.owntv.ui.stage.StagePopupOption(
+                title = stringResource(R.string.quick_start_turn_on),
+                onClick = {
+                    scope.launch {
+                        if (activeProfileId >= 0L) {
+                            settings.setQuickStart(activeProfileId, true)
+                        }
+                    }
+                    showQuickStartDialog = false
+                },
+                modifier = if (quickStart) Modifier.focusRequester(firstRequester) else Modifier,
+                leading = { focused -> tv.own.owntv.ui.stage.StagePopupRadio(on = quickStart, focused = focused) },
+            )
+            tv.own.owntv.ui.stage.StagePopupOption(
+                title = stringResource(R.string.quick_start_turn_off),
+                onClick = {
+                    scope.launch {
+                        if (activeProfileId >= 0L) {
+                            settings.setQuickStart(activeProfileId, false)
+                        }
+                    }
+                    showQuickStartDialog = false
+                },
+                modifier = if (!quickStart) Modifier.focusRequester(firstRequester) else Modifier,
+                leading = { focused -> tv.own.owntv.ui.stage.StagePopupRadio(on = !quickStart, focused = focused) },
+            )
+        }
     }
     val pinItem = askPinFor
     val pin = pinLock.pin

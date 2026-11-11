@@ -36,6 +36,7 @@ object TrackLanguages {
     /** The ISO 639-1 form of a 639-2/T code ("deu" → "de"); null when the language has none. */
     fun twoLetter(code: String): String? {
         val t = code.trim().lowercase(Locale.ROOT)
+        if (t.length == 2) return t
         return Locale.getISOLanguages().firstOrNull {
             runCatching { Locale.forLanguageTag(it).isO3Language }.getOrNull() == t
         }
