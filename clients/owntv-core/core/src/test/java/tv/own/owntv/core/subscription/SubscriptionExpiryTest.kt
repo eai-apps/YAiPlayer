@@ -153,4 +153,15 @@ class SubscriptionExpiryTest {
         assertEquals(0, (resStalkerExpired as SubscriptionBadgeState.Days).days)
         assertTrue((resStalkerExpired as SubscriptionBadgeState.Days).isWarning)
     }
+
+    @Test fun unreadableDateIsNeverShownAsUnlimited() {
+        // The portal wrote a date in words we cannot parse: not "no limit", so the badge stays hidden.
+        assertFalse(isUnlimitedText("до конца месяца"))
+        assertTrue(calculateSubscriptionBadge(SourceType.STALKER, expiryText = "до конца месяца", isUnlimited = isUnlimitedText("до конца месяца")) is SubscriptionBadgeState.Unknown)
+        // Nothing sent, or "unlimited" said in words: infinity.
+        assertTrue(isUnlimitedText(null))
+        assertTrue(isUnlimitedText("  "))
+        assertTrue(isUnlimitedText("Unlimited"))
+        assertTrue(isUnlimitedText("бессрочно"))
+    }
 }

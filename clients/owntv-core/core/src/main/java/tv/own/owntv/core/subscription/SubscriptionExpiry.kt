@@ -43,6 +43,10 @@ fun daysUntil(expiryMs: Long, nowMs: Long): Int =
 
 private val UNLIMITED_KEYWORDS = setOf("unlimited", "бессрочно", "безлимит", "0", "null")
 
+/** True when the portal sent no end date at all or said "unlimited" in words. */
+internal fun isUnlimitedText(expiryText: String?): Boolean =
+    expiryText.isNullOrBlank() || expiryText.trim().lowercase(Locale.US) in UNLIMITED_KEYWORDS
+
 /**
  * Calculates the subscription badge state according to the rules:
  * 1. Shows "N дн." for active source. If <= 7 days, accent color. If expired, shows "0 дн." (accent color).
@@ -181,23 +185,31 @@ class SubscriptionExpiryChecker(
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val testResult = runCatching { tester.test(source) }.getOrNull()
-                when (testResult) {
-                    is SourceTestResult.Ok -> {
-                        val end = testResult.expiryText?.let(::parseExpiryText) ?: testResult.expiryMs
-                        if (end != null) {
-                            saveSourceExpiry(source.id, expiryMs = end, expiryText = testResult.expiryText, isUnlimited = false)
-                        } else {
-                            saveSourceExpiry(source.id, expiryMs = null, expiryText = testResult.expiryText, isUnlimited = true)
-                        }
-                    }
-                    is SourceTestResult.Expired -> {
-                        saveSourceExpiry(source.id, expiryMs = testResult.expiryMs ?: 0L, expiryText = null, isUnlimited = false)
-                    }
-                    else -> {}
-                }
+                recordTestResult(source.id, testResult)
             } finally {
                 checkingSources.remove(source.id)
             }
+        }
+    }
+
+    /**
+     * Stores what the portal said. No date counts as "unlimited" only when the portal sent nothing or
+     * said so in words; a date it wrote in a form we cannot read stays unknown (the badge stays hidden
+     * rather than showing a wrong "∞").
+     */
+    private fun recordTestResult(sourceId: Long, result: SourceTestResult?) {
+        when (result) {
+            is SourceTestResult.Ok -> {
+                val end = result.expiryText?.let(::parseExpiryText) ?: result.expiryMs
+                if (end != null) {
+                    saveSourceExpiry(sourceId, expiryMs = end, expiryText = result.expiryText, isUnlimited = false)
+                } else {
+                    saveSourceExpiry(sourceId, expiryMs = null, expiryText = result.expiryText, isUnlimited = isUnlimitedText(result.expiryText))
+                }
+            }
+            is SourceTestResult.Expired ->
+                saveSourceExpiry(sourceId, expiryMs = result.expiryMs ?: 0L, expiryText = null, isUnlimited = false)
+            else -> {}
         }
     }
 
@@ -206,18 +218,15 @@ class SubscriptionExpiryChecker(
         val out = mutableListOf<ExpiryNotice>()
         for (s in sourceDao.getAllOnce()) {
             if (s.type != SourceType.XTREAM && s.type != SourceType.STALKER) continue
+            val shownToday = prefs.getLong("shown_${s.id}", -1L) == today
+            val refreshedToday = prefs.getLong("refreshed_${s.id}", -1L) == today
+            // One portal request per source per day: the badge needs a fresh end date (renewals), the
+            // warning window needs one only while it has not been shown today.
+            if (shownToday && refreshedToday) continue
             val testResult = runCatching { tester.test(s) }.getOrNull()
-            if (testResult is SourceTestResult.Ok) {
-                val end = testResult.expiryText?.let(::parseExpiryText) ?: testResult.expiryMs
-                if (end != null) {
-                    saveSourceExpiry(s.id, expiryMs = end, expiryText = testResult.expiryText, isUnlimited = false)
-                } else {
-                    saveSourceExpiry(s.id, expiryMs = null, expiryText = testResult.expiryText, isUnlimited = true)
-                }
-            } else if (testResult is SourceTestResult.Expired) {
-                saveSourceExpiry(s.id, expiryMs = testResult.expiryMs ?: 0L, expiryText = null, isUnlimited = false)
-            }
-            if (prefs.getLong("shown_${s.id}", -1L) == today) continue
+            recordTestResult(s.id, testResult)
+            if (testResult != null) prefs.edit().putLong("refreshed_${s.id}", today).apply()
+            if (shownToday) continue
             val ok = testResult as? SourceTestResult.Ok ?: continue
             val end = ok.expiryText?.let(::parseExpiryText) ?: ok.expiryMs ?: continue
             val left = daysUntil(end, nowMs)
