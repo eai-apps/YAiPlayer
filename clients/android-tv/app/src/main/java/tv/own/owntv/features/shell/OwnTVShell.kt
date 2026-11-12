@@ -1590,10 +1590,11 @@ fun OwnTVShell(
         )
       }
 
-      // Unobtrusive background-sync pill (bottom middle): visible while any catalog sync runs —
+      // Compact background-sync pill (top middle, in the header strip — at the bottom it covered card titles,
+      // owner 12.11): visible while any catalog sync runs —
       // backgrounded first import, remainder worker, auto refresh — but never over fullscreen video.
       if (playerMode != PlayerMode.FULLSCREEN) {
-          tv.own.owntv.features.shell.components.SyncStatusPill(modifier = Modifier.align(Alignment.BottomCenter))
+          tv.own.owntv.features.shell.components.SyncStatusPill(modifier = Modifier.align(Alignment.TopCenter))
       }
 
       // Player surface — hoisted so it persists across fullscreen <-> mini (same call site = the

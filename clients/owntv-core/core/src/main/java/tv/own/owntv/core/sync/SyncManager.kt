@@ -89,7 +89,7 @@ class SyncManager(
          */
         forcePrune: Boolean = false,
     ): Pair<SyncResult, SyncRunStats> =
-        withContext(Dispatchers.IO) {
+        withContext(tv.own.owntv.core.util.BackgroundWork.dispatcher) {
             val syncStartedAt = SystemClock.elapsedRealtime()
             val stats = SyncStatsCollector(source.id).apply { this.forcePrune = forcePrune }
             // Single derivation: request ∩ enabledScope, then type-constrained (replaces the old
@@ -190,7 +190,7 @@ class SyncManager(
     internal suspend fun backfillCatalog(
         sourceId: Long,
         yieldToUser: suspend () -> Boolean,
-    ): StalkerSyncer.BackfillOutcome = withContext(Dispatchers.IO) {
+    ): StalkerSyncer.BackfillOutcome = withContext(tv.own.owntv.core.util.BackgroundWork.dispatcher) {
         val source = sourceDao.getById(sourceId) ?: return@withContext StalkerSyncer.BackfillOutcome()
         if (source.type != SourceType.STALKER) return@withContext StalkerSyncer.BackfillOutcome()
         stalkerSyncer.backfill(source, yieldToUser)

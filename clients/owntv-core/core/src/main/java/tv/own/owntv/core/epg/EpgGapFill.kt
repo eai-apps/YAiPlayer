@@ -13,6 +13,7 @@ import tv.own.owntv.core.CorePerf
 import tv.own.owntv.core.customize.CustomizationStore
 import tv.own.owntv.core.customize.CustomizeKeys
 import tv.own.owntv.core.database.OwnTVDatabase
+import tv.own.owntv.core.database.dao.resolveExistingProfileId
 import tv.own.owntv.core.database.entity.ChannelEntity
 import tv.own.owntv.core.database.entity.matchName
 import tv.own.owntv.core.live.epgKeyOf
@@ -34,8 +35,17 @@ class EpgGapFill(
         withContext(Dispatchers.IO) {
             if (!store.builtinEnabled.first()) return@withContext 0
             val started = SystemClock.elapsedRealtime()
-            val playlists = db.sourceDao().getAllOnce().filter { !stalkerOnly || it.type == SourceType.STALKER }
-            val profileIds = db.profileDao().getAllOnce().map { it.id }
+            // Only the profile in use (owner 12.11): a profile nobody opened is not filled, and a profile with no
+            // playlist or portal downloads nothing at all — it used to fetch every feed for the other profiles'
+            // channels, which on a phone looked like an endless load in the notification shade.
+            val settings = org.koin.core.context.GlobalContext.get().get<tv.own.owntv.core.settings.SettingsRepository>()
+            val active = db.profileDao().resolveExistingProfileId(settings.activeProfileId.first())
+                ?: return@withContext 0
+            val own = db.sourceDao().sourceIdsForProfile(active).toSet()
+            val playlists = db.sourceDao().getAllOnce()
+                .filter { it.id in own && (!stalkerOnly || it.type == SourceType.STALKER) }
+            if (playlists.isEmpty()) return@withContext 0
+            val profileIds = listOf(active)
             // Playlist URLs are registered before the pass is enqueued. Preserve the user's order.
             if (!stalkerOnly) {
                 // Only a stale one: EpgSyncWorker has usually just downloaded it and then queued this
@@ -43,6 +53,9 @@ class EpgGapFill(
                 val now = System.currentTimeMillis()
                 for (source in store.getAll().filterNot { it.builtin }) {
                     if (source.lastError == null && (source.lastSyncAt ?: 0L) > now - USER_GUIDE_FRESH_MS) continue
+                    // A guide that failed waits for the weekly schedule or a manual refresh (owner 12.11: no
+                    // download outside them); only one never fetched is fetched here.
+                    if (source.lastSyncAt != null || source.lastError != null) continue
                     attempt(source) { repository.refreshUrl(source.id, source.url, source.userAgent) }
                 }
             }

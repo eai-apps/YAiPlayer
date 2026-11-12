@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Refresh control (owner 12.11): visible start, "already running", stop. -->
+<resources>
+    <string name="sync_stop">Stop</string>
+    <string name="sync_already_running">An update is already running: step %1$d of %2$d · %3$s</string>
+    <string name="sync_stop_running">Stop the update</string>
+    <string name="sync_started">Update started. Its progress is shown in the status line.</string>
+    <string name="settings_sync_hidden_categories">Update hidden categories</string>
+    <string name="settings_sync_hidden_categories_desc">On: a refresh also updates the categories you hid. Off: hidden categories are left as they are — their films and series are not reloaded and their channels get no guide download — so the refresh is faster. Showing a category again brings it up to date on the next refresh. A playlist and its guide arrive as one file, so the saving is mostly on a portal.</string>
+</resources>

@@ -39,6 +39,7 @@ fun EpgSourcesScreen(onBack: () -> Unit, modifier: Modifier = Modifier, startOnA
     val builtinFeeds by vm.builtinFeeds.collectAsStateWithLifecycle()
     val autoRefreshOnStartup by vm.autoRefreshOnStartup.collectAsStateWithLifecycle()
     val backgroundResyncEnabled by vm.backgroundResyncEnabled.collectAsStateWithLifecycle()
+    val syncHiddenCategories by vm.syncHiddenCategories.collectAsStateWithLifecycle()
     val backgroundResyncHours by vm.backgroundResyncHours.collectAsStateWithLifecycle()
 
     var editing by remember { mutableStateOf<EpgSource?>(null) }
@@ -193,6 +194,16 @@ fun EpgSourcesScreen(onBack: () -> Unit, modifier: Modifier = Modifier, startOnA
             value = SettingValue.Switch(backgroundResyncEnabled),
             onClick = { vm.setBackgroundResyncEnabled(!backgroundResyncEnabled) },
             help = SettingHelp(bgResyncTitle, bgResyncDesc, hints = listOf(ok to stringResource(R.string.settings_key_switch), back to parent)),
+        )
+        val hiddenTitle = stringResource(R.string.settings_sync_hidden_categories)
+        val hiddenDesc = stringResource(R.string.settings_sync_hidden_categories_desc)
+        StageSettingRow(
+            icon = OwnTVIcon.REFRESH,
+            title = hiddenTitle,
+            desc = hiddenDesc,
+            value = SettingValue.Switch(syncHiddenCategories),
+            onClick = { vm.setSyncHiddenCategories(!syncHiddenCategories) },
+            help = SettingHelp(hiddenTitle, hiddenDesc, hints = listOf(ok to stringResource(R.string.settings_key_switch), back to parent)),
         )
         if (backgroundResyncEnabled) {
             val thresholdTitle = stringResource(R.string.settings_epg_background_resync_threshold)

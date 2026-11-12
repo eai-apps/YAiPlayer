@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Refresh control (owner 12.11): visible start, "already running", stop. -->
+<resources>
+    <string name="sync_stop">Остановить</string>
+    <string name="sync_already_running">Обновление уже идёт: шаг %1$d из %2$d · %3$s</string>
+    <string name="sync_stop_running">Остановить обновление</string>
+    <string name="sync_started">Обновление запущено. Ход виден в строке состояния.</string>
+    <string name="settings_sync_hidden_categories">Обновлять скрытые категории</string>
+    <string name="settings_sync_hidden_categories_desc">Вкл.: при обновлении обновляются и скрытые вами категории. Выкл.: скрытые категории остаются как есть — их фильмы и сериалы не перезагружаются, для их каналов не качается телепрограмма, поэтому обновление быстрее. Если снова показать категорию, она обновится при следующем обновлении. Плейлист и его телепрограмма приходят одним файлом, поэтому экономия есть в основном у портала.</string>
+</resources>

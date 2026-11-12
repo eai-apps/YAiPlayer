@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -156,6 +157,9 @@ fun SyncStatusPill(
     }
     val shown = rows.take(MAX_ROWS)
     val hidden = rows.size - shown.size
+    // Compact (owner 12.11): while something runs, one line, "+N" and a stop button; finished notes only when idle.
+    val idleNotes = rows.isEmpty()
+    val refreshControl: tv.own.owntv.core.sync.RefreshControl = koinInject()
 
     AnimatedVisibility(
         visible = shown.isNotEmpty() || currentCompleted != null || currentTrending != null || (sportsFailed && !recordingsOnly),
@@ -189,23 +193,26 @@ fun SyncStatusPill(
                         strokeWidth = 2.dp,
                         color = stageAccent.accent,
                     )
-                    PillText(line.text(res))
-                }
-                // Only Now Trending gets a second line. A catalogue sync's headline already carries
-                // its counts, but the trending build spends minutes on one stage, and these numbers
-                // are the only sign it is moving rather than stuck.
-                if (line is SyncLine.Trending) {
-                    PillText(trendingDetailLine(res, line.build), detail = true)
+                    Box(Modifier.weight(1f, fill = false)) { PillText(line.text(res)) }
+                    // A refresh can be stopped from here (rows already stored stay).
+                    if (line is SyncLine.Catalog || line is SyncLine.Epg || line is SyncLine.Queue) {
+                        Text(
+                            text = res.getString(R.string.sync_stop),
+                            style = stageText(12.5f, 800),
+                            color = stageAccent.accent,
+                            modifier = Modifier.clip(PillShape).clickable { refreshControl.cancelAll() }.padding(horizontal = 6.dp, vertical = 2.dp),
+                        )
+                    }
                 }
             }
             if (hidden > 0) {
                 PillText(res.getQuantityString(R.plurals.sync_status_more, hidden, hidden))
             }
             if (sportsFailed && !recordingsOnly) PillText(res.getString(R.string.sports_rebuild_failed))
-            currentCompleted?.let {
+            currentCompleted?.takeIf { idleNotes }?.let {
                 PillText(completedLine(res, it, connectivity.isOnlineNow()))
             }
-            currentTrending?.let {
+            currentTrending?.takeIf { idleNotes }?.let {
                 PillText(trendingCompletedLine(res, it))
                 PillText(
                     res.getString(
@@ -402,7 +409,7 @@ private fun trendingCompletedLine(
 private const val COMPLETED_MS = 5_000L
 
 /** Beyond this many concurrent syncs the pill summarises the rest rather than covering the screen. */
-private const val MAX_ROWS = 3
+private const val MAX_ROWS = 1
 
 private val PillShape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp)
 

@@ -354,6 +354,7 @@ class SettingsRepository(private val context: Context, private val localeStore: 
         val EPG_AUTO_REFRESH = stringPreferencesKey("epg_auto_refresh")
         val AUTO_REFRESH_ON_STARTUP = booleanPreferencesKey("auto_refresh_on_startup")
         val BACKGROUND_RESYNC_ENABLED = booleanPreferencesKey("background_resync_enabled")
+        val SYNC_HIDDEN_CATEGORIES = booleanPreferencesKey("sync_hidden_categories")
         val BACKGROUND_RESYNC_HOURS = intPreferencesKey("background_resync_hours")
         // Per-EPG-source: use that feed's own <icon src> channel logos instead of the playlist's.
         val EPG_USE_LOGOS = stringPreferencesKey("epg_use_logos")
@@ -2362,6 +2363,17 @@ class SettingsRepository(private val context: Context, private val localeStore: 
         }
     }
 
+    /**
+     * "Update hidden categories" (owner 12.11). On (default, as before): a refresh walks every category. Off: a
+     * category the user hid is left as it is — its films and series are not paged again and its channels get
+     * no per-channel guide download — until it is shown again. See [tv.own.owntv.core.sync.HiddenCategorySync].
+     */
+    val syncHiddenCategories: Flow<Boolean> = prefsFlow { it[Keys.SYNC_HIDDEN_CATEGORIES] ?: true }
+
+    suspend fun setSyncHiddenCategories(enabled: Boolean) {
+        context.dataStore.edit { it[Keys.SYNC_HIDDEN_CATEGORIES] = enabled }
+    }
+
     /** Inactivity threshold in hours before resyncing (default 24). */
     val backgroundResyncHours: Flow<Int> =
         prefsFlow { it[Keys.BACKGROUND_RESYNC_HOURS] ?: DEFAULT_BACKGROUND_RESYNC_HOURS }
@@ -3420,7 +3432,7 @@ class SettingsRepository(private val context: Context, private val localeStore: 
             Keys.MULTIVIEW_ENABLED, Keys.MULTIVIEW_WARNING_ACCEPTED,
             Keys.RECORDING_RESERVE_CONNECTION, Keys.RECORD_WHAT_IM_WATCHING, Keys.RECORDING_OVER_MOBILE_DATA,
             Keys.AUDIO_PASSTHROUGH, Keys.NIGHT_MODE, Keys.VOLUME_LEVELLING, Keys.TUNNELED_PLAYBACK,
-            Keys.TIMESHIFT_ENABLED, Keys.AUTO_WIDESCREEN, Keys.AUTO_REFRESH_ON_STARTUP, Keys.BACKGROUND_RESYNC_ENABLED,
+            Keys.TIMESHIFT_ENABLED, Keys.AUTO_WIDESCREEN, Keys.AUTO_REFRESH_ON_STARTUP, Keys.BACKGROUND_RESYNC_ENABLED, Keys.SYNC_HIDDEN_CATEGORIES,
         )
         val floats = listOf(Keys.SUB_SCALE, Keys.SUB_SCALE_MPV, Keys.SUB_SCALE_EXO)
 

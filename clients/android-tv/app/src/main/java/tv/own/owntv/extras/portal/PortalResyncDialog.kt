@@ -3,6 +3,8 @@ package tv.own.owntv.extras.portal
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -26,15 +28,27 @@ fun PortalResyncDialog(
     val focus = remember { FocusRequester() }
     LaunchedEffect(Unit) { kotlinx.coroutines.delay(60); runCatching { focus.requestFocus() } }
     val options = PortalResyncOption.availableFor(source)
+    val control: tv.own.owntv.core.sync.RefreshControl = org.koin.compose.koinInject()
+    val running by control.running.collectAsStateWithLifecycle(initialValue = null)
 
     StagePopup(
         onDismiss = onDismiss,
         title = stringResource(R.string.portal_resync_submenu_title),
-        body = source?.name ?: stringResource(R.string.content_all_playlists),
+        // Owner 12.11: say at once when an update is already running, and which step it is on.
+        body = running?.let { stringResource(R.string.sync_already_running, it.step, it.total, it.name) }
+            ?: source?.name ?: stringResource(R.string.content_all_playlists),
         buttons = {
             StageButton(stringResource(R.string.common_cancel), onClick = onDismiss, height = 56.mpx, textSize = 19)
         },
     ) {
+        if (running != null) {
+            StagePopupOption(
+                title = stringResource(R.string.sync_stop_running),
+                onClick = { control.cancelAll(); onDismiss() },
+                modifier = Modifier.focusRequester(focus),
+                leading = { StagePopupIcon(OwnTVIcon.CLOSE) },
+            )
+        }
         options.forEachIndexed { index, option ->
             val icon = when (option) {
                 PortalResyncOption.ALL -> OwnTVIcon.REFRESH
@@ -45,8 +59,11 @@ fun PortalResyncDialog(
             }
             StagePopupOption(
                 title = stringResource(option.labelRes),
-                onClick = { onSelectOption(option); onDismiss() },
-                modifier = if (index == 0) Modifier.focusRequester(focus) else Modifier,
+                onClick = {
+                    onSelectOption(option)
+                    onDismiss()
+                },
+                modifier = if (index == 0 && running == null) Modifier.focusRequester(focus) else Modifier,
                 leading = { StagePopupIcon(icon) },
             )
         }

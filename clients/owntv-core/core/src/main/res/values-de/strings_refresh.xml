@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Refresh control (owner 12.11): visible start, "already running", stop. -->
+<resources>
+    <string name="sync_stop">Stoppen</string>
+    <string name="sync_already_running">Eine Aktualisierung läuft bereits: Schritt %1$d von %2$d · %3$s</string>
+    <string name="sync_stop_running">Aktualisierung stoppen</string>
+    <string name="sync_started">Aktualisierung gestartet. Der Fortschritt steht in der Statuszeile.</string>
+    <string name="settings_sync_hidden_categories">Ausgeblendete Kategorien aktualisieren</string>
+    <string name="settings_sync_hidden_categories_desc">Ein: Eine Aktualisierung aktualisiert auch die von Ihnen ausgeblendeten Kategorien. Aus: Ausgeblendete Kategorien bleiben, wie sie sind — ihre Filme und Serien werden nicht neu geladen und für ihre Sender wird kein Programm geladen, daher geht es schneller. Wird eine Kategorie wieder eingeblendet, wird sie bei der nächsten Aktualisierung aktualisiert. Eine Playlist und ihr Programm kommen als eine Datei, daher spart vor allem ein Portal Zeit.</string>
+</resources>

@@ -358,7 +358,7 @@ class EpgRepository(
         programmeIds: Set<String>?,
         onProgress: (channels: Int, programmes: Int) -> Unit,
         onFraction: (Float) -> Unit = {},
-    ): Int = withContext(Dispatchers.IO) {
+    ): Int = withContext(tv.own.owntv.core.util.BackgroundWork.dispatcher) {
         // A portal guide is not a download, so it cannot go through the XMLTV path below — but it is
         // stored, pruned, matched and read exactly like one, which is why it is addressed as a URL
         // and lives in the same EPG-source list with the same "sync now" button and error line.
@@ -678,7 +678,15 @@ class EpgRepository(
             written += batch.size
             batch.forEach { channels.add(guideKeys[it.epgChannelId] ?: it.epgChannelId) }
         }
+        // "Update hidden categories" off (owner 12.11): channels of a category hidden in every profile of this
+        // portal are not asked for their day tables (the slow per-channel part); what they already have stays.
+        val frozenLive = runCatching {
+            tv.own.owntv.core.sync.HiddenCategorySync.frozenCategoryIds(
+                settings, sourceDao, db.categoryDao(), customize, portalSourceId, tv.own.owntv.core.model.MediaType.LIVE,
+            )
+        }.getOrDefault(emptySet())
         val portalChannels = channelDao.allForSources(listOf(portalSourceId), Int.MAX_VALUE)
+            .filter { it.categoryId == null || it.categoryId !in frozenLive }
         val pastCoverage = guideKeys.values.distinct().chunked(400).flatMap {
             epgDao.programmeSummariesForChannels(it, from, now)
         }.filter { it.sourceId == storeId }.groupBy { it.epgChannelId }
@@ -849,7 +857,7 @@ class EpgRepository(
      * have, so a freshly-matched id wasn't stored). Parses each cache file ONCE for the whole id set. Returns
      * false if there's no fresh (≤24h) cache to read — the caller then does a full network re-sync.
      */
-    suspend fun storeProgrammesForIdsFromCache(epgIds: Set<String>): Boolean = withContext(Dispatchers.IO) {
+    suspend fun storeProgrammesForIdsFromCache(epgIds: Set<String>): Boolean = withContext(tv.own.owntv.core.util.BackgroundWork.dispatcher) {
         val keys = epgIds.map { it.trim().lowercase() }.filterTo(HashSet()) { it.isNotBlank() }
         if (keys.isEmpty()) return@withContext true
         val now = System.currentTimeMillis()
@@ -923,7 +931,7 @@ class EpgRepository(
      * a guide for this feed yet.
      */
     suspend fun fillFallbackCache(storeId: Long, aliases: Map<String, Set<String>>,
-        windows: Map<String, List<Pair<Long, Long>>>): Set<String> = withContext(Dispatchers.IO) {
+        windows: Map<String, List<Pair<Long, Long>>>): Set<String> = withContext(tv.own.owntv.core.util.BackgroundWork.dispatcher) {
         val file = cacheFile(storeId)
         if (!file.exists() || aliases.isEmpty()) return@withContext emptySet()
         val now = System.currentTimeMillis()

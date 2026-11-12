@@ -161,6 +161,14 @@ internal class StalkerSyncer(
 
         val categories = support.refreshCategories(s, MediaType.LIVE, genres.map { XtCategory(it.id, it.title) }, stats)
         val catMap = categories.idsByRemoteId
+        // "Update hidden categories" off (owner 12.11): a category hidden in every profile of this source keeps
+        // its rows and its pages are not walked — the same keep-as-is path as an unchanged category below.
+        // Only where that path can protect the rows from the prune (a per-category id lookup, no film/show split).
+        val frozen: Set<String> = if (freshSource || split != null || adapter.remoteIdsForCategory == null) emptySet() else runCatching {
+            val koin = org.koin.core.context.GlobalContext.get()
+            HiddenCategorySync.frozenRemoteIds(koin.get(), sourceDao, koin.get(), s.id, mediaType)
+        }.getOrDefault(emptySet())
+        if (frozen.isNotEmpty()) Log.i(TAG, "$label hidden categories kept as they are sourceId=${s.id} count=${frozen.size}")
 
         val insertFn: suspend (List<ChannelEntity>) -> UpsertStats = if (freshSource) {
             { rows -> support.insertFresh(rows, adapter) }
@@ -732,7 +740,7 @@ internal class StalkerSyncer(
                                     .coerceAtMost(MAX_PAGES_PER_GENRE)
                                 // Unchanged count ⇒ keep the category's rows as-is, skip its pages.
                                 // catBase still advances so the other categories' sort layout is stable.
-                                if (catDbId != null && page1.totalItems > 0 && dbCategoryCounts[catDbId] == page1.totalItems) {
+                                if (catDbId != null && (cat.id in frozen || (page1.totalItems > 0 && dbCategoryCounts[catDbId] == page1.totalItems))) {
                                     skippedCatDbIds.add(catDbId)
                                     catBase += (pages * maxPer).coerceAtLeast(page1.items.size)
                                     continue

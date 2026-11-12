@@ -74,6 +74,7 @@ fun SettingsEpgSourcesPage(
     val builtinFeeds by vm.builtinFeeds.collectAsStateWithLifecycle()
     val autoRefreshOnStartup by vm.autoRefreshOnStartup.collectAsStateWithLifecycle()
     val backgroundResyncEnabled by vm.backgroundResyncEnabled.collectAsStateWithLifecycle()
+    val syncHiddenCategories by vm.syncHiddenCategories.collectAsStateWithLifecycle()
     val backgroundResyncHours by vm.backgroundResyncHours.collectAsStateWithLifecycle()
     val deleting by vm.deletingIds.collectAsStateWithLifecycle()
 
@@ -131,6 +132,15 @@ fun SettingsEpgSourcesPage(
                 minHeight = 48.dp,
                 onClick = { vm.setBackgroundResyncEnabled(!backgroundResyncEnabled) },
             ) { StageSwitch(backgroundResyncEnabled) }
+        }
+        item(key = "sync_hidden_categories") {
+            StageSettingRow(
+                title = stringResource(R.string.settings_sync_hidden_categories),
+                subtitle = stringResource(R.string.settings_sync_hidden_categories_desc),
+                icon = MobileIcons.Refresh,
+                minHeight = 48.dp,
+                onClick = { vm.setSyncHiddenCategories(!syncHiddenCategories) },
+            ) { StageSwitch(syncHiddenCategories) }
         }
         if (backgroundResyncEnabled) item(key = "background_resync_threshold") {
             val thresholdText = when (backgroundResyncHours) {

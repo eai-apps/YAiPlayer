@@ -297,6 +297,7 @@ val dataModule = module {
     // guide/EPG downloads (manual resync from Settings, auto startup refresh, …).
     single { tv.own.owntv.core.sync.EpgActivityTracker() }
     single { tv.own.owntv.core.sync.RefreshQueueTracker() }
+    single { tv.own.owntv.core.sync.RefreshControl(androidContext(), get(), get(), get(), get(), get()) }
     single { tv.own.owntv.core.sync.TrendingActivityTracker() }
     // epgDao, httpClient, xtreamClient, channelDao, customize, settings, context, db, bulkInsertHelper
     single {

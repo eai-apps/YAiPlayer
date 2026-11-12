@@ -35,6 +35,13 @@ class QuickActionsSync(
     private val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.IO)
 
     private fun launch(source: SourceEntity, action: QuickSyncAction) {
+        // Owner 12.11: pressing «Обновить» showed nothing. Say at once that it started (TV and phone, every menu).
+        scope.launch(kotlinx.coroutines.Dispatchers.Main) {
+            runCatching {
+                val context = org.koin.core.context.GlobalContext.get().get<android.content.Context>()
+                android.widget.Toast.makeText(context, tv.own.owntv.core.R.string.sync_started, android.widget.Toast.LENGTH_SHORT).show()
+            }
+        }
         scope.launch {
             try {
                 refresh(source, action)

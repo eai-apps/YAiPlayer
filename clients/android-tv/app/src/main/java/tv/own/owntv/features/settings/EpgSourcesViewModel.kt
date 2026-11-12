@@ -69,6 +69,14 @@ class EpgSourcesViewModel(
         viewModelScope.launch { settings.setBackgroundResyncEnabled(enabled) }
     }
 
+    /** "Update hidden categories" (owner 12.11). */
+    val syncHiddenCategories: StateFlow<Boolean> = settings.syncHiddenCategories
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
+
+    fun setSyncHiddenCategories(enabled: Boolean) {
+        viewModelScope.launch { settings.setSyncHiddenCategories(enabled) }
+    }
+
     val backgroundResyncHours: StateFlow<Int> = settings.backgroundResyncHours
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsRepository.DEFAULT_BACKGROUND_RESYNC_HOURS)
 

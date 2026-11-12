@@ -3808,6 +3808,7 @@
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	sub_search_langs
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	surround_mode
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	surround_sound
+1	technical	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	sync_hidden_categories
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	theme_mode
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	timeshift_enabled
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	timeshift_resume_mode
@@ -5235,6 +5236,7 @@
 1	log	core/src/main/java/tv/own/owntv/core/sync/CatalogPriority.kt	CatalogPriority
 1	log	core/src/main/java/tv/own/owntv/core/sync/CatalogPriority.kt	pagesLeft=${row.lastPage - row.nextPage + 1}
 1	log	core/src/main/java/tv/own/owntv/core/sync/CatalogPriority.kt	priority category sourceId=${row.sourceId} type=${row.mediaType} cat=${row.categoryRemoteId}
+1	technical	core/src/main/java/tv/own/owntv/core/sync/HiddenCategorySync.kt	$sourceId:
 1	log	core/src/main/java/tv/own/owntv/core/sync/ImportFinalizer.kt	ImportFinalizer
 1	log	core/src/main/java/tv/own/owntv/core/sync/ImportFinalizer.kt	Metadata eviction: cache=$cache matches=$matches
 1	log	core/src/main/java/tv/own/owntv/core/sync/ImportFinalizer.kt	Unable to register the portal guide for sourceId=${source.id}
@@ -5337,6 +5339,7 @@
 1	log	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	$label get_all_channels failed (${e.message}) — falling back to per-genre paging
 1	log	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	$label get_all_channels ok count=${bulk.size} declaredTotal=$declaredTotal ms=${SystemClock.elapsedRealtime() - bulkStart}
 1	log	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	$label get_all_channels truncated count=${bulk.size} declaredTotal=$declaredTotal — falling back to per-genre paging
+1	log	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	$label hidden categories kept as they are sourceId=${s.id} count=${frozen.size}
 1	log	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	$label lazy-setup sourceId=${s.id} deferredPages=${pageTasks.size}
 1	log	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	$label missed pages handed to the backfill sourceId=${s.id} pages=${stillMissed.size} categories=${retryPlan.size}
 1	log	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	$label page-plan sourceId=${s.id} cats=${cats.size} itemsPerPage~=$maxPerSeen extraPages=${pageTasks.size} advertisedTotal=$advertisedTotal concurrency=adaptive(${budget.currentLimit}..${budget.max})
@@ -5999,6 +6002,7 @@
 1	technical	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	v
 1	log	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	wrong package ${info.packageName}
 2	technical	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	x86_64
+1	technical	core/src/main/java/tv/own/owntv/core/util/BackgroundWork.kt	owntv-refresh-${n.incrementAndGet()}
 1	technical	core/src/main/java/tv/own/owntv/core/util/CrashRecorder.kt	Crashed $stamp on thread "${thread.name}"
 1	technical	core/src/main/java/tv/own/owntv/core/util/CrashRecorder.kt	OwnTV ${CoreBuildInfo.versionName} (${CoreBuildInfo.versionCode})
 1	file-path	core/src/main/java/tv/own/owntv/core/util/CrashRecorder.kt	diagnostics

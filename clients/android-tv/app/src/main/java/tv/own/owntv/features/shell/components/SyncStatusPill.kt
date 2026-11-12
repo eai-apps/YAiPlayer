@@ -148,37 +148,37 @@ fun SyncStatusPill(modifier: Modifier = Modifier) {
         // The start-up queue runs its refreshes one by one: one summary line («2 of 4») with the current one.
         val q = queue
         if (q != null) add(SyncLine.Queue(q.current, q.total, syncs.firstOrNull())) else syncs.filterIsInstance<SyncLine.Catalog>().forEach { add(it) }
-        activeTrending.values.sortedBy { it.sourceId }.forEach {
-            add(SyncLine.Trending(it))
-            add(SyncLine.TrendingDetail(it))
-        }
+        activeTrending.values.sortedBy { it.sourceId }.forEach { add(SyncLine.Trending(it)) }
         if (q == null) syncs.filterIsInstance<SyncLine.Epg>().forEach { add(it) }
         if (sportsRebuild is tv.own.owntv.core.sports.RebuildState.Running) add(SyncLine.Sports)
     }
     val shown = rows.take(MAX_ROWS)
     val hidden = rows.size - shown.size
+    // Compact (owner 12.11): while something runs, one line and "+N"; the finished-sync notes only when idle.
+    val idleNotes = rows.isEmpty()
     val lineCount = shown.size + (if (hidden > 0) 1 else 0) +
-        (if (currentCompleted != null) 1 else 0) + (if (currentTrendingCompleted != null) 2 else 0) + (if (sportsFailed) 1 else 0)
+        (if (idleNotes && currentCompleted != null) 1 else 0) + (if (idleNotes && currentTrendingCompleted != null) 2 else 0) +
+        (if (sportsFailed) 1 else 0)
 
     // The Stage glass card (as the top-right pills): fully round for one line, a rounded card for a stack.
-    val radius = if (lineCount > 1) 22.mpx else 30.mpx
+    val radius = if (lineCount > 1) 18.mpx else 24.mpx
     Column(
         modifier = modifier
-            .padding(bottom = 28.mpx)
-            .widthIn(max = 1100.mpx)
+            .padding(top = 18.mpx)
+            .widthIn(max = 720.mpx)
             .stageGlass(radius, overContent = true)
-            .padding(horizontal = 24.mpx, vertical = 12.mpx),
-        verticalArrangement = Arrangement.spacedBy(6.mpx),
+            .padding(horizontal = 18.mpx, vertical = 7.mpx),
+        verticalArrangement = Arrangement.spacedBy(4.mpx),
     ) {
         shown.forEach { line ->
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                OwnTVSpinner(sizeDp = 14)
+                OwnTVSpinner(sizeDp = 12)
                 Text(
                     line.text(),
-                    style = stageText(16, 600),
+                    style = stageText(14, 600),
                     color = StageColors.ItemText,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -188,16 +188,16 @@ fun SyncStatusPill(modifier: Modifier = Modifier) {
         if (hidden > 0) {
             Text(
                 pluralStringResource(R.plurals.sync_status_more, hidden, hidden),
-                style = stageText(16, 600),
+                style = stageText(14, 600),
                 color = StageColors.ItemText,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
         }
-        currentCompleted?.let { completed ->
+        currentCompleted?.takeIf { idleNotes }?.let { completed ->
             Text(
                 completedLine(completed, online = connectivity.isOnlineNow()),
-                style = stageText(16, 600),
+                style = stageText(14, 600),
                 color = StageColors.ItemText,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -206,23 +206,23 @@ fun SyncStatusPill(modifier: Modifier = Modifier) {
         if (sportsFailed) {
             Text(
                 stringResource(R.string.sports_rebuild_failed),
-                style = stageText(16, 600),
+                style = stageText(14, 600),
                 color = StageColors.ItemText,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
         }
-        currentTrendingCompleted?.let { completed ->
+        currentTrendingCompleted?.takeIf { idleNotes }?.let { completed ->
             Text(
                 trendingCompletedLine(completed),
-                style = stageText(16, 600),
+                style = stageText(14, 600),
                 color = StageColors.ItemText,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
                 trendingCompletedDetailLine(completed),
-                style = stageText(16, 600),
+                style = stageText(14, 600),
                 color = StageColors.ItemText,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -413,8 +413,8 @@ private fun trendingCompletedDetailLine(completed: TrendingActivityTracker.Compl
 )
 
 
-/** Beyond this many concurrent syncs the pill summarises the rest, rather than covering the screen. */
-private const val MAX_ROWS = 4
+/** One line while syncs run; the rest is summarised as "+N" so the pill never covers the content. */
+private const val MAX_ROWS = 1
 
 /** Megabytes to one decimal, formatted for the locale. */
 private fun recordingSizeMb(bytes: Long): String =
