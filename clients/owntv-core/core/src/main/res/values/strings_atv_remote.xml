@@ -71,7 +71,7 @@
     <string name="atv_check_vpn_hint">A VPN can hide the TV: switch it off while you use the remote.</string>
     <string name="atv_check_wifi_hint">Connect the phone to the same Wi-Fi as the TV (not the guest network).</string>
     <string name="atv_screen_title">TV screen</string>
-    <string name="atv_screen_hint">Shows the TV box's screen on the phone. It needs network debugging on the TV, the same as «Speed up TV»: TV Settings → Device preferences → About → press «Build» 7 times, then Developer options → Network debugging (or USB debugging) on.</string>
+    <string name="atv_screen_hint">Shows the TV box\'s screen on the phone. It needs network debugging on the TV, the same as «Speed up TV»: TV Settings → Device preferences → About → press «Build» 7 times, then Developer options → Network debugging (or USB debugging) on.</string>
     <string name="atv_screen_allow">Look at the TV: allow debugging from this phone (tick «Always allow»).</string>
     <string name="atv_screen_shoot">Take a picture</string>
     <string name="atv_screen_live">Show live</string>
