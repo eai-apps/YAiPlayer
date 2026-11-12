@@ -22,3 +22,9 @@
 #     EpgAutoRefresh, PlaylistAutoRefresh, ...) round-trip through Enum.name/valueOf.
 #     Renaming a constant would silently reset settings and break old backups. ---
 -keep enum tv.own.owntv.** { *; }
+
+# --- Android 10 ART VerifyError guard (v3.0.53). R8 optimization merged/propagated argument
+#     types inside a huge Compose function (52 params) so that ART 10's verifier rejected it
+#     ("register has type ... but expected java.lang.String") and the TV app crashed on start.
+#     Shrinking and obfuscation stay on; only the bytecode optimizer is off. ---
+-dontoptimize

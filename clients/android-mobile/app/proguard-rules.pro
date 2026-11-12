@@ -26,3 +26,9 @@
 # --- Cast: the SDK reads the OptionsProvider's class name out of the manifest and instantiates it
 #     reflectively, so neither the name nor the no-argument constructor may be touched. ---
 -keep class tv.own.owntv.mobile.cast.CastOptionsProvider { *; }
+
+# --- Android 10 ART VerifyError guard (v3.0.53). R8 optimization merged/propagated argument
+#     types inside a huge Compose function (52 params) so that ART 10's verifier rejected it
+#     ("register has type ... but expected java.lang.String") and the TV app crashed on start.
+#     Shrinking and obfuscation stay on; only the bytecode optimizer is off. ---
+-dontoptimize
