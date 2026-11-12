@@ -275,19 +275,30 @@ class SeriesRepository(
         // The portal's own search, the way the STB menu finds a season record: its title, in its category.
         suspend fun seasonsFromSearch(): List<StalkerClient.SeasonItem> {
             val catRemote = series.categoryId?.let { categoryDao.getById(it)?.remoteId } ?: return emptyList()
-            val found = ArrayList<StalkerClient.SeasonItem>()
-            var page = 1
-            while (page <= MAX_SEARCH_PAGES) {
-                val p = stalkerAuth.withAuthRetry(creds) { session ->
-                    stalkerClient.searchSeasonRows(session.apiBase, mac, session.token, creds.userAgent, catRemote, series.name, page)
+            // The full title first; then shorter forms (owner 12.11: «Хорошая американская семья / Зразкова
+            // американська сім'я [S01]» — a record with its episode list on its own row, which the portal's
+            // search did not find by the whole bilingual title with brackets and an apostrophe).
+            val queries = listOf(
+                series.name,
+                tv.own.owntv.core.content.SeasonRecordTitle.base(series.name),
+                series.name.substringBefore('/').substringBefore('[').trim(),
+            ).map { it.trim() }.filter { it.length >= 2 }.distinct()
+            for (query in queries) {
+                val found = ArrayList<StalkerClient.SeasonItem>()
+                var page = 1
+                while (page <= MAX_SEARCH_PAGES) {
+                    val p = stalkerAuth.withAuthRetry(creds) { session ->
+                        stalkerClient.searchSeasonRows(session.apiBase, mac, session.token, creds.userAgent, catRemote, query, page)
+                    }
+                    found += p.items.filter { it.id == remoteId }
+                    val maxPer = p.maxPageItems.takeIf { it > 0 } ?: p.items.size
+                    val pages = if (maxPer > 0) (p.totalItems + maxPer - 1) / maxPer else 1
+                    if (found.isNotEmpty() || p.items.isEmpty() || page >= pages) break
+                    page++
                 }
-                found += p.items.filter { it.id == remoteId }
-                val maxPer = p.maxPageItems.takeIf { it > 0 } ?: p.items.size
-                val pages = if (maxPer > 0) (p.totalItems + maxPer - 1) / maxPer else 1
-                if (found.isNotEmpty() || p.items.isEmpty() || page >= pages) break
-                page++
+                if (found.isNotEmpty()) return found
             }
-            return found
+            return emptyList()
         }
         // A portal with no series section files its shows in the film catalogue, and lists their
         // seasons there too; the series listing is asked first, as it always was.
