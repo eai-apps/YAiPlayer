@@ -38,7 +38,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -130,11 +134,11 @@ fun RadioScreen(onBack: () -> Unit, vm: RadioViewModel = viewModel()) {
         Modifier.fillMaxSize()
             // The remote's own Play / Pause keys control the radio (before, only the on-screen button did).
             .onPreviewKeyEvent { e ->
-                if (e.type != androidx.compose.ui.input.key.KeyEventType.KeyDown || current == null) return@onPreviewKeyEvent false
+                if (e.type != KeyEventType.KeyDown || current == null) return@onPreviewKeyEvent false
                 when (e.key) {
-                    androidx.compose.ui.input.key.Key.MediaPlayPause -> { vm.player.toggle(); true }
-                    androidx.compose.ui.input.key.Key.MediaPlay -> { vm.player.setPlaying(true); true }
-                    androidx.compose.ui.input.key.Key.MediaPause -> { vm.player.setPlaying(false); true }
+                    Key.MediaPlayPause -> { vm.player.toggle(); true }
+                    Key.MediaPlay -> { vm.player.setPlaying(true); true }
+                    Key.MediaPause -> { vm.player.setPlaying(false); true }
                     else -> false
                 }
             }
