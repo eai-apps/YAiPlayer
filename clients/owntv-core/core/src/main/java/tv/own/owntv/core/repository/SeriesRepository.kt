@@ -286,7 +286,10 @@ class SeriesRepository(
         seasons.forEachIndexed { index, season ->
             val cmd = season.cmd ?: return@forEachIndexed
             val seasonNo = seasonNumbers[index]
-            season.episodes.forEach { epNo ->
+            // A record filed as a series but given one plain link («Custom URL», owner 12.11: «Хорошая
+            // американская семья») lists no episode numbers: its own link is the one thing to play.
+            val numbers = season.episodes.ifEmpty { if (seasons.size == 1) listOf(1) else emptyList() }
+            numbers.forEach { epNo ->
                 episodes.add(
                     EpisodeEntity(
                         seriesId = series.id,
