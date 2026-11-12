@@ -1162,8 +1162,10 @@
 4	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/ChannelDao.kt	INNER JOIN watch_history h ON h.itemId = c.id AND h.mediaType = 'LIVE'
 2	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/ChannelDao.kt	LEFT JOIN categories cat ON c.categoryId = cat.id
 4	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/ChannelDao.kt	LEFT JOIN content_order o ON o.itemId = c.id AND o.profileId = :profileId AND o.mediaType = 'LIVE' AND o.contextKey = :contextKey
+1	sql	core/src/main/java/tv/own/owntv/core/database/dao/ChannelDao.kt	LIMIT :limit
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/ChannelDao.kt	ORDER BY (CASE WHEN o.position IS NULL THEN 1 ELSE 0 END), o.position, f.addedAt DESC
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/ChannelDao.kt	ORDER BY (CASE WHEN o.position IS NULL THEN 1 ELSE 0 END), o.position, f.addedAt DESC LIMIT :limit
+1	sql	core/src/main/java/tv/own/owntv/core/database/dao/ChannelDao.kt	ORDER BY (SELECT MAX(h2.watchedAt) FROM watch_history h2 WHERE h2.itemId = c.id AND h2.mediaType = 'LIVE') DESC
 2	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/ChannelDao.kt	ORDER BY c.name ASC LIMIT :limit
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/ChannelDao.kt	ORDER BY h.watchedAt DESC LIMIT :limit
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/ChannelDao.kt	ORDER BY number ASC, name ASC LIMIT :limit
@@ -1213,6 +1215,7 @@
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/ChannelDao.kt	SELECT c.* FROM channels c INNER JOIN watch_history h ON h.itemId = c.id AND h.mediaType = 'LIVE'
 2	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/ChannelDao.kt	SELECT c.*, cat.name AS categoryName FROM channels c
 2	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/ChannelDao.kt	SELECT c.*, h.watchedAt FROM channels c
+1	sql	core/src/main/java/tv/own/owntv/core/database/dao/ChannelDao.kt	SELECT c.id FROM channels c WHERE c.sourceId = :sourceId AND (
 1	sql	core/src/main/java/tv/own/owntv/core/database/dao/ChannelDao.kt	SELECT categoryId, COUNT(*) AS itemCount FROM channels
 1	sql	core/src/main/java/tv/own/owntv/core/database/dao/ChannelDao.kt	SELECT id, remoteId, sortOrder, number FROM channels WHERE sourceId = :sourceId ORDER BY sortOrder ASC, id ASC
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/ChannelDao.kt	SELECT remoteId FROM channels WHERE sourceId = :sourceId AND categoryId IN (:categoryIds) AND remoteId IS NOT NULL
@@ -1242,6 +1245,8 @@
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/ChannelDao.kt	WHERE sourceId = :sourceId AND epgChannelId IS NOT NULL AND TRIM(epgChannelId) != ''
 1	sql	core/src/main/java/tv/own/owntv/core/database/dao/ChannelDao.kt	WHERE sourceId IN (:sourceIds) AND categoryId IS NOT NULL GROUP BY categoryId
 2	sql	core/src/main/java/tv/own/owntv/core/database/dao/ChannelDao.kt	WITH base AS (SELECT c.id AS id, c.sortOrder AS so, c.name AS nm, 0 AS mp, o.position AS pos
+1	sql	core/src/main/java/tv/own/owntv/core/database/dao/ChannelDao.kt	c.id IN (SELECT f.itemId FROM favorites f WHERE f.mediaType = 'LIVE') OR
+1	sql	core/src/main/java/tv/own/owntv/core/database/dao/ChannelDao.kt	c.id IN (SELECT h.itemId FROM watch_history h WHERE h.mediaType = 'LIVE'))
 2	sql	core/src/main/java/tv/own/owntv/core/database/dao/ChannelDao.kt	slots AS (SELECT id, pos - (ROW_NUMBER() OVER (ORDER BY pos, id) - 1) AS slot, 0 AS grp, pos AS tie FROM base WHERE pos IS NOT NULL
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/ContentOrderDao.kt	(:type = 'LIVE' AND itemId NOT IN (SELECT id FROM channels)) OR
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/ContentOrderDao.kt	(:type = 'MOVIE' AND itemId NOT IN (SELECT id FROM movies)) OR
@@ -3446,20 +3451,24 @@
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	EPG programme prune sourceId=$sourceId stale=${staleIds.size} overflowed=${tracker.overflowed} ms=${SystemClock.elapsedRealtime() - startedAt}
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	EPG prune sourceId=$storeId ms=${SystemClock.elapsedRealtime() - pruneStartedAt}
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	EPG sync incomplete — keeping partial (written=$writtenCount accepted=$processedCount inserted=$inserted updated=$updated skipped=$skipped)
-31	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	EpgRepository
+33	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	EpgRepository
 1	protocol	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	Guide channels match no playlist channel
 1	protocol	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	Guide has no programmes in the guide window
 1	room-schema	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	INSERT OR IGNORE INTO `epg_keep_history` VALUES (?)
 1	sql	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	INSERT OR REPLACE INTO `epg_programmes` (`id`,`sourceId`,`epgChannelId`,`startMs`,`stopMs`,`title`,`description`,
+1	sql	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	PRAGMA $name
+1	sql	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	PRAGMA wal_checkpoint(TRUNCATE)
 1	protocol	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	Portal guide source $portalSourceId no longer exists
 1	sql	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	SELECT epgChannelId, startMs, id, contentHash FROM epg_programmes WHERE sourceId = ? ORDER BY epgChannelId, startMs
 2	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	Unable to analyze EPG tables
+1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	Unable to compact database
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	Unable to create EPG guide index
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	Unable to prune beyond the guide horizon
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	Unable to read EPG matches — keeping all history this run
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	Unable to read catch-up channels — keeping all history this run
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	Unable to read channel EPG ids — using unfiltered guide sync
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	Unable to read custom EPG matches — using unfiltered guide sync
+1	sql	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	VACUUM
 1	technical	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	[
 1	technical	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	]
 1	sql	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	`contentHash`,`categories`,`year`,`rating`,`lengthMin`,`episode`) VALUES (nullif(?, 0),?,?,?,?,?,?,?,?,?,?,?,?)
@@ -3470,6 +3479,7 @@
 1	technical	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	bulkMs=${bulkDoneAt - startedAt} dayTablesAndWriteMs=${SystemClock.elapsedRealtime() - bulkDoneAt}
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	cacheFill parse failed storeId=$storeId (other sources unaffected)
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	channelsIn=${channels.size} accepted=$processedCount written=$writtenCount
+1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	compact freeMb=$freedMb ms=${SystemClock.elapsedRealtime() - startedAt}
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	ensureEpgIndexes ms=${SystemClock.elapsedRealtime() - startedAt}
 1	file-path	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	epg_$storeId$EPG_CACHE_SUFFIX
 1	file-path	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	epg_$storeId$EPG_CACHE_TEMP_SUFFIX
@@ -3480,6 +3490,7 @@
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	epg_retention catchupIds=0 recentPastH=${RECENT_PAST_MS / 3_600_000}
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	epg_retention skipped=unknown-catchup archiveH=${WINDOW_BACK_MS / 3_600_000}
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	epg_sync sourceId=$storeId fresh=$freshSource filteredIds=${needed?.size ?: -1}
+1	sql	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	freelist_count
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	guide gap fill done sourceId=$sourceId repaired=$repaired stillMissing=$remaining
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	guide gap fill failed sourceId=$sourceId
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	guide gap fill sourceId=$sourceId channelsWithoutProgrammes=${missing.size}
@@ -3489,6 +3500,8 @@
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	inserted=$inserted updated=$updated skipped=$skipped
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	ms=${SystemClock.elapsedRealtime() - startedAt}
 1	protocol	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	owntv-stalker://
+1	sql	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	page_count
+1	sql	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	page_size
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	parseMs=${parsedAt - startedAt - writeMs} writeMs=$writeMs pruneMs=$pruneMs
 1	technical	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	period=${outcome.periodDays} channels=${channels.size} written=$written dayTables=${missingPast.size}
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	removedProgrammes=$removedProgrammes removedChannels=$removedChannels

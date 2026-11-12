@@ -14,6 +14,10 @@ permissions:
   contents: write
 
 jobs:
+  smoke:
+    uses: ./.github/workflows/smoke-android10.yml
+    secrets: inherit
+
   build:
     runs-on: ubuntu-latest
     strategy:
@@ -88,7 +92,7 @@ jobs:
           path: out/*.apk
 
   publish:
-    needs: build
+    needs: [build, smoke]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

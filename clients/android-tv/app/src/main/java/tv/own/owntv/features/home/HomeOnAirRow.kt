@@ -161,7 +161,7 @@ internal fun OnAirCard(
                 horizontalArrangement = Arrangement.spacedBy(14.mpx),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                ChannelPlate(item.channel, Modifier.size(68.mpx, 48.mpx))
+                if (!item.channel.displayLogoUrl.isNullOrBlank()) ChannelPlate(item.channel, Modifier.size(68.mpx, 48.mpx))
                 Column(Modifier.weight(1f)) {
                     Text(
                         item.channel.name,

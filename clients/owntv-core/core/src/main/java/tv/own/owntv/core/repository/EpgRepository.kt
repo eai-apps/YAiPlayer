@@ -93,6 +93,36 @@ class EpgRepository(
      * instant no-op every call after. Run at startup (for users who already have EPG) and after
      * each EPG sync (for brand-new EPG).
      */
+    /**
+     * Give deleted guide rows back to the box (owner 12.11: "the app already takes over a gigabyte").
+     * SQLite never shrinks its file by itself: every pruned day stays as free pages. When those pass
+     * [COMPACT_FREE_BYTES] and the box has room for the copy VACUUM makes, rewrite the file once; the WAL
+     * is truncated either way. Runs after a guide sync, in the background; any failure is only logged.
+     */
+    suspend fun compactIfBloated() = withContext(Dispatchers.IO) {
+        try {
+            val startedAt = SystemClock.elapsedRealtime()
+            fun androidx.sqlite.SQLiteConnection.pragma(name: String): Long =
+                prepare("PRAGMA $name").use { st -> if (st.step()) st.getLong(0) else 0L }
+            val freedMb = db.useWriterConnection { connection ->
+                val page = connection.pragma("page_size")
+                val free = connection.pragma("freelist_count") * page
+                val total = connection.pragma("page_count") * page
+                val room = context.filesDir.usableSpace
+                if (free >= COMPACT_FREE_BYTES && room > total + COMPACT_HEADROOM_BYTES) {
+                    connection.execSQL("VACUUM")
+                }
+                runCatching { connection.prepare("PRAGMA wal_checkpoint(TRUNCATE)").use { it.step() } }
+                free / (1024 * 1024)
+            }
+            Log.i("EpgRepository", "compact freeMb=$freedMb ms=${SystemClock.elapsedRealtime() - startedAt}")
+        } catch (c: CancellationException) {
+            throw c
+        } catch (e: Exception) {
+            Log.w("EpgRepository", "Unable to compact database", e)
+        }
+    }
+
     suspend fun ensureEpgIndexes() = withContext(Dispatchers.IO) {
         try {
             val startedAt = SystemClock.elapsedRealtime()
@@ -685,8 +715,13 @@ class EpgRepository(
                 settings, sourceDao, db.categoryDao(), customize, portalSourceId, tv.own.owntv.core.model.MediaType.LIVE,
             )
         }.getOrDefault(emptySet())
+        // Owner 12.11 (v3.0.53): asking every channel of a 4,800-channel portal for its day tables meant tens of
+        // thousands of requests, 15+ minutes of a slow box and a 1 GB guide. The background pass now asks only
+        // the channels someone uses (favourites, history); any other channel loads its days when opened.
+        val used = runCatching { channelDao.usedChannelIdsForSource(portalSourceId, DAY_TABLE_CHANNELS) }
+            .getOrDefault(emptyList()).toHashSet()
         val portalChannels = channelDao.allForSources(listOf(portalSourceId), Int.MAX_VALUE)
-            .filter { it.categoryId == null || it.categoryId !in frozenLive }
+            .filter { it.id in used && (it.categoryId == null || it.categoryId !in frozenLive) }
         val pastCoverage = guideKeys.values.distinct().chunked(400).flatMap {
             epgDao.programmeSummariesForChannels(it, from, now)
         }.filter { it.sourceId == storeId }.groupBy { it.epgChannelId }
@@ -742,6 +777,7 @@ class EpgRepository(
         runCatching { bulkInsertHelper.analyzeTables("epg_programmes", "epg_channels") }
             .onFailure { Log.w("EpgRepository", "Unable to analyze EPG tables", it) }
         onProgress(channels.size, written)
+        compactIfBloated()
         Log.i(
             "EpgRepository",
             "EPG portal sync storeId=$storeId portalSourceId=$portalSourceId method=${outcome.method} " +
@@ -1118,6 +1154,10 @@ class EpgRepository(
 
         /** Share of a portal guide's progress bar taken by the bulk call; the per-channel day tables fill the rest. */
         private const val BULK_SHARE = 0.6f
+        /** Most channels the background pass reads whole days for (see usedChannelIdsForSource). */
+        private const val DAY_TABLE_CHANNELS = 150
+        private const val COMPACT_FREE_BYTES = 64L * 1024 * 1024
+        private const val COMPACT_HEADROOM_BYTES = 200L * 1024 * 1024
 
         /** The playlist id inside a [stalkerGuideUrl], or null when this is an ordinary feed URL. */
         fun stalkerSourceIdOf(url: String): Long? =

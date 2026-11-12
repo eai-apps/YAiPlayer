@@ -488,6 +488,20 @@ interface ChannelDao {
     )
     fun pagingHistory(profileId: Long, sourceIds: List<Long>): PagingSource<Int, ChannelEntity>
 
+    /**
+     * Channels of [sourceId] someone actually uses — a favourite or watched in any profile — newest first.
+     * The portal guide crawl asks only these for their whole days; every other channel gets its days when
+     * it is opened (LiveEpgReader.ensurePortalDays), instead of tens of thousands of requests up front.
+     */
+    @Query(
+        "SELECT c.id FROM channels c WHERE c.sourceId = :sourceId AND (" +
+            "c.id IN (SELECT f.itemId FROM favorites f WHERE f.mediaType = 'LIVE') OR " +
+            "c.id IN (SELECT h.itemId FROM watch_history h WHERE h.mediaType = 'LIVE')) " +
+            "ORDER BY (SELECT MAX(h2.watchedAt) FROM watch_history h2 WHERE h2.itemId = c.id AND h2.mediaType = 'LIVE') DESC " +
+            "LIMIT :limit",
+    )
+    suspend fun usedChannelIdsForSource(sourceId: Long, limit: Int): List<Long>
+
     /** Recently-watched row at the top of Live TV. */
     @Query(
         "SELECT c.* FROM channels c " +

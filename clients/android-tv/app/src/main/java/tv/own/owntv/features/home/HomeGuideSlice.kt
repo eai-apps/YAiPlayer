@@ -122,14 +122,21 @@ internal fun OnNowCard(
             Modifier.fillMaxSize().padding(horizontal = 18.mpx, vertical = 16.mpx),
             horizontalArrangement = Arrangement.spacedBy(16.mpx),
         ) {
-            ChannelPlate(channel, Modifier.size(84.mpx, 60.mpx))
+            // Owner 12.11: no logo → no "71" plate; the name takes the whole card, larger, as on the phone.
+            val hasLogo = !channel.displayLogoUrl.isNullOrBlank()
+            if (hasLogo) ChannelPlate(channel, Modifier.size(84.mpx, 60.mpx))
             Column(Modifier.weight(1f).fillMaxHeight()) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text(channel.name, style = stageText(20, 700), color = StageColors.Text, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
+                    Text(
+                        tv.own.owntv.core.live.ProviderTags.parse(channel.name).name.ifBlank { channel.name },
+                        style = if (hasLogo) stageText(20, 700) else stageText(24, 800),
+                        color = StageColors.Text, maxLines = if (hasLogo || programme != null) 1 else 2,
+                        overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false),
+                    )
                     if (channel.catchup) {
                         Spacer(Modifier.width(6.mpx))
                         tv.own.owntv.extras.favoriteshub.ArchiveBadgeTv(catchupDays = channel.catchupDays)
@@ -173,7 +180,9 @@ fun ChannelPlate(channel: ChannelEntity, modifier: Modifier = Modifier) {
         fill = StageColors.ControlFill,
     ) {
         Text(
-            channel.number?.toString() ?: channel.name.take(1).uppercase(),
+            // A logo that failed to load: the channel's initials, never its number (owner 12.11).
+            channel.name.split(' ', '-', '|').filter { w -> w.isNotBlank() && w.first().isLetterOrDigit() }
+                .take(2).map { w -> w.take(1).uppercase() }.reduceOrNull(String::plus) ?: channel.name.take(1),
             style = stageText(18, 800), color = StageColors.Text, maxLines = 1, overflow = TextOverflow.Ellipsis,
         )
     }
