@@ -105,7 +105,7 @@ class OperatorFixesTest {
         val rows = mutableListOf<StalkerEpgLoader.Row>()
         StalkerEpgLoader(auth, client).loadDayTables(source, listOf("42" to 3),
             now - 4 * 86_400_000L, now + 2 * 86_400_000L) { rows += it }
-        assertEquals(5, requested.distinct().size)
+        assertEquals(6, requested.distinct().size) // 3 back, today, 2 ahead (owner 12.11)
         assertTrue(rows.any { it.startMs < now - 86_400_000L })
         assertTrue(rows.all { it.epgChannelId == "42" })
     }
