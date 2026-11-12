@@ -553,6 +553,7 @@ class SeriesViewModel(
                 )
             }.getOrDefault(tv.own.owntv.core.content.SeasonRecordTitle.Cards(emptySet(), emptyMap()))
         }
+        .flowOn(kotlinx.coroutines.Dispatchers.Default) // never on the main thread
 
     val series: Flow<PagingData<SeriesEntity>> = combine(
         _selected, ctx, _search.map { it.trim() }.debounce(300).distinctUntilChanged(), sortMode, _listRefresh,

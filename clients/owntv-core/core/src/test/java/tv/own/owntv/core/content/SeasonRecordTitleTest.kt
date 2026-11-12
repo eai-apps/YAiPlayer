@@ -28,6 +28,16 @@ class SeasonRecordTitleTest {
         assertFalse(SeasonRecordTitle.sameShowLoose("Король гольфа [S01]", "Король гольфа 2 [S01]"))
     }
 
+    @Test fun hugeCatalogIsFast() {
+        // 40 000 season records of 8 000 shows: the old pairwise grouping froze the TV (owner 12.11).
+        val rows = (0 until 40_000).map { n -> n.toLong() to "Сериал номер ${n / 5} [S0${n % 5 + 1}] [ua] [ru]" }
+        val t0 = System.nanoTime()
+        val cards = SeasonRecordTitle.cards(rows)
+        val ms = (System.nanoTime() - t0) / 1_000_000
+        assertEquals(32_000, cards.hidden.size)
+        assertTrue("took $ms ms", ms < 3_000)
+    }
+
     @Test fun oneCardPerShow() {
         val cards = SeasonRecordTitle.cards(
             listOf(
