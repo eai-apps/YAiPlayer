@@ -62,6 +62,14 @@ class DadbTransport(context: Context) : AdbTransport {
         }
     }
 
+    override suspend fun push(file: File, remotePath: String): Result<Unit> = withContext(Dispatchers.IO) {
+        runCatching {
+            require(remotePath.startsWith(LauncherLook.STAGE_DIR + "/") && LauncherLook.validStage(remotePath)) { "bad path" }
+            val d = dadb ?: error("not connected")
+            d.push(file, remotePath, 420, System.currentTimeMillis())
+        }
+    }
+
     override suspend fun execBytes(cmd: String): Result<ByteArray> = withContext(Dispatchers.IO) {
         runCatching {
             val d = dadb ?: error("not connected")

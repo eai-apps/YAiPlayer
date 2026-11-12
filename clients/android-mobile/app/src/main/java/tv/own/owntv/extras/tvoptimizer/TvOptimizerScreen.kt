@@ -106,6 +106,7 @@ fun TvOptimizerScreen(
                 OptimizerStep.DNS -> Dns(s, vm)
                 OptimizerStep.MEASURE -> Measure(s, vm)
                 OptimizerStep.REPORT -> Report(s, vm)
+                OptimizerStep.LOOK -> Look(s, vm)
             }
         }
     }
@@ -120,7 +121,7 @@ private fun back(s: OptimizerUiState, vm: TvOptimizerViewModel, onDismiss: () ->
         OptimizerStep.PLAN -> vm.go(OptimizerStep.CHOOSE_LIST)
         OptimizerStep.APPLYING -> Unit
         OptimizerStep.RESULT, OptimizerStep.MANAGE, OptimizerStep.LAUNCHER, OptimizerStep.PRIVACY,
-        OptimizerStep.SPEED, OptimizerStep.DNS, OptimizerStep.MEASURE, OptimizerStep.REPORT ->
+        OptimizerStep.SPEED, OptimizerStep.DNS, OptimizerStep.MEASURE, OptimizerStep.REPORT, OptimizerStep.LOOK ->
             vm.go(if (s.tv != null) OptimizerStep.CHOOSE_LIST else OptimizerStep.WELCOME)
     }
 }
@@ -140,6 +141,7 @@ private fun Body(text: String, warn: Boolean = false) {
 private val FEATURES: List<Triple<Int, Int, OptimizerStep>> = listOf(
     Triple(R.string.opt_f_clean, R.string.opt_f_clean_hint, OptimizerStep.CHOOSE_LIST),
     Triple(R.string.opt_launcher_title, R.string.opt_f_launcher_hint, OptimizerStep.LAUNCHER),
+    Triple(R.string.opt_f_look, R.string.opt_f_look_hint, OptimizerStep.LOOK),
     Triple(R.string.opt_f_speed, R.string.opt_f_speed_hint, OptimizerStep.SPEED),
     Triple(R.string.opt_f_dns, R.string.opt_f_dns_hint, OptimizerStep.DNS),
     Triple(R.string.opt_privacy, R.string.opt_f_privacy_hint, OptimizerStep.PRIVACY),
@@ -605,6 +607,7 @@ private fun Launcher(s: OptimizerUiState, vm: TvOptimizerViewModel) {
             }
             LauncherPhase.ACTIVE -> {
                 item { Body(stringResource(R.string.opt_launcher_active)) }
+                item { StageButton(onClick = { vm.open(OptimizerStep.LOOK) }, text = stringResource(R.string.opt_f_look), style = StageButtonStyle.PRIMARY, modifier = Modifier.fillMaxWidth()) }
                 item { StageButton(onClick = { vm.go(OptimizerStep.CHOOSE_LIST) }, text = stringResource(R.string.opt_choose_title), modifier = Modifier.fillMaxWidth()) }
                 item { StageButton(onClick = { vm.revertLauncher(uninstall = true) }, text = stringResource(R.string.opt_launcher_remove), modifier = Modifier.fillMaxWidth()) }
             }
@@ -763,6 +766,91 @@ private fun Report(s: OptimizerUiState, vm: TvOptimizerViewModel) {
             item { Text(r, style = stageText(11.5f, 500), color = LocalStagePalette.current.muted) }
             item { StageButton(onClick = { share(context, r) }, text = stringResource(R.string.opt_report_share), style = StageButtonStyle.PRIMARY, modifier = Modifier.fillMaxWidth()) }
         }
+    }
+}
+
+@Composable
+private fun LookChoice(selected: Boolean, text: String, onClick: () -> Unit) =
+    StageButton(onClick = onClick, text = text, small = true, style = if (selected) StageButtonStyle.PRIMARY else StageButtonStyle.SECONDARY)
+
+@Composable
+private fun LookToggle(value: Boolean?, label: Int, set: (Boolean) -> Unit) =
+    Row(Modifier.fillMaxWidth().clickable { set(value != true) }, verticalAlignment = Alignment.CenterVertically) {
+        Checkbox(checked = value == true, onCheckedChange = { set(it) })
+        Text(stringResource(label), style = stageText(13.5f, 600), color = LocalStagePalette.current.text)
+    }
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun Look(s: OptimizerUiState, vm: TvOptimizerViewModel) {
+    val p = LocalStagePalette.current
+    val pick = androidx.activity.compose.rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.GetMultipleContents(),
+    ) { uris -> vm.addPhotos(uris) }
+    LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        item { Title(stringResource(R.string.opt_f_look)) }
+        item { Body(stringResource(R.string.opt_look_body)) }
+        if (!s.launcherInstalled) item { Body(stringResource(R.string.opt_look_no_launcher), warn = true) }
+        item { Text(stringResource(R.string.opt_look_theme), style = stageText(14f, 800), color = p.text) }
+        item {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                LookChoice(s.lookTheme == null, stringResource(R.string.opt_look_theme_none)) { vm.setLookTheme(null) }
+                s.themes.forEach { t -> LookChoice(s.lookTheme == t, t) { vm.setLookTheme(t) } }
+            }
+        }
+        item { Text(stringResource(R.string.opt_look_photos), style = stageText(14f, 800), color = p.text) }
+        item { Body(stringResource(R.string.opt_look_photos_hint, s.photos, LauncherLook.MAX_PHOTOS)) }
+        item {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                StageButton(onClick = { pick.launch("image/*") }, text = stringResource(R.string.opt_look_photos_add), small = true,
+                    enabled = !s.lookBusy && s.photos < LauncherLook.MAX_PHOTOS)
+                StageButton(onClick = vm::clearPhotos, text = stringResource(R.string.opt_look_photos_clear), small = true, enabled = s.photos > 0)
+            }
+        }
+        item { Text(stringResource(R.string.opt_look_rotation), style = stageText(13.5f, 700), color = p.text) }
+        item {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                LookChoice(s.look.rotationMinutes == null, stringResource(R.string.opt_speed_keep)) { vm.setLook { it.copy(rotationMinutes = null) } }
+                LauncherLook.ROTATION.forEach { m ->
+                    LookChoice(s.look.rotationMinutes == m, if (m == 0) stringResource(R.string.opt_look_rotation_off) else stringResource(R.string.opt_look_minutes, m)) {
+                        vm.setLook { it.copy(rotationMinutes = m) }
+                    }
+                }
+            }
+        }
+        item { Text(stringResource(R.string.opt_look_layout), style = stageText(14f, 800), color = p.text) }
+        item {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                LookChoice(s.look.columns == null, stringResource(R.string.opt_speed_keep)) { vm.setLook { it.copy(columns = null) } }
+                LauncherLook.COLUMNS.forEach { n -> LookChoice(s.look.columns == n, stringResource(R.string.opt_look_columns, n)) { vm.setLook { it.copy(columns = n) } } }
+            }
+        }
+        item { LookToggle(s.look.reducedMotion, R.string.opt_look_reduced_motion) { v -> vm.setLook { it.copy(reducedMotion = v) } } }
+        item { LookToggle(s.look.showStats, R.string.opt_look_stats) { v -> vm.setLook { it.copy(showStats = v) } } }
+        item { LookToggle(s.look.appLibrary, R.string.opt_look_library) { v -> vm.setLook { it.copy(appLibrary = v) } } }
+        item { LookToggle(s.look.inputsPill, R.string.opt_look_inputs) { v -> vm.setLook { it.copy(inputsPill = v) } } }
+        item { Text(stringResource(R.string.opt_look_dock), style = stageText(14f, 800), color = p.text) }
+        item { Body(stringResource(R.string.opt_look_dock_hint)) }
+        val dock = s.look.dock.orEmpty()
+        if (dock.isNotEmpty()) item { Body(dock.mapIndexed { i, d -> "${i + 1}. $d" }.joinToString("\n")) }
+        items(s.tvApps, key = { "app:$it" }) { pkg ->
+            Row(Modifier.fillMaxWidth().clickable { vm.toggleDock(pkg) }, verticalAlignment = Alignment.CenterVertically) {
+                Checkbox(checked = pkg in dock, onCheckedChange = { vm.toggleDock(pkg) })
+                Text(pkg, style = stageText(12.5f, 500), color = p.text)
+            }
+        }
+        if (s.lookBusy) item { LinearProgressIndicator(Modifier.fillMaxWidth()) }
+        s.lookResult?.let { r -> item { Body(stringResource(r), warn = r == TvOptimizerViewModel.R_LOOK_FAIL) } }
+        item {
+            StageButton(onClick = vm::applyLook, text = stringResource(R.string.opt_look_apply), style = StageButtonStyle.PRIMARY,
+                enabled = !s.lookBusy && s.launcherInstalled, modifier = Modifier.fillMaxWidth())
+        }
+        item {
+            StageButton(onClick = vm::resetLook, text = stringResource(R.string.opt_look_reset), enabled = !s.lookBusy && s.launcherInstalled,
+                modifier = Modifier.fillMaxWidth())
+        }
+        item { Body(stringResource(R.string.opt_look_credit)) }
+        item { Spacer(Modifier.height(24.dp)) }
     }
 }
 

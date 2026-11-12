@@ -16,6 +16,8 @@ All original code in YAiPlayer is licensed under GPL-3.0 as part of the YAiPlaye
 
 ## Оптимизатор ТВ: источники и лицензии
 
+Темы лаунчера (`assets/tvoptimizer/themes.json`, `tools/tvoptimizer/build_themes.py`): config.json всех 29 тем из Gathin23/cleanyourtv `b953804`; картинки тем в APK не входят, телефон скачивает их с raw.githubusercontent.com того же коммита при применении темы. Порт `tools/theme.sh` и `tools/theme_restart.py` (идея и порядок команд) — `LauncherLook.kt`.
+
 Исходники зафиксированы: Gathin23/cleanyourtv `3e06c1b`, udhaykumarbala/cleanyourtv-app `03ad20e`.
 Эти проекты пока изучаются; их ADB-код не включён в сборку YAiPlayer.
 

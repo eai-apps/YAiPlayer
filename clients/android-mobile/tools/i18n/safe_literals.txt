@@ -129,17 +129,82 @@
 1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbFinder.kt	adb: subnet scan ${scan.size} addresses, open 5555: ${found.joinToString()}
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	--user
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	-r
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	/
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	0
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	adb
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	adbkey
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	adbkey.pub
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	bad path
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	echo ok
 1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	exec:$cmd
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	install failed
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	no shell
-3	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	not connected
+4	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	not connected
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	not local
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	ok
+1	empty	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	\0
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	$DIR/$WALLPAPERS/*.[pP][nN][gG] $DIR/$WALLPAPERS/*.[wW][eE][bB][pP] 2>/dev/null;
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	$DIR/$target
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	$STAGE_DIR/yai-theme-
+4	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	$WALLPAPERS/
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	$WALLPAPERS/captions.txt
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	${LauncherLook.deleteCommand("wallpaper.jpg")}; ${LauncherLook.deleteCommand("wallpapers/captions.txt")}; ${LauncherLook.CLEAR_COLLECTION}
+1	regex	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	(?i)[A-Za-z0-9_.-]{1,64}\\.(jpe?g|png|webp)
+2	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	..
+2	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	/
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	/data/local/tmp
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	/sdcard/Android/data/$PKG/files
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	0
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	1
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	:
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	YAI_OK
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	[ "$(content read --uri $URI/$target 2>/dev/null | wc -c)" = "$s" ] && ok=1;
+2	regex	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	[0-9a-f]{40}
+1	regex	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	[A-Za-z0-9_.$/:]*
+1	regex	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	[A-Za-z0-9_.-]{1,64}
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	am force-stop --user $user ${LauncherLook.PKG}
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	am get-current-user
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	am start --user $user -a android.intent.action.MAIN -c android.intent.category.HOME
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	app_library
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	captions
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	captions.txt
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	cmd package query-activities --brief -a android.intent.action.MAIN -c android.intent.category.LEANBACK_LAUNCHER
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	columns
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	commit
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	config
+2	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	config.json
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	content delete --uri $URI/$WALLPAPERS >/dev/null 2>&1; true
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	content write --uri $URI/$target < $stage >/dev/null 2>&1;
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	content://$PKG.theme
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	dock_apps
+1	url	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	https://raw.githubusercontent.com/Gathin23/cleanyourtv/$commit/themes/$theme/$file
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	if [ -z "$ok" ]; then cp $stage $dest 2>/dev/null && [ "$(wc -c < $dest)" = "$s" ] && ok=1; fi;
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	mkdir -p $parent 2>/dev/null; s=$(wc -c < $stage); ok=;
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	mkdir -p ${LauncherLook.DIR} 2>/dev/null; ${LauncherLook.deleteCommand("config.json")};
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	name
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	null
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	reduced_motion
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	rm -f $DIR/$WALLPAPERS/*.[jJ][pP][gG] $DIR/$WALLPAPERS/*.[jJ][pP][eE][gG]
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	rm -f $DIR/$target 2>/dev/null; content delete --uri $URI/$target >/dev/null 2>&1; true
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	rm -f $stage; [ -n "$ok" ] && echo $OK
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	settings --user $user delete secure enabled_accessibility_services
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	settings --user $user get secure accessibility_enabled
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	settings --user $user get secure enabled_accessibility_services
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	settings --user $user put secure enabled_accessibility_services '$others'
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	settings --user $user put secure enabled_accessibility_services '$services'; settings --user $user put secure accessibility_enabled 1
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	show_inputs_pill
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	show_stats
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	theme_revision
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	themes
+2	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	wallpaper
+3	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	wallpaper.jpg
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	wallpaper_captions
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	wallpaper_moods
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	wallpaper_order
+2	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	wallpaper_rotation_minutes
+2	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	wallpapers
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	wallpapers/captions.txt
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/LauncherLook.kt	{}
 14	empty	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	\0
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	# 1. Точка восстановления сохраняется на телефоне до первого изменения
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	# 2. Отключить приложения (не удаляются)
@@ -377,40 +442,62 @@
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	upgrade
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	voice
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	wifi
-3	empty	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	\0
+4	empty	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	\0
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	${i + 1}.
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	${i + 1}. $d
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	/
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	1
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	adb
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	app:$it
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	g$group
 1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	hostname
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	image/*
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	k$kind
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	text/plain
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	·
 4	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	—
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	•
-4	empty	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	\0
+6	empty	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	\0
 1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	${java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.ROOT).format(java.util.Date())} $line
 1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	${m.memAvailableMb}|${m.processes}|${m.loadAvg}|${m.homeStartMs}
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	%02x
+2	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	-
 1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	DNS AdGuard
 1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	HH:mm:ss
+2	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	config.json
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	decode
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	host
 1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	hostname
+1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	http ${c.responseCode}
+3	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	look
+1	preference-key	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	look_theme
 1	preference-key	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	measure_after
 1	preference-key	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	measure_before
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	photo-${photoFiles.size + 1}.jpg
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	restore_points
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	theme-$pic
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	theme-captions.txt
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	theme-wallpaper.jpg
+4	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	theme_revision
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	too big
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	tv_optimizer_v2
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	tvhome.apk
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	tvoptimizer/catalog.json
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	tvoptimizer/launcher.apk
+1	file-path	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	tvoptimizer/themes.json
+6	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	wallpaper.jpg
+2	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	wallpapers/$pic
+4	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	wallpapers/captions.txt
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	wallpapers/photo-${i + 1}.jpg
 1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	вернуть всё: приложения ${appsBack.size}, настройки ${settingsBack.size}
+1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	вид главного экрана: ${theme?.name ?: "свой"}, фото ${photoFiles.size}, ok=$ok
 1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	возвращены настройки: $back
 1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	до
 1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	замер ${if (after) "после" else "до"}: $m
 1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	ошибка подключения: $problem ${e?.javaClass?.simpleName.orEmpty()}
 1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	подключено
 1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	после
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	свой
 1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	скорость: $changes
 2	empty	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvScreenPeek.kt	\0
 1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvScreenPeek.kt	${e.javaClass.simpleName}: ${e.message?.take(100).orEmpty()}

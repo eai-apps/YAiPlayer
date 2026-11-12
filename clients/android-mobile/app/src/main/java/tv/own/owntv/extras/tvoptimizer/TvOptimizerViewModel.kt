@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /** Wizard order: warning → debugging steps → connection → list choice → plan → applying → result; manage any time. */
-enum class OptimizerStep { WELCOME, DEBUG_GUIDE, CONNECT, CHOOSE_LIST, PLAN, APPLYING, RESULT, MANAGE, LAUNCHER, PRIVACY, SPEED, DNS, MEASURE, REPORT }
+enum class OptimizerStep { WELCOME, DEBUG_GUIDE, CONNECT, CHOOSE_LIST, PLAN, APPLYING, RESULT, MANAGE, LAUNCHER, PRIVACY, SPEED, DNS, MEASURE, REPORT, LOOK }
 
 enum class ConnectProblem { NOT_LOCAL, UNREACHABLE, NOT_ALLOWED, OTHER, NOT_FOUND }
 
@@ -65,6 +65,15 @@ data class OptimizerUiState(
     val measureAfter: TvMeasure? = null,
     val report: String? = null,
     val message: Int? = null,
+    // ---- look of the new Home screen (themes, own photos, dock) ----
+    val themes: List<String> = emptyList(),
+    val lookTheme: String? = null,
+    val look: LookOverrides = LookOverrides(),
+    val photos: Int = 0,
+    val tvApps: List<String> = emptyList(),
+    val launcherInstalled: Boolean = false,
+    val lookBusy: Boolean = false,
+    val lookResult: Int? = null,
 )
 
 class TvOptimizerViewModel(app: Application) : AndroidViewModel(app) {
@@ -115,7 +124,184 @@ class TvOptimizerViewModel(app: Application) : AndroidViewModel(app) {
             OptimizerStep.SPEED -> readSpeed()
             OptimizerStep.DNS -> readDns()
             OptimizerStep.PRIVACY -> runPrivacyAudit()
+            OptimizerStep.LOOK -> openLook()
             else -> Unit
+        }
+    }
+
+    // ---- look: themes, own photos, dock (cleanyourtv tools/theme.sh on the phone) ----
+    private val lookEngine = LookEngine(transport)
+    private var themeCatalog: ThemeCatalog? = null
+    private val photoFiles = ArrayList<File>()
+
+    fun openLook() {
+        if (_ui.value.tv == null) return
+        viewModelScope.launch {
+            val app = getApplication<Application>()
+            if (themeCatalog == null) themeCatalog = withContext(Dispatchers.IO) {
+                runCatching { ThemeCatalog.parse(app.assets.open(THEMES_ASSET).bufferedReader().use { it.readText() }) }.getOrNull()
+            }
+            val apps = lookEngine.tvApps()
+            val installed = engine.isInstalled(LauncherLook.PKG)
+            val saved = prefs.getString(KEY_LOOK_THEME, null)
+            _ui.update {
+                it.copy(
+                    themes = themeCatalog?.themes?.map { t -> t.name }.orEmpty(),
+                    lookTheme = it.lookTheme ?: saved?.takeIf { n -> themeCatalog?.find(n) != null },
+                    tvApps = apps,
+                    launcherInstalled = installed,
+                )
+            }
+        }
+    }
+
+    fun setLookTheme(name: String?) = _ui.update { it.copy(lookTheme = name, lookResult = null) }
+    fun setLook(f: (LookOverrides) -> LookOverrides) = _ui.update { it.copy(look = f(it.look), lookResult = null) }
+
+    fun toggleDock(pkg: String) = setLook { o ->
+        val d = o.dock.orEmpty()
+        o.copy(dock = if (pkg in d) d - pkg else d + pkg)
+    }
+
+    /** Own photos from the phone: centre crop 16:9, 1280×720, JPEG under 300 KB (cleanyourtv wallpaper_prep). */
+    fun addPhotos(uris: List<android.net.Uri>) {
+        if (uris.isEmpty()) return
+        _ui.update { it.copy(lookBusy = true) }
+        viewModelScope.launch {
+            val app = getApplication<Application>()
+            withContext(Dispatchers.IO) {
+                val dir = File(app.cacheDir, "look").apply { mkdirs() }
+                for (u in uris) {
+                    if (photoFiles.size >= LauncherLook.MAX_PHOTOS) break
+                    runCatching { preparePhoto(app, u, File(dir, "photo-${photoFiles.size + 1}.jpg")) }.getOrNull()?.let { photoFiles += it }
+                }
+            }
+            _ui.update { it.copy(lookBusy = false, photos = photoFiles.size, lookResult = null) }
+        }
+    }
+
+    fun clearPhotos() {
+        photoFiles.forEach { it.delete() }
+        photoFiles.clear()
+        _ui.update { it.copy(photos = 0) }
+    }
+
+    private fun preparePhoto(app: Application, uri: android.net.Uri, out: File): File {
+        val opts = android.graphics.BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        app.contentResolver.openInputStream(uri).use { android.graphics.BitmapFactory.decodeStream(it, null, opts) }
+        require(opts.outWidth > 0 && opts.outHeight > 0)
+        var sample = 1
+        while (opts.outWidth / (sample * 2) >= LauncherLook.PHOTO_W && opts.outHeight / (sample * 2) >= LauncherLook.PHOTO_H) sample *= 2
+        val src = app.contentResolver.openInputStream(uri).use {
+            android.graphics.BitmapFactory.decodeStream(it, null, android.graphics.BitmapFactory.Options().apply { inSampleSize = sample })
+        } ?: error("decode")
+        val c = LauncherLook.cropTo16x9(src.width, src.height)
+        val cropped = android.graphics.Bitmap.createBitmap(src, c[0], c[1], c[2], c[3])
+        val scaled = android.graphics.Bitmap.createScaledBitmap(cropped, LauncherLook.PHOTO_W, LauncherLook.PHOTO_H, true)
+        for (q in LauncherLook.QUALITY_STEPS) {
+            out.outputStream().use { scaled.compress(android.graphics.Bitmap.CompressFormat.JPEG, q, it) }
+            if (out.length() <= LauncherLook.PHOTO_MAX_BYTES) break
+        }
+        if (scaled !== cropped) scaled.recycle()
+        if (cropped !== src) cropped.recycle()
+        src.recycle()
+        require(out.length() in 1..LauncherLook.PHOTO_MAX_BYTES)
+        return out
+    }
+
+    private fun download(url: String, out: File): File {
+        val c = java.net.URL(url).openConnection() as java.net.HttpURLConnection
+        c.connectTimeout = 15_000
+        c.readTimeout = 30_000
+        try {
+            check(c.responseCode == 200) { "http ${c.responseCode}" }
+            c.inputStream.use { input ->
+                out.outputStream().use { o ->
+                    val buf = ByteArray(16 * 1024)
+                    var total = 0L
+                    while (true) {
+                        val n = input.read(buf)
+                        if (n < 0) break
+                        total += n
+                        check(total <= 8L * 1024 * 1024) { "too big" }
+                        o.write(buf, 0, n)
+                    }
+                }
+            }
+        } finally {
+            c.disconnect()
+        }
+        return out
+    }
+
+    /** Sends the chosen look to the TV and restarts Home. */
+    fun applyLook() {
+        val s = _ui.value
+        if (s.tv == null || s.lookBusy) return
+        val theme = s.lookTheme?.let { themeCatalog?.find(it) }
+        val commit = themeCatalog?.commit
+        _ui.update { it.copy(lookBusy = true, lookResult = null) }
+        viewModelScope.launch {
+            val app = getApplication<Application>()
+            val dir = File(app.cacheDir, "look").apply { mkdirs() }
+            val ok = runCatching {
+                val config = File(dir, "config.json").apply { writeText(LauncherLook.compose(theme, s.look, photoFiles.size)) }
+                check(lookEngine.put("config.json", config))
+                if (photoFiles.isNotEmpty()) {
+                    lookEngine.clearCollection()
+                    lookEngine.delete("wallpapers/captions.txt")
+                    if (photoFiles.size == 1) {
+                        check(lookEngine.put("wallpaper.jpg", photoFiles[0]))
+                    } else {
+                        lookEngine.delete("wallpaper.jpg")
+                        photoFiles.forEachIndexed { i, f -> check(lookEngine.put("wallpapers/photo-${i + 1}.jpg", f)) }
+                    }
+                } else if (theme != null && commit != null) {
+                    if (theme.wallpaper) {
+                        val f = withContext(Dispatchers.IO) { download(LauncherLook.pictureUrl(commit, theme.name, "wallpaper.jpg"), File(dir, "theme-wallpaper.jpg")) }
+                        check(lookEngine.put("wallpaper.jpg", f))
+                    } else {
+                        lookEngine.delete("wallpaper.jpg")
+                    }
+                    lookEngine.clearCollection()
+                    for (pic in theme.wallpapers) {
+                        val f = withContext(Dispatchers.IO) { download(LauncherLook.pictureUrl(commit, theme.name, "wallpapers/$pic"), File(dir, "theme-$pic")) }
+                        check(lookEngine.put("wallpapers/$pic", f))
+                    }
+                    if (theme.captions) {
+                        val f = withContext(Dispatchers.IO) { download(LauncherLook.pictureUrl(commit, theme.name, "wallpapers/captions.txt"), File(dir, "theme-captions.txt")) }
+                        check(lookEngine.put("wallpapers/captions.txt", f))
+                    } else {
+                        lookEngine.delete("wallpapers/captions.txt")
+                    }
+                } else {
+                    lookEngine.delete("wallpaper.jpg")
+                    lookEngine.clearCollection()
+                }
+                val rev = File(dir, "theme_revision").apply { writeText(java.util.UUID.randomUUID().toString().replace("-", "")) }
+                check(lookEngine.put("theme_revision", rev))
+                check(lookEngine.restartHome())
+            }.isSuccess
+            if (ok) prefs.edit().putString(KEY_LOOK_THEME, theme?.name).apply()
+            log("вид главного экрана: ${theme?.name ?: "свой"}, фото ${photoFiles.size}, ok=$ok")
+            _ui.update { it.copy(lookBusy = false, lookResult = if (ok) R_LOOK_OK else R_LOOK_FAIL) }
+        }
+    }
+
+    /** The launcher's built-in look (tools/theme.sh --reset). */
+    fun resetLook() {
+        if (_ui.value.tv == null) return
+        _ui.update { it.copy(lookBusy = true, lookResult = null) }
+        viewModelScope.launch {
+            val dir = File(getApplication<Application>().cacheDir, "look").apply { mkdirs() }
+            val ok = runCatching {
+                check(lookEngine.reset())
+                val rev = File(dir, "theme_revision").apply { writeText(java.util.UUID.randomUUID().toString().replace("-", "")) }
+                check(lookEngine.put("theme_revision", rev))
+                check(lookEngine.restartHome())
+            }.isSuccess
+            if (ok) prefs.edit().remove(KEY_LOOK_THEME).apply()
+            _ui.update { it.copy(lookBusy = false, lookTheme = null, look = LookOverrides(), lookResult = if (ok) R_LOOK_OK else R_LOOK_FAIL) }
         }
     }
 
@@ -179,6 +365,7 @@ class TvOptimizerViewModel(app: Application) : AndroidViewModel(app) {
                 OptimizerStep.SPEED -> readSpeed()
                 OptimizerStep.DNS -> readDns()
                 OptimizerStep.PRIVACY -> runPrivacyAudit()
+                OptimizerStep.LOOK -> openLook()
                 else -> Unit
             }
         }
@@ -556,6 +743,10 @@ class TvOptimizerViewModel(app: Application) : AndroidViewModel(app) {
         const val CATALOG_ASSET = "tvoptimizer/catalog.json"
         const val LAUNCHER_ASSET = "tvoptimizer/launcher.apk"
         const val WATCHDOG_SECONDS = 150
+        const val THEMES_ASSET = "tvoptimizer/themes.json"
+        private const val KEY_LOOK_THEME = "look_theme"
+        val R_LOOK_OK = tv.own.owntv.core.R.string.opt_look_ok
+        val R_LOOK_FAIL = tv.own.owntv.core.R.string.opt_look_fail
         private const val KEY_BEFORE = "measure_before"
         private const val KEY_AFTER = "measure_after"
         val R_ACCEPT_FIRST = tv.own.owntv.core.R.string.opt_msg_accept_first

@@ -360,4 +360,72 @@ class TvOptimizerTest {
         val add = OptimizerReports.addTvReport(tv(), setOf("com.vendor.ads"), setOf("com.vendor.spy"), setOf("com.vendor.launcher"))
         assertTrue("com.vendor.ads" in add && "com.vendor.spy" in add && "model: X1" in add)
     }
+
+    // ---- этап 5: темы, свои обои, панель (cleanyourtv tools/theme.sh) ----
+
+    private val themesFile = listOf("src/main/assets/tvoptimizer/themes.json", "app/src/main/assets/tvoptimizer/themes.json")
+        .map(::File).first { it.isFile }
+
+    @Test fun `all 29 cleanyourtv themes are in the catalog`() {
+        val c = ThemeCatalog.parse(themesFile.readText())
+        assertEquals(29, c.themes.size)
+        assertNotNull(c.find("aurora"))
+        assertTrue(c.find("aurora")!!.wallpaper)
+        assertTrue(c.themes.flatMap { it.wallpapers }.all(LauncherLook::validPicture))
+        assertTrue(LauncherLook.pictureUrl(c.commit, "blocky", "wallpapers/" + c.find("blocky")!!.wallpapers.first())
+            .startsWith("https://raw.githubusercontent.com/Gathin23/cleanyourtv/${c.commit}/themes/blocky/wallpapers/"))
+    }
+
+    @Test fun `look config keeps the theme and adds the user's choices`() {
+        val theme = LookTheme("t", org.json.JSONObject("""{"columns":4,"wallpaper_captions":true,"dock_apps":["a.b"]}"""), true, emptyList(), false)
+        val cfg = org.json.JSONObject(LauncherLook.compose(theme, LookOverrides(columns = 6, showStats = true, dock = listOf("com.netflix.ninja", "com.google.android.youtube.tv"), rotationMinutes = 15), ownPhotos = 3))
+        assertEquals(6, cfg.getInt("columns"))
+        assertTrue(cfg.getBoolean("show_stats"))
+        assertTrue(cfg.getBoolean("wallpaper"))
+        assertFalse(cfg.has("wallpaper_captions"))
+        assertEquals(15, cfg.getInt("wallpaper_rotation_minutes"))
+        assertEquals("com.netflix.ninja", cfg.getJSONArray("dock_apps").getString(0))
+        assertTrue(runCatching { LauncherLook.compose(null, LookOverrides(dock = listOf("x; reboot")), 0) }.isFailure)
+        assertTrue(runCatching { LauncherLook.compose(null, LookOverrides(columns = 9), 0) }.isFailure)
+    }
+
+    @Test fun `theme files go only where the launcher takes them`() {
+        assertTrue(LauncherLook.validTarget("config.json"))
+        assertTrue(LauncherLook.validTarget("wallpapers/photo-1.jpg"))
+        assertFalse(LauncherLook.validTarget("../config.json"))
+        assertFalse(LauncherLook.validTarget("wallpapers/../x.jpg"))
+        assertFalse(LauncherLook.validTarget("wallpapers/a b.jpg"))
+        assertEquals("/data/local/tmp/yai-theme-wallpapers-photo-1.jpg", LauncherLook.stagePath("wallpapers/photo-1.jpg"))
+        assertTrue(LauncherLook.validStage(LauncherLook.stagePath("config.json")))
+        assertFalse(LauncherLook.validStage("/data/local/tmp/other"))
+        val cmd = LauncherLook.putCommand("config.json")
+        assertTrue("content write --uri content://com.gathin.tvhome.theme/config.json" in cmd)
+        assertTrue(cmd.endsWith("echo YAI_OK"))
+        assertTrue(runCatching { LauncherLook.putCommand("/etc/hosts") }.isFailure)
+        assertTrue(LauncherLook.validServices("com.gathin.tvhome/.HomeKeyService:com.x/.Y"))
+        assertFalse(LauncherLook.validServices("a'; reboot"))
+    }
+
+    @Test fun `own photo crop is 16 to 9 and centred`() {
+        assertEquals(listOf(420, 0, 3840, 2160), LauncherLook.cropTo16x9(4680, 2160).toList())
+        assertEquals(listOf(0, 285, 1080, 607), LauncherLook.cropTo16x9(1080, 1178).toList())
+        assertEquals(listOf(0, 0, 1280, 720), LauncherLook.cropTo16x9(1280, 720).toList())
+    }
+
+    @Test fun `home restart puts the launcher key helpers back`() = runBlocking {
+        val fake = ScriptedTv { cmd ->
+            when {
+                cmd == "am get-current-user" -> "0"
+                cmd.endsWith("get secure enabled_accessibility_services") -> "com.gathin.tvhome/.HomeKeyService:com.other/.A"
+                cmd.endsWith("get secure accessibility_enabled") -> "1"
+                else -> ""
+            }
+        }
+        assertTrue(LookEngine(fake).restartHome())
+        val h = fake.history
+        val stop = h.indexOfFirst { "am force-stop --user 0 com.gathin.tvhome" in it }
+        val without = h.indexOfFirst { it == "settings --user 0 put secure enabled_accessibility_services 'com.other/.A'" }
+        val with = h.indexOfFirst { "put secure enabled_accessibility_services 'com.gathin.tvhome/.HomeKeyService:com.other/.A'" in it }
+        assertTrue(stop in 0 until without && without < with)
+    }
 }
