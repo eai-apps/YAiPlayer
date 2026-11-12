@@ -42,7 +42,7 @@ class RadioParserTest {
             "/json/stations/search?hidebroken=true&order=clickcount&reverse=true&limit=192&tag=russian+rock",
             RadioUrls.searchPath("Russian Rock", null),
         )
-        assertEquals(40, RadioGenres.all.size)
+        assertEquals(39, RadioGenres.all.size) // «russian_rock» hidden at the owner's request (12.11)
         assertEquals("", RadioGenres.all.first().tag)
     }
 }
