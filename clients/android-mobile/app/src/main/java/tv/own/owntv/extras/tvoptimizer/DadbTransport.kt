@@ -67,6 +67,7 @@ class DadbTransport(context: Context) : AdbTransport {
             require(remotePath.startsWith(LauncherLook.STAGE_DIR + "/") && LauncherLook.validStage(remotePath)) { "bad path" }
             val d = dadb ?: error("not connected")
             d.push(file, remotePath, 420, System.currentTimeMillis())
+            Unit
         }
     }
 
