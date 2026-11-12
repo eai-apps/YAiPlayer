@@ -71,6 +71,8 @@ class OwnTVMobileApp : Application(), androidx.work.Configuration.Provider {
 
     override fun onCreate() {
         super.onCreate()
+        // Only stores a function; the remote's connections go over the home Wi-Fi even with a VPN on.
+        tv.own.owntv.extras.atvremote.AtvLocalNetwork.install(this)
         // "Restart now" after an icon change runs a few milliseconds in a process of its own; nothing
         // below may start there (core's AppRestartActivity).
         if (tv.own.owntv.core.brand.AppIconSwitcher.isRestartProcess(this)) return

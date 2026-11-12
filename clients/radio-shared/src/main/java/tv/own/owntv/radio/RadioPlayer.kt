@@ -105,6 +105,17 @@ class RadioPlayer(context: Context) {
         update()
     }
 
+    /** The remote's separate Play / Pause keys: [on] plays or resumes, otherwise pauses; no-op when nothing is chosen. */
+    fun setPlaying(on: Boolean) {
+        val s = _current.value ?: return
+        if (on) {
+            if (_status.value == Status.ERROR || player.playbackState == Player.STATE_IDLE) play(s) else player.play()
+        } else {
+            player.pause()
+        }
+        update()
+    }
+
     fun stop() {
         player.stop()
         _current.value = null

@@ -58,6 +58,24 @@ object AtvTls {
     const val PAIRING_PORT = 6467
     const val REMOTE_PORT = 6466
 
+    /**
+     * Where new connections to the TV start. Android installs one that binds the socket to the Wi-Fi network: with a
+     * VPN or mobile data active the default route does not lead to the home network, so a TV that mDNS found on the
+     * Wi-Fi could not be reached ("cannot reach the TV", owner 12.11).
+     */
+    @Volatile var socketProvider: () -> Socket = { Socket() }
+
+    /** The same binding for OkHttp (the player-only remote). OkHttp only calls the no-argument [createSocket]. */
+    val localSocketFactory: javax.net.SocketFactory = object : javax.net.SocketFactory() {
+        override fun createSocket(): Socket = socketProvider()
+        override fun createSocket(host: String?, port: Int): Socket = socketProvider().also { it.connect(InetSocketAddress(host, port)) }
+        override fun createSocket(host: String?, port: Int, localHost: InetAddress?, localPort: Int): Socket =
+            socketProvider().also { it.bind(InetSocketAddress(localHost, localPort)); it.connect(InetSocketAddress(host, port)) }
+        override fun createSocket(host: InetAddress?, port: Int): Socket = socketProvider().also { it.connect(InetSocketAddress(host, port)) }
+        override fun createSocket(address: InetAddress?, port: Int, localAddress: InetAddress?, localPort: Int): Socket =
+            socketProvider().also { it.bind(InetSocketAddress(localAddress, localPort)); it.connect(InetSocketAddress(address, port)) }
+    }
+
     fun sha256(cert: X509Certificate): String =
         MessageDigest.getInstance("SHA-256").digest(cert.encoded).joinToString("") { "%02x".format(it) }
 
@@ -135,11 +153,11 @@ object AtvTls {
         val context = SSLContext.getInstance("TLS").apply {
             init(identity.keyManagers(), arrayOf<TrustManager>(trust), null)
         }
-        val plain = Socket()
+        val plain = socketProvider()
         try {
             plain.connect(InetSocketAddress(address, port), connectTimeoutMs)
             plain.soTimeout = 10_000
-            val ssl = context.socketFactory.createSocket(plain, address.hostAddress, port, true) as SSLSocket
+            val ssl = context.socketFactory.createSocket(plain, address.hostAddress?.substringBefore('%'), port, true) as SSLSocket
             ssl.useClientMode = true
             try {
                 ssl.startHandshake()

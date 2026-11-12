@@ -241,6 +241,27 @@ class AtvDiscovery(context: Context) {
     }
 }
 
+/** Sends the remote's connections over the home Wi-Fi (or Ethernet), not over a VPN or mobile data. */
+object AtvLocalNetwork {
+    fun install(context: Context) {
+        val cm = context.applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as? android.net.ConnectivityManager ?: return
+        AtvTls.socketProvider = {
+            val network = runCatching { homeNetwork(cm) }.getOrNull()
+            // createSocket() on a Network's factory binds the socket to that network; without one, the default route.
+            runCatching { network?.socketFactory?.createSocket() }.getOrNull() ?: java.net.Socket()
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    private fun homeNetwork(cm: android.net.ConnectivityManager): android.net.Network? =
+        cm.allNetworks.firstOrNull { n ->
+            val caps = cm.getNetworkCapabilities(n) ?: return@firstOrNull false
+            caps.hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_NOT_VPN) &&
+                (caps.hasTransport(android.net.NetworkCapabilities.TRANSPORT_WIFI) ||
+                    caps.hasTransport(android.net.NetworkCapabilities.TRANSPORT_ETHERNET))
+        }
+}
+
 /** What the remote's "network check" shows when no TV is found (owner 12.11: the phone said "another network"). */
 data class AtvNetworkCheck(val wifi: Boolean, val vpn: Boolean, val addresses: List<String>) {
     companion object {

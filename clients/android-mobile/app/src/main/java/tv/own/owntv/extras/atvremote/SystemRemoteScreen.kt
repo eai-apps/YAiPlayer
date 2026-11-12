@@ -35,6 +35,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.draw.rotate
@@ -91,6 +92,7 @@ fun SystemRemoteScreen(
     var showPicker by rememberSaveable { mutableStateOf(false) }
     var showManual by rememberSaveable { mutableStateOf(false) }
 
+    androidx.compose.runtime.LaunchedEffect(found.size, saved.size) { vm.maybeAutoPair() }
     DisposableEffect(Unit) {
         vm.onScreenStart()
         onDispose { vm.onScreenStop() }
@@ -119,7 +121,8 @@ fun SystemRemoteScreen(
         StatusLine(status, onRetry = { saved.firstOrNull { it.id == currentId }?.let(vm::connect) }, onRepair = {
             saved.firstOrNull { it.id == currentId }?.let(vm::repair)
         })
-        if (connected == null) {
+        // The remote itself opens at once, dimmed until the TV answers (owner 12.11: remote first, then connect).
+        if (status is SystemRemoteStatus.NoTv || status is SystemRemoteStatus.Failed) {
             Spacer(Modifier.height(8.dp))
             TvList(
                 saved = saved,
@@ -129,7 +132,8 @@ fun SystemRemoteScreen(
                 onForget = vm::forget,
                 onManual = { showManual = true },
             )
-        } else {
+        }
+        connected?.let {
             volume?.let { (level, max, muted) ->
                 Text(
                     if (muted) stringResource(R.string.atv_muted) else stringResource(R.string.atv_volume_level, level, max),
@@ -138,8 +142,8 @@ fun SystemRemoteScreen(
                     modifier = Modifier.padding(bottom = 6.dp),
                 )
             }
-            RemotePad(vm)
         }
+        Box(Modifier.alpha(if (connected != null) 1f else 0.35f)) { RemotePad(vm) }
         ExtrasRow(
             onSpeedUp = onSpeedUp,
             onScreen = onScreen?.let { open -> { open(saved.firstOrNull { it.id == currentId }?.host ?: found.firstOrNull()?.host) } },
@@ -195,6 +199,7 @@ private fun StatusLine(status: SystemRemoteStatus, onRetry: () -> Unit, onRepair
     }
     Column(Modifier.fillMaxWidth().padding(vertical = 4.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         Text(text, style = stageText(13f, 600), color = if (status is SystemRemoteStatus.Failed) palette.danger else palette.text)
+        (status as? SystemRemoteStatus.Failed)?.detail?.let { Text(it, style = stageText(11f, 500), color = palette.dim) }
         if (status is SystemRemoteStatus.Connecting) LinearProgressIndicator(Modifier.fillMaxWidth().padding(top = 6.dp))
         if (status is SystemRemoteStatus.Failed) {
             Row(Modifier.padding(top = 6.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -399,6 +404,7 @@ private fun PairingDialog(p: SystemRemotePairing, onCode: (String) -> Unit, onRe
                         SystemRemotePairing.Error.FAILED -> R.string.atv_pair_error_failed
                     }
                     Text(stringResource(msg), style = stageText(13f, 600), color = palette.danger)
+                    p.detail?.let { Text(it, style = stageText(11f, 500), color = palette.dim) }
                 }
             }
         },

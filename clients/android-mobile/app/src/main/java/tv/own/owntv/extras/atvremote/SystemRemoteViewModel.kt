@@ -21,7 +21,7 @@ sealed interface SystemRemoteStatus {
     data object NoTv : SystemRemoteStatus
     data class Connecting(val name: String) : SystemRemoteStatus
     data class Connected(val name: String, val model: String) : SystemRemoteStatus
-    data class Failed(val name: String, val problem: SystemRemoteProblem) : SystemRemoteStatus
+    data class Failed(val name: String, val problem: SystemRemoteProblem, val detail: String? = null) : SystemRemoteStatus
 }
 
 /** Pairing with a TV that is not remembered yet. */
@@ -31,12 +31,18 @@ data class SystemRemotePairing(
     val remotePort: Int,
     val step: Step,
     val error: Error? = null,
+    /** The technical reason behind [error] (timeout, refused, handshake), shown small so a failure can be diagnosed. */
+    val detail: String? = null,
 ) {
     enum class Step { OPENING, ENTER_CODE, CHECKING }
     enum class Error { CANNOT_REACH, TYPO, REJECTED, FAILED }
 }
 
 class SystemRemoteViewModel(app: Application) : AndroidViewModel(app) {
+    init {
+        AtvLocalNetwork.install(app)
+    }
+
     private val store = AtvDeviceStore(app)
     private val discovery = AtvDiscovery(app)
     private val identity: AtvIdentity = AtvKeystoreIdentity
@@ -71,6 +77,16 @@ class SystemRemoteViewModel(app: Application) : AndroidViewModel(app) {
 
     fun onScreenStop() = discovery.stop()
 
+    private var autoPairTried = false
+
+    /** Nothing remembered and exactly one TV on the Wi-Fi: start pairing at once, the code appears on that TV. */
+    fun maybeAutoPair() {
+        if (autoPairTried || _pairing.value != null || savedTvs.value.isNotEmpty()) return
+        val only = foundTvs.value.singleOrNull() ?: return
+        autoPairTried = true
+        startPairing(only.serviceName, only.host, only.port)
+    }
+
     /** Connects to a remembered TV; uses the address from discovery when the TV has moved to a new IP. */
     fun connect(tv: AtvSavedTv) {
         connectJob?.cancel()
@@ -80,6 +96,7 @@ class SystemRemoteViewModel(app: Application) : AndroidViewModel(app) {
         connectJob = viewModelScope.launch {
             val hosts = (listOfNotNull(foundTvs.value.firstOrNull { it.serviceName == tv.name }?.host) + tv.host).distinct()
             var problem = SystemRemoteProblem.OFFLINE
+            var detail: String? = null
             for (host in hosts) {
                 val result = withContext(Dispatchers.IO) {
                     runCatching { AtvRemoteSession.connect(identity, host, tv.certSha256, listener(tv), tv.remotePort) }
@@ -90,10 +107,18 @@ class SystemRemoteViewModel(app: Application) : AndroidViewModel(app) {
                     return@launch
                 }
                 problem = problemOf(result.exceptionOrNull())
+                detail = reasonOf(result.exceptionOrNull(), host)
                 if (problem != SystemRemoteProblem.OFFLINE) break
             }
-            _status.value = SystemRemoteStatus.Failed(tv.name, problem)
+            _status.value = SystemRemoteStatus.Failed(tv.name, problem, detail)
         }
+    }
+
+    /** "SocketTimeoutException: connect timed out (192.168.1.5)" — short, for the small line under the message. */
+    private fun reasonOf(t: Throwable?, host: String): String? {
+        t ?: return null
+        val root = generateSequence(t) { it.cause }.last()
+        return "${root.javaClass.simpleName}: ${root.message.orEmpty().take(70)} ($host)".trim()
     }
 
     private fun problemOf(t: Throwable?): SystemRemoteProblem = when (t) {
@@ -130,7 +155,13 @@ class SystemRemoteViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch {
             val result = withContext(Dispatchers.IO) {
                 runCatching {
-                    AtvPairing.open(identity, host).also { it.start(clientName()) }
+                    val conn = AtvPairing.open(identity, host)
+                    try {
+                        conn.also { it.start(clientName()) }
+                    } catch (e: Throwable) {
+                        conn.close()
+                        throw e
+                    }
                 }
             }
             result.onSuccess { conn ->
@@ -144,6 +175,7 @@ class SystemRemoteViewModel(app: Application) : AndroidViewModel(app) {
                     step = SystemRemotePairing.Step.OPENING,
                     error = if (e is AtvAddressException || e is IOException) SystemRemotePairing.Error.CANNOT_REACH
                     else SystemRemotePairing.Error.FAILED,
+                    detail = reasonOf(e, host),
                 )
             }
         }

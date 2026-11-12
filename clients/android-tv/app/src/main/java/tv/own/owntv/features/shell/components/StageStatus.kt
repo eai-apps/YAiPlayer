@@ -88,7 +88,9 @@ fun StageStatusCluster(
         verticalAlignment = Alignment.Top,
     ) {
         // Top, not centred: a taller audio bar (focused / open) must not push the playlist pill down.
-        Row(Modifier.padding(top = 6.mpx), horizontalArrangement = Arrangement.spacedBy(12.mpx), verticalAlignment = Alignment.Top) {
+        // The pills take what is left beside the clock and shorten their text (…) when it is not enough: on a small
+        // TV screen at the first start they ran over each other and under the clock (owner 12.11, photo).
+        Row(Modifier.weight(1f, fill = false).padding(top = 6.mpx), horizontalArrangement = Arrangement.spacedBy(12.mpx), verticalAlignment = Alignment.Top) {
             when {
                 audioBar != null -> audioBar()
                 continuePill != null -> StagePill(
@@ -97,7 +99,7 @@ fun StageStatusCluster(
                     icon = continuePill.icon,
                     iconFilled = continuePill.iconFilled,
                     onClick = continuePill.onClick,
-                    modifier = Modifier.focusProperties { canFocus = pillsFocusable },
+                    modifier = Modifier.weight(1f, fill = false).focusProperties { canFocus = pillsFocusable },
                 )
             }
             StagePill(
@@ -107,6 +109,7 @@ fun StageStatusCluster(
                 onClick = onPlaylistClick,
                 enabled = playlistInteractive,
                 modifier = Modifier
+                    .weight(1f, fill = false)
                     .onGloballyPositioned { onPlaylistPillBounds(it.boundsInWindow()) }
                     .focusProperties {
                         canFocus = pillsFocusable

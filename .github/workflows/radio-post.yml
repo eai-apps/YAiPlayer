@@ -1,0 +1,26 @@
+name: Radio post to Telegram
+# Post about the separate YAiPlay Radio app/site and the radio inside the player. Manual only.
+# "send" is off by default: the run just prints the text (dry run). Turn it on only on the owner's word.
+on:
+  workflow_dispatch:
+    inputs:
+      send:
+        description: "Send to the channel (leave off for a dry run)"
+        type: boolean
+        default: false
+permissions:
+  contents: read
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dry run
+        if: ${{ !inputs.send }}
+        run: python3 telegram-release/post_radio.py --dry-run
+      - name: Send
+        if: ${{ inputs.send }}
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python3 telegram-release/post_radio.py
