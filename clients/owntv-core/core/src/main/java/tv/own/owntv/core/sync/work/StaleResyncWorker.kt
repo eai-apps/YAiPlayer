@@ -51,7 +51,6 @@ class StaleResyncWorker(
             Log.d(TAG, "Background resync is disabled, skipping")
             return Result.success()
         }
-        val thresholdHours = settings.backgroundResyncHours.first()
         val nowMs = System.currentTimeMillis()
 
         // One queue (RefreshQueuePlanner), one source at a time, and only the profile in use: other profiles
@@ -64,7 +63,7 @@ class StaleResyncWorker(
         for (profile in profiles) {
             for (source in sourceRepository.observeSources(profile.id).first()) {
                 if (!seenSourceIds.add(source.id)) continue
-                val due = isStale(source.lastSyncAt, nowMs, thresholdHours)
+                val due = tv.own.owntv.core.sync.WeeklySchedule.isDue(source.lastSyncAt, nowMs)
                 val counts = if (due) importFinalizer.contentCounts(source.id) else null
                 playlists += tv.own.owntv.core.sync.PlaylistInfo(
                     source.id, profile.id == activeId, due,
@@ -75,7 +74,7 @@ class StaleResyncWorker(
         val allEpg = epgSourceStore.getAll()
         val firstBuiltinId = allEpg.firstOrNull { it.builtin }?.id
         val feeds = allEpg.filter { !it.builtin || it.id == firstBuiltinId }.map { src ->
-            val due = isStale(src.lastSyncAt, nowMs, thresholdHours)
+            val due = tv.own.owntv.core.sync.WeeklySchedule.isDue(src.lastSyncAt, nowMs)
             tv.own.owntv.core.sync.GuideFeedInfo(src.id, src.url, src.builtin, due, if (due) epgDao.countForSources(listOf(src.id)) else 0)
         }
         val jobs = tv.own.owntv.core.sync.RefreshQueuePlanner.plan(playlists, feeds, includeOtherProfiles = false)

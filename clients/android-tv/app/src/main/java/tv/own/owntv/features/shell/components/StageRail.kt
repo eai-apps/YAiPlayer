@@ -175,8 +175,6 @@ fun StageRail(
     }
     val quickStart by quickStartFlow.collectAsStateWithLifecycle(initialValue = false)
     var showQuickStartMenu by remember { mutableStateOf(false) }
-    var showLightModeMenu by remember { mutableStateOf(false) }
-    var showPreviewMenu by remember { mutableStateOf(false) }
     val sourceRepo: tv.own.owntv.core.repository.SourceRepository = org.koin.compose.koinInject()
     val activePlaylistId by settings.defaultSourceId.collectAsStateWithLifecycle(initialValue = -1L)
     val railSources by remember(activeProfileId) {
@@ -374,40 +372,7 @@ fun StageRail(
                     onClick = onResync,
                 )
             }
-            val livePreview by settings.livePreviewEnabled.collectAsStateWithLifecycle(initialValue = true)
-            val lightModeForPreview by settings.lightModeEnabled.collectAsStateWithLifecycle(initialValue = false)
-            // Light mode overrides the preview, so the row shows what actually happens.
-            val previewShown = livePreview && !lightModeForPreview
-            RailItem(
-                icon = OwnTVIcon.PIP,
-                label = stringResource(tv.own.owntv.core.R.string.channel_preview),
-                trailing = stringResource(if (previewShown) R.string.common_on else R.string.common_off),
-                detail = null,
-                open = shown,
-                namesAlpha = namesAlpha,
-                active = previewShown,
-                accentIcon = previewShown,
-                onClick = { showPreviewMenu = true },
-            )
-            val lightMode by settings.lightModeEnabled.collectAsStateWithLifecycle(initialValue = false)
-            RailItem(
-                icon = OwnTVIcon.MOTION,
-                label = stringResource(R.string.light_mode_title),
-                trailing = stringResource(if (lightMode) R.string.common_on else R.string.common_off),
-                detail = null,
-                open = shown,
-                namesAlpha = namesAlpha,
-                active = lightMode,
-                accentIcon = lightMode,
-                onClick = { showLightModeMenu = true },
-            )
-            if (showLightModeMenu) {
-                LightModeDialog(
-                    enabled = lightMode,
-                    onSet = { on -> scope.launch { settings.setLightModeEnabled(on) } },
-                    onDismiss = { showLightModeMenu = false },
-                )
-            }
+            // «Превью каналов» and «Лёгкий режим» live in Settings → Quick actions only (owner, 12.11).
             // «Категории» lives in Settings now, next to «Журнал ошибок» (П5, 10.11.2026).
             // Settings → «Категории» is the way to them; the rail no longer carries the folder.
         }
@@ -419,16 +384,6 @@ fun StageRail(
             enabled = quickStart,
             onSet = { on -> scope.launch { if (activeProfileId >= 0L) settings.setQuickStart(activeProfileId, on) } },
             onDismiss = { showQuickStartMenu = false },
-        )
-    }
-    if (showPreviewMenu) {
-        val previewSaved by settings.livePreviewEnabled.collectAsStateWithLifecycle(initialValue = true)
-        OnOffDialog(
-            title = stringResource(tv.own.owntv.core.R.string.channel_preview),
-            body = stringResource(tv.own.owntv.core.R.string.channel_preview_description),
-            enabled = previewSaved,
-            onSet = { on -> scope.launch { settings.setLivePreviewEnabled(on) } },
-            onDismiss = { showPreviewMenu = false },
         )
     }
 }

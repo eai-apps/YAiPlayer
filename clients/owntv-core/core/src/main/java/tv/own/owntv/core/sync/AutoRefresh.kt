@@ -69,7 +69,6 @@ class AutoRefresh(
         if (includeStartup && !settings.autoRefreshOnStartup.first()) return
         val nowMs = System.currentTimeMillis()
         val pid = profileDao.resolveExistingProfileId(settings.activeProfileId.first()) ?: return
-        val thresholdHours = settings.backgroundResyncHours.first()
         // The startup catch-up is part of background resync: switched off there, off here too.
         // Back after a pause: the same catch-up again; what finished before the pause counts as done today.
         val staleCatchUp = (includeStartup || resuming) && settings.backgroundResyncEnabled.first()
@@ -79,12 +78,14 @@ class AutoRefresh(
         val playlistModes = settings.playlistAutoRefresh.first()
         val epgRepository = org.koin.core.context.GlobalContext.get().get<tv.own.owntv.core.repository.EpgRepository>()
         val active = sourceRepository.observeSources(pid).first()
+        // A profile with no playlist or portal has nothing to refresh — and must not pull the built-in guide (owner, 12.11).
+        if (active.isEmpty()) return
         val activeIds = active.map { it.id }.toSet()
         val others = runCatching { sourceDaoAll() }.getOrDefault(emptyList()).filter { it.id !in activeIds }
         val playlists = active.map { source ->
             val mode = playlistModes[source.id] ?: PlaylistRefresh.OFF
             val due = shouldRefresh(mode, source.lastSyncAt, nowMs, includeStartup) ||
-                (staleCatchUp && (isStale(source.lastSyncAt, nowMs, thresholdHours) || !syncedToday(source.lastSyncAt, nowMs)))
+                (staleCatchUp && WeeklySchedule.isDue(source.lastSyncAt, nowMs))
             val counts = if (due) importFinalizer.contentCounts(source.id) else null
             PlaylistInfo(source.id, true, due, counts?.let { it.channels + it.movies + it.series } ?: 0, epgRepository.guideUrls(source))
         } + others.map { PlaylistInfo(it.id, false, false, 0, epgRepository.guideUrls(it)) }
@@ -95,7 +96,7 @@ class AutoRefresh(
         val feeds = all.filter { !it.builtin || it.id == firstBuiltinId }.map { src ->
             val mode = epgModes[src.id] ?: EpgRefresh.OFF
             val due = shouldRefreshEpg(mode, src.lastSyncAt, nowMs, includeStartup) ||
-                (staleCatchUp && (isStale(src.lastSyncAt, nowMs, thresholdHours) || !syncedToday(src.lastSyncAt, nowMs)))
+                (staleCatchUp && WeeklySchedule.isDue(src.lastSyncAt, nowMs))
             GuideFeedInfo(src.id, src.url, src.builtin, due, if (due) epgDao.countForSources(listOf(src.id)) else 0)
         }
         val jobs = RefreshQueuePlanner.plan(playlists, feeds)

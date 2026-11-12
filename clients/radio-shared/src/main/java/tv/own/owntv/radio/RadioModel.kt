@@ -26,7 +26,7 @@ data class RadioCollection(val id: String, val name: String, val emoji: String?,
 
 object RadioGenres {
     val all: List<RadioGenre> = listOf(
-        "popular" to "", "pop" to "pop", "rock" to "rock", "russian_rock" to "russian rock", "80s" to "80s",
+        "popular" to "", "pop" to "pop", "rock" to "rock", "80s" to "80s",
         "90s" to "90s", "2000s" to "2000s", "70s" to "70s", "dance" to "dance", "house" to "house", "techno" to "techno",
         "dnb" to "drum and bass", "synthwave" to "synthwave", "electronic" to "electronic", "hiphop" to "hiphop",
         "rnb" to "rnb", "chanson" to "chanson", "jazz" to "jazz", "blues" to "blues", "classical" to "classical",

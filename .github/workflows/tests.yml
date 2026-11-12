@@ -49,7 +49,7 @@ jobs:
         working-directory: clients/owntv-core
         run: |
           chmod +x gradlew
-          ./gradlew :core:testDebugUnitTest --tests 'tv.own.owntv.core.stalker.*' --tests 'tv.own.owntv.core.subscription.*' --tests 'tv.own.owntv.extras.remote.*' --tests 'tv.own.owntv.extras.atvremote.*' --tests 'tv.own.owntv.core.player.TrackTitleTest' --tests 'tv.own.owntv.core.content.SeasonRecordTitleTest' --tests 'tv.own.owntv.core.sync.RefreshQueueTest' --tests 'tv.own.owntv.core.content.SeasonListTest' --no-daemon --stacktrace
+          ./gradlew :core:testDebugUnitTest --tests 'tv.own.owntv.core.stalker.*' --tests 'tv.own.owntv.core.subscription.*' --tests 'tv.own.owntv.extras.remote.*' --tests 'tv.own.owntv.extras.atvremote.*' --tests 'tv.own.owntv.core.player.TrackTitleTest' --tests 'tv.own.owntv.core.content.SeasonRecordTitleTest' --tests 'tv.own.owntv.core.sync.RefreshQueueTest' --tests 'tv.own.owntv.core.sync.WeeklyScheduleTest' --tests 'tv.own.owntv.core.content.SeasonListTest' --no-daemon --stacktrace
       - uses: actions/upload-artifact@v4
         if: always()
         with:
