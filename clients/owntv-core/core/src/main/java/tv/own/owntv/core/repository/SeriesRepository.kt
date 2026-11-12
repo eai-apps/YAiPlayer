@@ -63,7 +63,12 @@ class SeriesRepository(
      * deleted and re-added (which cascade-drops the rows). Now the cache expires, and a
      * source sync invalidates it outright.
      */
-    suspend fun loadEpisodes(series: SeriesEntity): EpisodeLoad = withContext(Dispatchers.IO) {
+    suspend fun loadEpisodes(shown: SeriesEntity): EpisodeLoad = withContext(Dispatchers.IO) {
+        // The row as stored, never the card the screen drew: the TV list renames a season-record card to its
+        // bare title («Извне / Ззовні [S01] [ua] [ru]» → «Извне / Ззовні»), and every rule below that finds the
+        // show's other season records reads the season tag in the name (owner 12.11: 4 seasons on the phone,
+        // 1 on the TV box).
+        val series = seriesDao.getSeriesById(shown.id) ?: shown
         val cachedCount = seriesDao.episodeCount(series.id)
         val hasCache = cachedCount > 0
         val stored = if (hasCache) EpisodeLoad.Ready else EpisodeLoad.Empty
