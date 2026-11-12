@@ -40,6 +40,29 @@ class AtvRemoteSession private constructor(
 
     private val reader = Thread({ readLoop() }, "atv-remote-reader").apply { isDaemon = true }
 
+    /**
+     * The first message must arrive before [connect] returns. With TLS 1.3 the client's handshake ends before the TV
+     * has checked the phone's certificate; a TV that does not know the phone then just closes the line. Reading the
+     * first message here turns that into [AtvNeedsPairingException] instead of a vague «connection lost».
+     */
+    private fun awaitFirst() {
+        channel.setReadTimeout(FIRST_MESSAGE_TIMEOUT_MS)
+        val first = try {
+            channel.receive()
+        } catch (e: java.net.SocketTimeoutException) {
+            AtvLog.error("remote: no first message", e)
+            channel.close()
+            throw e
+        } catch (e: java.io.IOException) {
+            AtvLog.error("remote: closed before the first message (TV does not know this phone)", e)
+            channel.close()
+            throw AtvNeedsPairingException(e)
+        }
+        val msg = RemoteMessages.parse(first)
+        AtvLog.add("remote: first message ${msg.javaClass.simpleName}")
+        handle(msg)
+    }
+
     private fun readLoop() {
         var error: Throwable? = null
         try {
@@ -47,7 +70,10 @@ class AtvRemoteSession private constructor(
             channel.setReadTimeout(READ_TIMEOUT_MS)
             while (!closedByUser) handle(RemoteMessages.parse(channel.receive()))
         } catch (t: Throwable) {
-            if (!closedByUser) error = t
+            if (!closedByUser) {
+                error = t
+                AtvLog.error("remote: connection ended", t)
+            }
         } finally {
             ready = false
             channel.close()
@@ -60,11 +86,13 @@ class AtvRemoteSession private constructor(
             is RemoteMessages.Configure -> {
                 features = AtvFeatures.REQUESTED and msg.features
                 info = AtvTvInfo(msg.model, msg.vendor, msg.features)
+                AtvLog.add("remote: configure from ${msg.vendor} ${msg.model}, features ${msg.features}")
                 channel.send(RemoteMessages.configureReply(features))
             }
             RemoteMessages.SetActive -> channel.send(RemoteMessages.setActive(features))
             is RemoteMessages.Ping -> channel.send(RemoteMessages.pingResponse(msg.value))
             is RemoteMessages.Started -> {
+                if (!ready) AtvLog.add("remote: ready, TV ${if (msg.on) "on" else "asleep"}")
                 listener.onPowerState(msg.on)
                 if (!ready) {
                     ready = true
@@ -106,6 +134,7 @@ class AtvRemoteSession private constructor(
 
     companion object {
         const val READ_TIMEOUT_MS = 20_000
+        const val FIRST_MESSAGE_TIMEOUT_MS = 8_000
 
         fun connect(
             identity: AtvIdentity,
@@ -120,7 +149,10 @@ class AtvRemoteSession private constructor(
                 // The TV ends the handshake (alert, or just closing the socket) when it does not know the phone.
                 throw AtvNeedsPairingException(e)
             }
-            return AtvRemoteSession(channel, listener).also { it.reader.start() }
+            return AtvRemoteSession(channel, listener).also {
+                it.awaitFirst()
+                it.reader.start()
+            }
         }
     }
 }

@@ -31,6 +31,7 @@ class AtvPairing private constructor(
     val tvCertificateSha256: String = AtvTls.sha256(channel.serverCertificate)
 
     fun start(clientName: String) {
+        AtvLog.add("pairing: request as \"$clientName\"")
         channel.send(PoloMessages.pairingRequest(clientName))
         expect(PoloMessages.Kind.PAIRING_REQUEST_ACK)
         channel.send(PoloMessages.options())
@@ -55,6 +56,7 @@ class AtvPairing private constructor(
 
     private fun expect(kind: PoloMessages.Kind) {
         val msg = PoloMessages.parse(channel.receive())
+        AtvLog.add("pairing: got ${msg.kind} status ${msg.status} (waiting for $kind)")
         if (msg.status != PoloMessages.STATUS_OK) throw AtvPairingException(msg.status, "TV status ${msg.status}")
         if (msg.kind != kind) throw AtvPairingException(0, "Unexpected pairing message")
     }

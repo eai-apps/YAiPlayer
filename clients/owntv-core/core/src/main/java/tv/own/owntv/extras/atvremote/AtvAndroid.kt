@@ -1,5 +1,5 @@
 // Copyright (C) 2026 YAiPlayer authors. Original code, written for YAiPlayer.
-// Android parts of the system remote: the phone's key in Android Keystore, remembered TVs, and Wi-Fi discovery.
+// Android parts of the system remote: the stored phone certificate, remembered TVs, and Wi-Fi discovery.
 package tv.own.owntv.extras.atvremote
 
 import android.content.Context
@@ -8,18 +8,7 @@ import android.net.nsd.NsdServiceInfo
 import android.os.Build
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
-import java.math.BigInteger
-import java.security.KeyPairGenerator
 import java.security.KeyStore
-import java.security.cert.X509Certificate
-import java.util.Date
-import javax.net.ssl.KeyManager
-import javax.net.ssl.SSLEngine
-import javax.net.ssl.X509ExtendedKeyManager
-import java.net.Socket
-import java.security.Principal
-import java.security.PrivateKey
-import javax.security.auth.x500.X500Principal
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,52 +16,72 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 /**
- * RSA-2048 key generated inside Android Keystore; the private key never leaves the phone. Keystore issues the
- * self-signed certificate the TV stores at pairing. Deleting the app (or its data) means pairing again.
+ * Keeps the phone's [AtvSoftwareIdentity] in no-backup app storage, encrypted with an AES-GCM key from Android
+ * Keystore (AES works with every Keystore; only the TLS signature had to leave it). Made once on first use; deleting
+ * the app data means pairing again. The old Keystore RSA key (alias yaiplayer_atv_remote_rsa_v1) is removed: TVs
+ * paired with it must be paired again, but it never completed a TLS 1.3 connection anyway.
  */
-object AtvKeystoreIdentity : AtvIdentity {
-    private const val ALIAS = "yaiplayer_atv_remote_rsa_v1"
+object AtvIdentityStore {
+    private const val FILE = "atv_remote_identity_v2.bin"
+    private const val PLAIN_FILE = "atv_remote_identity_v2.pem"
+    private const val AES_ALIAS = "yaiplayer_atv_identity_aes_v1"
+    private const val OLD_RSA_ALIAS = "yaiplayer_atv_remote_rsa_v1"
+    @Volatile private var cached: AtvSoftwareIdentity? = null
 
     @Synchronized
-    private fun store(): KeyStore {
-        val store = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
-        if (!store.containsAlias(ALIAS)) {
-            val spec = KeyGenParameterSpec.Builder(ALIAS, KeyProperties.PURPOSE_SIGN or KeyProperties.PURPOSE_VERIFY)
-                .setKeySize(2048)
-                .setDigests(
-                    KeyProperties.DIGEST_NONE,
-                    KeyProperties.DIGEST_SHA256,
-                    KeyProperties.DIGEST_SHA384,
-                    KeyProperties.DIGEST_SHA512,
-                )
-                .setSignaturePaddings(KeyProperties.SIGNATURE_PADDING_RSA_PKCS1, KeyProperties.SIGNATURE_PADDING_RSA_PSS)
-                .setCertificateSubject(X500Principal("CN=atvremote"))
-                .setCertificateSerialNumber(BigInteger.valueOf(System.currentTimeMillis()))
-                .setCertificateNotBefore(Date(System.currentTimeMillis() - 86_400_000L))
-                .setCertificateNotAfter(Date(4102444800000L))
-                .build()
-            KeyPairGenerator.getInstance(KeyProperties.KEY_ALGORITHM_RSA, "AndroidKeyStore").apply { initialize(spec) }
-                .generateKeyPair()
+    fun get(context: Context): AtvSoftwareIdentity {
+        cached?.let { return it }
+        val dir = context.applicationContext.noBackupFilesDir
+        val enc = java.io.File(dir, FILE)
+        val plain = java.io.File(dir, PLAIN_FILE)
+        val loaded = runCatching {
+            when {
+                enc.exists() -> AtvSoftwareIdentity.decode(decrypt(enc.readBytes()))
+                plain.exists() -> AtvSoftwareIdentity.decode(plain.readText())
+                else -> null
+            }
+        }.onFailure { AtvLog.error("identity load", it) }.getOrNull()
+        val identity = loaded ?: AtvSoftwareIdentity.create().also { fresh ->
+            AtvLog.add("identity: new software RSA-2048 certificate")
+            val pem = fresh.encode()
+            val sealed = runCatching { encrypt(pem) }.onFailure { AtvLog.error("identity encrypt", it) }.getOrNull()
+            if (sealed != null) {
+                enc.writeBytes(sealed); plain.delete()
+            } else {
+                plain.writeText(pem)
+            }
+            runCatching {
+                KeyStore.getInstance("AndroidKeyStore").apply { load(null) }.deleteEntry(OLD_RSA_ALIAS)
+            }
         }
-        return store
+        cached = identity
+        return identity
     }
 
-    override val certificate: X509Certificate
-        get() = store().getCertificate(ALIAS) as X509Certificate
+    private fun aesKey(): javax.crypto.SecretKey {
+        val ks = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
+        (ks.getKey(AES_ALIAS, null) as? javax.crypto.SecretKey)?.let { return it }
+        val gen = javax.crypto.KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore")
+        gen.init(
+            KeyGenParameterSpec.Builder(AES_ALIAS, KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT)
+                .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+                .setKeySize(256)
+                .build(),
+        )
+        return gen.generateKey()
+    }
 
-    override fun keyManagers(): Array<KeyManager> = arrayOf(OnlyThisKey)
+    private fun encrypt(text: String): ByteArray {
+        val c = javax.crypto.Cipher.getInstance("AES/GCM/NoPadding")
+        c.init(javax.crypto.Cipher.ENCRYPT_MODE, aesKey())
+        return c.iv + c.doFinal(text.toByteArray(Charsets.UTF_8))
+    }
 
-    /** Offers only this alias, so other Keystore entries of the app (the player remote's EC key) are never sent. */
-    private object OnlyThisKey : X509ExtendedKeyManager() {
-        override fun chooseClientAlias(keyType: Array<out String>?, issuers: Array<out Principal>?, socket: Socket?) = ALIAS
-        override fun chooseEngineClientAlias(keyType: Array<out String>?, issuers: Array<out Principal>?, engine: SSLEngine?) = ALIAS
-        override fun getClientAliases(keyType: String?, issuers: Array<out Principal>?) = arrayOf(ALIAS)
-        override fun getServerAliases(keyType: String?, issuers: Array<out Principal>?): Array<String>? = null
-        override fun chooseServerAlias(keyType: String?, issuers: Array<out Principal>?, socket: Socket?): String? = null
-        override fun getCertificateChain(alias: String?): Array<X509Certificate>? =
-            if (alias == ALIAS) arrayOf(certificate) else null
-        override fun getPrivateKey(alias: String?): PrivateKey? =
-            if (alias == ALIAS) store().getKey(ALIAS, null) as? PrivateKey else null
+    private fun decrypt(data: ByteArray): String {
+        val c = javax.crypto.Cipher.getInstance("AES/GCM/NoPadding")
+        c.init(javax.crypto.Cipher.DECRYPT_MODE, aesKey(), javax.crypto.spec.GCMParameterSpec(128, data.copyOfRange(0, 12)))
+        return c.doFinal(data, 12, data.size - 12).toString(Charsets.UTF_8)
     }
 }
 
@@ -241,17 +250,17 @@ class AtvDiscovery(context: Context) {
     }
 }
 
-/** Sends the remote's connections over the home Wi-Fi (or Ethernet), not over a VPN or mobile data. */
+/** Second try for the remote's connections: a socket bound to the home Wi-Fi (see [AtvTls.wifiSocketProvider]). */
 object AtvLocalNetwork {
     fun install(context: Context) {
         val cm = context.applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as? android.net.ConnectivityManager ?: return
-        AtvTls.socketProvider = {
-            val network = runCatching { homeNetwork(cm) }.getOrNull()
-            // createSocket() on a Network's factory binds the socket to that network; without one, the default route.
-            runCatching { network?.socketFactory?.createSocket() }.getOrNull() ?: java.net.Socket()
+        AtvTls.wifiSocketProvider = {
+            // createSocket() on a Network's factory binds the socket to that network.
+            runCatching { homeNetwork(cm)?.socketFactory?.createSocket() }.getOrNull()
         }
     }
 
+    @Suppress("DEPRECATION")
     private fun homeNetwork(cm: android.net.ConnectivityManager): android.net.Network? =
         cm.allNetworks.firstOrNull { n ->
             val caps = cm.getNetworkCapabilities(n) ?: return@firstOrNull false

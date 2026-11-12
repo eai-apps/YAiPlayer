@@ -252,6 +252,24 @@ object MobileIcons {
     val VolumeOff: ImageVector by lazy {
         glyph() { speaker(); line(14f, 9f, 20f, 15f); line(20f, 9f, 14f, 15f) }
     }
+    /** Microphone (the system remote's voice key). */
+    val Mic: ImageVector by lazy {
+        glyph() {
+            box(9f, 3f, 15f, 14f, 3f)
+            arc(12f, 11f, 6f, 0f, 180f)
+            line(12f, 17f, 12f, 21f)
+            line(9f, 21f, 15f, 21f)
+        }
+    }
+
+    /** Keyboard (the system remote's typing key). */
+    val Keyboard: ImageVector by lazy {
+        glyph() {
+            box(2.5f, 6f, 21.5f, 18f, 2.5f)
+            dot(6.5f, 10f, 1f); dot(10f, 10f, 1f); dot(13.5f, 10f, 1f); dot(17.5f, 10f, 1f)
+            line(7f, 14.5f, 17f, 14.5f)
+        }
+    }
     val MusicNote: ImageVector by lazy { glyph() { note() } }
     val Audiotrack: ImageVector by lazy { glyph() { note() } }
     val AspectRatio: ImageVector by lazy {

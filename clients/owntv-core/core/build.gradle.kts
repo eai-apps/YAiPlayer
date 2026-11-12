@@ -230,6 +230,9 @@ dependencies {
 
     // Networking
     implementation(libs.okhttp)
+    // System remote (Android TV Remote v2): the phone's own RSA certificate, made in software like every working
+    // remote app does. Android Keystore keys fail the TV's TLS 1.3 client check (owner 12.11). Apache-2.0.
+    implementation("com.squareup.okhttp3:okhttp-tls:5.5.0")
     implementation(libs.zxing.core) // QR generation for the Remote (companion) add-source flow
     implementation(libs.juniversalchardet) // local subtitle charset detection
 
@@ -243,7 +246,6 @@ dependencies {
     implementation(libs.androidx.compose.runtime)
 
     testImplementation(libs.junit)
-    testImplementation("com.squareup.okhttp3:okhttp-tls:5.5.0")
     // android.jar's org.json is a stub and isReturnDefaultValues silences it; backup/restore is
     // all JSON, so the tests need the real implementation. Same reason as :app.
     testImplementation(libs.org.json)

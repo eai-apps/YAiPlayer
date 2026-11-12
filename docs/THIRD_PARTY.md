@@ -293,6 +293,8 @@ No dadb binary artifact is used by this application.
 | tronikos/androidtvremote2 (Python) | порядок обмена при привязке и командах, формула секрета привязки, порты 6466/6467, тип службы `_androidtvremote2._tcp` | Apache-2.0 |
 
 Эталонные байты для тестов `AtvMessagesTest` получены официальной библиотекой protobuf (Python) из этих .proto-файлов. Коды клавиш совпадают с `android/keycodes.h` (AOSP, Apache-2.0).
+
+С 12.11.2026 сертификат телефона для пульта создаётся программно библиотекой **okhttp-tls 5.5.0** (Square, `com.squareup.okhttp3:okhttp-tls`, Apache-2.0, зависимость Gradle, код не копировался): `AtvSoftwareIdentity.kt`. Раньше эта библиотека использовалась только в тестах.
 ## «Ускорь телевизор»: ADB, списки моделей, лаунчер для ТВ
 
 | Что | Откуда | Лицензия | Где в YAiPlayer |

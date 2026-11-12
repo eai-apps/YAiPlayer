@@ -35,7 +35,11 @@ data class SystemRemotePairing(
     val detail: String? = null,
 ) {
     enum class Step { OPENING, ENTER_CODE, CHECKING }
-    enum class Error { CANNOT_REACH, TYPO, REJECTED, FAILED }
+    /**
+     * CANNOT_REACH: no TCP connection at all. SECURE_FAILED: the TV answered but the encrypted connection failed.
+     * TV_REFUSED: the TV answered the pairing request with an error status. TYPO / REJECTED: the code.
+     */
+    enum class Error { CANNOT_REACH, SECURE_FAILED, TV_REFUSED, TYPO, REJECTED, FAILED }
 }
 
 class SystemRemoteViewModel(app: Application) : AndroidViewModel(app) {
@@ -45,7 +49,76 @@ class SystemRemoteViewModel(app: Application) : AndroidViewModel(app) {
 
     private val store = AtvDeviceStore(app)
     private val discovery = AtvDiscovery(app)
-    private val identity: AtvIdentity = AtvKeystoreIdentity
+    // Created (RSA-2048) on first use, on an IO thread: every use below is inside withContext(Dispatchers.IO).
+    private val identity: AtvIdentity by lazy { AtvIdentityStore.get(app) }
+    private val uiPrefs = app.getSharedPreferences("atv_remote_ui_v1", android.content.Context.MODE_PRIVATE)
+
+    /** How the remote looks and feels (owner 12.11, as in the sample app); chosen on first start. */
+    data class Settings(val touchpad: Boolean, val haptics: Boolean, val holdRepeats: Boolean, val chosen: Boolean)
+
+    private val _settings = MutableStateFlow(
+        Settings(
+            touchpad = uiPrefs.getBoolean("touchpad", false),
+            haptics = uiPrefs.getBoolean("haptics", true),
+            holdRepeats = uiPrefs.getBoolean("hold_repeats", true),
+            chosen = uiPrefs.getBoolean("chosen", false),
+        ),
+    )
+    val settings: StateFlow<Settings> = _settings.asStateFlow()
+
+    fun updateSettings(new: Settings) {
+        _settings.value = new
+        uiPrefs.edit().putBoolean("touchpad", new.touchpad).putBoolean("haptics", new.haptics)
+            .putBoolean("hold_repeats", new.holdRepeats).putBoolean("chosen", new.chosen).apply()
+    }
+
+    private val _probe = MutableStateFlow<AtvProbe.Result?>(null)
+    /** Result of «Проверить связь»; null before the first check. */
+    val probe: StateFlow<AtvProbe.Result?> = _probe.asStateFlow()
+    private val _probing = MutableStateFlow(false)
+    val probing: StateFlow<Boolean> = _probing.asStateFlow()
+
+    /** The address «Проверить связь» tests: the TV being paired, the one in use, or the first found. */
+    fun probeHost(): String? = _pairing.value?.host
+        ?: savedTvs.value.firstOrNull { it.id == _currentId.value }?.host
+        ?: foundTvs.value.firstOrNull()?.host
+        ?: savedTvs.value.firstOrNull()?.host
+
+    fun checkConnection(host: String? = probeHost()) {
+        host ?: return
+        if (_probing.value) return
+        _probing.value = true
+        viewModelScope.launch {
+            val result = withContext(Dispatchers.IO) {
+                runCatching { AtvProbe.run(identity, host) }.getOrElse { e ->
+                    AtvLog.error("probe", e)
+                    AtvProbe.Result(host, AtvProbe.Port.ERROR, AtvProbe.Port.ERROR, null, false)
+                }
+            }
+            _probe.value = result
+            _probing.value = false
+        }
+    }
+
+    /** Journal for «Скопировать журнал»: phone, network, found and saved TVs, then every step with its time. */
+    fun journal(): String {
+        val app = getApplication<Application>()
+        val net = AtvNetworkCheck.read(app)
+        val version = runCatching { app.packageManager.getPackageInfo(app.packageName, 0).versionName }.getOrNull()
+        val phone = listOf(version, Build.VERSION.RELEASE, Build.VERSION.SDK_INT, Build.MANUFACTURER, Build.MODEL)
+        val pairingNow = _pairing.value?.let { listOf(it.host, it.step, it.error, it.detail?.replace(System.lineSeparator(), " ")) }
+        val head = listOf(
+            "phone: " + phone.joinToString(" | "),
+            "net: " + listOf(net.wifi, net.vpn, net.addresses.joinToString()).joinToString(" | "),
+            "found: " + foundTvs.value.joinToString { listOf(it.serviceName, it.host, it.port).joinToString(" ") },
+            "saved: " + savedTvs.value.joinToString { listOf(it.name, it.host, it.remotePort).joinToString(" ") },
+            "status: " + _status.value,
+            "pairing: " + pairingNow,
+            "probe: " + _probe.value,
+            "==",
+        )
+        return head.joinToString("\n") + "\n" + AtvLog.text()
+    }
 
     val savedTvs: StateFlow<List<AtvSavedTv>> = store.devices
     val foundTvs: StateFlow<List<AtvFoundTv>> = discovery.found
@@ -106,12 +179,21 @@ class SystemRemoteViewModel(app: Application) : AndroidViewModel(app) {
                     store.touch(tv.id, host)
                     return@launch
                 }
+                result.exceptionOrNull()?.let { AtvLog.error("connect ${tv.name} $host", it) }
                 problem = problemOf(result.exceptionOrNull())
                 detail = reasonOf(result.exceptionOrNull(), host)
                 if (problem != SystemRemoteProblem.OFFLINE) break
             }
             _status.value = SystemRemoteStatus.Failed(tv.name, problem, detail)
         }
+    }
+
+    private fun pairingErrorOf(e: Throwable): SystemRemotePairing.Error = when (e) {
+        is AtvPairingException -> SystemRemotePairing.Error.TV_REFUSED
+        is AtvHandshakeException, is AtvProtoException, is java.io.EOFException, is javax.net.ssl.SSLException ->
+            SystemRemotePairing.Error.SECURE_FAILED
+        is AtvAddressException, is IOException -> SystemRemotePairing.Error.CANNOT_REACH
+        else -> SystemRemotePairing.Error.FAILED
     }
 
     /** Exception class, its message and the address, one per line, for the small text under the error. */
@@ -151,6 +233,7 @@ class SystemRemoteViewModel(app: Application) : AndroidViewModel(app) {
     /** Opens pairing with a TV found on the Wi-Fi or typed by IP; the TV then shows a code. */
     fun startPairing(name: String, host: String, remotePort: Int = AtvTls.REMOTE_PORT) {
         cancelPairing()
+        AtvLog.add("pairing: open $name $host")
         _pairing.value = SystemRemotePairing(name, host, remotePort, SystemRemotePairing.Step.OPENING)
         viewModelScope.launch {
             val result = withContext(Dispatchers.IO) {
@@ -171,10 +254,10 @@ class SystemRemoteViewModel(app: Application) : AndroidViewModel(app) {
                 pairingConn = conn
                 _pairing.value = _pairing.value?.copy(step = SystemRemotePairing.Step.ENTER_CODE, error = null)
             }.onFailure { e ->
+                AtvLog.error("pairing start $host", e)
                 _pairing.value = _pairing.value?.copy(
                     step = SystemRemotePairing.Step.OPENING,
-                    error = if (e is AtvAddressException || e is IOException) SystemRemotePairing.Error.CANNOT_REACH
-                    else SystemRemotePairing.Error.FAILED,
+                    error = pairingErrorOf(e),
                     detail = reasonOf(e, host),
                 )
             }
@@ -201,7 +284,9 @@ class SystemRemoteViewModel(app: Application) : AndroidViewModel(app) {
                     conn.close()
                     pairingConn = null
                 }
+                if (!typo) AtvLog.error("pairing finish ${p.host}", e)
                 _pairing.value = p.copy(
+                    detail = if (typo) null else reasonOf(e, p.host),
                     step = if (typo) SystemRemotePairing.Step.ENTER_CODE else SystemRemotePairing.Step.OPENING,
                     error = when {
                         typo -> SystemRemotePairing.Error.TYPO
@@ -278,7 +363,8 @@ class SystemRemoteViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-    private fun clientName(): String = listOfNotNull("YAiPlayer", Build.MODEL?.takeIf { it.isNotBlank() }).joinToString(" · ")
+    /** The name the TV shows in «enter the code on device …» and in its list of remotes. */
+    private fun clientName(): String = Build.MODEL?.takeIf { it.isNotBlank() }?.let { "YAiPlayer ($it)" } ?: "YAiPlayer"
 
     private fun closeSession() {
         val s = session

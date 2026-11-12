@@ -19,16 +19,64 @@
 # category protocol: Stable protocol or comparison identifier.
 # category technical: Reviewed non-user-facing technical literal.
 
-7	empty	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	\0
+4	empty	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	\0
+1	technical	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	+
+1	technical	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	0
 1	technical	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	0123456789ABCDEF
+1	technical	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	1
+1	technical	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	2
+1	technical	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	3
+1	technical	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	4
+1	technical	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	5
+1	technical	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	6
+1	technical	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	7
+1	technical	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	8
+1	technical	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	9
+1	technical	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	Apple TV
+1	technical	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	Disney+
+1	technical	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	Max
+3	technical	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	Menu
+1	technical	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	Netflix
+1	technical	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	Prime Video
+3	technical	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	TV
+1	technical	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	YAiPlayer
+1	technical	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	YAiPlayer remote
+1	technical	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	YouTube
 1	regex	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	\\d{1,3}(\\.\\d{1,3}){3}
+1	protocol	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	com.apple.atve.androidtv.appletv
+1	protocol	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	com.wbd.stream
 1	protocol	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	com.yai.iptv.player.tv
+1	url	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	https://app.primevideo.com
+1	url	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	https://www.disneyplus.com
+1	url	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	https://www.netflix.com/title
 1	url	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	https://www.youtube.com
-1	technical	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	·
 1	technical	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	—
-1	empty	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteViewModel.kt	\0
+1	technical	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	−
+1	technical	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	∧
+1	technical	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	∨
+1	technical	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	⏻
+6	log	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteViewModel.kt	\0
+1	log	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteViewModel.kt	==
 1	protocol	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteViewModel.kt	YAiPlayer
-1	technical	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteViewModel.kt	·
+1	log	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteViewModel.kt	YAiPlayer ($it)
+1	preference-key	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteViewModel.kt	atv_remote_ui_v1
+2	preference-key	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteViewModel.kt	chosen
+1	log	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteViewModel.kt	connect ${tv.name} $host
+1	technical	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteViewModel.kt	found:
+2	preference-key	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteViewModel.kt	haptics
+2	preference-key	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteViewModel.kt	hold_repeats
+1	log	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteViewModel.kt	net:
+1	log	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteViewModel.kt	pairing finish ${p.host}
+1	log	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteViewModel.kt	pairing start $host
+1	log	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteViewModel.kt	pairing:
+1	log	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteViewModel.kt	pairing: open $name $host
+1	log	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteViewModel.kt	phone:
+1	technical	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteViewModel.kt	probe
+1	log	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteViewModel.kt	probe:
+1	technical	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteViewModel.kt	saved:
+1	log	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteViewModel.kt	status:
+2	preference-key	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteViewModel.kt	touchpad
+2	log	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteViewModel.kt	|
 1	empty	app/src/main/java/tv/own/owntv/extras/categories/CategoriesVisibilitySheet.kt	\0
 1	technical	app/src/main/java/tv/own/owntv/extras/remote/RemoteNotificationHelper.kt	CH +
 1	technical	app/src/main/java/tv/own/owntv/extras/remote/RemoteNotificationHelper.kt	CH -

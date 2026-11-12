@@ -44,7 +44,7 @@ object RemoteTls {
             }
         }
         val ssl = SSLContext.getInstance("TLSv1.2").apply { init(null, arrayOf<TrustManager>(trust), null) }
-        return OkHttpClient.Builder().socketFactory(tv.own.owntv.extras.atvremote.AtvTls.localSocketFactory).sslSocketFactory(ssl.socketFactory, trust)
+        return OkHttpClient.Builder().sslSocketFactory(ssl.socketFactory, trust)
             // Identity is the exact out-of-band certificate fingerprint, rather than a DNS name.
             .hostnameVerifier { _, _ -> true }.proxy(Proxy.NO_PROXY)
             .followRedirects(false).followSslRedirects(false)

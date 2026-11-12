@@ -158,6 +158,7 @@ object AtvKeys {
     const val CHANNEL_DOWN = 167
     const val GUIDE = 172
     const val SETTINGS = 176
+    const val TV = 170
     const val TV_INPUT = 178
 
     fun digit(n: Int): Int {

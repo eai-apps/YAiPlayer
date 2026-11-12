@@ -44,7 +44,7 @@ class AtvLoopbackTest {
     private fun hex(s: String) = ByteArray(s.length / 2) { s.substring(it * 2, it * 2 + 2).toInt(16).toByte() }
 
     /** TLS 1.2 so a rejected client certificate fails inside the handshake, deterministically. */
-    private fun server(acceptedClient: X509Certificate?): SSLServerSocket {
+    private fun server(acceptedClient: X509Certificate?, protocol: String = "TLSv1.2"): SSLServerSocket {
         val trust = object : X509TrustManager {
             override fun getAcceptedIssuers(): Array<X509Certificate> = emptyArray()
             override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) = throw CertificateException()
@@ -59,7 +59,7 @@ class AtvLoopbackTest {
         }
         return (ctx.serverSocketFactory.createServerSocket(0, 5, InetAddress.getLoopbackAddress()) as SSLServerSocket).also {
             it.needClientAuth = true
-            it.enabledProtocols = arrayOf("TLSv1.2")
+            it.enabledProtocols = arrayOf(protocol)
             sockets += it
         }
     }
@@ -218,5 +218,60 @@ class AtvLoopbackTest {
             fail("public address used")
         } catch (_: AtvAddressException) {
         }
+    }
+
+    /** The phone's real identity type (software RSA, owner 12.11) survives the encrypted file and pairs over TLS 1.3. */
+    @Test fun softwareIdentityPairsOverTls13() {
+        val phone = AtvSoftwareIdentity.decode(AtvSoftwareIdentity.create().encode())
+        assertTrue(phone.certificate.notAfter.time - System.currentTimeMillis() > TimeUnit.DAYS.toMillis(365L * 20))
+        val server = server(acceptedClient = null, protocol = "TLSv1.3")
+        val c = phone.certificate.publicKey as RSAPublicKey
+        val sKey = tvCert.certificate.publicKey as RSAPublicKey
+        val d = MessageDigest.getInstance("SHA-256")
+        listOf(c.modulus, c.publicExponent, sKey.modulus, sKey.publicExponent).forEach { d.update(unsigned(it)) }
+        d.update(hex("ABCD"))
+        val hash = d.digest()
+        val code = "%02X".format(hash[0].toInt() and 0xFF) + "ABCD"
+        val received = LinkedBlockingQueue<ByteArray>()
+        val clientCert = LinkedBlockingQueue<String>()
+        serve(server) { s ->
+            val input = s.inputStream
+            val out = s.outputStream
+            clientCert += s.session.protocol + " " + (s.session.peerCertificates[0] as X509Certificate).subjectX500Principal.name
+            AtvFraming.read(input); AtvFraming.write(out, hex("080210c8015a040a025456"))
+            AtvFraming.read(input); AtvFraming.write(out, PoloMessages.options())
+            AtvFraming.read(input); AtvFraming.write(out, hex("080210c801fa0100"))
+            received += ProtoReader.fields(AtvFraming.read(input)).msg(40)!!.first { it.number == 1 }.bytes!!
+            AtvFraming.write(out, hex("080210c801ca02030a0101"))
+        }
+        AtvPairing.open(phone, "127.0.0.1", server.localPort).use { pairing ->
+            pairing.start("YAiPlayer")
+            pairing.finish(code)
+        }
+        assertArrayEquals(hash, received.poll(5, TimeUnit.SECONDS))
+        assertTrue(clientCert.poll(5, TimeUnit.SECONDS)!!.startsWith("TLSv1.3 "))
+    }
+
+    /** TLS 1.3: the TV checks the phone only after the phone's handshake is done, then drops the line. */
+    @Test fun tls13UnknownPhoneMustPairAgain() {
+        val server = server(acceptedClient = phoneCert.certificate, protocol = "TLSv1.3")
+        serve(server) { runCatching { it.startHandshake(); it.inputStream.read() } }
+        try {
+            AtvRemoteSession.connect(identity(strangerCert), "127.0.0.1", AtvTls.sha256(tvCert.certificate), object : AtvSessionListener {}, server.localPort)
+            fail("stranger accepted")
+        } catch (_: AtvNeedsPairingException) {
+        }
+    }
+
+    @Test fun probeTellsOpenFromClosedPorts() {
+        val open = java.net.ServerSocket(0, 5, InetAddress.getLoopbackAddress())
+        val closedPort = java.net.ServerSocket(0, 5, InetAddress.getLoopbackAddress()).let { val p = it.localPort; it.close(); p }
+        try {
+            assertEquals(AtvProbe.Port.OPEN, AtvProbe.port(InetAddress.getLoopbackAddress(), open.localPort))
+            assertEquals(AtvProbe.Port.CLOSED, AtvProbe.port(InetAddress.getLoopbackAddress(), closedPort))
+        } finally {
+            open.close()
+        }
+        assertTrue(AtvLog.text().contains("connected"))
     }
 }

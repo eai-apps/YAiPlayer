@@ -59,21 +59,33 @@ object AtvTls {
     const val REMOTE_PORT = 6466
 
     /**
-     * Where new connections to the TV start. Android installs one that binds the socket to the Wi-Fi network: with a
-     * VPN or mobile data active the default route does not lead to the home network, so a TV that mDNS found on the
-     * Wi-Fi could not be reached ("cannot reach the TV", owner 12.11).
+     * Sockets bound to the home Wi-Fi (installed on Android by AtvLocalNetwork); null on the JVM. Used only as a
+     * second try: the first connection is an ordinary socket, exactly what other remote apps do. Binding was added
+     * in v3.0.46 on a guess (a VPN, which the owner does not have); it stays as a fallback for a phone whose default
+     * route is mobile data while it sits on a Wi-Fi without internet.
      */
-    @Volatile var socketProvider: () -> Socket = { Socket() }
+    @Volatile var wifiSocketProvider: (() -> Socket?)? = null
 
-    /** The same binding for OkHttp (the player-only remote). OkHttp only calls the no-argument [createSocket]. */
-    val localSocketFactory: javax.net.SocketFactory = object : javax.net.SocketFactory() {
-        override fun createSocket(): Socket = socketProvider()
-        override fun createSocket(host: String?, port: Int): Socket = socketProvider().also { it.connect(InetSocketAddress(host, port)) }
-        override fun createSocket(host: String?, port: Int, localHost: InetAddress?, localPort: Int): Socket =
-            socketProvider().also { it.bind(InetSocketAddress(localHost, localPort)); it.connect(InetSocketAddress(host, port)) }
-        override fun createSocket(host: InetAddress?, port: Int): Socket = socketProvider().also { it.connect(InetSocketAddress(host, port)) }
-        override fun createSocket(address: InetAddress?, port: Int, localAddress: InetAddress?, localPort: Int): Socket =
-            socketProvider().also { it.bind(InetSocketAddress(localAddress, localPort)); it.connect(InetSocketAddress(address, port)) }
+    /** Ordinary socket first, then the Wi-Fi-bound one; each attempt and its result go to [AtvLog]. */
+    fun openSocket(address: InetAddress, port: Int, timeoutMs: Int): Socket {
+        val target = InetSocketAddress(address, port)
+        var last: IOException? = null
+        val attempts = listOf<Pair<String, () -> Socket?>>("plain" to { Socket() }) +
+            listOfNotNull(wifiSocketProvider?.let { "wifi-bound" to it })
+        for ((label, make) in attempts) {
+            val socket = runCatching { make() }.getOrNull() ?: continue
+            val started = System.currentTimeMillis()
+            try {
+                socket.connect(target, timeoutMs)
+                AtvLog.add("tcp ${address.hostAddress}:$port ($label) connected in ${System.currentTimeMillis() - started} ms")
+                return socket
+            } catch (e: IOException) {
+                runCatching { socket.close() }
+                AtvLog.error("tcp ${address.hostAddress}:$port ($label) after ${System.currentTimeMillis() - started} ms", e)
+                last = e
+            }
+        }
+        throw last ?: IOException("No socket")
     }
 
     fun sha256(cert: X509Certificate): String =
@@ -133,7 +145,10 @@ object AtvTls {
         connectTimeoutMs: Int = 5_000,
     ): AtvChannel {
         val address = InetAddress.getByName(host)
-        if (!isHomeAddress(address)) throw AtvAddressException("Not a home network address")
+        if (!isHomeAddress(address)) {
+            AtvLog.add("address $host refused: not in the home network")
+            throw AtvAddressException("Not a home network address")
+        }
         var seen: X509Certificate? = null
         var mismatch = false
         val trust = object : X509TrustManager {
@@ -153,9 +168,8 @@ object AtvTls {
         val context = SSLContext.getInstance("TLS").apply {
             init(identity.keyManagers(), arrayOf<TrustManager>(trust), null)
         }
-        val plain = socketProvider()
+        val plain = openSocket(address, port, connectTimeoutMs)
         try {
-            plain.connect(InetSocketAddress(address, port), connectTimeoutMs)
             plain.soTimeout = 10_000
             val ssl = context.socketFactory.createSocket(plain, address.hostAddress?.substringBefore('%'), port, true) as SSLSocket
             ssl.useClientMode = true
@@ -163,9 +177,11 @@ object AtvTls {
                 ssl.startHandshake()
             } catch (e: IOException) {
                 runCatching { ssl.close() }
+                AtvLog.error("tls :$port handshake", e)
                 if (mismatch) throw AtvCertificateMismatchException()
                 throw AtvHandshakeException(e)
             }
+            AtvLog.add("tls :$port ok ${ssl.session.protocol} ${ssl.session.cipherSuite}")
             val cert = seen ?: (ssl.session.peerCertificates.firstOrNull() as? X509Certificate)
                 ?: throw IOException("No TV certificate")
             return AtvChannel(ssl, cert)

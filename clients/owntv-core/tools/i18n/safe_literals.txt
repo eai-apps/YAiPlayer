@@ -6107,32 +6107,54 @@
 1	log	core/src/main/java/tv/own/owntv/core/weather/WeatherRepository.kt	results
 1	log	core/src/main/java/tv/own/owntv/core/weather/WeatherRepository.kt	temperature_2m
 1	log	core/src/main/java/tv/own/owntv/core/weather/WeatherRepository.kt	weather_code
-2	technical	core/src/main/java/tv/own/owntv/extras/atvremote/AtvAndroid.kt	AndroidKeyStore
-1	protocol	core/src/main/java/tv/own/owntv/extras/atvremote/AtvAndroid.kt	CN=atvremote
-1	technical	core/src/main/java/tv/own/owntv/extras/atvremote/AtvAndroid.kt	DEPRECATION
+2	technical	core/src/main/java/tv/own/owntv/extras/atvremote/AtvAndroid.kt	AES/GCM/NoPadding
+3	technical	core/src/main/java/tv/own/owntv/extras/atvremote/AtvAndroid.kt	AndroidKeyStore
+2	compiler	core/src/main/java/tv/own/owntv/extras/atvremote/AtvAndroid.kt	DEPRECATION
 1	regex	core/src/main/java/tv/own/owntv/extras/atvremote/AtvAndroid.kt	[0-9a-f]{64}
 1	protocol	core/src/main/java/tv/own/owntv/extras/atvremote/AtvAndroid.kt	_androidtvremote2._tcp.
 1	preference-key	core/src/main/java/tv/own/owntv/extras/atvremote/AtvAndroid.kt	atv_remote_devices_v1
+1	file-path	core/src/main/java/tv/own/owntv/extras/atvremote/AtvAndroid.kt	atv_remote_identity_v2.bin
+1	file-path	core/src/main/java/tv/own/owntv/extras/atvremote/AtvAndroid.kt	atv_remote_identity_v2.pem
 2	json	core/src/main/java/tv/own/owntv/extras/atvremote/AtvAndroid.kt	cert
 1	json	core/src/main/java/tv/own/owntv/extras/atvremote/AtvAndroid.kt	devices
 2	json	core/src/main/java/tv/own/owntv/extras/atvremote/AtvAndroid.kt	host
 2	json	core/src/main/java/tv/own/owntv/extras/atvremote/AtvAndroid.kt	id
+1	log	core/src/main/java/tv/own/owntv/extras/atvremote/AtvAndroid.kt	identity encrypt
+1	log	core/src/main/java/tv/own/owntv/extras/atvremote/AtvAndroid.kt	identity load
+1	log	core/src/main/java/tv/own/owntv/extras/atvremote/AtvAndroid.kt	identity: new software RSA-2048 certificate
 2	json	core/src/main/java/tv/own/owntv/extras/atvremote/AtvAndroid.kt	lastUsedAt
 2	json	core/src/main/java/tv/own/owntv/extras/atvremote/AtvAndroid.kt	name
 2	json	core/src/main/java/tv/own/owntv/extras/atvremote/AtvAndroid.kt	pairingPort
 2	json	core/src/main/java/tv/own/owntv/extras/atvremote/AtvAndroid.kt	remotePort
 1	technical	core/src/main/java/tv/own/owntv/extras/atvremote/AtvAndroid.kt	yaiplayer-atv
+1	preference-key	core/src/main/java/tv/own/owntv/extras/atvremote/AtvAndroid.kt	yaiplayer_atv_identity_aes_v1
 1	preference-key	core/src/main/java/tv/own/owntv/extras/atvremote/AtvAndroid.kt	yaiplayer_atv_remote_rsa_v1
+1	empty	core/src/main/java/tv/own/owntv/extras/atvremote/AtvLog.kt	\0
+1	log	core/src/main/java/tv/own/owntv/extras/atvremote/AtvLog.kt	$step FAILED $chain
+1	log	core/src/main/java/tv/own/owntv/extras/atvremote/AtvLog.kt	${it.javaClass.simpleName}: ${it.message?.take(120).orEmpty()}
+1	log	core/src/main/java/tv/own/owntv/extras/atvremote/AtvLog.kt	${time.get()!!.format(Date())} $message
+1	technical	core/src/main/java/tv/own/owntv/extras/atvremote/AtvLog.kt	HH:mm:ss.SSS
+1	log	core/src/main/java/tv/own/owntv/extras/atvremote/AtvLog.kt	←
 1	protocol	core/src/main/java/tv/own/owntv/extras/atvremote/AtvMessages.kt	1
 1	protocol	core/src/main/java/tv/own/owntv/extras/atvremote/AtvMessages.kt	1.0.0
 2	protocol	core/src/main/java/tv/own/owntv/extras/atvremote/AtvMessages.kt	atvremote
 1	assertion	core/src/main/java/tv/own/owntv/extras/atvremote/AtvPairing.kt	Code does not match
 1	assertion	core/src/main/java/tv/own/owntv/extras/atvremote/AtvPairing.kt	TV status ${msg.status}
 1	assertion	core/src/main/java/tv/own/owntv/extras/atvremote/AtvPairing.kt	Unexpected pairing message
+1	log	core/src/main/java/tv/own/owntv/extras/atvremote/AtvPairing.kt	pairing: got ${msg.kind} status ${msg.status} (waiting for $kind)
+1	log	core/src/main/java/tv/own/owntv/extras/atvremote/AtvPairing.kt	pairing: request as "$clientName"
 1	assertion	core/src/main/java/tv/own/owntv/extras/atvremote/AtvPairingCode.kt	Client key must be RSA
 1	technical	core/src/main/java/tv/own/owntv/extras/atvremote/AtvPairingCode.kt	SHA-256
 1	assertion	core/src/main/java/tv/own/owntv/extras/atvremote/AtvPairingCode.kt	TV key must be RSA
 1	regex	core/src/main/java/tv/own/owntv/extras/atvremote/AtvPairingCode.kt	[0-9A-Fa-f]{6}
+1	log	core/src/main/java/tv/own/owntv/extras/atvremote/AtvProbe.kt	${root.javaClass.simpleName}: ${root.message?.take(80).orEmpty()}
+1	log	core/src/main/java/tv/own/owntv/extras/atvremote/AtvProbe.kt	-
+1	log	core/src/main/java/tv/own/owntv/extras/atvremote/AtvProbe.kt	ECONNREFUSED
+1	log	core/src/main/java/tv/own/owntv/extras/atvremote/AtvProbe.kt	EHOSTUNREACH
+1	log	core/src/main/java/tv/own/owntv/extras/atvremote/AtvProbe.kt	ETIMEDOUT
+1	log	core/src/main/java/tv/own/owntv/extras/atvremote/AtvProbe.kt	OK
+1	log	core/src/main/java/tv/own/owntv/extras/atvremote/AtvProbe.kt	probe $host start
+1	log	core/src/main/java/tv/own/owntv/extras/atvremote/AtvProbe.kt	probe $host: 6467 $pairing, 6466 $remote, tls ${tls ?: "-"}
 1	empty	core/src/main/java/tv/own/owntv/extras/atvremote/AtvProto.kt	\0
 1	assertion	core/src/main/java/tv/own/owntv/extras/atvremote/AtvProto.kt	Bad field number
 1	assertion	core/src/main/java/tv/own/owntv/extras/atvremote/AtvProto.kt	Bad length
@@ -6148,18 +6170,36 @@
 1	assertion	core/src/main/java/tv/own/owntv/extras/atvremote/AtvRemoteSession.kt	Pairing required
 1	regex	core/src/main/java/tv/own/owntv/extras/atvremote/AtvRemoteSession.kt	[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z][A-Za-z0-9_]*)+
 1	regex	core/src/main/java/tv/own/owntv/extras/atvremote/AtvRemoteSession.kt	^[A-Za-z][A-Za-z0-9+.-]*:
+1	log	core/src/main/java/tv/own/owntv/extras/atvremote/AtvRemoteSession.kt	asleep
 1	technical	core/src/main/java/tv/own/owntv/extras/atvremote/AtvRemoteSession.kt	atv-remote-reader
 1	url	core/src/main/java/tv/own/owntv/extras/atvremote/AtvRemoteSession.kt	market://launch?id=$v
+1	log	core/src/main/java/tv/own/owntv/extras/atvremote/AtvRemoteSession.kt	on
+1	log	core/src/main/java/tv/own/owntv/extras/atvremote/AtvRemoteSession.kt	remote: closed before the first message (TV does not know this phone)
+1	log	core/src/main/java/tv/own/owntv/extras/atvremote/AtvRemoteSession.kt	remote: configure from ${msg.vendor} ${msg.model}, features ${msg.features}
+1	log	core/src/main/java/tv/own/owntv/extras/atvremote/AtvRemoteSession.kt	remote: connection ended
+1	log	core/src/main/java/tv/own/owntv/extras/atvremote/AtvRemoteSession.kt	remote: first message ${msg.javaClass.simpleName}
+1	log	core/src/main/java/tv/own/owntv/extras/atvremote/AtvRemoteSession.kt	remote: no first message
+1	log	core/src/main/java/tv/own/owntv/extras/atvremote/AtvRemoteSession.kt	remote: ready, TV ${if (msg.on) "on" else "asleep"}
+1	log	core/src/main/java/tv/own/owntv/extras/atvremote/AtvSoftwareIdentity.kt	YAiPlayer
+2	log	core/src/main/java/tv/own/owntv/extras/atvremote/AtvSoftwareIdentity.kt	atvremote
 1	technical	core/src/main/java/tv/own/owntv/extras/atvremote/AtvTls.kt	\0
 1	technical	core/src/main/java/tv/own/owntv/extras/atvremote/AtvTls.kt	%02x
 1	assertion	core/src/main/java/tv/own/owntv/extras/atvremote/AtvTls.kt	Client mode only
 1	assertion	core/src/main/java/tv/own/owntv/extras/atvremote/AtvTls.kt	No TV certificate
 1	assertion	core/src/main/java/tv/own/owntv/extras/atvremote/AtvTls.kt	No certificate
+1	log	core/src/main/java/tv/own/owntv/extras/atvremote/AtvTls.kt	No socket
 1	assertion	core/src/main/java/tv/own/owntv/extras/atvremote/AtvTls.kt	Not a home network address
 1	technical	core/src/main/java/tv/own/owntv/extras/atvremote/AtvTls.kt	SHA-256
 1	technical	core/src/main/java/tv/own/owntv/extras/atvremote/AtvTls.kt	TLS
 1	assertion	core/src/main/java/tv/own/owntv/extras/atvremote/AtvTls.kt	TLS handshake failed
 2	assertion	core/src/main/java/tv/own/owntv/extras/atvremote/AtvTls.kt	TV certificate changed
+1	log	core/src/main/java/tv/own/owntv/extras/atvremote/AtvTls.kt	address $host refused: not in the home network
+1	log	core/src/main/java/tv/own/owntv/extras/atvremote/AtvTls.kt	plain
+1	log	core/src/main/java/tv/own/owntv/extras/atvremote/AtvTls.kt	tcp ${address.hostAddress}:$port ($label) after ${System.currentTimeMillis() - started} ms
+1	log	core/src/main/java/tv/own/owntv/extras/atvremote/AtvTls.kt	tcp ${address.hostAddress}:$port ($label) connected in ${System.currentTimeMillis() - started} ms
+1	log	core/src/main/java/tv/own/owntv/extras/atvremote/AtvTls.kt	tls :$port handshake
+1	log	core/src/main/java/tv/own/owntv/extras/atvremote/AtvTls.kt	tls :$port ok ${ssl.session.protocol} ${ssl.session.cipherSuite}
+1	log	core/src/main/java/tv/own/owntv/extras/atvremote/AtvTls.kt	wifi-bound
 1	technical	core/src/main/java/tv/own/owntv/extras/epg/EpgTimeShift.kt	$sign$hours:${rem.toString().padStart(2, '0')}
 1	technical	core/src/main/java/tv/own/owntv/extras/epg/EpgTimeShift.kt	$sign${hours}h
 1	technical	core/src/main/java/tv/own/owntv/extras/epg/EpgTimeShift.kt	+
