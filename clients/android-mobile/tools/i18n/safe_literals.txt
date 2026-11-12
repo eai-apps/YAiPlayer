@@ -318,10 +318,19 @@
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	tvhome.apk
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	tvoptimizer/catalog.json
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	tvoptimizer/launcher.apk
-1	empty	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvScreenPeek.kt	\0
+2	empty	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvScreenPeek.kt	\0
+1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvScreenPeek.kt	${e.javaClass.simpleName}: ${e.message?.take(100).orEmpty()}
 1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvScreenPeek.kt	${t.javaClass.simpleName}: ${t.message?.take(80).orEmpty()}
+1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvScreenPeek.kt	HTTP $code
+1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvScreenPeek.kt	Location
+1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvScreenPeek.kt	YAiPlayer-TV.apk
+1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvScreenPeek.kt	file too small
+1	url	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvScreenPeek.kt	https://github.com/eai-apps/YAiPlayer/releases/latest/download/YAiPlayer-TV.apk
+1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvScreenPeek.kt	logcat -d -b crash -t 400
+1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvScreenPeek.kt	logcat -d -t 800 AndroidRuntime:E ActivityManager:W *:S
 1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvScreenPeek.kt	screencap -p
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvScreenPeek.kt	screencap -p | base64
+1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvScreenPeekScreen.kt	YAiPlayer TV crash
 1	technical	app/src/main/java/tv/own/owntv/mobile/MainActivity.kt	back
 1	technical	app/src/main/java/tv/own/owntv/mobile/MainActivity.kt	forward
 1	uri	app/src/main/java/tv/own/owntv/mobile/MainActivity.kt	open_player

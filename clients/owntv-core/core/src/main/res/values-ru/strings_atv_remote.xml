@@ -136,4 +136,10 @@
     <string name="atv_screen_not_found">В этой сети Wi-Fi не нашлась приставка с включённой отладкой. На приставке: Настройки → Настройки устройства → Для разработчиков → включить «Отладка по USB» (или «Отладка по сети»). Телефон и приставка в одной сети Wi-Fi.</string>
     <string name="atv_screen_not_allowed">Приставка не разрешила этот телефон. Посмотрите на экран телевизора: отметьте «Всегда разрешать с этого компьютера» и нажмите ОК, затем снова «Подключить».</string>
     <string name="atv_screen_unreachable">Приставка найдена, но не открыла отладку. Перезапустите приставку и снова нажмите «Подключить».</string>
+    <string name="atv_screen_crash_log">Журнал вылетов приставки</string>
+    <string name="atv_screen_crash_empty">В журнале приставки вылетов нет.</string>
+    <string name="atv_screen_install">Установить YAiPlayer на приставку</string>
+    <string name="atv_screen_installing">Скачиваю свежую версию и устанавливаю на приставку…</string>
+    <string name="atv_screen_installed">Установлено. Запустите YAiPlayer на приставке.</string>
+    <string name="atv_screen_install_failed">Не получилось установить: %1$s</string>
 </resources>

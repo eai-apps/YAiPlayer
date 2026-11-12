@@ -136,4 +136,10 @@
     <string name="atv_screen_not_found">No TV box with debugging switched on was found on this Wi-Fi. On the TV box: Settings → Device Preferences → Developer options → USB debugging (or Network debugging) on. Phone and TV box on the same Wi-Fi.</string>
     <string name="atv_screen_not_allowed">The TV box did not allow this phone. Look at the TV: tick «Always allow from this computer» and press OK, then tap Connect again.</string>
     <string name="atv_screen_unreachable">The TV box was found but did not open debugging. Restart the TV box and tap Connect again.</string>
+    <string name="atv_screen_crash_log">TV crash log</string>
+    <string name="atv_screen_crash_empty">No crashes in the TV box log.</string>
+    <string name="atv_screen_install">Install YAiPlayer on the TV box</string>
+    <string name="atv_screen_installing">Downloading the newest version and installing it on the TV box…</string>
+    <string name="atv_screen_installed">Installed. Start YAiPlayer on the TV box.</string>
+    <string name="atv_screen_install_failed">Could not install: %1$s</string>
 </resources>

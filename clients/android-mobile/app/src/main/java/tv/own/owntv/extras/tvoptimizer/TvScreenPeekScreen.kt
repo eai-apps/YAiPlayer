@@ -78,6 +78,36 @@ fun TvScreenPeekScreen(host: String?, onBack: () -> Unit, vm: TvScreenPeekViewMo
                 onClick = { vm.setLive(!s.live) },
             ) { StageSwitch(s.live) }
             if (s.busy && s.image == null) LinearProgressIndicator(Modifier.fillMaxWidth())
+            // When YAiPlayer on the TV box does not start (owner 12.11): read its crash, or install a fresh copy.
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                StageButton(onClick = vm::readCrashLog, text = stringResource(R.string.atv_screen_crash_log), icon = MobileIcons.BugReport, small = true)
+                StageButton(onClick = vm::installLatestOnTv, text = stringResource(R.string.atv_screen_install), icon = MobileIcons.Download,
+                    small = true, enabled = !s.installing)
+            }
+            if (s.installing) {
+                LinearProgressIndicator(Modifier.fillMaxWidth())
+                Text(stringResource(R.string.atv_screen_installing), style = stageText(12.5f, 600), color = palette.text)
+            }
+            s.installResult?.let { r ->
+                Text(if (r.isEmpty()) stringResource(R.string.atv_screen_installed) else stringResource(R.string.atv_screen_install_failed, r),
+                    style = stageText(12.5f, 600), color = if (r.isEmpty()) palette.ok else palette.danger)
+            }
+            s.crashLog?.let { log ->
+                val context = androidx.compose.ui.platform.LocalContext.current
+                StageButton(
+                    onClick = {
+                        runCatching {
+                            context.getSystemService(android.content.ClipboardManager::class.java)
+                                ?.setPrimaryClip(android.content.ClipData.newPlainText("YAiPlayer TV crash", log))
+                        }
+                    },
+                    text = stringResource(R.string.atv_copy_log), icon = MobileIcons.Share, small = true,
+                )
+                androidx.compose.foundation.text.selection.SelectionContainer {
+                    Text(log.ifBlank { stringResource(R.string.atv_screen_crash_empty) }.takeLast(6000),
+                        style = stageText(10.5f, 500), color = palette.muted)
+                }
+            }
         }
         s.image?.let { Image(it.asImageBitmap(), contentDescription = stringResource(R.string.atv_screen_title), contentScale = ContentScale.FillWidth, modifier = Modifier.fillMaxWidth()) }
         if (s.failed) {

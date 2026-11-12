@@ -38,6 +38,11 @@ class TvScreenPeekViewModel(app: Application) : AndroidViewModel(app) {
         val problem: Problem? = null,
         /** The technical reason, small under the message. */
         val detail: String? = null,
+        /** The TV box's crash log (YAiPlayer TV does not start, owner 12.11), or null when not read. */
+        val crashLog: String? = null,
+        val installing: Boolean = false,
+        /** null: nothing done; "" installed; otherwise why it failed. */
+        val installResult: String? = null,
     )
 
     enum class Problem { NOT_FOUND, NOT_ALLOWED, UNREACHABLE, NO_PICTURE }
@@ -116,6 +121,58 @@ class TvScreenPeekViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    /** The TV box's recent crashes (`logcat -b crash`), so a TV app that will not start can be diagnosed. */
+    fun readCrashLog() {
+        if (!_state.value.connected || _state.value.busy) return
+        _state.update { it.copy(busy = true) }
+        viewModelScope.launch {
+            val crash = transport.runShell("logcat -d -b crash -t 400").getOrNull().orEmpty()
+            val text = crash.ifBlank {
+                transport.runShell("logcat -d -t 800 AndroidRuntime:E ActivityManager:W *:S").getOrNull().orEmpty()
+            }
+            _state.update { it.copy(busy = false, crashLog = text.trim()) }
+        }
+    }
+
+    /**
+     * Downloads the newest TV APK (the release's permanent link) and installs it over the app on the TV box through
+     * the debugging connection: the way to update a TV app that crashes on start and cannot update itself.
+     */
+    fun installLatestOnTv() {
+        if (!_state.value.connected || _state.value.installing) return
+        _state.update { it.copy(installing = true, installResult = null) }
+        viewModelScope.launch {
+            val result = runCatching {
+                val file = java.io.File(getApplication<Application>().cacheDir, "YAiPlayer-TV.apk")
+                withContext(Dispatchers.IO) {
+                    var url = java.net.URL(TV_APK_URL)
+                    var conn: java.net.HttpURLConnection
+                    var hops = 0
+                    while (true) {
+                        conn = url.openConnection() as java.net.HttpURLConnection
+                        conn.instanceFollowRedirects = false
+                        conn.connectTimeout = 15_000
+                        conn.readTimeout = 60_000
+                        val code = conn.responseCode
+                        if (code in 300..399 && hops++ < 6) {
+                            url = java.net.URL(url, conn.getHeaderField("Location"))
+                            conn.disconnect()
+                            continue
+                        }
+                        check(code == 200) { "HTTP $code" }
+                        break
+                    }
+                    conn.inputStream.use { input -> file.outputStream().use { input.copyTo(it) } }
+                    check(file.length() > 1_000_000) { "file too small" }
+                }
+                transport.install(file).getOrThrow()
+            }
+            _state.update {
+                it.copy(installing = false, installResult = result.exceptionOrNull()?.let { e -> "${e.javaClass.simpleName}: ${e.message?.take(100).orEmpty()}" } ?: "")
+            }
+        }
+    }
+
     private suspend fun decodeBytes(bytes: ByteArray): Bitmap? = withContext(Dispatchers.Default) {
         runCatching { BitmapFactory.decodeByteArray(bytes, 0, bytes.size) }.getOrNull()
     }
@@ -135,6 +192,7 @@ class TvScreenPeekViewModel(app: Application) : AndroidViewModel(app) {
 
     companion object {
         const val LIVE_INTERVAL_MS = 2_000L
+        const val TV_APK_URL = "https://github.com/eai-apps/YAiPlayer/releases/latest/download/YAiPlayer-TV.apk"
         /** A PNG of the screen as base64 on stdout; `toybox base64` is on Android 6+. */
         const val SCREENCAP = "screencap -p | base64"
     }
