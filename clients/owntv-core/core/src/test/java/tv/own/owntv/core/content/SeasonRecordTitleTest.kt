@@ -38,7 +38,7 @@ class SeasonRecordTitleTest {
             listOf(1L to "$bi [S13]", 2L to "$bi [S01]", 3L to "Американская история ужасов [S05]", 4L to "Американская история ужасов [S06]"),
         )
         assertEquals(setOf(2L, 3L, 4L), cards.hidden)
-        assertEquals("Американская история ужасов / Американська історія жаху", cards.names[1L])
+        assertEquals("Американская история ужасов", cards.names[1L])
         // The plain-title record comes first in the playlist: still one card.
         val plainFirst = SeasonRecordTitle.cards(listOf(1L to "Американская история ужасов [S05]", 2L to "$bi [S13]"))
         assertEquals(setOf(2L), plainFirst.hidden)
