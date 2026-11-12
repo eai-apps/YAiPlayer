@@ -98,6 +98,7 @@ fun RadioScreen(onBack: () -> Unit, vm: RadioViewModel = viewModel()) {
     val favorites by vm.repository.favorites.collectAsStateWithLifecycle()
     val current by vm.player.current.collectAsStateWithLifecycle()
     val status by vm.player.status.collectAsStateWithLifecycle()
+    val cover by vm.player.cover.collectAsStateWithLifecycle()
     val nowTitle by vm.player.title.collectAsStateWithLifecycle()
     var view by rememberSaveable { mutableStateOf(RadioView.HOME) }
     var heading by rememberSaveable { mutableStateOf<String?>(null) }
@@ -165,7 +166,7 @@ fun RadioScreen(onBack: () -> Unit, vm: RadioViewModel = viewModel()) {
             }
             current?.let { s ->
                 MiniPlayer(
-                    station = s, status = status, title = nowTitle,
+                    station = s, status = status, title = nowTitle, cover = cover,
                     favorite = favorites.any { it.id == s.id },
                     onToggle = vm.player::toggle, onStop = vm.player::stop,
                     onFavorite = { vm.toggleFavorite(s) }, onExpand = { expanded = true },
@@ -175,7 +176,7 @@ fun RadioScreen(onBack: () -> Unit, vm: RadioViewModel = viewModel()) {
         val playing = current
         if (expanded && playing != null) {
             FullPlayer(
-                station = playing, status = status, title = nowTitle,
+                station = playing, status = status, title = nowTitle, cover = cover,
                 favorite = favorites.any { it.id == playing.id },
                 onToggle = vm.player::toggle, onStop = { vm.player.stop(); expanded = false },
                 onFavorite = { vm.toggleFavorite(playing) },
@@ -280,14 +281,14 @@ internal fun stationLine(s: RadioStation): String? = listOfNotNull(
 
 /** The station's logo over a placeholder: its first letter on a gradient, which shows when there is no logo. */
 @Composable
-private fun StationArt(s: RadioStation, size: Dp, letter: Int, radius: Dp = 16.mpx) {
+private fun StationArt(s: RadioStation, size: Dp, letter: Int, radius: Dp = 16.mpx, cover: String? = null) {
     Box(
         Modifier.size(size).clip(RoundedCornerShape(radius)).background(gradientOf(RadioLook.placeholderColors(s.name))),
         contentAlignment = Alignment.Center,
     ) {
         Text(RadioLook.initial(s.name), style = stageText(letter, 800), color = Color.White)
-        if (!s.favicon.isNullOrBlank()) {
-            AsyncImage(model = s.favicon, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
+        if (!cover.isNullOrBlank() || !s.favicon.isNullOrBlank()) {
+            AsyncImage(model = cover ?: s.favicon, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
         }
     }
 }
@@ -304,6 +305,7 @@ private fun MiniPlayer(
     station: RadioStation,
     status: RadioPlayer.Status,
     title: String?,
+    cover: String?,
     favorite: Boolean,
     onToggle: () -> Unit,
     onStop: () -> Unit,
@@ -315,7 +317,7 @@ private fun MiniPlayer(
             .stageGlass(26.mpx, overContent = true).padding(horizontal = 18.mpx).focusGroup(),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        StationArt(station, 80.mpx, letter = 34)
+        StationArt(station, 80.mpx, letter = 34, cover = cover)
         Column(Modifier.weight(1f).padding(horizontal = 18.mpx)) {
             Text(station.name, style = stageText(24, 800), color = StageColors.Text, maxLines = 1, overflow = TextOverflow.Ellipsis)
             statusLine(status, title)?.let {
@@ -325,7 +327,7 @@ private fun MiniPlayer(
         }
         if (status == RadioPlayer.Status.PLAYING) Equalizer(Modifier.padding(end = 18.mpx).height(40.mpx).width(56.mpx))
         StageButton(text = null, onClick = onToggle, round = true, height = 64.mpx,
-            icon = if (status == RadioPlayer.Status.PLAYING) OwnTVIcon.PAUSE else OwnTVIcon.PLAY, iconFilled = true)
+            icon = if (status == RadioPlayer.Status.PLAYING || status == RadioPlayer.Status.BUFFERING) OwnTVIcon.PAUSE else OwnTVIcon.PLAY, iconFilled = true)
         StageButton(text = null, onClick = onFavorite, round = true, height = 64.mpx, icon = OwnTVIcon.FAVORITE, iconFilled = favorite,
             modifier = Modifier.padding(start = 12.mpx))
         StageButton(text = null, onClick = onStop, round = true, height = 64.mpx, icon = OwnTVIcon.CLOSE,
@@ -340,6 +342,7 @@ private fun FullPlayer(
     station: RadioStation,
     status: RadioPlayer.Status,
     title: String?,
+    cover: String?,
     favorite: Boolean,
     onToggle: () -> Unit,
     onStop: () -> Unit,
@@ -354,7 +357,7 @@ private fun FullPlayer(
             .background(Brush.verticalGradient(listOf(Color(colors[0]).copy(alpha = 0.55f), Color.Transparent))),
     ) {
         Row(Modifier.fillMaxSize().padding(80.mpx), verticalAlignment = Alignment.CenterVertically) {
-            StationArt(station, 420.mpx, letter = 170, radius = 36.mpx)
+            StationArt(station, 420.mpx, letter = 170, radius = 36.mpx, cover = cover)
             Column(Modifier.padding(start = 64.mpx).fillMaxHeight(), verticalArrangement = Arrangement.Center) {
                 Text(station.name, style = stageText(52, 800), color = StageColors.Text, maxLines = 2, overflow = TextOverflow.Ellipsis)
                 statusLine(status, title)?.let {
@@ -365,7 +368,7 @@ private fun FullPlayer(
                 Equalizer(Modifier.padding(top = 36.mpx).height(90.mpx).width(220.mpx), playing = status == RadioPlayer.Status.PLAYING)
                 Row(Modifier.padding(top = 40.mpx).focusGroup()) {
                     StageButton(text = null, onClick = onToggle, round = true, height = 96.mpx,
-                        icon = if (status == RadioPlayer.Status.PLAYING) OwnTVIcon.PAUSE else OwnTVIcon.PLAY, iconFilled = true,
+                        icon = if (status == RadioPlayer.Status.PLAYING || status == RadioPlayer.Status.BUFFERING) OwnTVIcon.PAUSE else OwnTVIcon.PLAY, iconFilled = true,
                         modifier = Modifier.focusRequester(first))
                     StageButton(text = null, onClick = onFavorite, round = true, height = 96.mpx, icon = OwnTVIcon.FAVORITE,
                         iconFilled = favorite, modifier = Modifier.padding(start = 20.mpx))

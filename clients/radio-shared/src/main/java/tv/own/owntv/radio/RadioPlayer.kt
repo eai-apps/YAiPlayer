@@ -2,11 +2,19 @@
 package tv.own.owntv.radio
 
 import android.content.Context
+import androidx.media3.common.AudioAttributes
+import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,7 +26,19 @@ import kotlinx.coroutines.flow.asStateFlow
 class RadioPlayer(context: Context) {
     enum class Status { IDLE, BUFFERING, PLAYING, PAUSED, ERROR }
 
-    private val player = ExoPlayer.Builder(context.applicationContext).build()
+    // Music audio focus: another app's sound pauses the radio, and unplugging headphones does too.
+    private val player = ExoPlayer.Builder(context.applicationContext).build().apply {
+        setAudioAttributes(
+            AudioAttributes.Builder().setUsage(C.USAGE_MEDIA).setContentType(C.AUDIO_CONTENT_TYPE_MUSIC).build(),
+            true,
+        )
+        setHandleAudioBecomingNoisy(true)
+    }
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private var coverJob: Job? = null
+    private val _cover = MutableStateFlow<String?>(null)
+    /** Cover of the song on the air (iTunes, like the site); null = show the station's logo. */
+    val cover: StateFlow<String?> = _cover.asStateFlow()
     private val _current = MutableStateFlow<RadioStation?>(null)
     val current: StateFlow<RadioStation?> = _current.asStateFlow()
     private val _status = MutableStateFlow(Status.IDLE)
@@ -31,28 +51,44 @@ class RadioPlayer(context: Context) {
         player.addListener(object : Player.Listener {
             override fun onPlaybackStateChanged(state: Int) = update()
             override fun onIsPlayingChanged(isPlaying: Boolean) = update()
+            override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) = update()
             override fun onPlayerError(error: PlaybackException) {
                 _status.value = Status.ERROR
             }
             override fun onMediaMetadataChanged(mediaMetadata: MediaMetadata) {
-                _title.value = mediaMetadata.title?.toString()?.takeIf { it.isNotBlank() }
+                val t = mediaMetadata.title?.toString()?.takeIf { it.isNotBlank() }
+                if (t == _title.value) return
+                _title.value = t
+                loadCover(t)
             }
         })
     }
 
+    private fun loadCover(title: String?) {
+        coverJob?.cancel()
+        _cover.value = null
+        if (title == null) return
+        coverJob = scope.launch { _cover.value = RadioCover.fetch(title) }
+    }
+
+    /**
+     * «Play wish» ([ExoPlayer.getPlayWhenReady]) decides play or pause, not «is audible right now»: a live
+     * stream re-buffers often, and during that [ExoPlayer.isPlaying] is false although the user is playing.
+     */
     private fun update() {
         _status.value = when {
-            player.isPlaying -> Status.PLAYING
+            _status.value == Status.ERROR && player.playbackState == Player.STATE_IDLE -> Status.ERROR
+            player.playbackState == Player.STATE_IDLE -> Status.IDLE
+            !player.playWhenReady -> Status.PAUSED
             player.playbackState == Player.STATE_BUFFERING -> Status.BUFFERING
-            player.playbackState == Player.STATE_READY -> Status.PAUSED
-            _status.value == Status.ERROR -> Status.ERROR
-            else -> Status.IDLE
+            else -> Status.PLAYING
         }
     }
 
     fun play(station: RadioStation) {
         _current.value = station
         _title.value = null
+        loadCover(null)
         _status.value = Status.BUFFERING
         player.setMediaItem(MediaItem.fromUri(station.url))
         player.prepare()
@@ -62,17 +98,22 @@ class RadioPlayer(context: Context) {
     fun toggle() {
         val s = _current.value ?: return
         when {
-            player.isPlaying -> player.pause()
             _status.value == Status.ERROR || player.playbackState == Player.STATE_IDLE -> play(s)
+            player.playWhenReady -> player.pause() // also while buffering
             else -> player.play()
         }
+        update()
     }
 
     fun stop() {
         player.stop()
         _current.value = null
+        loadCover(null)
         _status.value = Status.IDLE
     }
 
-    fun release() = player.release()
+    fun release() {
+        scope.cancel()
+        player.release()
+    }
 }

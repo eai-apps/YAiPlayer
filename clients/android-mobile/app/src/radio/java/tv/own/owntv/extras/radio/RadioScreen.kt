@@ -98,6 +98,7 @@ fun RadioScreen(onBack: () -> Unit, vm: RadioViewModel = viewModel()) {
     val favorites by vm.repository.favorites.collectAsStateWithLifecycle()
     val current by vm.player.current.collectAsStateWithLifecycle()
     val status by vm.player.status.collectAsStateWithLifecycle()
+    val cover by vm.player.cover.collectAsStateWithLifecycle()
     val nowTitle by vm.player.title.collectAsStateWithLifecycle()
     var query by rememberSaveable { mutableStateOf("") }
     var home by rememberSaveable { mutableStateOf(true) }
@@ -163,14 +164,14 @@ fun RadioScreen(onBack: () -> Unit, vm: RadioViewModel = viewModel()) {
             }
         }
         current?.let { s ->
-            MiniPlayer(s, status, nowTitle, favorite = favorites.any { it.id == s.id },
+            MiniPlayer(s, status, nowTitle, cover, favorite = favorites.any { it.id == s.id },
                 onToggle = vm.player::toggle, onStop = vm.player::stop, onFavorite = { vm.toggleFavorite(s) }, onExpand = { expanded = true })
         }
     }
     val playing = current
     if (expanded && playing != null) {
         Dialog(onDismissRequest = { expanded = false }, properties = DialogProperties(usePlatformDefaultWidth = false)) {
-            FullPlayer(playing, status, nowTitle, favorite = favorites.any { it.id == playing.id },
+            FullPlayer(playing, status, nowTitle, cover, favorite = favorites.any { it.id == playing.id },
                 onToggle = vm.player::toggle, onStop = { vm.player.stop(); expanded = false },
                 onFavorite = { vm.toggleFavorite(playing) }, onClose = { expanded = false })
         }
@@ -215,14 +216,14 @@ private fun stationLine(s: RadioStation): String? = listOfNotNull(
 ).joinToString(" · ").ifBlank { null }
 
 @Composable
-private fun StationArt(s: RadioStation, size: Dp, letter: Float, radius: Dp = 12.dp) {
+private fun StationArt(s: RadioStation, size: Dp, letter: Float, radius: Dp = 12.dp, cover: String? = null) {
     Box(
         Modifier.size(size).clip(RoundedCornerShape(radius)).background(gradientOf(RadioLook.placeholderColors(s.name))),
         contentAlignment = Alignment.Center,
     ) {
         Text(RadioLook.initial(s.name), style = stageText(letter, 800), color = Color.White)
-        if (!s.favicon.isNullOrBlank()) {
-            AsyncImage(model = s.favicon, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
+        if (!cover.isNullOrBlank() || !s.favicon.isNullOrBlank()) {
+            AsyncImage(model = cover ?: s.favicon, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
         }
     }
 }
@@ -257,7 +258,7 @@ private fun statusLine(status: RadioPlayer.Status, title: String?): String? = wh
 
 @Composable
 private fun MiniPlayer(
-    s: RadioStation, status: RadioPlayer.Status, title: String?, favorite: Boolean,
+    s: RadioStation, status: RadioPlayer.Status, title: String?, cover: String?, favorite: Boolean,
     onToggle: () -> Unit, onStop: () -> Unit, onFavorite: () -> Unit, onExpand: () -> Unit,
 ) {
     val palette = LocalStagePalette.current
@@ -267,7 +268,7 @@ private fun MiniPlayer(
             .clickable(onClick = onExpand).padding(horizontal = 10.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        StationArt(s, 46.dp, 19f)
+        StationArt(s, 46.dp, 19f, cover = cover)
         Column(Modifier.weight(1f).padding(horizontal = 10.dp)) {
             Text(s.name, style = stageText(14f, 800), color = palette.text, maxLines = 1, overflow = TextOverflow.Ellipsis)
             statusLine(status, title)?.let {
@@ -278,7 +279,7 @@ private fun MiniPlayer(
         if (status == RadioPlayer.Status.PLAYING) Equalizer(Modifier.padding(end = 8.dp).height(22.dp).width(28.dp))
         StagePill(onClick = onFavorite, icon = if (favorite) MobileIcons.Favorite else MobileIcons.FavoriteBorder,
             contentDescription = stringResource(if (favorite) R.string.radio_fav_remove else R.string.radio_fav_add))
-        StagePill(onClick = onToggle, icon = if (status == RadioPlayer.Status.PLAYING) MobileIcons.Pause else MobileIcons.PlayArrow,
+        StagePill(onClick = onToggle, icon = if (status == RadioPlayer.Status.PLAYING || status == RadioPlayer.Status.BUFFERING) MobileIcons.Pause else MobileIcons.PlayArrow,
             contentDescription = stringResource(R.string.radio_play_pause), modifier = Modifier.padding(start = 6.dp))
         StagePill(onClick = onStop, icon = MobileIcons.Close, contentDescription = stringResource(R.string.radio_stop),
             modifier = Modifier.padding(start = 6.dp))
@@ -287,7 +288,7 @@ private fun MiniPlayer(
 
 @Composable
 private fun FullPlayer(
-    s: RadioStation, status: RadioPlayer.Status, title: String?, favorite: Boolean,
+    s: RadioStation, status: RadioPlayer.Status, title: String?, cover: String?, favorite: Boolean,
     onToggle: () -> Unit, onStop: () -> Unit, onFavorite: () -> Unit, onClose: () -> Unit,
 ) {
     val palette = LocalStagePalette.current
@@ -301,7 +302,7 @@ private fun FullPlayer(
         Row(Modifier.fillMaxWidth()) {
             StagePill(onClick = onClose, icon = MobileIcons.KeyboardArrowDown, contentDescription = stringResource(R.string.radio_back))
         }
-        Box(Modifier.weight(1f), contentAlignment = Alignment.Center) { StationArt(s, 260.dp, 110f, radius = 28.dp) }
+        Box(Modifier.weight(1f), contentAlignment = Alignment.Center) { StationArt(s, 260.dp, 110f, radius = 28.dp, cover = cover) }
         Text(s.name, style = stageText(22f, 800), color = palette.text, maxLines = 2, overflow = TextOverflow.Ellipsis)
         statusLine(status, title)?.let {
             Text(it, style = stageText(15f, 600), color = palette.muted, maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 6.dp))
@@ -315,7 +316,7 @@ private fun FullPlayer(
                 contentAlignment = Alignment.Center,
             ) {
                 androidx.compose.material3.Icon(
-                    if (status == RadioPlayer.Status.PLAYING) MobileIcons.Pause else MobileIcons.PlayArrow,
+                    if (status == RadioPlayer.Status.PLAYING || status == RadioPlayer.Status.BUFFERING) MobileIcons.Pause else MobileIcons.PlayArrow,
                     contentDescription = stringResource(R.string.radio_play_pause), tint = Color.White, modifier = Modifier.size(34.dp),
                 )
             }
