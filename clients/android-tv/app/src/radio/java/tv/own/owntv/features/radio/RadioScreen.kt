@@ -149,6 +149,20 @@ fun RadioScreen(onBack: () -> Unit, vm: RadioViewModel = viewModel()) {
             else -> onBack()
         }
     }
+    // TV: the radio plays only while its screen is open (owner 12.11: it must never play on in the background).
+    // Leaving the screen, the Home button or the TV going to sleep stops it.
+    val lifecycle = androidx.lifecycle.compose.LocalLifecycleOwner.current.lifecycle
+    androidx.compose.runtime.DisposableEffect(lifecycle) {
+        tv.own.owntv.radio.RadioPlayer.backgroundService = false
+        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+            if (event == androidx.lifecycle.Lifecycle.Event.ON_STOP) vm.player.stop()
+        }
+        lifecycle.addObserver(observer)
+        onDispose {
+            lifecycle.removeObserver(observer)
+            vm.player.stop()
+        }
+    }
     LaunchedEffect(view, loading) {
         kotlinx.coroutines.delay(60)
         runCatching { if (view == RadioView.HOME) homeFirst.requestFocus() else if (!loading) listFirst.requestFocus() }
@@ -169,20 +183,43 @@ fun RadioScreen(onBack: () -> Unit, vm: RadioViewModel = viewModel()) {
                     Key.MediaPlayPause -> { vm.player.toggle(); true }
                     Key.MediaPlay -> { vm.player.setPlaying(true); true }
                     Key.MediaPause -> { vm.player.setPlaying(false); true }
+                    Key.MediaStop -> { vm.player.stop(); expanded = false; true }
                     else -> false
                 }
             }
             .background(tv.own.owntv.ui.theme.LocalStagePalette.current.page)
             .stageBackground(stageAccent.accent),
     ) {
+        val playingNow = current
+        if (expanded && playingNow != null) {
+            // Alone on screen, so the D-pad cannot wander into the grid behind it.
+            FullPlayer(
+                station = playingNow, status = status, title = nowTitle, cover = cover,
+                favorite = favorites.any { it.id == playingNow.id },
+                onToggle = vm.player::toggle, onStop = { vm.player.stop(); expanded = false },
+                onFavorite = { vm.toggleFavorite(playingNow) },
+            )
+            return@Box
+        }
         Column(Modifier.fillMaxSize().padding(start = 64.mpx, top = 40.mpx, end = 56.mpx)) {
-            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = 22.mpx)) {
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth().padding(bottom = 22.mpx)) {
                 tv.own.owntv.ui.components.OwnTVIcon(OwnTVIcon.EQ, tint = stageAccent.accent, modifier = Modifier.size(40.mpx))
                 Text(
                     heading ?: stringResource(R.string.radio_title),
                     style = stageText(40, 800), color = StageColors.Text,
                     modifier = Modifier.padding(start = 16.mpx),
                 )
+                Spacer(Modifier.weight(1f))
+                // What plays now, with its buttons at the TOP: from the first row of tiles «up» reaches them
+                // (at the bottom the grid kept the focus and the buttons could not be reached, owner 12.11).
+                current?.let { st ->
+                    NowPlaying(
+                        station = st, status = status, title = nowTitle, cover = cover,
+                        favorite = favorites.any { it.id == st.id },
+                        onToggle = vm.player::toggle, onStop = vm.player::stop,
+                        onFavorite = { vm.toggleFavorite(st) }, onExpand = { expanded = true },
+                    )
+                }
             }
             Box(Modifier.weight(1f).fillMaxWidth()) {
                 when (view) {
@@ -217,23 +254,6 @@ fun RadioScreen(onBack: () -> Unit, vm: RadioViewModel = viewModel()) {
                     }
                 }
             }
-            current?.let { s ->
-                MiniPlayer(
-                    station = s, status = status, title = nowTitle, cover = cover,
-                    favorite = favorites.any { it.id == s.id },
-                    onToggle = vm.player::toggle, onStop = vm.player::stop,
-                    onFavorite = { vm.toggleFavorite(s) }, onExpand = { expanded = true },
-                )
-            }
-        }
-        val playing = current
-        if (expanded && playing != null) {
-            FullPlayer(
-                station = playing, status = status, title = nowTitle, cover = cover,
-                favorite = favorites.any { it.id == playing.id },
-                onToggle = vm.player::toggle, onStop = { vm.player.stop(); expanded = false },
-                onFavorite = { vm.toggleFavorite(playing) },
-            )
         }
     }
 }
@@ -271,7 +291,6 @@ private fun HomeGrid(
         item { GenreTile(favTitle, longArrayOf(0xFFDB2777, 0xFF9333EA, 0xFF0891B2), OwnTVIcon.FAVORITE) { onFavorites(favTitle) } }
         item { GenreTile(colTitle, longArrayOf(0xFF0E7490, 0xFF2563EB, 0xFF6D28D9), OwnTVIcon.LIST) { onCollections(colTitle) } }
         item { GenreTile(accTitle, longArrayOf(0xFF1E293B, 0xFF0F766E, 0xFF4C1D95), OwnTVIcon.PERSON) { onAccount(accTitle) } }
-        item(span = { GridItemSpan(2) }) { Spacer(Modifier.height(1.mpx)) }
         items(RadioGenres.all, key = { it.id }) { g ->
             val name = genreName(g.id)
             GenreTile(name, RadioLook.colorsOf(g.id), glyphIcon(RadioLook.glyphOf(g.id)), genreDescription(g.id)) { onGenre(g, name) }
@@ -331,11 +350,13 @@ private fun StationGrid(
     onPlay: (RadioStation) -> Unit,
     onFavorite: (RadioStation) -> Unit,
 ) {
+    // Clear cards (owner 12.11: the list was hard to read): a big logo or letter on top, the name, country and
+    // bitrate below; the heart in the corner. OK plays, long OK adds to / removes from the favourites.
     LazyVerticalGrid(
-        columns = GridCells.Fixed(4),
-        horizontalArrangement = Arrangement.spacedBy(18.mpx),
-        verticalArrangement = Arrangement.spacedBy(18.mpx),
-        contentPadding = PaddingValues(top = 6.mpx, bottom = 40.mpx, start = 6.mpx, end = 6.mpx),
+        columns = GridCells.Fixed(6),
+        horizontalArrangement = Arrangement.spacedBy(20.mpx),
+        verticalArrangement = Arrangement.spacedBy(20.mpx),
+        contentPadding = PaddingValues(top = 10.mpx, bottom = 40.mpx, start = 10.mpx, end = 10.mpx),
         modifier = Modifier.fillMaxSize().focusGroup(),
     ) {
         items(stations, key = { it.id }) { s ->
@@ -343,21 +364,24 @@ private fun StationGrid(
                 onClick = { onPlay(s) },
                 onLongClick = { onFavorite(s) },
                 radius = 20.mpx,
+                focusStyle = StageFocus.POSTER,
                 highlighted = playingId == s.id,
-                modifier = Modifier.fillMaxWidth().height(112.mpx)
+                contentAlignment = Alignment.TopCenter,
+                modifier = Modifier.fillMaxWidth().height(290.mpx)
                     .then(if (s == stations.first()) Modifier.focusRequester(first) else Modifier),
             ) { _ ->
-                Row(Modifier.padding(horizontal = 14.mpx), verticalAlignment = Alignment.CenterVertically) {
-                    StationArt(s, 76.mpx, letter = 32)
-                    Column(Modifier.padding(start = 14.mpx).weight(1f)) {
-                        Text(s.name, style = stageText(20, 700), color = StageColors.Text, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                        stationLine(s)?.let {
-                            Text(it, style = stageText(15, 500), color = StageColors.Muted, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Column(Modifier.fillMaxSize().padding(12.mpx), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Box {
+                        StationArt(s, 170.mpx, letter = 70, radius = 18.mpx)
+                        if (s.id in favoriteIds) {
+                            tv.own.owntv.ui.components.OwnTVIcon(OwnTVIcon.FAVORITE, tint = Color(0xFFF43F5E), filled = true,
+                                modifier = Modifier.align(Alignment.TopEnd).padding(8.mpx).size(28.mpx))
                         }
                     }
-                    // The heart: long-press OK adds or removes the station (as before), the mark shows the result.
-                    if (s.id in favoriteIds) {
-                        tv.own.owntv.ui.components.OwnTVIcon(OwnTVIcon.FAVORITE, tint = Color(0xFFF43F5E), modifier = Modifier.size(26.mpx))
+                    Text(s.name, style = stageText(19, 700), color = StageColors.Text, maxLines = 2, overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.padding(top = 10.mpx))
+                    stationLine(s)?.let {
+                        Text(it, style = stageText(14, 500), color = StageColors.Muted, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
                 }
             }
@@ -394,7 +418,7 @@ private fun statusLine(status: RadioPlayer.Status, title: String?): String? = wh
 }
 
 @Composable
-private fun MiniPlayer(
+private fun NowPlaying(
     station: RadioStation,
     status: RadioPlayer.Status,
     title: String?,
@@ -406,27 +430,25 @@ private fun MiniPlayer(
     onExpand: () -> Unit,
 ) {
     Row(
-        Modifier.fillMaxWidth().padding(bottom = 28.mpx, top = 8.mpx).height(112.mpx)
-            .stageGlass(26.mpx, overContent = true).padding(horizontal = 18.mpx).focusGroup(),
+        Modifier.height(96.mpx).stageGlass(26.mpx, overContent = true).padding(horizontal = 14.mpx).focusGroup(),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        StationArt(station, 80.mpx, letter = 34, cover = cover)
-        Column(Modifier.weight(1f).padding(horizontal = 18.mpx)) {
-            Text(station.name, style = stageText(24, 800), color = StageColors.Text, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            statusLine(status, title)?.let {
-                Text(it, style = stageText(18, 500), color = if (status == RadioPlayer.Status.ERROR) StageColors.Danger else StageColors.Muted,
+        StationArt(station, 68.mpx, letter = 30, cover = cover)
+        Column(Modifier.width(300.mpx).padding(horizontal = 14.mpx)) {
+            Text(station.name, style = stageText(22, 800), color = StageColors.Text, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            (statusLine(status, title) ?: title)?.let {
+                Text(it, style = stageText(16, 500), color = if (status == RadioPlayer.Status.ERROR) StageColors.Danger else StageColors.Muted,
                     maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
         }
-        if (status == RadioPlayer.Status.PLAYING) Equalizer(Modifier.padding(end = 18.mpx).height(40.mpx).width(56.mpx))
         StageButton(text = null, onClick = onToggle, round = true, height = 64.mpx,
             icon = if (tv.own.owntv.radio.RadioPlayback.showsPause(status)) OwnTVIcon.PAUSE else OwnTVIcon.PLAY, iconFilled = true)
+        StageButton(text = stringResource(R.string.radio_stop), onClick = onStop, height = 64.mpx, icon = OwnTVIcon.CLOSE,
+            modifier = Modifier.padding(start = 10.mpx))
         StageButton(text = null, onClick = onFavorite, round = true, height = 64.mpx, icon = OwnTVIcon.FAVORITE, iconFilled = favorite,
-            modifier = Modifier.padding(start = 12.mpx))
-        StageButton(text = null, onClick = onStop, round = true, height = 64.mpx, icon = OwnTVIcon.CLOSE,
-            modifier = Modifier.padding(start = 12.mpx))
+            modifier = Modifier.padding(start = 10.mpx))
         StageButton(text = null, onClick = onExpand, round = true, height = 64.mpx, icon = OwnTVIcon.EXPAND,
-            modifier = Modifier.padding(start = 12.mpx))
+            modifier = Modifier.padding(start = 10.mpx))
     }
 }
 
@@ -467,7 +489,7 @@ private fun FullPlayer(
                 stationLine(station)?.let { Text(it, style = stageText(20, 500), color = StageColors.Muted, modifier = Modifier.padding(top = 8.mpx)) }
                 Equalizer(Modifier.padding(top = 36.mpx).height(90.mpx).width(220.mpx), playing = status == RadioPlayer.Status.PLAYING)
                 Row(Modifier.padding(top = 40.mpx).focusGroup()) {
-                    StageButton(text = null, onClick = onToggle, round = true, height = 96.mpx,
+                    StageButton(text = stringResource(R.string.radio_play_pause), onClick = onToggle, height = 96.mpx, textSize = 24,
                         icon = if (tv.own.owntv.radio.RadioPlayback.showsPause(status)) OwnTVIcon.PAUSE else OwnTVIcon.PLAY, iconFilled = true,
                         modifier = Modifier.focusRequester(first))
                     StageButton(text = null, onClick = onFavorite, round = true, height = 96.mpx, icon = OwnTVIcon.FAVORITE,

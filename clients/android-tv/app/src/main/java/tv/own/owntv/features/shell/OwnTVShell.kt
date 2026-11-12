@@ -1511,19 +1511,8 @@ fun OwnTVShell(
                 }
             }
           }
-            // Radio playing in the background (owner 12.11): its pill takes the «continue» place; OK opens the radio.
-            val radioStation = tv.own.owntv.features.radio.RadioFeature.nowPlaying()
-            val radioPlaying = tv.own.owntv.features.radio.RadioFeature.playingLabel()
             tv.own.owntv.features.shell.components.StageStatusCluster(
-                continuePill = if (radioStation != null && radioPlaying != null) {
-                    tv.own.owntv.features.shell.components.ContinuePill(
-                        icon = OwnTVIcon.EQ,
-                        iconFilled = false,
-                        action = radioPlaying,
-                        title = radioStation,
-                        onClick = { showRadio = true },
-                    )
-                } else continueTarget?.let { target ->
+                continuePill = continueTarget?.let { target ->
                     val live = target.kind == tv.own.owntv.features.home.ContinueKind.LIVE
                     tv.own.owntv.features.shell.components.ContinuePill(
                         icon = if (live) OwnTVIcon.LIVE_TV else OwnTVIcon.PLAY,

@@ -50,7 +50,8 @@ android {
         buildConfigField("boolean", "SELF_UPDATE", (!playStore).toString())
         buildConfigField("boolean", "RADIO", (!playStore).toString())
         // The radio's background service (RadioPlaybackService) exists only in the build with the radio.
-        manifestPlaceholders["radioEnabled"] = (!playStore).toString()
+        // TV: the radio never plays in the background (owner 12.11), so its background service stays off.
+        manifestPlaceholders["radioEnabled"] = "false"
         manifestPlaceholders["installPermission"] =
             if (playStore) "android.permission.INTERNET" else "android.permission.REQUEST_INSTALL_PACKAGES"
         applicationId = "com.yai.iptv.player.tv"

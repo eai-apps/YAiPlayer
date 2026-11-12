@@ -99,8 +99,9 @@ class RadioPlayer private constructor(context: Context) {
         player.setMediaItem(MediaItem.Builder().setUri(station.url).setMediaId(station.id).setMediaMetadata(meta).build())
         player.prepare()
         player.play()
-        // The service keeps the process alive and shows the notification while the radio plays.
-        runCatching { app.startService(android.content.Intent(app, RadioPlaybackService::class.java)) }
+        // Phone: the service keeps the process alive and shows the notification while the radio plays.
+        // TV: never (owner 12.11), the radio stops when its screen closes.
+        if (backgroundService) runCatching { app.startService(android.content.Intent(app, RadioPlaybackService::class.java)) }
     }
 
     fun toggle() {
@@ -134,6 +135,9 @@ class RadioPlayer private constructor(context: Context) {
 
     companion object {
         @Volatile private var instance: RadioPlayer? = null
+
+        /** False on the TV: no background playback there, the radio lives only on its own screen. */
+        @Volatile var backgroundService: Boolean = true
 
         /** The one radio player of this app; must be first called on the main thread (Media3 binds to it). */
         fun get(context: Context): RadioPlayer =
