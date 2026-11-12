@@ -769,7 +769,7 @@
     <string name="settings_epg_sources_title">EPG-Quellen</string>
     <string name="settings_epg_sources_empty">Noch keine EPG-Quellen. Füge einen XMLTV-Link hinzu.</string>
     <string name="settings_epg_builtin">Reserve-Programmführer</string>
-    <string name="settings_epg_builtin_description">Eine Reserve-Quelle (iptvx.one, leicht). Eine Playlist nutzt sie nur, wenn ihr eigener Programmführer (url-tvg) fehlt oder nicht geladen wurde; ein Portal nur mit „Zusätzlicher Programmführer für das Portal“.</string>
+    <string name="settings_epg_builtin_description">Reserve-Programmführer für Playlists. Reserve 1 (iptvx.one, leicht) wird automatisch genutzt, wenn der eigene Programmführer der Playlist (url-tvg) fehlt oder nicht geladen wurde; Reserve 2 und 3 werden einzeln eingeschaltet. Ein Portal nutzt nur Reserve 1 und nur mit „Zusätzlicher Programmführer für das Portal“.</string>
     <string name="settings_epg_builtin_refresh">Integrierten Programmführer jetzt aktualisieren</string>
     <string name="about_telegram_channel">Telegram-Kanal</string>
     <string name="about_telegram_support">Support (Telegram)</string>
@@ -1758,4 +1758,5 @@
     <string name="settings_epg_portal_guide_desc">Den Programmführer des Portals nutzen: die nächsten Stunden für alle Sender auf einmal und ganze Tage (mindestens 3 zurück, 2 voraus) für einen Sender, wenn du ihn öffnest.</string>
     <string name="settings_epg_portal_extra">Zusätzlicher Programmführer für das Portal</string>
     <string name="settings_epg_portal_extra_desc">Sender ohne Programm vom Portal aus dem Reserve-Programmführer ergänzen. Aus: nur der Programmführer des Portals.</string>
+    <string name="settings_epg_builtin_feed_extra_desc">Zusätzliche Reserve für Playlists: nur wenn der eigene Programmführer der Playlist und Reserve 1 einem Sender kein Programm liefern. Nie für Portale.</string>
 </resources>

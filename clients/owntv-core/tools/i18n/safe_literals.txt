@@ -2244,6 +2244,7 @@
 1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgSourceStore.kt	EPG
 1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgSourceStore.kt	[]
 1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgSourceStore.kt	builtin_off
+1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgSourceStore.kt	extra_reserve_on
 1	preference-key	core/src/main/java/tv/own/owntv/core/epg/EpgSourceStore.kt	migrated_v1
 1	preference-key	core/src/main/java/tv/own/owntv/core/epg/EpgSourceStore.kt	next_id
 1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgSourceStore.kt	owntv_epg_sources
@@ -5259,6 +5260,8 @@
 1	technical	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	Built-in guide
 1	technical	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	builtin
 1	technical	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	builtin_playlist
+1	uri	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	http://miptv.in.ua/xmlt/mlist_epg.xml.gz
+1	uri	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	http://ru.epg.one/epg.xml.gz
 1	technical	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	https://iptvx.one/EPG_LITE
 1	technical	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	manual_builtin
 1	technical	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	manual_feed

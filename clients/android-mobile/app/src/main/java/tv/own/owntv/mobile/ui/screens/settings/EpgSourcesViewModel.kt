@@ -64,6 +64,10 @@ class EpgSourcesViewModel(
     fun setPortalGuide(on: Boolean) { viewModelScope.launch { portalSwitches.setPortalGuide(on) } }
     fun setPortalExtraGuide(on: Boolean) { viewModelScope.launch { portalSwitches.setAdditionalGuide(on) } }
 
+    fun setBuiltinFeedEnabled(feed: tv.own.owntv.core.sync.BuiltinGuide.Feed, on: Boolean) {
+        viewModelScope.launch { tv.own.owntv.core.sync.BuiltinGuide.fromKoin().setFeedEnabled(feed, on) }
+    }
+
     fun setBuiltinEnabled(enabled: Boolean) {
         viewModelScope.launch { store.setBuiltinEnabled(enabled) }
     }

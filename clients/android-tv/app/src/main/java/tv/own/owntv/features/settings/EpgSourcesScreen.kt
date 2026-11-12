@@ -273,19 +273,22 @@ fun EpgSourcesScreen(onBack: () -> Unit, modifier: Modifier = Modifier, startOnA
             )
             builtinFeeds.forEach { feed ->
                 val feedTitle = stringResource(R.string.settings_epg_builtin_feed, feed.number)
+                val status = stringResource(
+                    when {
+                        feed.syncing -> R.string.settings_epg_builtin_feed_syncing
+                        feed.failed -> R.string.settings_epg_builtin_feed_failed
+                        else -> R.string.settings_epg_builtin_feed_channels
+                    },
+                    feed.channels,
+                )
+                // Feed 1 refreshes on OK; feeds 2 and 3 are switches (playlists only, off by default).
+                val extra = feed.number > 1
                 StageSettingRow(
                     icon = OwnTVIcon.REFRESH,
                     title = feedTitle,
-                    desc = stringResource(
-                        when {
-                            feed.syncing -> R.string.settings_epg_builtin_feed_syncing
-                            feed.failed -> R.string.settings_epg_builtin_feed_failed
-                            else -> R.string.settings_epg_builtin_feed_channels
-                        },
-                        feed.channels,
-                    ),
-                    value = SettingValue.Opens(null),
-                    onClick = { vm.refreshBuiltinFeed(feed.id) },
+                    desc = if (extra && !feed.enabled) stringResource(R.string.settings_epg_builtin_feed_extra_desc) else status,
+                    value = if (extra) SettingValue.Switch(feed.enabled) else SettingValue.Opens(null),
+                    onClick = { if (extra) vm.setBuiltinFeedEnabled(feed, !feed.enabled) else vm.refreshBuiltinFeed(feed.id) },
                     help = SettingHelp(feedTitle, builtinDesc, hints = listOf(ok to feedTitle, back to parent)),
                 )
             }

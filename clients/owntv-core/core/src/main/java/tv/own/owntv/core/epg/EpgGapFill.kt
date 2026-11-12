@@ -101,9 +101,18 @@ class EpgGapFill(
                 return result
             }
             var filled = 0
-            val feeds = store.getAll().filter { it.builtin && (onlyFeed == null || it.id == onlyFeed) }.take(1)
+            // Feed 1 (light) always; feeds 2 and 3 only when switched on, and only for playlists — a portal
+            // channel is never filled from them (owner 12.11).
+            val extraOn = store.extraReserveOn.first()
+            val builtins = store.getAll().filter { it.builtin }
+            val firstBuiltin = builtins.firstOrNull()?.id
+            val feeds = builtins.filter { it.id == firstBuiltin || it.url in extraOn }
+                .filter { onlyFeed == null || it.id == onlyFeed }
+            val portalIds = playlists.filter { it.type == SourceType.STALKER }.mapTo(HashSet()) { it.id }
             val attempted = HashSet<Long>()
-            EpgGapPlan.visitFeeds(feeds.distinctBy { it.id }, ::missing) { source, gaps ->
+            EpgGapPlan.visitFeeds(feeds.distinctBy { it.id }, ::missing) { source, allGaps ->
+                val gaps = if (source.id == firstBuiltin) allGaps else allGaps.filter { it.channel.sourceId !in portalIds }
+                if (gaps.isEmpty()) return@visitFeeds
                 attempted.add(source.id)
                 // Download once, keeping channel names/cache but no unrelated programme rows.
                 attempt(source) {

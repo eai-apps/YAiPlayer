@@ -202,20 +202,22 @@ fun SettingsEpgSourcesPage(
         }
         if (builtinEnabled) items(builtinFeeds.size, key = { "builtin_feed_${builtinFeeds[it].id}" }) { i ->
             val feed = builtinFeeds[i]
+            val extra = feed.number > 1
+            val status = stringResource(
+                when {
+                    feed.syncing -> R.string.settings_epg_builtin_feed_syncing
+                    feed.failed -> R.string.settings_epg_builtin_feed_failed
+                    else -> R.string.settings_epg_builtin_feed_channels
+                },
+                feed.channels,
+            )
             StageSettingRow(
                 title = stringResource(R.string.settings_epg_builtin_feed, feed.number),
-                subtitle = stringResource(
-                    when {
-                        feed.syncing -> R.string.settings_epg_builtin_feed_syncing
-                        feed.failed -> R.string.settings_epg_builtin_feed_failed
-                        else -> R.string.settings_epg_builtin_feed_channels
-                    },
-                    feed.channels,
-                ),
+                subtitle = if (extra && !feed.enabled) stringResource(R.string.settings_epg_builtin_feed_extra_desc) else status,
                 icon = MobileIcons.Refresh,
                 minHeight = 48.dp,
-                onClick = { vm.refreshBuiltinFeed(feed.id) },
-            ) {}
+                onClick = { if (extra) vm.setBuiltinFeedEnabled(feed, !feed.enabled) else vm.refreshBuiltinFeed(feed.id) },
+            ) { if (extra) StageSwitch(feed.enabled) }
         }
         if (builtinEnabled) item(key = "builtin_status") {
             val at = builtinStatus.lastSyncAt

@@ -44,6 +44,8 @@ class EpgSourceStore(private val context: Context) {
         val MIGRATED = longPreferencesKey("migrated_v1")
         val CATCHUP_OFF = longPreferencesKey("stalker_catchup_off")
         val BUILTIN_OFF = longPreferencesKey("builtin_off")
+        /** Reserve feeds 2 and 3 switched on for playlists (owner 12.11), by URL. Feed 1 needs no switch. */
+        val EXTRA_RESERVE_ON = androidx.datastore.preferences.core.stringSetPreferencesKey("extra_reserve_on")
     }
 
     val sources: Flow<List<EpgSource>> = context.epgStore.data.map { prefs ->
@@ -55,6 +57,16 @@ class EpgSourceStore(private val context: Context) {
 
     /** Is the built-in guide allowed? On by default; the user can switch it off. */
     val builtinEnabled: Flow<Boolean> = context.epgStore.data.map { it[Keys.BUILTIN_OFF] != 1L }
+
+    /** URLs of the larger reserve feeds (2 and 3) the user switched on for playlists. Off by default. */
+    val extraReserveOn: Flow<Set<String>> = context.epgStore.data.map { it[Keys.EXTRA_RESERVE_ON].orEmpty() }
+
+    suspend fun setExtraReserve(url: String, on: Boolean) {
+        context.epgStore.edit { prefs ->
+            val cur = prefs[Keys.EXTRA_RESERVE_ON].orEmpty()
+            prefs[Keys.EXTRA_RESERVE_ON] = if (on) cur + url else cur - url
+        }
+    }
 
     val stalkerCatchupEnabled: Flow<Boolean> = context.epgStore.data.map { it[Keys.CATCHUP_OFF] != 1L }
 
