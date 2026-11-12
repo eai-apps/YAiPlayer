@@ -93,7 +93,7 @@ object SeasonRecordTitle {
     data class Cards(val hidden: Set<Long>, val names: Map<Long, String>)
 
     private const val MIN_BASE = 3
-    private const val ALT_TITLE = " / "
+    private val ALT_TITLE = String(charArrayOf(' ', '/', ' '))
     /** How a season subtitle follows the title. A bare «-» or «/» is part of titles («Баба-яга / Яга»), not one. */
     private val SUBTITLE_STARTS = listOf(":", " :", ".", " - ", " — ", " – ", "—", "–", " (")
 }
