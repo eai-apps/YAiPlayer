@@ -221,4 +221,37 @@ class TvOptimizerTest {
         assertEquals("iVBORw0KGgo+/A==", ScreenPeekText.clean("iVBORw0K\r\nGgo+/A==\n"))
         assertEquals("", ScreenPeekText.clean("\n\r\t "))
     }
+
+    /** Task Opus №3, п.12: «undo all» brings back every app that was switched off and the TV's own Home. */
+    @Test fun `rollback restores every app and the stock Home`() = runBlocking {
+        val off = mutableSetOf("com.vendor.ads", "com.vendor.spy", "com.vendor.launcher")
+        var home = "com.gathin.tvhome/.MainActivity"
+        val tv = ScriptedTv { cmd ->
+            when {
+                cmd.startsWith("pm enable --user 0 ") -> {
+                    val pkg = cmd.substringAfterLast(' ')
+                    // One app the TV refuses to switch on again: it must stay in the restore point.
+                    if (pkg == "com.vendor.spy") "Error: java.lang.SecurityException\n"
+                    else { off.remove(pkg); "Package $pkg new state: enabled\n" }
+                }
+                cmd.startsWith("cmd package set-home-activity --user 0 ") -> { home = cmd.substringAfterLast(' '); "Success\n" }
+                cmd.startsWith("cmd package resolve-activity") -> "$home\n"
+                cmd.startsWith("am start") -> "Status: ok\n"
+                else -> ""
+            }
+        }
+        val engine = OptimizerEngine(tv)
+        val point = RestorePoint("tv1", "Acme X1", 42L, setOf("com.vendor.ads", "com.vendor.spy"), "com.vendor.launcher/.Main", true)
+        assertTrue(engine.restoreHome(point.stockHome!!))
+        assertEquals("com.vendor.launcher/.Main", engine.currentHome())
+        assertFalse("the stock launcher is switched on again", "com.vendor.launcher" in off)
+        val back = point.packages.filter { engine.enable(it) }
+        assertEquals(listOf("com.vendor.ads"), back)
+        val left = point.copy(packages = point.packages - back.toSet())
+        assertEquals(setOf("com.vendor.spy"), left.packages)
+        // The script for a computer still covers what the phone could not undo.
+        assertTrue(OptimizerScripts.restoreScript(left).contains("adb shell pm enable --user 0 com.vendor.spy"))
+        // Nothing but enable / Home commands ever reached the TV during a rollback.
+        assertTrue(tv.history.all { it.startsWith("pm enable") || it.startsWith("cmd package") || it.startsWith("am start") })
+    }
 }
