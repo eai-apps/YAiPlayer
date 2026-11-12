@@ -28,6 +28,22 @@ class SeasonRecordTitleTest {
         assertFalse(SeasonRecordTitle.sameShowLoose("Король гольфа [S01]", "Король гольфа 2 [S01]"))
     }
 
+    @Test fun bilingualAndPlainTitlesAreOneShow() {
+        // Owner 12.11: seasons 1–4, 9, 12, 13 had a bilingual title, 5–8, 10, 11 the plain one, so there were two cards.
+        val bi = "Американская история ужасов / Американська історія жаху"
+        assertTrue(SeasonRecordTitle.sameShowLoose("$bi [S13]", "Американская история ужасов [S05]"))
+        assertTrue(SeasonRecordTitle.sameShowLoose("Американская история ужасов [S05]", "$bi [S01]"))
+        assertFalse(SeasonRecordTitle.sameShowLoose("Мужчина / Женщина [S01]", "Мужик [S01]"))
+        val cards = SeasonRecordTitle.cards(
+            listOf(1L to "$bi [S13]", 2L to "$bi [S01]", 3L to "Американская история ужасов [S05]", 4L to "Американская история ужасов [S06]"),
+        )
+        assertEquals(setOf(2L, 3L, 4L), cards.hidden)
+        assertEquals("Американская история ужасов / Американська історія жаху", cards.names[1L])
+        // The plain-title record comes first in the playlist: still one card.
+        val plainFirst = SeasonRecordTitle.cards(listOf(1L to "Американская история ужасов [S05]", 2L to "$bi [S13]"))
+        assertEquals(setOf(2L), plainFirst.hidden)
+    }
+
     @Test fun hugeCatalogIsFast() {
         // 40 000 season records of 8 000 shows: the old pairwise grouping froze the TV (owner 12.11).
         val rows = (0 until 40_000).map { n -> n.toLong() to "Сериал номер ${n / 5} [S0${n % 5 + 1}] [ua] [ru]" }

@@ -27,6 +27,18 @@ object SeasonRecordTitle {
     fun sameShowLoose(a: String, b: String): Boolean {
         val x = base(a).lowercase()
         val y = base(b).lowercase()
+        if (looseKeys(x, y)) return true
+        // Bilingual titles: «Американская история ужасов / Американська історія жаху» is the show «Американская
+        // история ужасов» (owner 12.11: seasons 5–8, 10, 11 sat in a second card). Compare the left parts too.
+        val lx = leftPart(x)
+        val ly = leftPart(y)
+        return (lx != x || ly != y) && lx.length >= MIN_BASE && ly.length >= MIN_BASE && looseKeys(lx, ly)
+    }
+
+    /** The title before « / » (the second language of a bilingual title), or the whole title. */
+    private fun leftPart(key: String): String = key.substringBefore(ALT_TITLE).trim()
+
+    private fun looseKeys(x: String, y: String): Boolean {
         if (x == y) return true
         val (short, long) = if (x.length <= y.length) x to y else y to x
         if (short.length < MIN_BASE || !long.startsWith(short)) return false
@@ -50,6 +62,8 @@ object SeasonRecordTitle {
         val byKey = HashMap<String, MutableList<Rec>>()
         for (r in records) {
             var g = byKey[r.key]
+            val left = leftPart(r.key)
+            if (g == null && left != r.key && left.length >= MIN_BASE) g = byKey[left]
             if (g == null) {
                 var idx = MIN_BASE
                 while (idx < r.key.length && g == null) {
@@ -61,6 +75,8 @@ object SeasonRecordTitle {
                 g = mutableListOf()
                 groups.add(g)
                 byKey[r.key] = g
+                // A later record named only by the first-language part («Американская история ужасов [S05]») joins this group.
+                if (left != r.key && left.length >= MIN_BASE) byKey.putIfAbsent(left, g)
             }
             g.add(r)
         }
@@ -77,6 +93,7 @@ object SeasonRecordTitle {
     data class Cards(val hidden: Set<Long>, val names: Map<Long, String>)
 
     private const val MIN_BASE = 3
+    private const val ALT_TITLE = " / "
     /** How a season subtitle follows the title. A bare «-» or «/» is part of titles («Баба-яга / Яга»), not one. */
     private val SUBTITLE_STARTS = listOf(":", " :", ".", " - ", " — ", " – ", "—", "–", " (")
 }
