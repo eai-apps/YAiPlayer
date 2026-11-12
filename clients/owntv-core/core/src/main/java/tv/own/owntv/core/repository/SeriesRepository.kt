@@ -77,8 +77,9 @@ class SeriesRepository(
         val syncedAt = seriesDao.getSeriesById(series.id)?.episodesSyncedAt ?: series.episodesSyncedAt
         // A season record cached before the sibling rule changed (12.11: bilingual and plain titles of one show)
         // holds only part of the show; read it once more instead of waiting out the cache.
-        val oldSiblingRule = source.type == SourceType.STALKER && syncedAt < SIBLING_RULE_EPOCH_MS &&
-            tv.own.owntv.core.content.SeasonRecordTitle.isSeasonRecord(series.name)
+        // Owner 12.11 (evening): on the TV box no show offered more than one season, while the phone, which had
+        // read them later, did. Every portal show cached before this rule is read once more, whatever its title.
+        val oldSiblingRule = source.type == SourceType.STALKER && syncedAt < SIBLING_RULE_EPOCH_MS
         if (!oldSiblingRule && !shouldRefreshEpisodes(cachedCount, syncedAt, System.currentTimeMillis())) return@withContext EpisodeLoad.Ready
 
         val remoteId = series.remoteId
@@ -409,7 +410,7 @@ class SeriesRepository(
         const val MAX_SIBLING_RECORDS = 30
 
         /** Seasons cached before this moment (2026-11-12 13:30 UTC) were folded by the older sibling rule. */
-        const val SIBLING_RULE_EPOCH_MS = 1794490200000L
+        const val SIBLING_RULE_EPOCH_MS = 1794517200000L
 
         /** Longest wait for the opened record, and then for all other season records together. */
         const val OWN_FETCH_BUDGET_MS = 60_000L

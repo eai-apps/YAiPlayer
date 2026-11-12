@@ -1529,8 +1529,10 @@ private fun EpisodeView(
             if (seasons.isNotEmpty()) {
                 StageButton(
                     text = if (activeSeason == 0) stringResource(R.string.content_season_specials) else stringResource(R.string.content_season, activeSeason),
-                    trailing = if (seasons.size > 1) "▾" else null,
-                    onClick = { if (seasons.size > 1) seasonPicker = true },
+                    // Always opens the list (owner 12.11: a button that did nothing read as broken); one season
+                    // shows that one, with its episode count.
+                    trailing = "▾",
+                    onClick = { seasonPicker = true },
                     height = 60.mpx, textSize = 20, modifier = Modifier.focusRequester(seasonFocus),
                 )
             }
