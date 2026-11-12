@@ -3,6 +3,7 @@ package tv.own.owntv.core.repository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import tv.own.owntv.core.database.dao.SeriesDao
 import tv.own.owntv.core.database.dao.SourceDao
 import tv.own.owntv.core.database.entity.EpisodeEntity
@@ -74,7 +75,11 @@ class SeriesRepository(
         // Read the stamp from the database rather than the passed-in entity: callers hold list rows
         // that may have been loaded before a sync invalidated the cache.
         val syncedAt = seriesDao.getSeriesById(series.id)?.episodesSyncedAt ?: series.episodesSyncedAt
-        if (!shouldRefreshEpisodes(cachedCount, syncedAt, System.currentTimeMillis())) return@withContext EpisodeLoad.Ready
+        // A season record cached before the sibling rule changed (12.11: bilingual and plain titles of one show)
+        // holds only part of the show; read it once more instead of waiting out the cache.
+        val oldSiblingRule = source.type == SourceType.STALKER && syncedAt < SIBLING_RULE_EPOCH_MS &&
+            tv.own.owntv.core.content.SeasonRecordTitle.isSeasonRecord(series.name)
+        if (!oldSiblingRule && !shouldRefreshEpisodes(cachedCount, syncedAt, System.currentTimeMillis())) return@withContext EpisodeLoad.Ready
 
         val remoteId = series.remoteId
         if (remoteId.isNullOrBlank()) return@withContext stored
@@ -82,10 +87,18 @@ class SeriesRepository(
         // otherwise wipe a season the user was midway through. Leave the stamp alone so the next
         // open retries instead of waiting out the TTL on nothing.
         val fetched = try {
-            when (source.type) {
-                SourceType.XTREAM -> fetchXtreamEpisodes(series, source, remoteId)
-                else -> fetchStalkerEpisodes(series, source, remoteId)
+            // The page must not spin forever when the portal does not answer: after the budget it fails and can be retried.
+            var answered = false
+            val list = withTimeoutOrNull(OWN_FETCH_BUDGET_MS) {
+                val got = when (source.type) {
+                    SourceType.XTREAM -> fetchXtreamEpisodes(series, source, remoteId)
+                    else -> fetchStalkerEpisodes(series, source, remoteId)
+                }
+                answered = true
+                got
             }
+            if (!answered) throw java.io.IOException()
+            list
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
@@ -138,14 +151,19 @@ class SeriesRepository(
         if (siblings.isEmpty()) return emptyList()
         val haveSeasons = own.mapTo(HashSet()) { it.seasonNumber }
         val out = ArrayList<EpisodeEntity>()
+        val deadline = System.currentTimeMillis() + SIBLING_BUDGET_MS
         for (sibling in siblings) {
-            val eps = try {
-                fetchStalkerEpisodes(sibling, source, sibling.remoteId!!)
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                android.util.Log.w(TAG, "sibling season record failed seriesId=${sibling.id}", e)
-                null
+            val left = deadline - System.currentTimeMillis()
+            if (left <= 0L) break
+            val eps = withTimeoutOrNull(left) {
+                try {
+                    fetchStalkerEpisodes(sibling, source, sibling.remoteId!!)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    android.util.Log.w(TAG, "sibling season record failed seriesId=${sibling.id}", e)
+                    null
+                }
             } ?: continue
             eps.filter { it.seasonNumber !in haveSeasons }.forEach { out.add(it.copy(id = 0, seriesId = series.id)) }
             haveSeasons.addAll(eps.map { it.seasonNumber })
@@ -377,6 +395,13 @@ class SeriesRepository(
 
         /** A show with more season records than this is not a show split by season. */
         const val MAX_SIBLING_RECORDS = 30
+
+        /** Seasons cached before this moment (2026-11-12 13:30 UTC) were folded by the older sibling rule. */
+        const val SIBLING_RULE_EPOCH_MS = 1794490200000L
+
+        /** Longest wait for the opened record, and then for all other season records together. */
+        const val OWN_FETCH_BUDGET_MS = 60_000L
+        const val SIBLING_BUDGET_MS = 45_000L
 
         /** Safety cap on season paging (a show never has hundreds of season pages). */
         const val MAX_SEASON_PAGES = 20
