@@ -2,6 +2,9 @@ package tv.own.owntv.core.repository
 
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import tv.own.owntv.core.database.dao.SeriesDao
@@ -80,7 +83,14 @@ class SeriesRepository(
         // Owner 12.11 (evening): on the TV box no show offered more than one season, while the phone, which had
         // read them later, did. Every portal show cached before this rule is read once more, whatever its title.
         val oldSiblingRule = source.type == SourceType.STALKER && syncedAt < SIBLING_RULE_EPOCH_MS
-        if (!oldSiblingRule && !shouldRefreshEpisodes(cachedCount, syncedAt, System.currentTimeMillis())) return@withContext EpisodeLoad.Ready
+        // A season record whose other seasons did not arrive last time (owner 12.11: «Извне» — 4 seasons on the
+        // phone, 1 on the TV box, read while the portal was slow) is read again instead of waiting out the cache.
+        val missingSiblings = source.type == SourceType.STALKER && cachedCount > 0 &&
+            System.currentTimeMillis() - syncedAt > SIBLING_RECHECK_MS &&
+            tv.own.owntv.core.content.SeasonRecordTitle.isSeasonRecord(series.name) &&
+            runCatching { seriesDao.episodesBySeriesOnce(series.id).map { it.seasonNumber }.distinct().size <= 1 && siblingRecords(series).isNotEmpty() }
+                .getOrDefault(false)
+        if (!oldSiblingRule && !missingSiblings && !shouldRefreshEpisodes(cachedCount, syncedAt, System.currentTimeMillis())) return@withContext EpisodeLoad.Ready
 
         val remoteId = series.remoteId
         if (remoteId.isNullOrBlank()) return@withContext stored
@@ -113,14 +123,19 @@ class SeriesRepository(
             )
             return@withContext if (hasCache) EpisodeLoad.Ready else EpisodeLoad.Failed(episodeLoadFailure(e))
         }
+        var complete = true
         val withSiblings = if (source.type == SourceType.STALKER && !fetched.isNullOrEmpty()) {
-            fetched + siblingSeasonEpisodes(series, source, fetched)
+            val (more, allAnswered) = siblingSeasonEpisodes(series, source, fetched)
+            complete = allAnswered
+            fetched + more
         } else fetched
         tv.own.owntv.core.PerfJournal.add(
             listOf("episodes done", series.id, fetched?.size, withSiblings?.size, System.currentTimeMillis() - t0).joinToString(" "),
         )
         if (withSiblings.isNullOrEmpty()) return@withContext stored
-        applyEpisodes(series.id, withSiblings)
+        // Not every season record answered: show what came, but leave the show unstamped so the next open
+        // reads the missing seasons instead of keeping one season for the whole cache lifetime.
+        applyEpisodes(series.id, withSiblings, markSynced = complete)
         EpisodeLoad.Ready
     }
 
@@ -129,12 +144,12 @@ class SeriesRepository(
      * survives — see [planEpisodeMerge]. Rebuilding the rows wholesale would detach watch history,
      * resume positions and next-episode autoplay on every single refresh.
      */
-    private suspend fun applyEpisodes(seriesId: Long, fetched: List<EpisodeEntity>) {
+    private suspend fun applyEpisodes(seriesId: Long, fetched: List<EpisodeEntity>, markSynced: Boolean = true) {
         val plan = planEpisodeMerge(seriesDao.episodesBySeriesOnce(seriesId), fetched)
         plan.updates.chunked(CHUNK).forEach { seriesDao.updateEpisodes(it) }
         plan.inserts.chunked(CHUNK).forEach { seriesDao.upsertEpisodes(it) }
         plan.deleteIds.chunked(CHUNK).forEach { seriesDao.deleteEpisodesByIds(it) }
-        seriesDao.markEpisodesSynced(seriesId, System.currentTimeMillis())
+        if (markSynced) seriesDao.markEpisodesSynced(seriesId, System.currentTimeMillis())
         android.util.Log.i(
             TAG,
             "episodes seriesId=$seriesId fetched=${fetched.size} new=${plan.inserts.size} " +
@@ -150,38 +165,60 @@ class SeriesRepository(
      * Each episode keeps its own record's season command, so playback is untouched. A season the opened
      * record already lists wins; a sibling that fails to answer is skipped, never fatal.
      */
-    private suspend fun siblingSeasonEpisodes(series: SeriesEntity, source: SourceEntity, own: List<EpisodeEntity>): List<EpisodeEntity> {
+    /** The show's other season records in the same playlist («Title [S02]», «Title: Subtitle [S03]»). */
+    private suspend fun siblingRecords(series: SeriesEntity): List<SeriesEntity> {
         if (!tv.own.owntv.core.content.SeasonRecordTitle.isSeasonRecord(series.name)) return emptyList()
         val base = tv.own.owntv.core.content.SeasonRecordTitle.base(series.name)
         if (base.length < 2) return emptyList()
         // The part before a season subtitle («…: Отель»), so a subtitled record also finds the plain ones.
         val prefix = base.takeWhile { it !in ":–—(|/" }.trim().takeIf { it.length >= 2 } ?: base
-        val siblings = runCatching { seriesDao.seriesByNamePrefix(series.sourceId, prefix) }.getOrDefault(emptyList())
+        return runCatching { seriesDao.seriesByNamePrefix(series.sourceId, prefix) }.getOrDefault(emptyList())
             .filter { it.id != series.id && !it.remoteId.isNullOrBlank() && tv.own.owntv.core.content.SeasonRecordTitle.sameShowLoose(it.name, series.name) }
             .take(MAX_SIBLING_RECORDS)
-        if (siblings.isEmpty()) return emptyList()
+    }
+
+    /**
+     * A panel that files each season as its own record («Title [S01]», «Title [S02]»): the other records'
+     * seasons are folded into the one opened, so every card of the show opens the whole show (П8).
+     * Each episode keeps its own record's season command, so playback is untouched. A season the opened
+     * record already lists wins. Records are read a few at a time; the second value says whether every
+     * one of them answered (a slow portal must not leave the show at one season for good).
+     */
+    private suspend fun siblingSeasonEpisodes(
+        series: SeriesEntity, source: SourceEntity, own: List<EpisodeEntity>,
+    ): Pair<List<EpisodeEntity>, Boolean> {
+        val siblings = siblingRecords(series)
+        if (siblings.isEmpty()) return emptyList<EpisodeEntity>() to true
+        val gate = kotlinx.coroutines.sync.Semaphore(SIBLING_PARALLEL)
+        val results = withTimeoutOrNull(SIBLING_BUDGET_MS) {
+            kotlinx.coroutines.coroutineScope {
+                siblings.map { sibling ->
+                    async {
+                        gate.withPermit {
+                            try {
+                                fetchStalkerEpisodes(sibling, source, sibling.remoteId!!)
+                            } catch (e: CancellationException) {
+                                throw e
+                            } catch (e: Exception) {
+                                android.util.Log.w(TAG, "sibling season record failed seriesId=${sibling.id}", e)
+                                null
+                            }
+                        }
+                    }
+                }.awaitAll()
+            }
+        }
         val haveSeasons = own.mapTo(HashSet()) { it.seasonNumber }
         val out = ArrayList<EpisodeEntity>()
-        val deadline = System.currentTimeMillis() + SIBLING_BUDGET_MS
-        for (sibling in siblings) {
-            val left = deadline - System.currentTimeMillis()
-            if (left <= 0L) break
-            val eps = withTimeoutOrNull(left) {
-                try {
-                    fetchStalkerEpisodes(sibling, source, sibling.remoteId!!)
-                } catch (e: CancellationException) {
-                    throw e
-                } catch (e: Exception) {
-                    android.util.Log.w(TAG, "sibling season record failed seriesId=${sibling.id}", e)
-                    null
-                }
-            } ?: continue
+        results?.forEach { eps ->
+            eps ?: return@forEach
             eps.filter { it.seasonNumber !in haveSeasons }.forEach { out.add(it.copy(id = 0, seriesId = series.id)) }
             haveSeasons.addAll(eps.map { it.seasonNumber })
         }
-        android.util.Log.i(TAG, "sibling season records seriesId=${series.id} siblings=${siblings.size} episodes=${out.size}")
-        tv.own.owntv.core.PerfJournal.add("episodes siblings id=${series.id} records=${siblings.size} added=${out.size}")
-        return out
+        val complete = results != null && results.none { it == null }
+        android.util.Log.i(TAG, "sibling season records seriesId=${series.id} siblings=${siblings.size} episodes=${out.size} complete=$complete")
+        tv.own.owntv.core.PerfJournal.add("episodes siblings id=${series.id} records=${siblings.size} added=${out.size} complete=$complete")
+        return out to complete
     }
 
     private suspend fun fetchXtreamEpisodes(series: SeriesEntity, source: SourceEntity, remoteId: String): List<EpisodeEntity> {
@@ -411,6 +448,9 @@ class SeriesRepository(
 
         /** A show with more season records than this is not a show split by season. */
         const val MAX_SIBLING_RECORDS = 30
+        private const val SIBLING_PARALLEL = 3
+        /** A one-season record with other records is re-read at most this often (one show with a duplicate record). */
+        private const val SIBLING_RECHECK_MS = 10L * 60 * 1000
 
         /** Seasons cached before this moment (2026-11-12 13:30 UTC) were folded by the older sibling rule. */
         const val SIBLING_RULE_EPOCH_MS = 1794517200000L

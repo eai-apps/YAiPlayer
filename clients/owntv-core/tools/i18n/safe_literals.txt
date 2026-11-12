@@ -3523,12 +3523,12 @@
 1	log	core/src/main/java/tv/own/owntv/core/repository/SeriesRepository.kt	episodes done
 1	log	core/src/main/java/tv/own/owntv/core/repository/SeriesRepository.kt	episodes failed
 1	log	core/src/main/java/tv/own/owntv/core/repository/SeriesRepository.kt	episodes seriesId=$seriesId fetched=${fetched.size} new=${plan.inserts.size}
-1	log	core/src/main/java/tv/own/owntv/core/repository/SeriesRepository.kt	episodes siblings id=${series.id} records=${siblings.size} added=${out.size}
+1	log	core/src/main/java/tv/own/owntv/core/repository/SeriesRepository.kt	episodes siblings id=${series.id} records=${siblings.size} added=${out.size} complete=$complete
 1	log	core/src/main/java/tv/own/owntv/core/repository/SeriesRepository.kt	episodes stalker id=${series.id} seasons=${seasons.size} episodes=${episodes.size}
 1	log	core/src/main/java/tv/own/owntv/core/repository/SeriesRepository.kt	episodes start id=${series.id} remote=$remoteId cached=$cachedCount name=${series.name.take(60)}
 1	technical	core/src/main/java/tv/own/owntv/core/repository/SeriesRepository.kt	series
 1	log	core/src/main/java/tv/own/owntv/core/repository/SeriesRepository.kt	sibling season record failed seriesId=${sibling.id}
-1	log	core/src/main/java/tv/own/owntv/core/repository/SeriesRepository.kt	sibling season records seriesId=${series.id} siblings=${siblings.size} episodes=${out.size}
+1	log	core/src/main/java/tv/own/owntv/core/repository/SeriesRepository.kt	sibling season records seriesId=${series.id} siblings=${siblings.size} episodes=${out.size} complete=$complete
 1	log	core/src/main/java/tv/own/owntv/core/repository/SeriesRepository.kt	stalker episodes seriesId=${series.id} remoteId=$remoteId seasons=${seasons.size} episodes=${episodes.size}
 1	technical	core/src/main/java/tv/own/owntv/core/repository/SeriesRepository.kt	stalker season search failed remoteId=$remoteId (${e.message})
 1	log	core/src/main/java/tv/own/owntv/core/repository/SeriesRepository.kt	stalker seasons via type=series failed remoteId=$remoteId (${e.message})
