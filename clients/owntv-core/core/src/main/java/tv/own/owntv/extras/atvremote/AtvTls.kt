@@ -73,6 +73,36 @@ object AtvTls {
     }
 
     /**
+     * [isLocalAddress], or an address in the same subnet as one of this phone's own network interfaces. Some home
+     * networks are not in the private ranges (a provider's public range on the LAN, carrier NAT 100.64/10, a
+     * global IPv6 prefix): the TV was then refused as "not your home network" while it sat on the same Wi-Fi
+     * (owner 12.11). An address sharing the phone's own prefix is on the same link, so it is still never the
+     * internet at large.
+     */
+    fun isHomeAddress(address: InetAddress): Boolean = isLocalAddress(address) || sharesSubnet(address, ownPrefixes())
+
+    /** True when [address] lies in one of [prefixes] (an interface address and its prefix length). */
+    fun sharesSubnet(address: InetAddress, prefixes: List<Pair<InetAddress, Int>>): Boolean {
+        val a = address.address
+        return prefixes.any { (net, length) ->
+            val n = net.address
+            if (n.size != a.size || length <= 0 || length > a.size * 8) return@any false
+            // A /8 or wider "subnet" is not a home link; it would let half the internet through.
+            if (length < (if (a.size == 4) 16 else 48)) return@any false
+            (0 until length).all { bit ->
+                val mask = 0x80 ushr (bit % 8)
+                (a[bit / 8].toInt() and mask) == (n[bit / 8].toInt() and mask)
+            }
+        }
+    }
+
+    private fun ownPrefixes(): List<Pair<InetAddress, Int>> = runCatching {
+        java.net.NetworkInterface.getNetworkInterfaces().toList()
+            .filter { it.isUp && !it.isLoopback }
+            .flatMap { nic -> nic.interfaceAddresses.mapNotNull { ia -> ia.address?.let { it to ia.networkPrefixLength.toInt() } } }
+    }.getOrDefault(emptyList())
+
+    /**
      * Opens a TLS connection with the phone's certificate. The TV's certificate is self-signed, so it cannot be
      * checked against a CA; instead the SHA-256 of the certificate seen at pairing is required on every later
      * connection ([pinnedSha256]). Pairing itself passes null and remembers what it saw.
@@ -85,7 +115,7 @@ object AtvTls {
         connectTimeoutMs: Int = 5_000,
     ): AtvChannel {
         val address = InetAddress.getByName(host)
-        if (!isLocalAddress(address)) throw AtvAddressException("Not a home network address")
+        if (!isHomeAddress(address)) throw AtvAddressException("Not a home network address")
         var seen: X509Certificate? = null
         var mismatch = false
         val trust = object : X509TrustManager {

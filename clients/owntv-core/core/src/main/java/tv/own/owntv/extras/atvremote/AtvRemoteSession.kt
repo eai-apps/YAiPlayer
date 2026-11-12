@@ -13,6 +13,8 @@ interface AtvSessionListener {
     fun onPowerState(on: Boolean) {}
     fun onVolume(level: Int, max: Int, muted: Boolean) {}
     fun onCurrentApp(packageName: String) {}
+    /** A text field got focus on the TV: the phone can open its own keyboard and type into it. */
+    fun onKeyboardRequested() {}
     /** The connection ended; [error] is null when [AtvRemoteSession.close] was called. */
     fun onClosed(error: Throwable?) {}
 }
@@ -74,6 +76,10 @@ class AtvRemoteSession private constructor(
                 msg.imeCounter?.let { imeCounter = it }
                 msg.fieldCounter?.let { fieldCounter = it }
                 msg.appPackage?.let { listener.onCurrentApp(it) }
+            }
+            is RemoteMessages.ImeShow -> {
+                msg.fieldCounter?.let { fieldCounter = it }
+                listener.onKeyboardRequested()
             }
             RemoteMessages.Error, RemoteMessages.Other -> Unit
         }

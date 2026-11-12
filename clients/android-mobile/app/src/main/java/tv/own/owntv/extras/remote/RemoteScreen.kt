@@ -45,6 +45,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.foundation.focusable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.key.Key
@@ -125,6 +126,9 @@ fun RemoteScreen(
             .statusBarsPadding()
             .navigationBarsPadding()
             .focusRequester(focusRequester)
+            // The box itself takes the focus (for the volume keys). Without this, requestFocus went to the first
+            // focusable child — the search field — and the keyboard covered half the screen on open (owner 12.11).
+            .focusable()
             .onKeyEvent { event ->
                 if (hardwareVolume && event.type == KeyEventType.KeyDown) {
                     when (event.key) {

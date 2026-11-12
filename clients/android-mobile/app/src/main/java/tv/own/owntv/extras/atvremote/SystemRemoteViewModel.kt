@@ -110,6 +110,9 @@ class SystemRemoteViewModel(app: Application) : AndroidViewModel(app) {
         override fun onVolume(level: Int, max: Int, muted: Boolean) {
             _volume.value = Triple(level, max, muted)
         }
+        override fun onKeyboardRequested() {
+            _keyboard.value = true
+        }
         override fun onClosed(error: Throwable?) {
             if (error == null) return
             val wasReady = _status.value is SystemRemoteStatus.Connected
@@ -210,6 +213,21 @@ class SystemRemoteViewModel(app: Application) : AndroidViewModel(app) {
         if (value.isNotEmpty()) send { it.text(value) }
     }
 
+    private val _keyboard = MutableStateFlow(false)
+    /** The TV opened its keyboard (a text field got focus): the phone shows its own and types live (owner 12.11). */
+    val keyboard: StateFlow<Boolean> = _keyboard.asStateFlow()
+
+    fun closeKeyboard() {
+        _keyboard.value = false
+    }
+
+    /** Live typing: only what changed goes to the TV — backspaces, then the new characters. */
+    fun type(old: String, new: String) {
+        val edit = tv.own.owntv.extras.atvremote.AtvTyping.diff(old, new)
+        repeat(edit.deletes) { send { s -> s.key(AtvKeys.DEL) } }
+        if (edit.insert.isNotEmpty()) send { it.text(edit.insert) }
+    }
+
     /** Returns false when [value] is neither a link nor a package name. */
     fun launch(value: String): Boolean {
         val link = runCatching { AtvAppLinks.normalize(value) }.getOrNull() ?: return false
@@ -217,9 +235,13 @@ class SystemRemoteViewModel(app: Application) : AndroidViewModel(app) {
         return true
     }
 
+    // One thread, first in first out: keystrokes reach the TV in the order they were typed.
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    private val sendQueue = Dispatchers.IO.limitedParallelism(1)
+
     private fun send(action: (AtvRemoteSession) -> Unit) {
         val s = session ?: return
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(sendQueue) {
             runCatching { action(s) }
         }
     }

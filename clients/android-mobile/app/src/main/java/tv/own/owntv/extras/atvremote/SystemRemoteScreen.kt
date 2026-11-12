@@ -36,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -73,6 +74,10 @@ fun SystemRemoteScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     header: @Composable () -> Unit = {},
+    /** «Ускорить ТВ»: a round accent button under the remote (owner 12.11: the remote first, speeding up is optional). */
+    onSpeedUp: (() -> Unit)? = null,
+    /** «Экран приставки», with the host of the TV in use when there is one. */
+    onScreen: ((String?) -> Unit)? = null,
     vm: SystemRemoteViewModel = viewModel(),
 ) {
     val palette = LocalStagePalette.current
@@ -82,6 +87,7 @@ fun SystemRemoteScreen(
     val pairing by vm.pairing.collectAsStateWithLifecycle()
     val volume by vm.volume.collectAsStateWithLifecycle()
     val currentId by vm.currentId.collectAsStateWithLifecycle()
+    val keyboard by vm.keyboard.collectAsStateWithLifecycle()
     var showPicker by rememberSaveable { mutableStateOf(false) }
     var showManual by rememberSaveable { mutableStateOf(false) }
 
@@ -134,6 +140,14 @@ fun SystemRemoteScreen(
             }
             RemotePad(vm)
         }
+        ExtrasRow(
+            onSpeedUp = onSpeedUp,
+            onScreen = onScreen?.let { open -> { open(saved.firstOrNull { it.id == currentId }?.host ?: found.firstOrNull()?.host) } },
+        )
+    }
+
+    if (keyboard && connected != null) {
+        LiveTypeDialog(onType = vm::type, onEnter = { vm.key(AtvKeys.ENTER); vm.closeKeyboard() }, onDismiss = vm::closeKeyboard)
     }
 
     if (showPicker) {
@@ -221,11 +235,97 @@ private fun TvList(
             Text(stringResource(R.string.atv_searching), style = stageText(12.5f, 500), color = palette.muted)
             LinearProgressIndicator(Modifier.fillMaxWidth())
             Text(stringResource(R.string.atv_none_found_hint), style = stageText(12f, 500), color = palette.muted)
+            NetworkCheck(found = found.size)
         }
         fresh.forEach { tv ->
             StageButton(onClick = { onPair(tv) }, text = tv.serviceName, icon = MobileIcons.Add, modifier = Modifier.fillMaxWidth())
         }
         StageButton(onClick = onManual, text = stringResource(R.string.atv_enter_ip), icon = MobileIcons.Edit, style = StageButtonStyle.PLAIN)
+    }
+}
+
+/** The TV asked for text: the phone's own keyboard opens and every letter goes to the TV as it is typed. */
+@Composable
+private fun LiveTypeDialog(onType: (String, String) -> Unit, onEnter: () -> Unit, onDismiss: () -> Unit) {
+    val palette = LocalStagePalette.current
+    var text by remember { mutableStateOf("") }
+    val focus = remember { androidx.compose.ui.focus.FocusRequester() }
+    androidx.compose.runtime.LaunchedEffect(Unit) { runCatching { focus.requestFocus() } }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.atv_type_title), style = stageText(18f, 700), color = palette.text) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(stringResource(R.string.atv_type_hint), style = stageText(13f, 500), color = palette.muted)
+                OutlinedTextField(
+                    value = text,
+                    onValueChange = { new -> onType(text, new); text = new },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    keyboardActions = androidx.compose.foundation.text.KeyboardActions(onDone = { onEnter() }),
+                    modifier = Modifier.fillMaxWidth().focusRequester(focus),
+                )
+            }
+        },
+        confirmButton = { TextButton(onClick = onEnter) { Text(stringResource(R.string.atv_type_enter)) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.atv_type_close)) } },
+    )
+}
+
+/** Under the remote: the round «Ускорить ТВ» (accent colour, so it reads as a separate tool) and «Экран приставки». */
+@Composable
+private fun ExtrasRow(onSpeedUp: (() -> Unit)?, onScreen: (() -> Unit)?) {
+    if (onSpeedUp == null && onScreen == null) return
+    val palette = LocalStagePalette.current
+    val accent = stageAccent.accent
+    Row(
+        Modifier.fillMaxWidth().padding(top = 18.dp, bottom = 8.dp),
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        verticalAlignment = Alignment.Top,
+    ) {
+        onSpeedUp?.let { open ->
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Box(
+                    Modifier.size(64.dp).clip(androidx.compose.foundation.shape.CircleShape)
+                        .background(accent).clickable(onClick = open),
+                    contentAlignment = Alignment.Center,
+                ) { androidx.compose.material3.Icon(MobileIcons.Bolt, contentDescription = null, tint = androidx.compose.ui.graphics.Color.White) }
+                Text(stringResource(R.string.atv_speed_up), style = stageText(12f, 700), color = palette.text, modifier = Modifier.padding(top = 6.dp))
+            }
+        }
+        onScreen?.let { open ->
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Box(
+                    Modifier.size(64.dp).clip(androidx.compose.foundation.shape.CircleShape)
+                        .background(palette.cardSolid).clickable(onClick = open),
+                    contentAlignment = Alignment.Center,
+                ) { androidx.compose.material3.Icon(MobileIcons.Tv, contentDescription = null, tint = palette.text) }
+                Text(stringResource(R.string.atv_screen_button), style = stageText(12f, 700), color = palette.text, modifier = Modifier.padding(top = 6.dp))
+            }
+        }
+    }
+}
+
+/** The phone's side of "why is nothing found": Wi-Fi, VPN, its own address, how many TVs answered (owner 12.11). */
+@Composable
+private fun NetworkCheck(found: Int) {
+    val palette = LocalStagePalette.current
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val check = remember { tv.own.owntv.extras.atvremote.AtvNetworkCheck.read(context) }
+    Column(
+        Modifier.fillMaxWidth().padding(top = 4.dp),
+        verticalArrangement = Arrangement.spacedBy(2.dp),
+    ) {
+        Text(stringResource(R.string.atv_check_title), style = stageText(12.5f, 700), color = palette.text)
+        val yes = stringResource(R.string.atv_check_yes)
+        val no = stringResource(R.string.atv_check_no)
+        Text(stringResource(R.string.atv_check_wifi, if (check.wifi) yes else no), style = stageText(12f, 500), color = palette.muted)
+        Text(stringResource(R.string.atv_check_vpn, if (check.vpn) yes else no), style = stageText(12f, 500),
+            color = if (check.vpn) palette.danger else palette.muted)
+        Text(stringResource(R.string.atv_check_address, check.addresses.joinToString().ifBlank { "—" }), style = stageText(12f, 500), color = palette.muted)
+        Text(stringResource(R.string.atv_check_found, found), style = stageText(12f, 500), color = palette.muted)
+        if (check.vpn) Text(stringResource(R.string.atv_check_vpn_hint), style = stageText(12f, 600), color = palette.danger)
+        if (!check.wifi) Text(stringResource(R.string.atv_check_wifi_hint), style = stageText(12f, 600), color = palette.danger)
     }
 }
 

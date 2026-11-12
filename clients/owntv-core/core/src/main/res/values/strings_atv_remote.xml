@@ -21,7 +21,7 @@
     <string name="atv_problem_offline">%1$s does not answer. Is it switched on and on the same Wi-Fi?</string>
     <string name="atv_problem_needs_pairing">%1$s no longer knows this phone. Pair it again.</string>
     <string name="atv_problem_cert_changed">Another device answers at the address of %1$s. If you reset or replaced the TV box, pair it again.</string>
-    <string name="atv_problem_not_local">Only addresses in your home network are allowed.</string>
+    <string name="atv_problem_not_local">The TV\'s address is not on this phone\'s network. If both are on the same Wi-Fi, switch off the VPN on the phone and enter the TV\'s IP address by hand.</string>
     <string name="atv_problem_disconnected">Connection to %1$s was lost.</string>
     <string name="atv_pair_title">Pair with %1$s</string>
     <string name="atv_pair_opening">Connecting to the TV box…</string>
@@ -61,4 +61,26 @@
     <string name="atv_volume_level">Volume %1$d of %2$d</string>
     <string name="atv_muted">Sound is off</string>
     <string name="atv_power_hint">Power puts the TV box to sleep. It can be woken only while it stays connected to Wi-Fi.</string>
+    <string name="atv_check_title">Network check</string>
+    <string name="atv_check_yes">yes</string>
+    <string name="atv_check_no">no</string>
+    <string name="atv_check_wifi">Phone on Wi-Fi: %1$s</string>
+    <string name="atv_check_vpn">VPN on the phone: %1$s</string>
+    <string name="atv_check_address">Phone address: %1$s</string>
+    <string name="atv_check_found">TVs that answered: %1$d</string>
+    <string name="atv_check_vpn_hint">A VPN can hide the TV: switch it off while you use the remote.</string>
+    <string name="atv_check_wifi_hint">Connect the phone to the same Wi-Fi as the TV (not the guest network).</string>
+    <string name="atv_screen_title">TV screen</string>
+    <string name="atv_screen_hint">Shows the TV box's screen on the phone. It needs network debugging on the TV, the same as «Speed up TV»: TV Settings → Device preferences → About → press «Build» 7 times, then Developer options → Network debugging (or USB debugging) on.</string>
+    <string name="atv_screen_allow">Look at the TV: allow debugging from this phone (tick «Always allow»).</string>
+    <string name="atv_screen_shoot">Take a picture</string>
+    <string name="atv_screen_live">Show live</string>
+    <string name="atv_screen_live_desc">A new picture every 2 seconds</string>
+    <string name="atv_screen_failed">No picture. Is network debugging on and this phone allowed on the TV?</string>
+    <string name="atv_speed_up">Speed up TV</string>
+    <string name="atv_screen_button">TV screen</string>
+    <string name="atv_type_title">Typing on the TV</string>
+    <string name="atv_type_hint">A text field is open on the TV. Every letter you type here appears there at once.</string>
+    <string name="atv_type_enter">Enter</string>
+    <string name="atv_type_close">Close</string>
 </resources>

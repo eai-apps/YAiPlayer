@@ -31,8 +31,8 @@ class DadbTransport(context: Context) : AdbTransport {
     override suspend fun connect(host: String, port: Int): Result<Unit> = withContext(Dispatchers.IO) {
         runCatching {
             val address = InetAddress.getByName(host)
-            // Same rule as the remote: only the home network.
-            require(address.isSiteLocalAddress || address.isLinkLocalAddress || address.isLoopbackAddress) { "not local" }
+            // Same rule as the remote: only the home network (private ranges or the phone's own subnet).
+            require(tv.own.owntv.extras.atvremote.AtvTls.isHomeAddress(address)) { "not local" }
             disconnectNow()
             // The first command waits for the user to tap «Allow» on the TV: up to a minute.
             val d = Dadb.create(address.hostAddress!!, port, keyPair(), connectTimeout = 5_000, socketTimeout = 60_000)

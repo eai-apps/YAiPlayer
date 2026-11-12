@@ -73,7 +73,7 @@ class AtvMessagesTest {
             RemoteMessages.ImeCounters(9, 4, "com.google.android.youtube.tv"),
             RemoteMessages.parse(hex("a201270a210809621d636f6d2e676f6f676c652e616e64726f69642e796f75747562652e747612020804")),
         )
-        assertEquals(RemoteMessages.ImeCounters(null, 6, null), RemoteMessages.parse(hex("b2010412020806")))
+        assertEquals(RemoteMessages.ImeShow(6), RemoteMessages.parse(hex("b2010412020806")))
         assertEquals(RemoteMessages.SetActive, RemoteMessages.parse(hex("1200")))
         // A negative ping value must be echoed back unchanged.
         assertEquals(
@@ -134,6 +134,27 @@ class AtvMessagesTest {
         for (bad in listOf("8.8.8.8", "100.64.1.1", "2001:4860::8888")) {
             assertFalse(bad, AtvTls.isLocalAddress(InetAddress.getByName(bad)))
         }
+    }
+
+    @Test fun sameSubnetAsThePhoneIsHomeEvenOutsidePrivateRanges() {
+        fun ip(s: String) = InetAddress.getByName(s)
+        // A LAN on carrier NAT and a public LAN range: the phone's own /24 lets the TV in.
+        assertTrue(AtvTls.sharesSubnet(ip("100.64.1.20"), listOf(ip("100.64.1.7") to 24)))
+        assertTrue(AtvTls.sharesSubnet(ip("85.10.20.30"), listOf(ip("85.10.20.2") to 24)))
+        assertTrue(AtvTls.sharesSubnet(ip("2001:db8:1:2::50"), listOf(ip("2001:db8:1:2::9") to 64)))
+        // Another subnet, a too-wide prefix, a different family: refused.
+        assertFalse(AtvTls.sharesSubnet(ip("85.10.21.30"), listOf(ip("85.10.20.2") to 24)))
+        assertFalse(AtvTls.sharesSubnet(ip("8.8.8.8"), listOf(ip("8.1.1.1") to 8)))
+        assertFalse(AtvTls.sharesSubnet(ip("85.10.20.30"), listOf(ip("2001:db8::1") to 64)))
+        assertFalse(AtvTls.sharesSubnet(ip("85.10.20.30"), emptyList()))
+    }
+
+    @Test fun liveTypingSendsOnlyTheChange() {
+        assertEquals(AtvTyping.Edit(0, "c"), AtvTyping.diff("ab", "abc"))
+        assertEquals(AtvTyping.Edit(1, ""), AtvTyping.diff("abc", "ab"))
+        assertEquals(AtvTyping.Edit(2, "XY"), AtvTyping.diff("abcd", "abXY"))
+        assertEquals(AtvTyping.Edit(0, "привет"), AtvTyping.diff("", "привет"))
+        assertEquals(AtvTyping.Edit(0, ""), AtvTyping.diff("same", "same"))
     }
 
     @Test fun appLinksAcceptLinksAndPackagesOnly() {

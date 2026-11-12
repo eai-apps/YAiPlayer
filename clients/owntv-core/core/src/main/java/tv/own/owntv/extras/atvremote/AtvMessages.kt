@@ -95,6 +95,8 @@ object RemoteMessages {
     data class Started(val on: Boolean) : Incoming
     data class Volume(val level: Int, val max: Int, val muted: Boolean) : Incoming
     data class ImeCounters(val imeCounter: Int?, val fieldCounter: Int?, val appPackage: String?) : Incoming
+    /** remote_ime_show_request: a text field got focus on the TV and its keyboard opened. */
+    data class ImeShow(val fieldCounter: Int?) : Incoming
     data object Error : Incoming
     data object Other : Incoming
 
@@ -120,7 +122,7 @@ object RemoteMessages {
             return ImeCounters(batch.int(1).toInt().takeIf { it != 0 }, batch.int(2).toInt().takeIf { it != 0 }, null)
         }
         f.msg(22)?.let { show ->
-            return ImeCounters(null, show.msg(2)?.int(1)?.toInt()?.takeIf { it != 0 }, null)
+            return ImeShow(show.msg(2)?.int(1)?.toInt()?.takeIf { it != 0 })
         }
         f.msg(40)?.let { return Started(it.int(1) != 0L) }
         f.msg(50)?.let { return Volume(it.int(7).toInt(), it.int(6).toInt(), it.int(8) != 0L) }
@@ -161,5 +163,20 @@ object AtvKeys {
     fun digit(n: Int): Int {
         require(n in 0..9)
         return DIGIT_0 + n
+    }
+}
+
+/**
+ * Live typing from the phone's keyboard into the TV's field: what changed between two states of the phone's text,
+ * as backspaces to press and then text to insert at the TV's cursor (common prefix kept).
+ */
+object AtvTyping {
+    data class Edit(val deletes: Int, val insert: String)
+
+    fun diff(old: String, new: String): Edit {
+        var common = 0
+        val max = minOf(old.length, new.length)
+        while (common < max && old[common] == new[common]) common++
+        return Edit(old.length - common, new.substring(common))
     }
 }

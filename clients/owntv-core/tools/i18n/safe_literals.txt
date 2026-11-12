@@ -6113,6 +6113,7 @@
 2	json	core/src/main/java/tv/own/owntv/extras/atvremote/AtvAndroid.kt	name
 2	json	core/src/main/java/tv/own/owntv/extras/atvremote/AtvAndroid.kt	pairingPort
 2	json	core/src/main/java/tv/own/owntv/extras/atvremote/AtvAndroid.kt	remotePort
+1	technical	core/src/main/java/tv/own/owntv/extras/atvremote/AtvAndroid.kt	yaiplayer-atv
 1	preference-key	core/src/main/java/tv/own/owntv/extras/atvremote/AtvAndroid.kt	yaiplayer_atv_remote_rsa_v1
 1	protocol	core/src/main/java/tv/own/owntv/extras/atvremote/AtvMessages.kt	1
 1	protocol	core/src/main/java/tv/own/owntv/extras/atvremote/AtvMessages.kt	1.0.0

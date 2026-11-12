@@ -53,6 +53,10 @@ object MobileIcons {
     val Tv: ImageVector by lazy {
         glyph() { box(3f, 4f, 21f, 17f, 2.5f); line(8f, 21f, 16f, 21f); line(12f, 17f, 12f, 21f) }
     }
+    /** Lightning: «Ускорить ТВ» in the remote. */
+    val Bolt: ImageVector by lazy {
+        glyph() { line(13f, 2f, 4f, 14f, 12f, 14f, 11f, 22f, 20f, 10f, 12f, 10f, 13f, 2f) }
+    }
     val Movie: ImageVector by lazy { stage(StageGlyph.MOVIES) }
     val VideoLibrary: ImageVector by lazy {
         glyph() {

@@ -159,6 +159,13 @@ data class AtvFoundTv(val serviceName: String, val host: String, val port: Int)
 /** mDNS discovery of Android TV / Google TV devices with the Google remote service. */
 class AtvDiscovery(context: Context) {
     private val nsd = context.applicationContext.getSystemService(Context.NSD_SERVICE) as NsdManager
+    private val wifi = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as? android.net.wifi.WifiManager
+    // Some phones drop multicast (the mDNS answers) while the screen's app holds no multicast lock.
+    private var multicast: android.net.wifi.WifiManager.MulticastLock? = null
+    // Older Android resolves one service at a time and fails the rest (FAILURE_ALREADY_ACTIVE): with two TVs, or
+    // one TV announced twice, the second was lost. Resolve them one after another instead.
+    private val pending = ArrayDeque<NsdServiceInfo>()
+    private var resolving = false
     private val _found = MutableStateFlow<List<AtvFoundTv>>(emptyList())
     val found: StateFlow<List<AtvFoundTv>> = _found.asStateFlow()
     private var listener: NsdManager.DiscoveryListener? = null
@@ -178,6 +185,9 @@ class AtvDiscovery(context: Context) {
             }
         }
         listener = l
+        runCatching {
+            multicast = wifi?.createMulticastLock("yaiplayer-atv")?.apply { setReferenceCounted(false); acquire() }
+        }
         runCatching { nsd.discoverServices(SERVICE_TYPE, NsdManager.PROTOCOL_DNS_SD, l) }.onFailure { listener = null }
     }
 
@@ -185,29 +195,69 @@ class AtvDiscovery(context: Context) {
     fun stop() {
         listener?.let { runCatching { nsd.stopServiceDiscovery(it) } }
         listener = null
+        runCatching { multicast?.release() }
+        multicast = null
+        synchronized(pending) { pending.clear(); resolving = false }
+    }
+
+    private fun resolve(info: NsdServiceInfo) {
+        synchronized(pending) {
+            if (pending.none { it.serviceName == info.serviceName }) pending.addLast(info)
+            if (resolving) return
+            resolving = true
+        }
+        next()
     }
 
     @Suppress("DEPRECATION")
-    private fun resolve(info: NsdServiceInfo) {
-        // resolveService handles one request at a time on older Android; failures are retried on the next announcement.
-        runCatching {
+    private fun next() {
+        val info = synchronized(pending) {
+            pending.removeFirstOrNull() ?: run { resolving = false; return }
+        }
+        val ok = runCatching {
             nsd.resolveService(info, object : NsdManager.ResolveListener {
-                override fun onResolveFailed(serviceInfo: NsdServiceInfo, errorCode: Int) = Unit
+                override fun onResolveFailed(serviceInfo: NsdServiceInfo, errorCode: Int) = next()
                 override fun onServiceResolved(resolved: NsdServiceInfo) {
                     val address = if (Build.VERSION.SDK_INT >= 34) {
                         resolved.hostAddresses.firstOrNull { it is java.net.Inet4Address } ?: resolved.hostAddresses.firstOrNull()
                     } else {
                         resolved.host
-                    } ?: return
-                    if (!AtvTls.isLocalAddress(address)) return
-                    val tv = AtvFoundTv(resolved.serviceName, address.hostAddress ?: return, resolved.port)
-                    _found.value = (_found.value.filterNot { it.serviceName == tv.serviceName } + tv).sortedBy { it.serviceName }
+                    }
+                    // No address filter here: mDNS answers only reach this phone from its own link. The connection
+                    // itself still checks the address (AtvTls.isHomeAddress).
+                    address?.hostAddress?.let { host ->
+                        val tv = AtvFoundTv(resolved.serviceName, host, resolved.port)
+                        _found.value = (_found.value.filterNot { it.serviceName == tv.serviceName } + tv).sortedBy { it.serviceName }
+                    }
+                    next()
                 }
             })
-        }
+        }.isSuccess
+        if (!ok) next()
     }
 
     companion object {
         const val SERVICE_TYPE = "_androidtvremote2._tcp."
+    }
+}
+
+/** What the remote's "network check" shows when no TV is found (owner 12.11: the phone said "another network"). */
+data class AtvNetworkCheck(val wifi: Boolean, val vpn: Boolean, val addresses: List<String>) {
+    companion object {
+        fun read(context: Context): AtvNetworkCheck {
+            val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as? android.net.ConnectivityManager
+            val caps = runCatching { cm?.getNetworkCapabilities(cm.activeNetwork) }.getOrNull()
+            val wifi = caps?.hasTransport(android.net.NetworkCapabilities.TRANSPORT_WIFI) == true ||
+                caps?.hasTransport(android.net.NetworkCapabilities.TRANSPORT_ETHERNET) == true
+            val vpn = caps?.hasTransport(android.net.NetworkCapabilities.TRANSPORT_VPN) == true
+            val addresses = runCatching {
+                java.net.NetworkInterface.getNetworkInterfaces().toList()
+                    .filter { it.isUp && !it.isLoopback }
+                    .flatMap { nic -> nic.inetAddresses.toList() }
+                    .filterIsInstance<java.net.Inet4Address>()
+                    .mapNotNull { it.hostAddress }
+            }.getOrDefault(emptyList())
+            return AtvNetworkCheck(wifi, vpn, addresses)
+        }
     }
 }

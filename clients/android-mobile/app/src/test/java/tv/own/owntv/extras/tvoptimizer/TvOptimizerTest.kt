@@ -214,4 +214,11 @@ class TvOptimizerTest {
         assertTrue(runCatching { engine.switchHome("com.vendor.launcher/.Main", "x'; reboot") }.isFailure)
         assertNotNull(tv.history.lastOrNull())
     }
+
+    @Test
+    fun screenPeekKeepsOnlyBase64() {
+        // The shell's base64 output wraps lines and may end with CR/LF; only the alphabet must remain.
+        assertEquals("iVBORw0KGgo+/A==", ScreenPeekText.clean("iVBORw0K\r\nGgo+/A==\n"))
+        assertEquals("", ScreenPeekText.clean("\n\r\t "))
+    }
 }

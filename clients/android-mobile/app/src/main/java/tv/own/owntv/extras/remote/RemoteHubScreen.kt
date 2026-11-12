@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -27,6 +28,19 @@ import tv.own.owntv.mobile.ui.stage.stageBackground
 @Composable
 fun RemoteHubScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
     var mode by rememberSaveable { mutableIntStateOf(0) }
+    var showSpeedUp by rememberSaveable { mutableStateOf(false) }
+    var screenHost by rememberSaveable { mutableStateOf<String?>(null) }
+    var showScreen by rememberSaveable { mutableStateOf(false) }
+    if (showSpeedUp) {
+        androidx.activity.compose.BackHandler { showSpeedUp = false }
+        tv.own.owntv.extras.tvoptimizer.TvOptimizerScreen(onDismiss = { showSpeedUp = false }, modifier = modifier.stageBackground())
+        return
+    }
+    if (showScreen) {
+        androidx.activity.compose.BackHandler { showScreen = false }
+        tv.own.owntv.extras.tvoptimizer.TvScreenPeekScreen(host = screenHost, onBack = { showScreen = false })
+        return
+    }
     val options = listOf(stringResource(R.string.atv_mode_system), stringResource(R.string.atv_mode_player))
     val switcher: @Composable () -> Unit = {
         StageSegmented(
@@ -38,7 +52,13 @@ fun RemoteHubScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
         )
     }
     if (mode == 0) {
-        SystemRemoteScreen(onBack = onBack, modifier = modifier.stageBackground(), header = switcher)
+        SystemRemoteScreen(
+            onBack = onBack,
+            modifier = modifier.stageBackground(),
+            header = switcher,
+            onSpeedUp = { showSpeedUp = true },
+            onScreen = { host -> screenHost = host; showScreen = true },
+        )
     } else {
         Column(modifier.fillMaxSize().stageBackground()) {
             Box(Modifier.statusBarsPadding().padding(horizontal = 16.dp)) { switcher() }

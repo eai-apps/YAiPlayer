@@ -34,6 +34,10 @@
     <!-- Playback has to keep running when the app is off screen, and from Android 14 a foreground
          service must declare the type it is. -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+    <!-- Remote (Пульт ДУ): finding the TV over mDNS needs multicast, which some phones drop without this lock;
+         the Wi-Fi state is read only for the remote's network check. -->
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
     <!-- Coarse, never fine, and asked for only when the user turns on "Use this device's location"
          for the weather. A phone moves and a television does not: without it the forecast is

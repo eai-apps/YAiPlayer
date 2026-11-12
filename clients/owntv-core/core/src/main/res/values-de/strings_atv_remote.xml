@@ -21,7 +21,7 @@
     <string name="atv_problem_offline">%1$s antwortet nicht. Ist die TV-Box eingeschaltet und im selben WLAN?</string>
     <string name="atv_problem_needs_pairing">%1$s kennt dieses Telefon nicht mehr. Bitte neu koppeln.</string>
     <string name="atv_problem_cert_changed">Unter der Adresse von %1$s antwortet ein anderes Gerät. Wurde die TV-Box zurückgesetzt oder ersetzt, bitte neu koppeln.</string>
-    <string name="atv_problem_not_local">Nur Adressen im Heimnetz sind erlaubt.</string>
+    <string name="atv_problem_not_local">Die Adresse des Fernsehers liegt nicht im Netz dieses Handys. Sind beide im selben WLAN, schalten Sie das VPN am Handy aus und geben Sie die IP-Adresse des Fernsehers von Hand ein.</string>
     <string name="atv_problem_disconnected">Verbindung zu %1$s unterbrochen.</string>
     <string name="atv_pair_title">Koppeln mit %1$s</string>
     <string name="atv_pair_opening">Verbinde mit der TV-Box…</string>
@@ -61,4 +61,26 @@
     <string name="atv_volume_level">Lautstärke %1$d von %2$d</string>
     <string name="atv_muted">Ton aus</string>
     <string name="atv_power_hint">Ein/Aus versetzt die TV-Box in den Ruhezustand. Aufwecken geht nur, solange sie im WLAN bleibt.</string>
+    <string name="atv_check_title">Netzwerkprüfung</string>
+    <string name="atv_check_yes">ja</string>
+    <string name="atv_check_no">nein</string>
+    <string name="atv_check_wifi">Handy im WLAN: %1$s</string>
+    <string name="atv_check_vpn">VPN am Handy: %1$s</string>
+    <string name="atv_check_address">Adresse des Handys: %1$s</string>
+    <string name="atv_check_found">Gefundene Fernseher: %1$d</string>
+    <string name="atv_check_vpn_hint">Ein VPN kann den Fernseher verbergen: schalten Sie es aus, solange Sie die Fernbedienung nutzen.</string>
+    <string name="atv_check_wifi_hint">Verbinden Sie das Handy mit demselben WLAN wie den Fernseher (nicht mit dem Gastnetz).</string>
+    <string name="atv_screen_title">Bildschirm des Fernsehers</string>
+    <string name="atv_screen_hint">Zeigt den Bildschirm der TV-Box auf dem Handy. Dafür muss am Fernseher das Debugging über das Netzwerk an sein, wie bei «Fernseher beschleunigen»: TV-Einstellungen → Geräteeinstellungen → Info → 7-mal «Build» drücken, dann Entwickleroptionen → Netzwerk-Debugging (oder USB-Debugging) einschalten.</string>
+    <string name="atv_screen_allow">Schauen Sie auf den Fernseher: erlauben Sie das Debugging von diesem Handy («Immer erlauben» ankreuzen).</string>
+    <string name="atv_screen_shoot">Bild aufnehmen</string>
+    <string name="atv_screen_live">Live anzeigen</string>
+    <string name="atv_screen_live_desc">Alle 2 Sekunden ein neues Bild</string>
+    <string name="atv_screen_failed">Kein Bild. Ist Netzwerk-Debugging an und dieses Handy am Fernseher erlaubt?</string>
+    <string name="atv_speed_up">Fernseher beschleunigen</string>
+    <string name="atv_screen_button">TV-Bildschirm</string>
+    <string name="atv_type_title">Eingabe am Fernseher</string>
+    <string name="atv_type_hint">Am Fernseher ist ein Eingabefeld offen. Jeder Buchstabe, den Sie hier tippen, erscheint dort sofort.</string>
+    <string name="atv_type_enter">Eingabe</string>
+    <string name="atv_type_close">Schließen</string>
 </resources>

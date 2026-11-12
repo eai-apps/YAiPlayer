@@ -21,7 +21,7 @@
     <string name="atv_problem_offline">%1$s не отвечает. Приставка включена и в той же сети Wi-Fi?</string>
     <string name="atv_problem_needs_pairing">%1$s больше не знает этот телефон. Привяжите её заново.</string>
     <string name="atv_problem_cert_changed">По адресу %1$s отвечает другое устройство. Если приставку сбрасывали или заменили, привяжите её заново.</string>
-    <string name="atv_problem_not_local">Можно подключаться только к адресам вашей домашней сети.</string>
+    <string name="atv_problem_not_local">Адрес приставки не из сети этого телефона. Если они в одной сети Wi-Fi, выключите VPN на телефоне и введите IP-адрес приставки вручную.</string>
     <string name="atv_problem_disconnected">Связь с %1$s потеряна.</string>
     <string name="atv_pair_title">Привязка: %1$s</string>
     <string name="atv_pair_opening">Подключаюсь к приставке…</string>
@@ -61,4 +61,26 @@
     <string name="atv_volume_level">Громкость %1$d из %2$d</string>
     <string name="atv_muted">Звук выключен</string>
     <string name="atv_power_hint">Кнопка питания усыпляет приставку. Разбудить её можно, только пока она остаётся в сети Wi-Fi.</string>
+    <string name="atv_check_title">Проверка сети</string>
+    <string name="atv_check_yes">да</string>
+    <string name="atv_check_no">нет</string>
+    <string name="atv_check_wifi">Телефон в Wi-Fi: %1$s</string>
+    <string name="atv_check_vpn">VPN на телефоне: %1$s</string>
+    <string name="atv_check_address">Адрес телефона: %1$s</string>
+    <string name="atv_check_found">Ответили приставок: %1$d</string>
+    <string name="atv_check_vpn_hint">VPN может скрывать приставку: выключите его, пока пользуетесь пультом.</string>
+    <string name="atv_check_wifi_hint">Подключите телефон к той же сети Wi-Fi, что и приставку (не к гостевой).</string>
+    <string name="atv_screen_title">Экран приставки</string>
+    <string name="atv_screen_hint">Показывает экран приставки на телефоне. Нужна отладка по сети на приставке, как для «Ускорь телевизор»: Настройки ТВ → Настройки устройства → Об устройстве → 7 раз нажать «Сборка», затем «Для разработчиков» → включить «Отладка по сети» (или «Отладка по USB»).</string>
+    <string name="atv_screen_allow">Посмотрите на телевизор: разрешите отладку с этого телефона (отметьте «Всегда разрешать»).</string>
+    <string name="atv_screen_shoot">Сделать снимок</string>
+    <string name="atv_screen_live">Показывать вживую</string>
+    <string name="atv_screen_live_desc">Новый снимок каждые 2 секунды</string>
+    <string name="atv_screen_failed">Нет снимка. Включена ли отладка по сети и разрешён ли этот телефон на приставке?</string>
+    <string name="atv_speed_up">Ускорить ТВ</string>
+    <string name="atv_screen_button">Экран приставки</string>
+    <string name="atv_type_title">Ввод на приставке</string>
+    <string name="atv_type_hint">На приставке открыто поле ввода. Каждая буква, набранная здесь, сразу появляется там.</string>
+    <string name="atv_type_enter">Ввод</string>
+    <string name="atv_type_close">Закрыть</string>
 </resources>
