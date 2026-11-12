@@ -190,7 +190,7 @@
     <string name="opt_look_theme">Theme</string>
     <string name="opt_look_theme_none">Standard</string>
     <string name="opt_look_photos">Your own wallpapers</string>
-    <string name="opt_look_photos_hint">Photos chosen: %1$d of %2$d. Each one is cropped to 16:9, 1280×720, under 300 KB. Your photos replace the theme's pictures.</string>
+    <string name="opt_look_photos_hint">Photos chosen: %1$d of %2$d. Each one is cropped to 16:9, 1280×720, under 300 KB. Your photos replace the theme\'s pictures.</string>
     <string name="opt_look_photos_add">Choose photos</string>
     <string name="opt_look_photos_clear">Remove photos</string>
     <string name="opt_look_rotation">Change the picture every</string>
@@ -203,7 +203,7 @@
     <string name="opt_look_library">App library</string>
     <string name="opt_look_inputs">Inputs button (HDMI)</string>
     <string name="opt_look_dock">Favourite apps in the dock</string>
-    <string name="opt_look_dock_hint">Tick in the order they should stand. Nothing ticked: the theme's own dock.</string>
+    <string name="opt_look_dock_hint">Tick in the order they should stand. Nothing ticked: the theme\'s own dock.</string>
     <string name="opt_look_apply">Send to the TV box</string>
     <string name="opt_look_reset">Back to the standard look</string>
     <string name="opt_look_ok">Done: the Home screen restarted with the new look.</string>
