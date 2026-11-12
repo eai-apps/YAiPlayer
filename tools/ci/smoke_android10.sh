@@ -19,7 +19,7 @@ fail=0
 if grep -E "Verification error in|Verifier rejected class|java.lang.VerifyError" verify.log launch.log; then
   echo "::error::ART verifier rejected a class on Android 10"; fail=1
 fi
-if grep -E "FATAL EXCEPTION|Process: $pkg, PID" launch.log | head -20; then
+if grep -qE "FATAL EXCEPTION|Process: $pkg, PID" launch.log; then
   grep -A30 "FATAL EXCEPTION" launch.log | head -60
   echo "::error::the app crashed on start on Android 10"; fail=1
 fi
