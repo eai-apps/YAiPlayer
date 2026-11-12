@@ -102,17 +102,17 @@ class EpgRepository(
     suspend fun compactIfBloated() = withContext(Dispatchers.IO) {
         try {
             val startedAt = SystemClock.elapsedRealtime()
-            fun androidx.sqlite.SQLiteConnection.pragma(name: String): Long =
-                prepare("PRAGMA $name").use { st -> if (st.step()) st.getLong(0) else 0L }
             val freedMb = db.useWriterConnection { connection ->
-                val page = connection.pragma("page_size")
-                val free = connection.pragma("freelist_count") * page
-                val total = connection.pragma("page_count") * page
+                suspend fun pragma(name: String): Long =
+                    connection.usePrepared("PRAGMA $name") { st -> if (st.step()) st.getLong(0) else 0L }
+                val page = pragma("page_size")
+                val free = pragma("freelist_count") * page
+                val total = pragma("page_count") * page
                 val room = context.filesDir.usableSpace
                 if (free >= COMPACT_FREE_BYTES && room > total + COMPACT_HEADROOM_BYTES) {
                     connection.execSQL("VACUUM")
                 }
-                runCatching { connection.prepare("PRAGMA wal_checkpoint(TRUNCATE)").use { it.step() } }
+                runCatching { connection.usePrepared("PRAGMA wal_checkpoint(TRUNCATE)") { it.step() } }
                 free / (1024 * 1024)
             }
             Log.i("EpgRepository", "compact freeMb=$freedMb ms=${SystemClock.elapsedRealtime() - startedAt}")
