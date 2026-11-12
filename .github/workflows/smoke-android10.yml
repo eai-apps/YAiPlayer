@@ -5,6 +5,15 @@ name: Android 10 smoke (release build)
 on:
   workflow_call:
   workflow_dispatch:
+  # Also on test branches, so a build that would crash on Android 10 is seen before it is merged.
+  push:
+    branches: ['test/**']
+    paths:
+      - 'clients/android-tv/**'
+      - 'clients/android-mobile/**'
+      - 'clients/owntv-core/**'
+      - 'tools/ci/**'
+      - '.github/workflows/smoke-android10.yml'
 
 jobs:
   smoke:
