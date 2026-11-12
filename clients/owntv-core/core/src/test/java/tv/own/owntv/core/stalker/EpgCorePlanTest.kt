@@ -40,10 +40,9 @@ class EpgCorePlanTest {
         assertFalse(EpgGapPlan.inWindow(10, 20, emptyList()))
     }
     private fun at(value: String) = ZonedDateTime.parse(value + "[Europe/Berlin]")
-    @Test fun sixWeeklySlotsAndNextWeek() {
+    @Test fun threeWeeklySlotsAndNextWeek() {
         var time = at("2026-11-09T08:59:00+01:00")
-        val expected = listOf("2026-11-09T09:00:00+01:00", "2026-11-09T12:00:00+01:00",
-            "2026-11-09T15:00:00+01:00", "2026-11-09T18:00:00+01:00", "2026-11-09T21:00:00+01:00",
+        val expected = listOf("2026-11-09T09:00:00+01:00", "2026-11-09T15:00:00+01:00",
             "2026-11-10T09:00:00+01:00", "2026-11-16T09:00:00+01:00")
         for (slot in expected) {
             time = nextStalkerCatchup(time)

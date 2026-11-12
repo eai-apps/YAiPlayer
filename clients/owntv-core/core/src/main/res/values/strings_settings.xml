@@ -1565,8 +1565,8 @@
     <string name="settings_epg_sources_title">EPG Sources</string>
     <!-- Translators: Empty-state message when no EPG sources are configured. 'XMLTV' is a format name. -->
     <string name="settings_epg_sources_empty">No EPG sources yet. Add an XMLTV link.</string>
-    <string name="settings_epg_builtin">Built-in guide</string>
-    <string name="settings_epg_builtin_description">Programme guide and channel logos for playlists, supplied by the app. Your own guides always take priority.</string>
+    <string name="settings_epg_builtin">Reserve guide</string>
+    <string name="settings_epg_builtin_description">One reserve guide (iptvx.one, light). A playlist uses it only when its own guide (url-tvg) is missing or did not load; a portal only with “Additional guide for the portal” on.</string>
     <string name="settings_epg_builtin_refresh">Update built-in guide now</string>
     <string name="about_telegram_channel">Telegram channel</string>
     <string name="about_telegram_support">Support (Telegram)</string>
@@ -3282,4 +3282,8 @@
     <string name="settings_log_export_share_title">Share diagnostic log</string>
     <string name="settings_epg_stalker_catchup">Automatic Stalker guide top-up</string>
     <string name="settings_epg_stalker_catchup_desc">Missing guide only: Monday 09:00, 12:00, 15:00, 18:00, 21:00; Tuesday 09:00. Device time, network required, battery not low. System may delay.</string>
+    <string name="settings_epg_portal_guide">Portal guide</string>
+    <string name="settings_epg_portal_guide_desc">Use the guide the portal provides: the next hours for every channel at once, and whole days (at least 3 back, 2 ahead) for a channel when you open it.</string>
+    <string name="settings_epg_portal_extra">Additional guide for the portal</string>
+    <string name="settings_epg_portal_extra_desc">Fill channels the portal leaves without a programme from the reserve guide. Off: the portal’s guide only.</string>
 </resources>

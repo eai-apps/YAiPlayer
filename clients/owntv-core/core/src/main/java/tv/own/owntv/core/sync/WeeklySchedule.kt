@@ -4,35 +4,46 @@ import java.util.Calendar
 import java.util.TimeZone
 
 /**
- * When playlists, portals and guides are refreshed on their own (owner's decision, 12.11):
- * Mondays at 09:00, 15:00 and 19:00 and Tuesdays at 09:00 (device time). Nothing refreshes just because the
- * app was opened. A device that was off on those days catches up once, at the first launch after them —
- * "nothing synced yet this week" — and then stays quiet until the next Monday. Manual refresh is unaffected.
+ * When playlists, portals and guides are refreshed on their own (owner's decision, 12.11, evening):
+ *
+ * - **Guides** (the portal's own guide, a playlist's url-tvg, the reserve): Monday 09:00 and 15:00, and
+ *   Tuesday 09:00. The operator loads next week's guide on Monday, so Monday morning tries, 15:00 tries
+ *   again if the morning found nothing new, and Tuesday morning has it for certain.
+ * - **Catalogues** (channels, films, series): Tuesday 09:00, every week, whether or not the app was used on
+ *   Monday — then the guide right after it, one after the other in the refresh queue.
+ *
+ * Device time. Nothing refreshes just because the app was opened; a box that was off at a slot catches up
+ * once, at the first launch after it. Manual refresh is unaffected.
  */
 object WeeklySchedule {
-    private val MONDAY_HOURS = intArrayOf(9, 15, 19)
-    private const val TUESDAY_HOUR = 9
+    private val GUIDE_SLOTS = listOf(0 to 9, 0 to 15, 1 to 9) // (days after Monday, hour)
+    private val CATALOG_SLOTS = listOf(1 to 9)
 
-    /** True when a refresh is due now for a source last synced at [lastSyncAt] (0 / null = never). */
-    fun isDue(lastSyncAt: Long?, nowMs: Long, zone: TimeZone = TimeZone.getDefault()): Boolean {
+    /** A catalogue (playlist or portal) refresh is due now. */
+    fun isCatalogDue(lastSyncAt: Long?, nowMs: Long, zone: TimeZone = TimeZone.getDefault()): Boolean =
+        dueAt(CATALOG_SLOTS, lastSyncAt, nowMs, zone)
+
+    /** A guide refresh is due now. */
+    fun isGuideDue(lastSyncAt: Long?, nowMs: Long, zone: TimeZone = TimeZone.getDefault()): Boolean =
+        dueAt(GUIDE_SLOTS, lastSyncAt, nowMs, zone)
+
+    /** Kept for callers that do not tell the two apart: the catalogue rule. */
+    fun isDue(lastSyncAt: Long?, nowMs: Long, zone: TimeZone = TimeZone.getDefault()): Boolean =
+        isCatalogDue(lastSyncAt, nowMs, zone)
+
+    /** Due when the latest slot already passed (this week's, or last week's) has no sync after it. */
+    private fun dueAt(slots: List<Pair<Int, Int>>, lastSyncAt: Long?, nowMs: Long, zone: TimeZone): Boolean {
         val last = lastSyncAt ?: 0L
         val now = Calendar.getInstance(zone).apply { timeInMillis = nowMs }
-        val weekStart = (now.clone() as Calendar).apply {
-            val back = (get(Calendar.DAY_OF_WEEK) + 5) % 7 // Monday = 0
-            add(Calendar.DAY_OF_YEAR, -back)
+        val monday = (now.clone() as Calendar).apply {
+            add(Calendar.DAY_OF_YEAR, -((get(Calendar.DAY_OF_WEEK) + 5) % 7)) // Monday = 0
             set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0); set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
         }
-        fun at(dayOffset: Int, hour: Int): Long = (weekStart.clone() as Calendar).apply {
-            add(Calendar.DAY_OF_YEAR, dayOffset); set(Calendar.HOUR_OF_DAY, hour)
+        fun at(weekOffset: Int, day: Int, hour: Int): Long = (monday.clone() as Calendar).apply {
+            add(Calendar.DAY_OF_YEAR, weekOffset * 7 + day); set(Calendar.HOUR_OF_DAY, hour)
         }.timeInMillis
-        val tuesday = at(1, TUESDAY_HOUR)
-        // Tuesday 09:00 or later (also Wed…Sun, and Monday before 09:00 counts as "last week" below): due only if
-        // nothing was synced since this Monday began.
-        if (nowMs >= tuesday) return last < weekStart.timeInMillis
-        // Monday: due when the latest slot already passed has no sync after it.
-        val latestMonday = MONDAY_HOURS.map { at(0, it) }.filter { it <= nowMs }.maxOrNull()
-        if (latestMonday != null) return last < latestMonday
-        // Before Monday 09:00: nothing is scheduled yet; catch up only if the whole last week had no sync.
-        return last < weekStart.timeInMillis - 7L * 24 * 3600 * 1000
+        val latest = (slots.map { (d, h) -> at(0, d, h) } + slots.map { (d, h) -> at(-1, d, h) })
+            .filter { it <= nowMs }.maxOrNull() ?: return last == 0L
+        return last < latest
     }
 }

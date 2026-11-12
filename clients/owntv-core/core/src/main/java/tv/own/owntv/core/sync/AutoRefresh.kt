@@ -85,7 +85,7 @@ class AutoRefresh(
         val playlists = active.map { source ->
             val mode = playlistModes[source.id] ?: PlaylistRefresh.OFF
             val due = shouldRefresh(mode, source.lastSyncAt, nowMs, includeStartup) ||
-                (staleCatchUp && WeeklySchedule.isDue(source.lastSyncAt, nowMs))
+                (staleCatchUp && WeeklySchedule.isCatalogDue(source.lastSyncAt, nowMs))
             val counts = if (due) importFinalizer.contentCounts(source.id) else null
             PlaylistInfo(source.id, true, due, counts?.let { it.channels + it.movies + it.series } ?: 0, epgRepository.guideUrls(source))
         } + others.map { PlaylistInfo(it.id, false, false, 0, epgRepository.guideUrls(it)) }
@@ -96,7 +96,7 @@ class AutoRefresh(
         val feeds = all.filter { !it.builtin || it.id == firstBuiltinId }.map { src ->
             val mode = epgModes[src.id] ?: EpgRefresh.OFF
             val due = shouldRefreshEpg(mode, src.lastSyncAt, nowMs, includeStartup) ||
-                (staleCatchUp && WeeklySchedule.isDue(src.lastSyncAt, nowMs))
+                (staleCatchUp && WeeklySchedule.isGuideDue(src.lastSyncAt, nowMs))
             GuideFeedInfo(src.id, src.url, src.builtin, due, if (due) epgDao.countForSources(listOf(src.id)) else 0)
         }
         val jobs = RefreshQueuePlanner.plan(playlists, feeds)

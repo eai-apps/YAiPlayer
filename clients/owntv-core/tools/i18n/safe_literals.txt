@@ -1365,6 +1365,7 @@
 1	sql	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	SELECT DISTINCT epgChannelId FROM epg_programmes LIMIT :limit
 1	sql	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	SELECT DISTINCT epgChannelId FROM epg_programmes WHERE epgChannelId IN (:keys) AND startMs < :to AND stopMs > :from
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	SELECT DISTINCT sourceId FROM epg_channels WHERE epgChannelId IN (:epgChannelIds) AND iconUrl IS NOT NULL AND iconUrl != ''
+1	sql	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	SELECT EXISTS(SELECT 1 FROM epg_programmes WHERE sourceId = :sourceId AND stopMs > :after LIMIT 1)
 1	sql	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	SELECT MAX(id) FROM epg_programmes
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	SELECT description FROM epg_programmes WHERE id = :programmeId LIMIT 1
 1	sql	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	SELECT displayName, iconUrl FROM epg_channels WHERE displayName IS NOT NULL AND iconUrl IS NOT NULL AND iconUrl != ''
@@ -5258,8 +5259,6 @@
 1	technical	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	Built-in guide
 1	technical	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	builtin
 1	technical	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	builtin_playlist
-1	url	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	http://miptv.in.ua/xmlt/mlist_epg.xml.gz
-1	technical	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	http://ru.epg.one/epg.xml.gz
 1	technical	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	https://iptvx.one/EPG_LITE
 1	technical	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	manual_builtin
 1	technical	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	manual_feed

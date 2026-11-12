@@ -42,8 +42,28 @@ class EpgGapFill(
             val active = db.profileDao().resolveExistingProfileId(settings.activeProfileId.first())
                 ?: return@withContext 0
             val own = db.sourceDao().sourceIdsForProfile(active).toSet()
+            // Owner 12.11: the reserve guide never runs over a working guide. A portal takes it only when
+            // "Additional guide for the portal" is on; a playlist only when its own guide (url-tvg) is missing
+            // or failed to load.
+            val portalExtra = settings.portalBuiltinEpgSources.first()
+            val userFeeds = store.getAll().filterNot { it.builtin }
+            val nowMs = System.currentTimeMillis()
+            // A playlist's own guide is the user feed registered from its url-tvg (or Xtream API); "missing"
+            // = it offers none, or none of its feeds stored anything from now on.
+            suspend fun ownGuideMissing(src: tv.own.owntv.core.database.entity.SourceEntity): Boolean {
+                val urls = repository.guideUrls(src).toSet()
+                if (urls.isEmpty()) return true
+                return userFeeds.filter { it.url in urls }
+                    .none { feed -> runCatching { db.epgDao().hasProgrammesAfter(feed.id, nowMs) }.getOrDefault(false) }
+            }
             val playlists = db.sourceDao().getAllOnce()
                 .filter { it.id in own && (!stalkerOnly || it.type == SourceType.STALKER) }
+                .filter { src ->
+                    when (src.type) {
+                        SourceType.STALKER -> src.id in portalExtra
+                        else -> ownGuideMissing(src)
+                    }
+                }
             if (playlists.isEmpty()) return@withContext 0
             val profileIds = listOf(active)
             // Playlist URLs are registered before the pass is enqueued. Preserve the user's order.
@@ -76,21 +96,12 @@ class EpgGapFill(
                         }
                         result.addAll(group.filter { EpgGapPlan.needsGuide(it.key, have) }
                             .map { it.copy(from = now, to = now + 86_400_000L) })
-                        for ((days, archived) in group.filter { it.channel.catchup }.groupBy { it.channel.catchupDays.coerceIn(1, 14) }) {
-                            val from = now - days * 86_400_000L
-                            val past = HashSet<String>()
-                            archived.mapNotNull { it.key }.distinct().chunked(500).forEach {
-                                past.addAll(db.epgDao().keysWithGuide(it, from, now))
-                            }
-                            result.addAll(archived.filter { EpgGapPlan.needsGuide(it.key, past) }
-                                .map { it.copy(from = from, to = now) })
-                        }
                     }
                 }
                 return result
             }
             var filled = 0
-            val feeds = store.getAll().filter { it.builtin && (onlyFeed == null || it.id == onlyFeed) }
+            val feeds = store.getAll().filter { it.builtin && (onlyFeed == null || it.id == onlyFeed) }.take(1)
             val attempted = HashSet<Long>()
             EpgGapPlan.visitFeeds(feeds.distinctBy { it.id }, ::missing) { source, gaps ->
                 attempted.add(source.id)

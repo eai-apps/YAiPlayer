@@ -128,6 +128,12 @@ class BuiltinGuide(
 
     suspend fun ensure() {
         fixUrls()
+        // Owner 12.11: one reserve guide only — the light one. The two big feeds of older installs go, with
+        // everything they stored, so they neither download nor sit in the database.
+        store.getAll().filter { it.builtin }.drop(FEEDS.size).forEach { extra ->
+            runCatching { epgDao.clearSource(extra.id) }
+            store.remove(extra.id)
+        }
         FEEDS.forEachIndexed { i, url ->
             val created = store.ensureBuiltin("$NAME ${i + 1}", url) ?: return@forEachIndexed
             settings.setEpgUseLogos(created.id, true)
@@ -149,8 +155,6 @@ class BuiltinGuide(
         /** In fallback order: a channel missing from one feed is looked up in the next. */
         val FEEDS = listOf(
             "https://iptvx.one/EPG_LITE",
-            "http://ru.epg.one/epg.xml.gz",
-            "http://miptv.in.ua/xmlt/mlist_epg.xml.gz",
         )
     }
 }

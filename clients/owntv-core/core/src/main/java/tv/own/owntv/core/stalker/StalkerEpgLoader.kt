@@ -86,7 +86,7 @@ class StalkerEpgLoader(
                 launch {
                     try {
                         // pastDays 0: a channel without archive only needs today and tomorrow.
-                        val days = if (pastDays <= 0) listOf(0, 1) else (-pastDays.coerceIn(1, 14)..1).toList()
+                        val days = (-pastDays.coerceIn(0, 7)..FUTURE_DAYS).toList()
                         val entries = resolver.scheduleDays(source, channelId, days)
                             .filter { it.title.isNotBlank() && it.stopMs > it.startMs && it.stopMs > from && it.startMs < to }
                         if (entries.isEmpty()) {
@@ -340,7 +340,14 @@ class StalkerEpgLoader(
         /** Failures — or, since this fix, fruitless channels — after which the per-channel route is abandoned. */
         const val PER_CHANNEL_GIVE_UP = 25
         /** Channels whose day tables are fetched at the same time. */
-        const val CHANNEL_PARALLEL = 3
+        const val CHANNEL_PARALLEL = 1
+
+        /** Days ahead read per channel: today, tomorrow and the day after. */
+        const val FUTURE_DAYS = 2
+
+        /** Owner 12.11: at least 3 days back on every channel, the archive length when longer, at most a week. */
+        fun pastDaysFor(catchup: Boolean, catchupDays: Int): Int =
+            if (catchup) catchupDays.coerceIn(3, 7) else 3
 
         /** The stored, classified-for-display text of [PortalHasNoGuideException]. Unchanged wording. */
         private const val NO_GUIDE = "Portal returned no guide"

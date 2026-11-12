@@ -29,6 +29,10 @@ interface EpgDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertProgrammes(programmes: List<EpgProgrammeEntity>)
 
+    /** Whether [sourceId]'s own guide holds anything still to come — "the playlist's url-tvg loaded". */
+    @Query("SELECT EXISTS(SELECT 1 FROM epg_programmes WHERE sourceId = :sourceId AND stopMs > :after LIMIT 1)")
+    suspend fun hasProgrammesAfter(sourceId: Long, after: Long): Boolean
+
     @Query("DELETE FROM epg_programmes WHERE sourceId = :sourceId")
     suspend fun clearSource(sourceId: Long)
 

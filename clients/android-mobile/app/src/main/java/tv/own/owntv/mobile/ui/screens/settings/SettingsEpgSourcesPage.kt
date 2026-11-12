@@ -69,6 +69,8 @@ fun SettingsEpgSourcesPage(
     val useLogos by vm.useLogos.collectAsStateWithLifecycle()
     val stalkerCatchupEnabled by vm.stalkerCatchupEnabled.collectAsStateWithLifecycle()
     val builtinEnabled by vm.builtinEnabled.collectAsStateWithLifecycle()
+    val portalGuide by vm.portalGuide.collectAsStateWithLifecycle()
+    val portalExtraGuide by vm.portalExtraGuide.collectAsStateWithLifecycle()
     val builtinStatus by vm.builtinStatus.collectAsStateWithLifecycle()
     val builtinSchedule by vm.builtinSchedule.collectAsStateWithLifecycle()
     val builtinFeeds by vm.builtinFeeds.collectAsStateWithLifecycle()
@@ -156,6 +158,24 @@ fun SettingsEpgSourcesPage(
                 minHeight = 48.dp,
                 onClick = { vm.cycleBackgroundResyncHours() },
             ) {}
+        }
+        item(key = "portal_guide") {
+            StageSettingRow(
+                title = stringResource(R.string.settings_epg_portal_guide),
+                subtitle = stringResource(R.string.settings_epg_portal_guide_desc),
+                icon = MobileIcons.Image,
+                minHeight = 48.dp,
+                onClick = { vm.setPortalGuide(!portalGuide) },
+            ) { StageSwitch(portalGuide) }
+        }
+        item(key = "portal_extra_guide") {
+            StageSettingRow(
+                title = stringResource(R.string.settings_epg_portal_extra),
+                subtitle = stringResource(R.string.settings_epg_portal_extra_desc),
+                icon = MobileIcons.Image,
+                minHeight = 48.dp,
+                onClick = { vm.setPortalExtraGuide(!portalExtraGuide) },
+            ) { StageSwitch(portalExtraGuide) }
         }
         item(key = "builtin") {
             StageSettingRow(

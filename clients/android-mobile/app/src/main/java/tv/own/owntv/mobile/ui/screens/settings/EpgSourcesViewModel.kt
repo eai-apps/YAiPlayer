@@ -56,6 +56,14 @@ class EpgSourcesViewModel(
         viewModelScope.launch { store.setStalkerCatchupEnabled(enabled) }
     }
 
+    private val portalSwitches = tv.own.owntv.core.epg.PortalGuideSwitches.fromKoin()
+    val portalGuide: StateFlow<Boolean> = portalSwitches.portalGuide
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
+    val portalExtraGuide: StateFlow<Boolean> = portalSwitches.additionalGuide
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
+    fun setPortalGuide(on: Boolean) { viewModelScope.launch { portalSwitches.setPortalGuide(on) } }
+    fun setPortalExtraGuide(on: Boolean) { viewModelScope.launch { portalSwitches.setAdditionalGuide(on) } }
+
     fun setBuiltinEnabled(enabled: Boolean) {
         viewModelScope.launch { store.setBuiltinEnabled(enabled) }
     }

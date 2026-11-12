@@ -34,6 +34,8 @@ fun EpgSourcesScreen(onBack: () -> Unit, modifier: Modifier = Modifier, startOnA
     val deletingIds by vm.deletingIds.collectAsStateWithLifecycle()
     val stalkerCatchupEnabled by vm.stalkerCatchupEnabled.collectAsStateWithLifecycle()
     val builtinEnabled by vm.builtinEnabled.collectAsStateWithLifecycle()
+    val portalGuide by vm.portalGuide.collectAsStateWithLifecycle()
+    val portalExtraGuide by vm.portalExtraGuide.collectAsStateWithLifecycle()
     val builtinStatus by vm.builtinStatus.collectAsStateWithLifecycle()
     val builtinSchedule by vm.builtinSchedule.collectAsStateWithLifecycle()
     val builtinFeeds by vm.builtinFeeds.collectAsStateWithLifecycle()
@@ -160,6 +162,26 @@ fun EpgSourcesScreen(onBack: () -> Unit, modifier: Modifier = Modifier, startOnA
         val parent = stringResource(R.string.settings_group_sources)
         val builtinTitle = stringResource(R.string.settings_epg_builtin)
         val builtinDesc = stringResource(R.string.settings_epg_builtin_description)
+        val portalTitle = stringResource(R.string.settings_epg_portal_guide)
+        val portalDesc = stringResource(R.string.settings_epg_portal_guide_desc)
+        StageSettingRow(
+            icon = OwnTVIcon.EPG,
+            title = portalTitle,
+            desc = portalDesc,
+            value = SettingValue.Switch(portalGuide),
+            onClick = { vm.setPortalGuide(!portalGuide) },
+            help = SettingHelp(portalTitle, portalDesc, hints = listOf(ok to stringResource(R.string.settings_key_switch), back to parent)),
+        )
+        val extraTitle = stringResource(R.string.settings_epg_portal_extra)
+        val extraDesc = stringResource(R.string.settings_epg_portal_extra_desc)
+        StageSettingRow(
+            icon = OwnTVIcon.EPG,
+            title = extraTitle,
+            desc = extraDesc,
+            value = SettingValue.Switch(portalExtraGuide),
+            onClick = { vm.setPortalExtraGuide(!portalExtraGuide) },
+            help = SettingHelp(extraTitle, extraDesc, hints = listOf(ok to stringResource(R.string.settings_key_switch), back to parent)),
+        )
         StageSettingRow(
             icon = OwnTVIcon.EPG,
             title = builtinTitle,

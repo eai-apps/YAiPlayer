@@ -666,6 +666,8 @@ class EpgRepository(
         val startedAt = SystemClock.elapsedRealtime()
         val source = sourceDao.getById(portalSourceId)
             ?: throw PortalGuideSourceGoneException(portalSourceId)
+        // "Portal guide" switched off in Settings → Guide: nothing is asked of the portal.
+        if (!source.importPortalEpg) throw NoProgrammesInWindowException()
         val now = System.currentTimeMillis()
         val from = now - WINDOW_BACK_MS
         val to = now + guideAheadMs()
@@ -728,13 +730,8 @@ class EpgRepository(
         val missingPast = portalChannels.mapNotNull { channel ->
             val remote = channel.remoteId ?: return@mapNotNull null
             val key = guideKeys[remote.trim().lowercase()] ?: remote.trim().lowercase()
-            if (!channel.catchup && channel.catchupDays <= 0) {
-                // No archive: past programmes cannot be played, so only a channel the bulk call left empty is
-                // asked for today and tomorrow. Asking every channel for three past days was most of the
-                // five minutes a 4,500-channel portal took.
-                return@mapNotNull if (key in channels) null else remote to 0
-            }
-            val days = channel.catchupDays.takeIf { it > 0 }?.coerceAtMost(14) ?: 3
+            // Owner 12.11: every channel shows at least 3 days back (its archive length when longer, up to a week).
+            val days = tv.own.owntv.core.stalker.StalkerEpgLoader.pastDaysFor(channel.catchup, channel.catchupDays)
             val earliest = pastCoverage[key]?.minOfOrNull { it.startMs }
             if (earliest != null && earliest <= now - days * 86_400_000L) null else remote to days
         }
@@ -1155,7 +1152,7 @@ class EpgRepository(
         /** Share of a portal guide's progress bar taken by the bulk call; the per-channel day tables fill the rest. */
         private const val BULK_SHARE = 0.6f
         /** Most channels the background pass reads whole days for (see usedChannelIdsForSource). */
-        private const val DAY_TABLE_CHANNELS = 150
+        private const val DAY_TABLE_CHANNELS = 40
         private const val COMPACT_FREE_BYTES = 64L * 1024 * 1024
         private const val COMPACT_HEADROOM_BYTES = 200L * 1024 * 1024
 

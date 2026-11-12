@@ -90,8 +90,13 @@ fun StageSearchField(
     val imeWatcher = LocalTvImeWatcher.current
     val imeMetrics = LocalTvImeMetrics.current
     val focus = stageAccent.focus
+    // The cursor goes after the text whenever the field is entered (operator 12.11: on his remote it landed
+    // before the word, so Delete could not remove what he had typed).
+    var field by remember { mutableStateOf(androidx.compose.ui.text.input.TextFieldValue(query, androidx.compose.ui.text.TextRange(query.length))) }
+    if (field.text != query) field = androidx.compose.ui.text.input.TextFieldValue(query, androidx.compose.ui.text.TextRange(query.length))
     LaunchedEffect(editing) {
         onEditingChange(editing)
+        if (editing) field = field.copy(selection = androidx.compose.ui.text.TextRange(field.text.length))
         if (editing) {
             imeWatcher?.onImeRequested()
             runCatching { fieldFocus.requestFocus() }
@@ -128,8 +133,8 @@ fun StageSearchField(
                     Text(placeholder, style = stageText(18, 400), color = StageColors.Dim, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
                 BasicTextField(
-                    value = query,
-                    onValueChange = onQueryChange,
+                    value = field,
+                    onValueChange = { next -> field = next; if (next.text != query) onQueryChange(next.text) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .bringIntoViewRequester(bringIntoView)

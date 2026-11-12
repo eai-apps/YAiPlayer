@@ -1,6 +1,7 @@
 package tv.own.owntv.core.live
 
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import tv.own.owntv.core.CorePerf
@@ -157,6 +158,7 @@ class LiveEpgReader(
 
             // 1) Bulk guide via the effective EPG id (manual match overrides the channel's own id).
             val epgKey = (cust.epgMatchResolver.epgIdFor(ch) ?: ch.epgChannelId)?.trim()?.lowercase()?.takeIf { it.isNotEmpty() }
+            if (epgKey != null) warmPortalDays(ch, epgKey)
             // Guide shift (global or per-channel): the stored rows keep the feed's own clock, so we look
             // up the SHIFTED "now" and move what comes back — display and catch-up then agree.
             val shift = EpgShift.minutesFor(cust, ch, globalShiftMinutes)
@@ -455,6 +457,30 @@ class LiveEpgReader(
      * of its own ([ArchiveGuidePlan.storeId]) and written only where the playlist's own guide rows are
      * not, so the two never list a programme twice. A failure leaves the stored guide as it was.
      */
+    private val warmScope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + Dispatchers.IO)
+    private val warmGate = kotlinx.coroutines.sync.Semaphore(1)
+
+    /**
+     * The channel the user stopped on gets its whole days (3+ back, 2 ahead) in the background, the way a MAG
+     * box asks the portal for one channel when it is opened — instead of the app asking for every channel of
+     * the portal at sync (owner 12.11: that kept the operator's server at 79 % CPU). One channel at a time:
+     * while one is being read, focusing others asks nothing; each channel at most every few hours.
+     */
+    private fun warmPortalDays(ch: ChannelEntity, epgKey: String) {
+        if (ch.remoteId.isNullOrBlank()) return
+        val last = synchronized(portalDayTries) { portalDayTries[ch.id] }
+        if (last != null && System.currentTimeMillis() - last < PORTAL_DAYS_REFETCH_MS) return
+        if (!warmGate.tryAcquire()) return
+        warmScope.launch {
+            try {
+                ensurePortalDays(ch, epgKey)
+                cache.remove(ch.id)
+            } finally {
+                warmGate.release()
+            }
+        }
+    }
+
     suspend fun ensurePortalDays(ch: ChannelEntity, epgKey: String): Boolean {
         val remoteId = ch.remoteId?.takeIf { it.isNotBlank() } ?: return false
         if (sourceDao.getById(ch.sourceId)?.type != SourceType.STALKER) return false
@@ -468,9 +494,9 @@ class LiveEpgReader(
             val source = sourceDao.getById(ch.sourceId)?.takeIf { it.type == SourceType.STALKER } ?: return true
             // Whatever the portal keeps, up to a week: its own "archive days" figure is often smaller than
             // the days its guide table still lists, and the list should show every one of them.
-            val past = if (ch.catchup) PORTAL_PAST_DAYS else 0
+            val past = tv.own.owntv.core.stalker.StalkerEpgLoader.pastDaysFor(ch.catchup, ch.catchupDays)
             val listed = kotlinx.coroutines.withTimeoutOrNull(PORTAL_DAYS_TIMEOUT_MS) {
-                streamUrlResolver.scheduleDays(source, remoteId, (-past..1).toList())
+                streamUrlResolver.scheduleDays(source, remoteId, (-past..tv.own.owntv.core.stalker.StalkerEpgLoader.FUTURE_DAYS).toList())
             } ?: run { portalDayTries[ch.id] = now - PORTAL_DAYS_REFETCH_MS + PORTAL_DAYS_RETRY_MS; return true }
             val rows = listed.filter { it.title.isNotBlank() && it.stopMs > it.startMs }
             if (rows.isEmpty()) return true

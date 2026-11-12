@@ -802,6 +802,10 @@ class LiveTuneController(
             if (!isStillExo(channel) && !isStillMpv(channel)) return@launch
             val detail = "no picture within ${armedBudgetMs / 1000}s of tuning"
             engineLog("'${channel.name}' — giving up: $detail")
+            // ExoPlayer spent the whole budget without a picture (owner 12.11: "viju+ Megahit HD" on an Amlogic
+            // box, which mpv used to play): count it against ExoPlayer, so Retry and the next tunes open the
+            // channel on mpv instead of repeating the same black 30 seconds.
+            if (isStillExo(channel)) LiveStreamQuirks.rememberExoFailedChannel(channel.id)
             host.recordLadderEvent(_liveOnExo.value, PlayerFailureReason.LIVE_NO_FALLBACK, "'${channel.name}': $detail")
             exoWatchJob?.cancel()
             exoResolveJob?.cancel()

@@ -23,7 +23,7 @@ internal fun nextStalkerCatchup(now: ZonedDateTime): ZonedDateTime =
     (0L..7L).flatMap { days ->
         val date = now.toLocalDate().plusDays(days)
         val hours = when (date.dayOfWeek) {
-            DayOfWeek.MONDAY -> listOf(9, 12, 15, 18, 21)
+            DayOfWeek.MONDAY -> listOf(9, 15) // owner 12.11: 09:00 and 15:00 only
             DayOfWeek.TUESDAY -> listOf(9)
             else -> emptyList()
         }
