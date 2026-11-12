@@ -114,11 +114,11 @@ class SystemRemoteViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-    /** "SocketTimeoutException: connect timed out (192.168.1.5)" — short, for the small line under the message. */
+    /** Exception class, its message and the address, one per line, for the small text under the error. */
     private fun reasonOf(t: Throwable?, host: String): String? {
         t ?: return null
         val root = generateSequence(t) { it.cause }.last()
-        return "${root.javaClass.simpleName}: ${root.message.orEmpty().take(70)} ($host)".trim()
+        return listOfNotNull(root.javaClass.simpleName, root.message?.take(70), host).joinToString(System.lineSeparator())
     }
 
     private fun problemOf(t: Throwable?): SystemRemoteProblem = when (t) {

@@ -252,7 +252,6 @@ object AtvLocalNetwork {
         }
     }
 
-    @Suppress("DEPRECATION")
     private fun homeNetwork(cm: android.net.ConnectivityManager): android.net.Network? =
         cm.allNetworks.firstOrNull { n ->
             val caps = cm.getNetworkCapabilities(n) ?: return@firstOrNull false
