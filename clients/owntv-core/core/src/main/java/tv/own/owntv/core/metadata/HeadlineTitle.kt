@@ -20,6 +20,9 @@ object HeadlineTitle {
         // Stacked tags ("|EN| |4K| Title") peel one at a time.
         do { prev = s; s = s.replaceFirst(LEADING_TAG, "") } while (s != prev)
         // A name that was nothing but tags keeps the provider's spelling.
-        return s.trim().ifEmpty { raw.trim() }
+        val name = s.trim().ifEmpty { raw.trim() }
+        // A season record («Извне [S02] [ua] [ru]») is one card for the whole show now: its page holds every
+        // season, so the headline is the show (owner 12.11).
+        return if (tv.own.owntv.core.content.SeasonRecordTitle.isSeasonRecord(name)) tv.own.owntv.core.content.SeasonRecordTitle.base(name).ifEmpty { name } else name
     }
 }

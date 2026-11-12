@@ -418,7 +418,16 @@ class LibraryViewModel(
                             hasManualOrder = { it in orderedContexts.value },
                         )
                     }.flow.map { paging ->
-                        paging.customized(key, cust, hidden, { CustomizeKeys.series(it) }, { it.categoryId })
+                        // One card per show (owner 12.11): «Извне [S01]…[S04]» are one card named «Извне»; opening it
+                        // gathers every season (SeriesRepository.siblingSeasonEpisodes). Same rule as on the TV.
+                        val cards = runCatching {
+                            tv.own.owntv.core.content.SeasonRecordTitle.cards(
+                                seriesDao.seasonRecordNames(c.sourceIdsFor(MediaType.SERIES).ifEmpty { listOf(-1L) }).map { it.id to it.name },
+                            )
+                        }.getOrNull()
+                        val merged = if (cards == null || cards.hidden.isEmpty()) paging
+                            else paging.filter { it.id !in cards.hidden }.map { s -> cards.names[s.id]?.let { s.copy(name = it) } ?: s }
+                        merged.customized(key, cust, hidden, { CustomizeKeys.series(it) }, { it.categoryId })
                             .map { s -> s.asItem(cust) }
                     }
                 }

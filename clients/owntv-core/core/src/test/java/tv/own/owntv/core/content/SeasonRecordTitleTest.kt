@@ -20,4 +20,26 @@ class SeasonRecordTitleTest {
         assertTrue(SeasonRecordTitle.isSeasonRecord("Show [S01]"))
         assertFalse(SeasonRecordTitle.isSeasonRecord("Show (2024)"))
     }
+
+    @Test fun subtitledSeasonsBelongToTheShow() {
+        assertTrue(SeasonRecordTitle.sameShowLoose("Американская история ужасов [S13]", "Американская история ужасов: Отель [S05] [ru]"))
+        assertTrue(SeasonRecordTitle.sameShowLoose("Американская история ужасов — Культ [S07]", "Американская история ужасов [S01]"))
+        assertFalse(SeasonRecordTitle.sameShowLoose("Баба [S01]", "Баба-яга / Яга [S01]"))
+        assertFalse(SeasonRecordTitle.sameShowLoose("Король гольфа [S01]", "Король гольфа 2 [S01]"))
+    }
+
+    @Test fun oneCardPerShow() {
+        val cards = SeasonRecordTitle.cards(
+            listOf(
+                10L to "Извне [S02] [ua] [ru]", 7L to "Извне [S01]", 12L to "Извне [S04]",
+                20L to "Американская история ужасов [S13]", 21L to "Американская история ужасов: Отель [S05]",
+                30L to "Остров сокровищ", 31L to "Баба-яга / Яга [S01]",
+            ),
+        )
+        assertEquals(setOf(10L, 12L, 21L), cards.hidden)
+        assertEquals("Извне", cards.names[7L])
+        assertEquals("Американская история ужасов", cards.names[20L])
+        assertEquals("Баба-яга / Яга", cards.names[31L])
+        assertFalse(30L in cards.names)
+    }
 }

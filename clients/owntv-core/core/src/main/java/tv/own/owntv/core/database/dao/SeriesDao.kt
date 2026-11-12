@@ -123,7 +123,7 @@ interface SeriesDao {
     suspend fun findSeriesByName(sourceId: Long, name: String): SeriesEntity?
 
     /** Candidates for a show's other season records («Title [S02]»): same playlist, name starting alike. */
-    @Query("SELECT * FROM series WHERE sourceId = :sourceId AND name LIKE :prefix || '%' LIMIT 50")
+    @Query("SELECT * FROM series WHERE sourceId = :sourceId AND name LIKE :prefix || '%' LIMIT 80")
     suspend fun seriesByNamePrefix(sourceId: Long, prefix: String): List<SeriesEntity>
 
     @Query("SELECT * FROM episodes WHERE seriesId = :seriesId AND remoteId = :remoteId LIMIT 1")
@@ -420,4 +420,11 @@ interface SeriesDao {
     /** One-time cleanup of pre-stable-key M3U rows (remoteId was always NULL under clear-then-insert). */
     @Query("DELETE FROM series WHERE sourceId = :sourceId AND remoteId IS NULL")
     suspend fun deleteNullRemoteIds(sourceId: Long)
+
+    /** Every season record (`[Sxx]` in the name) of these playlists, for one card per show in the list. */
+    @Query("SELECT id, name FROM series WHERE sourceId IN (:sourceIds) AND name LIKE '%[S%'")
+    suspend fun seasonRecordNames(sourceIds: List<Long>): List<SeriesIdName>
 }
+
+/** A series row's id and name only. */
+data class SeriesIdName(val id: Long, val name: String)

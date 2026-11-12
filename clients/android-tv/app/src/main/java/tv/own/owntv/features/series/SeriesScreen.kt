@@ -1430,16 +1430,10 @@ private fun EpisodeView(
         // instead — stretched to 1400 × 700 it filled the screen with a blurry crop (П7, 10.11.2026).
         if (!info.backdropUrl.isNullOrBlank()) {
             EpisodesBackdrop(info.backdropUrl, Modifier.align(Alignment.TopEnd))
-        } else if (!info.posterUrl.isNullOrBlank()) {
-            // In the right column, below the top bar (clock, Play, Grid | List): it never covers them (3б, 11.11).
-            // Same place and size for every show, in its own proportions.
-            AsyncImage(
-                model = info.posterUrl, contentDescription = null, contentScale = ContentScale.Fit,
-                modifier = Modifier.align(Alignment.TopEnd).padding(top = 130.mpx, end = fx(150))
-                    .width(fx(240)).aspectRatio(2f / 3f)
-                    .clip(androidx.compose.foundation.shape.RoundedCornerShape(14.mpx)),
-            )
         }
+        // A portal's portrait poster (no wide picture) now sits in the header row itself, right of the title (below):
+        // placed on its own at a fixed height it slid over «Grid | List» and the sort on long titles (owner 12.11).
+        val sidePoster = info.backdropUrl.isNullOrBlank() && !info.posterUrl.isNullOrBlank()
         // The crumb: "‹ Series · Crunchyroll".
         Row(
             Modifier.padding(start = fx(84), top = 50.mpx).width(fx(980)),
@@ -1458,10 +1452,15 @@ private fun EpisodeView(
         // One column from top to bottom: the header, one row of buttons, then the episodes in the rest. Nothing is
         // placed at a fixed height any more, so the Continue button and the season choice can never overlap (3б).
         Column(Modifier.padding(top = 104.mpx).fillMaxSize()) {
+        Row(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(start = fx(84)).width(fx(980))) {
             // At most 170 high, the room the films' hero gives its title, so two lines shrink rather than
             // push the episodes down.
-            tv.own.owntv.features.shell.components.VodHeroTitle(series.name, Modifier.heightIn(max = 170.mpx))
+            tv.own.owntv.features.shell.components.VodHeroTitle(
+                // «Извне [S02] [ua] [ru]» reads «Извне»: the page holds every season (owner 12.11).
+                if (tv.own.owntv.core.content.SeasonRecordTitle.isSeasonRecord(series.name)) tv.own.owntv.core.content.SeasonRecordTitle.base(series.name) else series.name,
+                Modifier.heightIn(max = 170.mpx),
+            )
             VodMeta(
                 parts = listOfNotNull(
                     info.year?.toString(),
@@ -1489,6 +1488,16 @@ private fun EpisodeView(
                     Text(value, style = stageText(17, 400), color = StageColors.Body, maxLines = 2, overflow = TextOverflow.Ellipsis)
                 }
             }
+        }
+        if (sidePoster) {
+            Spacer(Modifier.weight(1f))
+            // Centred in the room right of the text, never lower than the header: the buttons come after it.
+            AsyncImage(
+                model = info.posterUrl, contentDescription = null, contentScale = ContentScale.Fit,
+                modifier = Modifier.padding(end = fx(120)).width(fx(200)).aspectRatio(2f / 3f)
+                    .clip(androidx.compose.foundation.shape.RoundedCornerShape(14.mpx)),
+            )
+        }
         }
         val favouriteOn = stringResource(R.string.content_favorited)
         val favouriteOff = stringResource(R.string.content_favorite)

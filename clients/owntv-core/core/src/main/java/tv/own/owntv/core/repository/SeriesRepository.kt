@@ -130,8 +130,10 @@ class SeriesRepository(
         if (!tv.own.owntv.core.content.SeasonRecordTitle.isSeasonRecord(series.name)) return emptyList()
         val base = tv.own.owntv.core.content.SeasonRecordTitle.base(series.name)
         if (base.length < 2) return emptyList()
-        val siblings = runCatching { seriesDao.seriesByNamePrefix(series.sourceId, base) }.getOrDefault(emptyList())
-            .filter { it.id != series.id && !it.remoteId.isNullOrBlank() && tv.own.owntv.core.content.SeasonRecordTitle.sameShow(it.name, series.name) }
+        // The part before a season subtitle («…: Отель»), so a subtitled record also finds the plain ones.
+        val prefix = base.takeWhile { it !in ":–—(|/" }.trim().takeIf { it.length >= 2 } ?: base
+        val siblings = runCatching { seriesDao.seriesByNamePrefix(series.sourceId, prefix) }.getOrDefault(emptyList())
+            .filter { it.id != series.id && !it.remoteId.isNullOrBlank() && tv.own.owntv.core.content.SeasonRecordTitle.sameShowLoose(it.name, series.name) }
             .take(MAX_SIBLING_RECORDS)
         if (siblings.isEmpty()) return emptyList()
         val haveSeasons = own.mapTo(HashSet()) { it.seasonNumber }

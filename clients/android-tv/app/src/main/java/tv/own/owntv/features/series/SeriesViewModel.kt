@@ -540,6 +540,20 @@ class SeriesViewModel(
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), defaultRail)
 
+    /**
+     * One card per show (owner 12.11): a panel that files each season as its own record («Извне [S01]» … «[S04]»)
+     * showed four cards, each opening the whole show. The other records are hidden here and the one left is named
+     * without the tags; opening it gathers every season (SeriesRepository.siblingSeasonEpisodes).
+     */
+    private val seasonCards: Flow<tv.own.owntv.core.content.SeasonRecordTitle.Cards> = combine(ctx, _listRefresh) { c, _ -> c }
+        .map { c ->
+            runCatching {
+                tv.own.owntv.core.content.SeasonRecordTitle.cards(
+                    seriesDao.seasonRecordNames(c.sourceIds.ifEmpty { listOf(-1L) }).map { it.id to it.name },
+                )
+            }.getOrDefault(tv.own.owntv.core.content.SeasonRecordTitle.Cards(emptySet(), emptyMap()))
+        }
+
     val series: Flow<PagingData<SeriesEntity>> = combine(
         _selected, ctx, _search.map { it.trim() }.debounce(300).distinctUntilChanged(), sortMode, _listRefresh,
     ) { key, c, query, sort, _ -> Args(key, c, query, sort) }
@@ -547,12 +561,15 @@ class SeriesViewModel(
         // Rebuild the pager when a folder gains/loses manual order: the fast-path plain
         // PagingSource doesn't observe content_order, so the switch must recreate it.
         .combine(orderedContexts) { p, _ -> p }
-        .flatMapLatest { (args, cs) ->
+        .combine(seasonCards) { p, cards -> Triple(p.first, p.second, cards) }
+        .flatMapLatest { (args, cs, cards) ->
             // Hidden items/categories are filtered on each fresh PagingData inside the pager chain —
             // a customization change re-creates the pager (same pattern as Live TV).
             Pager(PagingConfig(pageSize = 60, prefetchDistance = 30, initialLoadSize = 90, maxSize = 300)) {
                 pagingSource(args.key, args.ctx, args.query, args.sort)
-            }.flow.map { paging ->
+            }.flow.map { all ->
+                val paging = if (cards.hidden.isEmpty()) all
+                    else all.filter { it.id !in cards.hidden }.map { s -> cards.names[s.id]?.let { s.copy(name = it) } ?: s }
                 val cust = cs.cust
                 val movedFrom = cust.movedFromOrigin
                 if (cust.hiddenItems.isEmpty() && cust.itemNames.isEmpty() && cs.hiddenCats.isEmpty() && movedFrom.isEmpty() && cust.sealedCategories.isEmpty()) paging
