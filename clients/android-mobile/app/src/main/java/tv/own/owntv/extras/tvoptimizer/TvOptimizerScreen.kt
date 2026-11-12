@@ -88,7 +88,7 @@ fun TvOptimizerScreen(
         ) {
             StagePill(onClick = { back(s, vm, onDismiss) }, icon = MobileIcons.ArrowBack, contentDescription = stringResource(R.string.tv_optimizer_nav_back))
             Text(stringResource(R.string.tv_optimizer_title), style = stageText(16f, 700), color = palette.text)
-            StagePill(onClick = onDismiss, icon = MobileIcons.Close, contentDescription = stringResource(R.string.tv_optimizer_done))
+            StagePill(onClick = { vm.finish(onDismiss) }, icon = MobileIcons.Close, contentDescription = stringResource(R.string.tv_optimizer_done))
         }
         Column(Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
             when (s.step) {
@@ -102,6 +102,10 @@ fun TvOptimizerScreen(
                 OptimizerStep.MANAGE -> Manage(s, vm)
                 OptimizerStep.LAUNCHER -> Launcher(s, vm)
                 OptimizerStep.PRIVACY -> Privacy(s, vm)
+                OptimizerStep.SPEED -> Speed(s, vm)
+                OptimizerStep.DNS -> Dns(s, vm)
+                OptimizerStep.MEASURE -> Measure(s, vm)
+                OptimizerStep.REPORT -> Report(s, vm)
             }
         }
     }
@@ -115,7 +119,8 @@ private fun back(s: OptimizerUiState, vm: TvOptimizerViewModel, onDismiss: () ->
         OptimizerStep.CHOOSE_LIST -> vm.go(OptimizerStep.CONNECT)
         OptimizerStep.PLAN -> vm.go(OptimizerStep.CHOOSE_LIST)
         OptimizerStep.APPLYING -> Unit
-        OptimizerStep.RESULT, OptimizerStep.MANAGE, OptimizerStep.LAUNCHER, OptimizerStep.PRIVACY ->
+        OptimizerStep.RESULT, OptimizerStep.MANAGE, OptimizerStep.LAUNCHER, OptimizerStep.PRIVACY,
+        OptimizerStep.SPEED, OptimizerStep.DNS, OptimizerStep.MEASURE, OptimizerStep.REPORT ->
             vm.go(if (s.tv != null) OptimizerStep.CHOOSE_LIST else OptimizerStep.WELCOME)
     }
 }
@@ -131,11 +136,50 @@ private fun Body(text: String, warn: Boolean = false) {
     Text(text, style = stageText(13.5f, 500), color = if (warn) p.danger else p.muted, modifier = Modifier.padding(bottom = 6.dp))
 }
 
+/** Every function of «Ускорь ТВ», shown from the first screen (owner 12.11: «нет списка функций»). */
+private val FEATURES: List<Triple<Int, Int, OptimizerStep>> = listOf(
+    Triple(R.string.opt_f_clean, R.string.opt_f_clean_hint, OptimizerStep.CHOOSE_LIST),
+    Triple(R.string.opt_launcher_title, R.string.opt_f_launcher_hint, OptimizerStep.LAUNCHER),
+    Triple(R.string.opt_f_speed, R.string.opt_f_speed_hint, OptimizerStep.SPEED),
+    Triple(R.string.opt_f_dns, R.string.opt_f_dns_hint, OptimizerStep.DNS),
+    Triple(R.string.opt_privacy, R.string.opt_f_privacy_hint, OptimizerStep.PRIVACY),
+    Triple(R.string.opt_f_measure, R.string.opt_f_measure_hint, OptimizerStep.MEASURE),
+    Triple(R.string.opt_manage, R.string.opt_f_manage_hint, OptimizerStep.MANAGE),
+    Triple(R.string.opt_f_report, R.string.opt_f_report_hint, OptimizerStep.REPORT),
+    Triple(R.string.tv_optimizer_debug_title, R.string.opt_f_debug_hint, OptimizerStep.DEBUG_GUIDE),
+)
+
+@Composable
+private fun FeatureList(vm: TvOptimizerViewModel) {
+    val p = LocalStagePalette.current
+    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        FEATURES.forEach { (title, hint, step) ->
+            Column(Modifier.fillMaxWidth().clickable { vm.open(step) }.padding(vertical = 8.dp)) {
+                Text("• " + stringResource(title), style = stageText(14.5f, 700), color = p.text)
+                Text(stringResource(hint), style = stageText(12.5f, 500), color = p.muted, modifier = Modifier.padding(start = 12.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun KeepDebuggingRow(s: OptimizerUiState, vm: TvOptimizerViewModel) {
+    Row(Modifier.fillMaxWidth().clickable { vm.setKeepDebugging(!s.keepDebugging) }, verticalAlignment = Alignment.CenterVertically) {
+        Checkbox(checked = s.keepDebugging, onCheckedChange = vm::setKeepDebugging)
+        Column {
+            Text(stringResource(R.string.opt_keep_debug), style = stageText(13.5f, 600), color = LocalStagePalette.current.text)
+            Text(stringResource(R.string.opt_keep_debug_hint), style = stageText(11.5f, 500), color = LocalStagePalette.current.muted)
+        }
+    }
+}
+
 @Composable
 private fun Welcome(s: OptimizerUiState, vm: TvOptimizerViewModel) {
     LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         item { Title(stringResource(R.string.tv_optimizer_welcome_title)) }
         item { Body(stringResource(R.string.tv_optimizer_welcome_body)) }
+        item { Title(stringResource(R.string.opt_f_title)) }
+        item { FeatureList(vm) }
         item { Title(stringResource(R.string.opt_risk_title)) }
         item { Body(stringResource(R.string.opt_risk_body), warn = true) }
         item {
@@ -144,6 +188,8 @@ private fun Welcome(s: OptimizerUiState, vm: TvOptimizerViewModel) {
                 Text(stringResource(R.string.opt_risk_check), style = stageText(14f, 600), color = LocalStagePalette.current.text)
             }
         }
+        s.message?.let { m -> item { Body(stringResource(m), warn = true) } }
+        item { KeepDebuggingRow(s, vm) }
         item {
             StageButton(
                 onClick = { vm.go(OptimizerStep.DEBUG_GUIDE) },
@@ -153,6 +199,7 @@ private fun Welcome(s: OptimizerUiState, vm: TvOptimizerViewModel) {
                 modifier = Modifier.fillMaxWidth(),
             )
         }
+        item { Spacer(Modifier.height(24.dp)) }
     }
 }
 
@@ -241,6 +288,7 @@ private fun ChooseList(s: OptimizerUiState, vm: TvOptimizerViewModel) {
     val tv = s.tv
     LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         if (tv != null) item { Body(stringResource(R.string.opt_tv_found, tv.label, tv.android)) }
+        s.assessment?.let { a -> item { VerdictCard(a) } }
         item { Title(stringResource(R.string.opt_choose_title)) }
         if (!s.catalogReady) item { LinearProgressIndicator(Modifier.fillMaxWidth()) }
         s.guessed?.let { m ->
@@ -277,6 +325,36 @@ private fun ChooseList(s: OptimizerUiState, vm: TvOptimizerViewModel) {
     }
 }
 
+@Composable
+private fun VerdictCard(a: TvAssessment) {
+    val p = LocalStagePalette.current
+    Column(Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+        Text(
+            stringResource(
+                when (a.verdict) {
+                    TvVerdict.FULL -> R.string.opt_verdict_full
+                    TvVerdict.CLEAN_ONLY -> R.string.opt_verdict_clean
+                    TvVerdict.NO_LAUNCHER -> R.string.opt_verdict_no_launcher
+                },
+            ),
+            style = stageText(15f, 800), color = if (a.verdict == TvVerdict.NO_LAUNCHER) p.danger else p.text,
+        )
+        Body(
+            stringResource(
+                when (a.reason) {
+                    VerdictReason.KNOWN_MODEL -> R.string.opt_reason_known
+                    VerdictReason.UNKNOWN_MODEL -> R.string.opt_reason_unknown
+                    VerdictReason.CASTING_DEVICE -> R.string.opt_reason_casting
+                    VerdictReason.NO_LAUNCHER_BUNDLED -> R.string.opt_launcher_missing
+                    VerdictReason.FIRE_OS -> R.string.opt_reason_fire
+                    VerdictReason.OLD_ANDROID -> R.string.opt_reason_old
+                    VerdictReason.CHINA_BUILD -> R.string.opt_reason_china
+                },
+            ),
+        )
+    }
+}
+
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ToolsRow(s: OptimizerUiState, vm: TvOptimizerViewModel) {
@@ -284,6 +362,10 @@ private fun ToolsRow(s: OptimizerUiState, vm: TvOptimizerViewModel) {
         StageButton(onClick = { vm.go(OptimizerStep.MANAGE) }, text = stringResource(R.string.opt_manage), small = true)
         StageButton(onClick = vm::runPrivacyAudit, text = stringResource(R.string.opt_privacy), small = true)
         StageButton(onClick = { vm.go(OptimizerStep.LAUNCHER) }, text = stringResource(R.string.opt_launcher_title), small = true)
+        StageButton(onClick = { vm.open(OptimizerStep.SPEED) }, text = stringResource(R.string.opt_f_speed), small = true)
+        StageButton(onClick = { vm.open(OptimizerStep.DNS) }, text = stringResource(R.string.opt_f_dns), small = true)
+        StageButton(onClick = { vm.open(OptimizerStep.MEASURE) }, text = stringResource(R.string.opt_f_measure), small = true)
+        StageButton(onClick = vm::helpAddTvReport, text = stringResource(R.string.opt_report_add_tv), small = true)
         StageButton(onClick = vm::disableDebugging, text = stringResource(R.string.opt_debug_off), small = true, enabled = !s.debuggingOff)
     }
     if (s.debuggingOff) Body(stringResource(R.string.opt_debug_off_done))
@@ -312,6 +394,7 @@ private fun PlanView(s: OptimizerUiState, vm: TvOptimizerViewModel) {
     val context = LocalContext.current
     val palette = LocalStagePalette.current
     var showProtected by rememberSaveable { mutableStateOf(false) }
+    var showCommands by rememberSaveable { mutableStateOf(false) }
     var why by remember { mutableStateOf<String?>(null) }
     val copied = stringResource(R.string.opt_copied)
     LazyColumn(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -324,6 +407,15 @@ private fun PlanView(s: OptimizerUiState, vm: TvOptimizerViewModel) {
                 StageButton(onClick = vm::selectNone, text = stringResource(R.string.opt_select_none), small = true)
                 StageButton(onClick = { copy(context, vm.commandsText()); Toast.makeText(context, copied, Toast.LENGTH_SHORT).show() },
                     text = stringResource(R.string.opt_copy_commands), small = true, enabled = s.selected.isNotEmpty())
+            }
+        }
+        item {
+            StageButton(onClick = { showCommands = !showCommands }, text = stringResource(R.string.opt_show_commands), small = true)
+        }
+        if (showCommands) {
+            item {
+                Text(vm.allCommandsText(), style = stageText(11.5f, 500), color = palette.muted,
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp))
             }
         }
         if (plan.alreadyOff.isNotEmpty()) item { Body(stringResource(R.string.opt_already_off, plan.alreadyOff.size)) }
@@ -387,7 +479,8 @@ private fun Result(s: OptimizerUiState, vm: TvOptimizerViewModel, onDismiss: () 
         item { Body(stringResource(R.string.opt_result_hint)) }
         item { StageButton(onClick = { vm.go(OptimizerStep.MANAGE) }, text = stringResource(R.string.opt_manage), modifier = Modifier.fillMaxWidth()) }
         item { ToolsRow(s, vm) }
-        item { StageButton(onClick = onDismiss, text = stringResource(R.string.tv_optimizer_done), style = StageButtonStyle.PRIMARY, modifier = Modifier.fillMaxWidth()) }
+        item { KeepDebuggingRow(s, vm) }
+        item { StageButton(onClick = { vm.finish(onDismiss) }, text = stringResource(R.string.tv_optimizer_done), style = StageButtonStyle.PRIMARY, modifier = Modifier.fillMaxWidth()) }
     }
 }
 
@@ -404,7 +497,7 @@ private fun Manage(s: OptimizerUiState, vm: TvOptimizerViewModel) {
             item { StageButton(onClick = { vm.go(OptimizerStep.CONNECT) }, text = stringResource(R.string.tv_optimizer_connect_btn), modifier = Modifier.fillMaxWidth()) }
             return@LazyColumn
         }
-        if (point == null || point.packages.isEmpty()) {
+        if (point == null || (point.packages.isEmpty() && point.settings.isEmpty())) {
             item { Body(stringResource(R.string.opt_restore_none)) }
         } else {
             item { Body(stringResource(R.string.opt_restore_point, point.label, point.packages.size)) }
@@ -429,6 +522,13 @@ private fun Manage(s: OptimizerUiState, vm: TvOptimizerViewModel) {
                 }
             }
             if (s.busy) item { LinearProgressIndicator(Modifier.fillMaxWidth()) }
+            if (point.settings.isNotEmpty()) {
+                item { Body(stringResource(R.string.opt_settings_changed, point.settings.size)) }
+                item {
+                    StageButton(onClick = { vm.restoreSettings(point.settings.keys) }, text = stringResource(R.string.opt_settings_restore),
+                        small = true, enabled = !s.busy)
+                }
+            }
             items(point.packages.sorted(), key = { it }) { pkg ->
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     Text(pkg, style = stageText(12.5f, 500), color = palette.text, modifier = Modifier.weight(1f))
@@ -478,6 +578,11 @@ private fun Launcher(s: OptimizerUiState, vm: TvOptimizerViewModel) {
         if (!s.launcherBundled) {
             item { Body(stringResource(R.string.opt_launcher_missing), warn = true) }
             return@LazyColumn
+        }
+        s.assessment?.let { a ->
+            item { VerdictCard(a) }
+            if (a.verdict == TvVerdict.NO_LAUNCHER) return@LazyColumn
+            if (a.verdict == TvVerdict.CLEAN_ONLY) item { Body(stringResource(R.string.opt_launcher_risky), warn = true) }
         }
         when (s.launcherPhase) {
             LauncherPhase.IDLE, LauncherPhase.FAILED, LauncherPhase.REVERTED -> {
@@ -531,6 +636,132 @@ private fun Privacy(s: OptimizerUiState, vm: TvOptimizerViewModel) {
         }
         item {
             StageButton(onClick = { vm.go(OptimizerStep.CHOOSE_LIST) }, text = stringResource(R.string.opt_choose_title), modifier = Modifier.fillMaxWidth().padding(top = 10.dp))
+        }
+    }
+}
+
+@Composable
+private fun Speed(s: OptimizerUiState, vm: TvOptimizerViewModel) {
+    val p = LocalStagePalette.current
+    LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        item { Title(stringResource(R.string.opt_f_speed)) }
+        item { Body(stringResource(R.string.opt_speed_body)) }
+        item {
+            Body(stringResource(R.string.opt_speed_now, SpeedTweaks.ANIMATION_KEYS.joinToString(" / ") { s.speedNow[it] ?: "1" },
+                s.speedNow[SpeedTweaks.PROCESS_LIMIT_KEY] ?: stringResource(R.string.opt_speed_standard)))
+        }
+        item { Text(stringResource(R.string.opt_speed_anim), style = stageText(14f, 700), color = p.text) }
+        item {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                StageButton(onClick = { vm.setSpeedLevel(SpeedLevel.HALF) }, text = stringResource(R.string.opt_speed_half), small = true,
+                    style = if (s.speedLevel == SpeedLevel.HALF) StageButtonStyle.PRIMARY else StageButtonStyle.SECONDARY)
+                StageButton(onClick = { vm.setSpeedLevel(SpeedLevel.OFF) }, text = stringResource(R.string.opt_speed_off), small = true,
+                    style = if (s.speedLevel == SpeedLevel.OFF) StageButtonStyle.PRIMARY else StageButtonStyle.SECONDARY)
+                StageButton(onClick = { vm.setSpeedLevel(null) }, text = stringResource(R.string.opt_speed_keep), small = true,
+                    style = if (s.speedLevel == null) StageButtonStyle.PRIMARY else StageButtonStyle.SECONDARY)
+            }
+        }
+        item { Text(stringResource(R.string.opt_speed_limit), style = stageText(14f, 700), color = p.text) }
+        item { Body(stringResource(R.string.opt_speed_limit_hint)) }
+        item {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                StageButton(onClick = { vm.setProcessLimit(null) }, text = stringResource(R.string.opt_speed_keep), small = true,
+                    style = if (s.processLimit == null) StageButtonStyle.PRIMARY else StageButtonStyle.SECONDARY)
+                SpeedTweaks.PROCESS_LIMITS.forEach { n ->
+                    StageButton(onClick = { vm.setProcessLimit(n) }, text = n.toString(), small = true,
+                        style = if (s.processLimit == n) StageButtonStyle.PRIMARY else StageButtonStyle.SECONDARY)
+                }
+            }
+        }
+        if (s.busy) item { LinearProgressIndicator(Modifier.fillMaxWidth()) }
+        s.message?.let { m -> item { Body(stringResource(m), warn = true) } }
+        item {
+            StageButton(onClick = vm::applySpeed, text = stringResource(R.string.opt_speed_apply), style = StageButtonStyle.PRIMARY,
+                enabled = !s.busy && (s.speedLevel != null || s.processLimit != null), modifier = Modifier.fillMaxWidth())
+        }
+        val kept = s.restorePoint?.settings?.keys?.filter { it in SpeedTweaks.ALL_KEYS }.orEmpty()
+        if (kept.isNotEmpty()) item {
+            StageButton(onClick = { vm.restoreSettings(kept) }, text = stringResource(R.string.opt_speed_undo), enabled = !s.busy,
+                modifier = Modifier.fillMaxWidth())
+        }
+        item { Body(stringResource(R.string.opt_speed_reboot_note)) }
+    }
+}
+
+@Composable
+private fun Dns(s: OptimizerUiState, vm: TvOptimizerViewModel) {
+    LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        item { Title(stringResource(R.string.opt_f_dns)) }
+        item { Body(stringResource(R.string.opt_dns_body)) }
+        item { Body(stringResource(R.string.opt_dns_warn), warn = true) }
+        item { Body(stringResource(R.string.opt_dns_now, s.dnsMode ?: "—", s.dnsHost ?: "—")) }
+        if (s.busy) item { LinearProgressIndicator(Modifier.fillMaxWidth()) }
+        s.message?.let { m -> item { Body(stringResource(m), warn = true) } }
+        item {
+            StageButton(onClick = vm::enableDns, text = stringResource(R.string.opt_dns_on), style = StageButtonStyle.PRIMARY,
+                enabled = !s.busy && !(s.dnsMode == "hostname" && s.dnsHost == PrivateDns.ADGUARD), modifier = Modifier.fillMaxWidth())
+        }
+        val kept = s.restorePoint?.settings?.keys?.filter { it == PrivateDns.MODE_KEY || it == PrivateDns.HOST_KEY }.orEmpty()
+        if (kept.isNotEmpty()) item {
+            StageButton(onClick = { vm.restoreSettings(kept) }, text = stringResource(R.string.opt_dns_undo), enabled = !s.busy,
+                modifier = Modifier.fillMaxWidth())
+        }
+    }
+}
+
+@Composable
+private fun MeasureLine(label: String, m: TvMeasure?) {
+    val p = LocalStagePalette.current
+    Column(Modifier.padding(vertical = 4.dp)) {
+        Text(label, style = stageText(14f, 700), color = p.text)
+        if (m == null) Text("—", style = stageText(12.5f, 500), color = p.muted)
+        else Text(
+            stringResource(R.string.opt_measure_line, m.memAvailableMb ?: 0, m.memTotalMb ?: 0, m.processes ?: 0,
+                m.loadAvg?.toString() ?: "—", m.homeStartMs ?: 0),
+            style = stageText(12.5f, 500), color = p.muted,
+        )
+    }
+}
+
+@Composable
+private fun Measure(s: OptimizerUiState, vm: TvOptimizerViewModel) {
+    LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        item { Title(stringResource(R.string.opt_f_measure)) }
+        item { Body(stringResource(R.string.opt_measure_body)) }
+        item { MeasureLine(stringResource(R.string.opt_measure_before), s.measureBefore) }
+        item { MeasureLine(stringResource(R.string.opt_measure_after), s.measureAfter) }
+        if (s.busy) item { LinearProgressIndicator(Modifier.fillMaxWidth()) }
+        item {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                StageButton(onClick = { vm.measure(after = false) }, text = stringResource(R.string.opt_measure_before), enabled = !s.busy)
+                StageButton(onClick = { vm.measure(after = true) }, text = stringResource(R.string.opt_measure_after), enabled = !s.busy)
+            }
+        }
+    }
+}
+
+@Composable
+private fun Report(s: OptimizerUiState, vm: TvOptimizerViewModel) {
+    val context = LocalContext.current
+    var problem by rememberSaveable { mutableStateOf("") }
+    LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        item { Title(stringResource(R.string.opt_f_report)) }
+        item { Body(stringResource(R.string.opt_report_body)) }
+        item {
+            StageButton(onClick = vm::helpAddTvReport, text = stringResource(R.string.opt_report_add_tv), enabled = s.tv != null,
+                modifier = Modifier.fillMaxWidth())
+        }
+        if (s.tv == null) item { Body(stringResource(R.string.opt_need_connection)) }
+        item {
+            OutlinedTextField(value = problem, onValueChange = { problem = it.take(500) }, label = { Text(stringResource(R.string.opt_report_problem_hint)) },
+                modifier = Modifier.fillMaxWidth())
+        }
+        item {
+            StageButton(onClick = { vm.problemReport(problem) }, text = stringResource(R.string.opt_report_problem), modifier = Modifier.fillMaxWidth())
+        }
+        s.report?.let { r ->
+            item { Text(r, style = stageText(11.5f, 500), color = LocalStagePalette.current.muted) }
+            item { StageButton(onClick = { share(context, r) }, text = stringResource(R.string.opt_report_share), style = StageButtonStyle.PRIMARY, modifier = Modifier.fillMaxWidth()) }
         }
     }
 }

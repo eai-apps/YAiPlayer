@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /** Wizard order: warning → debugging steps → connection → list choice → plan → applying → result; manage any time. */
-enum class OptimizerStep { WELCOME, DEBUG_GUIDE, CONNECT, CHOOSE_LIST, PLAN, APPLYING, RESULT, MANAGE, LAUNCHER, PRIVACY }
+enum class OptimizerStep { WELCOME, DEBUG_GUIDE, CONNECT, CHOOSE_LIST, PLAN, APPLYING, RESULT, MANAGE, LAUNCHER, PRIVACY, SPEED, DNS, MEASURE, REPORT }
 
 enum class ConnectProblem { NOT_LOCAL, UNREACHABLE, NOT_ALLOWED, OTHER, NOT_FOUND }
 
@@ -51,6 +51,20 @@ data class OptimizerUiState(
     val launcherPhase: LauncherPhase = LauncherPhase.IDLE,
     val watchdogLeft: Int = 0,
     val debuggingOff: Boolean = false,
+    /** Owner/cleanyourtv: network debugging goes off at the end unless the user keeps it. */
+    val keepDebugging: Boolean = false,
+    val assessment: TvAssessment? = null,
+    /** Where the user wanted to go before the TV was connected (a function from the start list). */
+    val pending: OptimizerStep? = null,
+    val speedLevel: SpeedLevel? = SpeedLevel.HALF,
+    val processLimit: Int? = null,
+    val speedNow: Map<String, String?> = emptyMap(),
+    val dnsMode: String? = null,
+    val dnsHost: String? = null,
+    val measureBefore: TvMeasure? = null,
+    val measureAfter: TvMeasure? = null,
+    val report: String? = null,
+    val message: Int? = null,
 )
 
 class TvOptimizerViewModel(app: Application) : AndroidViewModel(app) {
@@ -85,6 +99,29 @@ class TvOptimizerViewModel(app: Application) : AndroidViewModel(app) {
 
     // ---- navigation ----
     fun go(step: OptimizerStep) = _ui.update { it.copy(step = step) }
+
+    /**
+     * Opens a function from the start list. Functions that talk to the TV first go through the connection step and
+     * then land where the user wanted (owner 12.11: the wizard showed no functions until ADB worked).
+     */
+    fun open(step: OptimizerStep) {
+        val needsTv = step != OptimizerStep.DEBUG_GUIDE && step != OptimizerStep.REPORT
+        if (needsTv && _ui.value.tv == null) {
+            _ui.update { it.copy(pending = step, step = if (it.riskAccepted) OptimizerStep.CONNECT else OptimizerStep.WELCOME, message = if (it.riskAccepted) null else R_ACCEPT_FIRST) }
+            return
+        }
+        _ui.update { it.copy(step = step, message = null) }
+        when (step) {
+            OptimizerStep.SPEED -> readSpeed()
+            OptimizerStep.DNS -> readDns()
+            OptimizerStep.PRIVACY -> runPrivacyAudit()
+            else -> Unit
+        }
+    }
+
+    fun setKeepDebugging(v: Boolean) = _ui.update { it.copy(keepDebugging = v) }
+    fun setSpeedLevel(v: SpeedLevel?) = _ui.update { it.copy(speedLevel = v) }
+    fun setProcessLimit(v: Int?) = _ui.update { it.copy(processLimit = v) }
     fun setRisk(accepted: Boolean) = _ui.update { it.copy(riskAccepted = accepted) }
     fun setHost(v: String) = _ui.update { it.copy(host = v.filter { c -> c.isDigit() || c == '.' }.take(15), connectProblem = null) }
     fun setPort(v: String) = _ui.update { it.copy(port = v.filter(Char::isDigit).take(5), connectProblem = null) }
@@ -130,12 +167,20 @@ class TvOptimizerViewModel(app: Application) : AndroidViewModel(app) {
                     e is java.io.IOException -> ConnectProblem.UNREACHABLE
                     else -> ConnectProblem.OTHER
                 }
+                log("ошибка подключения: $problem ${e?.javaClass?.simpleName.orEmpty()}")
                 _ui.update { it.copy(connecting = false, connectProblem = problem) }
                 return@launch
             }
             prefs.edit().putString(KEY_HOST, s.host.trim()).apply()
+            log("подключено")
             analyze()
-            _ui.update { it.copy(connecting = false, step = OptimizerStep.CHOOSE_LIST) }
+            _ui.update { it.copy(connecting = false, step = it.pending ?: OptimizerStep.CHOOSE_LIST, pending = null) }
+            when (_ui.value.step) {
+                OptimizerStep.SPEED -> readSpeed()
+                OptimizerStep.DNS -> readDns()
+                OptimizerStep.PRIVACY -> runPrivacyAudit()
+                else -> Unit
+            }
         }
     }
 
@@ -154,6 +199,11 @@ class TvOptimizerViewModel(app: Application) : AndroidViewModel(app) {
                 tv = info,
                 restorePoint = point,
                 guessed = catalog?.guessModel(info.brand.ifBlank { info.manufacturer }, info.model),
+                assessment = TvAssessor.assess(
+                    info,
+                    knownModel = catalog?.guessModel(info.brand.ifBlank { info.manufacturer }, info.model) != null,
+                    launcherBundled = it.launcherBundled,
+                ),
                 launcherPhase = if (launcherActive) LauncherPhase.ACTIVE else LauncherPhase.IDLE,
             )
         }
@@ -179,6 +229,137 @@ class TvOptimizerViewModel(app: Application) : AndroidViewModel(app) {
     fun selectNone() = _ui.update { it.copy(selected = emptySet()) }
 
     fun commandsText(): String = OptimizerScripts.disableScript(_ui.value.selected)
+
+    /** «Показать все команды»: the whole plan in order, before anything runs. */
+    fun allCommandsText(): String {
+        val s = _ui.value
+        return OptimizerScripts.planScript(
+            packages = s.selected,
+            speed = SpeedTweaks.plan(s.speedLevel, s.processLimit),
+            dns = false,
+            launcher = false,
+            debuggingOff = !s.keepDebugging,
+        )
+    }
+
+    // ---- journal for «Сообщить о проблеме» (no addresses: they are cut out of the report) ----
+    private val journal = ArrayList<String>()
+
+    private fun log(line: String) {
+        if (journal.size > 200) journal.removeAt(0)
+        journal += "${java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.ROOT).format(java.util.Date())} $line"
+    }
+
+    fun helpAddTvReport() {
+        val tv = _ui.value.tv ?: return
+        _ui.update { it.copy(report = OptimizerReports.addTvReport(tv, enabled, disabled, homeHandlers), step = OptimizerStep.REPORT) }
+    }
+
+    fun problemReport(problem: String) {
+        val s = _ui.value
+        _ui.update { it.copy(report = OptimizerReports.problemReport(s.tv, s.step.name, problem.take(500), journal), step = OptimizerStep.REPORT) }
+    }
+
+    // ---- speeding up the TV box itself ----
+    fun readSpeed() {
+        if (_ui.value.tv == null) return
+        _ui.update { it.copy(busy = true) }
+        viewModelScope.launch {
+            val now = SpeedTweaks.ALL_KEYS.associateWith { k -> runCatching { engine.readGlobal(k) }.getOrNull() }
+            _ui.update { it.copy(busy = false, speedNow = now) }
+        }
+    }
+
+    fun applySpeed() {
+        val s = _ui.value
+        val tv = s.tv ?: return
+        val changes = SpeedTweaks.plan(s.speedLevel, s.processLimit)
+        if (changes.isEmpty()) return
+        _ui.update { it.copy(busy = true) }
+        viewModelScope.launch {
+            changeSettings(tv, changes)
+            log("скорость: $changes")
+            readSpeed()
+        }
+    }
+
+    /** Old values go into the restore point before the first change; a key already kept keeps its first old value. */
+    private suspend fun changeSettings(tv: TvInfo, changes: Map<String, String?>): Boolean {
+        val base = _ui.value.restorePoint ?: RestorePoint(tv.id, tv.label, System.currentTimeMillis(), emptySet(), stockHome)
+        val old = LinkedHashMap(base.settings)
+        for (k in changes.keys) if (k !in old) {
+            val v = runCatching { engine.readGlobal(k) }.getOrElse {
+                _ui.update { s -> s.copy(busy = false, message = R_TV_SILENT) }
+                return false
+            }
+            old[k] = v
+        }
+        val point = base.copy(settings = old)
+        savePoint(point)
+        _ui.update { it.copy(restorePoint = point) }
+        var ok = true
+        changes.forEach { (k, v) -> if (!engine.putGlobal(k, v)) ok = false }
+        _ui.update { it.copy(busy = false, message = if (ok) null else R_PARTLY) }
+        return ok
+    }
+
+    /** Puts the given settings back to what they were before YAiPlayer touched them. */
+    fun restoreSettings(keys: Collection<String>) {
+        val point = _ui.value.restorePoint ?: return
+        _ui.update { it.copy(busy = true) }
+        viewModelScope.launch {
+            val back = keys.filter { k -> k in point.settings && engine.putGlobal(k, point.settings[k]) }
+            val left = point.copy(settings = point.settings - back.toSet())
+            savePoint(left)
+            log("возвращены настройки: $back")
+            _ui.update { it.copy(busy = false, restorePoint = left) }
+            if (back.any { it in SpeedTweaks.ALL_KEYS }) readSpeed()
+            if (back.any { it == PrivateDns.MODE_KEY }) readDns()
+        }
+    }
+
+    // ---- Private DNS ----
+    fun readDns() {
+        if (_ui.value.tv == null) return
+        viewModelScope.launch {
+            val mode = runCatching { engine.readGlobal(PrivateDns.MODE_KEY) }.getOrNull()
+            val host = runCatching { engine.readGlobal(PrivateDns.HOST_KEY) }.getOrNull()
+            _ui.update { it.copy(dnsMode = mode, dnsHost = host) }
+        }
+    }
+
+    fun enableDns() {
+        val tv = _ui.value.tv ?: return
+        _ui.update { it.copy(busy = true) }
+        viewModelScope.launch {
+            changeSettings(tv, linkedMapOf(PrivateDns.HOST_KEY to PrivateDns.ADGUARD, PrivateDns.MODE_KEY to "hostname"))
+            log("DNS AdGuard")
+            readDns()
+        }
+    }
+
+    // ---- before/after numbers ----
+    fun measure(after: Boolean) {
+        if (_ui.value.tv == null) return
+        _ui.update { it.copy(busy = true) }
+        viewModelScope.launch {
+            val m = engine.measure(System.currentTimeMillis())
+            prefs.edit().putString(if (after) KEY_AFTER else KEY_BEFORE, "${m.memAvailableMb}|${m.processes}|${m.loadAvg}|${m.homeStartMs}").apply()
+            log("замер ${if (after) "после" else "до"}: $m")
+            _ui.update { if (after) it.copy(busy = false, measureAfter = m) else it.copy(busy = false, measureBefore = m) }
+        }
+    }
+
+    /** «Готово»: network debugging goes off unless the user chose to keep it (cleanyourtv does the same). */
+    fun finish(onDone: () -> Unit) {
+        val s = _ui.value
+        if (s.tv == null || s.keepDebugging || s.debuggingOff) { onDone(); return }
+        viewModelScope.launch {
+            engine.disableDebugging()
+            _ui.update { it.copy(debuggingOff = true) }
+            onDone()
+        }
+    }
 
     // ---- apply and roll back ----
     fun apply() {
@@ -221,17 +402,31 @@ class TvOptimizerViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    /** Everything back in one pass: Home screen, settings, then apps (one coroutine, so the restore point stays exact). */
     fun restoreAll() {
         val point = _ui.value.restorePoint ?: return
+        _ui.update { it.copy(busy = true) }
         viewModelScope.launch {
+            var launcherOff = !point.launcherActive
             point.stockHome?.let { home ->
-                if (_ui.value.launcherPhase == LauncherPhase.ACTIVE) {
-                    engine.restoreHome(home)
-                    savePoint(point.copy(launcherActive = false))
-                    _ui.update { it.copy(launcherPhase = LauncherPhase.REVERTED) }
+                if (_ui.value.launcherPhase == LauncherPhase.ACTIVE || point.launcherActive) {
+                    launcherOff = engine.restoreHome(home)
+                    if (launcherOff) _ui.update { it.copy(launcherPhase = LauncherPhase.REVERTED) }
                 }
             }
-            restore(point.packages)
+            val settingsBack = point.settings.keys.filter { k -> engine.putGlobal(k, point.settings[k]) }
+            val appsBack = point.packages.filter { engine.enable(it) }
+            val left = point.copy(
+                packages = point.packages - appsBack.toSet(),
+                settings = point.settings - settingsBack.toSet(),
+                launcherActive = point.launcherActive && !launcherOff,
+            )
+            savePoint(left)
+            enabled = enabled + appsBack
+            disabled = disabled - appsBack.toSet()
+            homeHandlers = engine.homeHandlers()
+            log("вернуть всё: приложения ${appsBack.size}, настройки ${settingsBack.size}")
+            _ui.update { it.copy(busy = false, restorePoint = left, leftovers = it.leftovers - appsBack.toSet()) }
         }
     }
 
@@ -361,6 +556,11 @@ class TvOptimizerViewModel(app: Application) : AndroidViewModel(app) {
         const val CATALOG_ASSET = "tvoptimizer/catalog.json"
         const val LAUNCHER_ASSET = "tvoptimizer/launcher.apk"
         const val WATCHDOG_SECONDS = 150
+        private const val KEY_BEFORE = "measure_before"
+        private const val KEY_AFTER = "measure_after"
+        val R_ACCEPT_FIRST = tv.own.owntv.core.R.string.opt_msg_accept_first
+        val R_TV_SILENT = tv.own.owntv.core.R.string.opt_msg_tv_silent
+        val R_PARTLY = tv.own.owntv.core.R.string.opt_msg_partly
         private const val KEY_HOST = "host"
         private const val KEY_POINTS = "restore_points"
     }
