@@ -32,7 +32,15 @@ class TvScreenPeekViewModel(app: Application) : AndroidViewModel(app) {
         val live: Boolean = false,
         val image: Bitmap? = null,
         val failed: Boolean = false,
+        /** Looking for the TV box's network debugging on the Wi-Fi (no address typed). */
+        val searching: Boolean = false,
+        /** Why it failed, in words for the owner: not found, not allowed on the TV, no picture. */
+        val problem: Problem? = null,
+        /** The technical reason, small under the message. */
+        val detail: String? = null,
     )
+
+    enum class Problem { NOT_FOUND, NOT_ALLOWED, UNREACHABLE, NO_PICTURE }
 
     private val transport: AdbTransport = DadbTransport(app)
     private val _state = MutableStateFlow(State())
@@ -44,12 +52,41 @@ class TvScreenPeekViewModel(app: Application) : AndroidViewModel(app) {
     fun connect() {
         val host = _state.value.host.trim()
         if (host.isEmpty() || _state.value.connecting) return
-        _state.update { it.copy(connecting = true, failed = false) }
+        _state.update { it.copy(connecting = true, failed = false, problem = null, detail = null) }
+        viewModelScope.launch { connectTo(host) }
+    }
+
+    /**
+     * Opens by itself (owner 12.11: no address, no port): the address the remote already uses, the remembered TV
+     * boxes, then the whole Wi-Fi is searched for network debugging (port 5555).
+     */
+    fun autoConnect(preferred: String?) {
+        if (_state.value.connecting || _state.value.connected || _state.value.searching) return
+        _state.update { it.copy(searching = true, failed = false, problem = null, detail = null) }
         viewModelScope.launch {
-            val ok = transport.connect(host).isSuccess
-            _state.update { it.copy(connecting = false, connected = ok, failed = !ok) }
-            if (ok) shoot()
+            val host = AdbFinder.find(getApplication(), listOf(preferred, _state.value.host.takeIf { it.isNotBlank() }))
+            if (host == null) {
+                _state.update { it.copy(searching = false, failed = true, problem = Problem.NOT_FOUND) }
+                return@launch
+            }
+            _state.update { it.copy(searching = false, host = host, connecting = true) }
+            connectTo(host)
         }
+    }
+
+    private suspend fun connectTo(host: String) {
+        val r = transport.connect(host)
+        val e = r.exceptionOrNull()
+        val problem = when {
+            e == null -> null
+            e is dadb.AdbAuthException || e is java.net.SocketTimeoutException -> Problem.NOT_ALLOWED
+            else -> Problem.UNREACHABLE
+        }
+        _state.update {
+            it.copy(connecting = false, connected = e == null, failed = e != null, problem = problem,
+                detail = e?.let { t -> "${t.javaClass.simpleName}: ${t.message?.take(80).orEmpty()}" })
+        }
+        if (e == null) shoot()
     }
 
     fun shoot() {
@@ -70,8 +107,17 @@ class TvScreenPeekViewModel(app: Application) : AndroidViewModel(app) {
 
     private suspend fun capture() {
         _state.update { it.copy(busy = true) }
-        val bitmap = transport.runShell(SCREENCAP).getOrNull()?.let { decode(it) }
-        _state.update { it.copy(busy = false, image = bitmap ?: it.image, failed = bitmap == null) }
+        // Raw PNG first (`exec:screencap -p`, no base64 on the TV); the older text way as a fallback.
+        val raw = transport.execBytes("screencap -p").getOrNull()
+        val bitmap = raw?.let { decodeBytes(it) } ?: transport.runShell(SCREENCAP).getOrNull()?.let { decode(it) }
+        _state.update {
+            it.copy(busy = false, image = bitmap ?: it.image, failed = bitmap == null,
+                problem = if (bitmap == null) Problem.NO_PICTURE else null)
+        }
+    }
+
+    private suspend fun decodeBytes(bytes: ByteArray): Bitmap? = withContext(Dispatchers.Default) {
+        runCatching { BitmapFactory.decodeByteArray(bytes, 0, bytes.size) }.getOrNull()
     }
 
     private suspend fun decode(text: String): Bitmap? = withContext(Dispatchers.Default) {

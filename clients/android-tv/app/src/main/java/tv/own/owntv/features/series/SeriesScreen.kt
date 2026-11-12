@@ -1260,6 +1260,7 @@ private fun EpisodeView(
     val downloadsAllowed by vm.downloadsAllowed.collectAsStateWithLifecycle()
     val loading by vm.episodesLoading.collectAsStateWithLifecycle()
     val episodesFailure by vm.episodesFailure.collectAsStateWithLifecycle()
+    val episodesSlow by vm.episodesSlow.collectAsStateWithLifecycle()
     val favoriteIds by vm.favoriteIds.collectAsStateWithLifecycle()
     val downloads by vm.episodeDownloads.collectAsStateWithLifecycle()
     val selectedSeason by vm.selectedSeason.collectAsStateWithLifecycle()
@@ -1671,6 +1672,7 @@ private fun EpisodeView(
                 val failure = episodesFailure
                 Text(
                     if (failure != null) stringResource(R.string.content_episodes_load_failed, failure)
+                    else if (episodesSlow) stringResource(R.string.content_episodes_slow)
                     else stringResource(R.string.content_no_episodes),
                     style = stageText(20, 500), color = StageColors.Muted,
                 )

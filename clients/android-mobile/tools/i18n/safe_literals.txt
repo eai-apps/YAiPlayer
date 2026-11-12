@@ -123,6 +123,10 @@
 1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbCommandHelper.kt	pm disable-user --user 0 $packageName
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbCommandHelper.kt	pm enable --user 0
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbCommandHelper.kt	pm enable --user 0 $packageName
+1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbFinder.kt	$prefix.$it
+1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbFinder.kt	.
+1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbFinder.kt	adb: found $it:$port (known address)
+1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/AdbFinder.kt	adb: subnet scan ${scan.size} addresses, open 5555: ${found.joinToString()}
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	--user
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	-r
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	0
@@ -130,9 +134,10 @@
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	adbkey
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	adbkey.pub
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	echo ok
+1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	exec:$cmd
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	install failed
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	no shell
-2	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	not connected
+3	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	not connected
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	not local
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	ok
 8	empty	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	\0
@@ -314,6 +319,8 @@
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	tvoptimizer/catalog.json
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	tvoptimizer/launcher.apk
 1	empty	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvScreenPeek.kt	\0
+1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvScreenPeek.kt	${t.javaClass.simpleName}: ${t.message?.take(80).orEmpty()}
+1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvScreenPeek.kt	screencap -p
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvScreenPeek.kt	screencap -p | base64
 1	technical	app/src/main/java/tv/own/owntv/mobile/MainActivity.kt	back
 1	technical	app/src/main/java/tv/own/owntv/mobile/MainActivity.kt	forward

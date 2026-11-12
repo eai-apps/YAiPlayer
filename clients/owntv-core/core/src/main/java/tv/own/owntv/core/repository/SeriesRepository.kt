@@ -83,6 +83,10 @@ class SeriesRepository(
 
         val remoteId = series.remoteId
         if (remoteId.isNullOrBlank()) return@withContext stored
+        val t0 = System.currentTimeMillis()
+        // Exported with «Экспорт журнала»: which show, which strategy answered, how long (owner 12.11: a show that
+        // spins forever must be diagnosable from the TV box or phone without a computer).
+        tv.own.owntv.core.PerfJournal.add("episodes start id=${series.id} remote=$remoteId cached=$cachedCount name=${series.name.take(60)}")
         // A failed or empty fetch must never empty a populated show: a provider hiccup would
         // otherwise wipe a season the user was midway through. Leave the stamp alone so the next
         // open retries instead of waiting out the TTL on nothing.
@@ -103,11 +107,17 @@ class SeriesRepository(
             throw e
         } catch (e: Exception) {
             android.util.Log.w(TAG, "${source.type} episode load failed seriesId=${series.id}", e)
+            tv.own.owntv.core.PerfJournal.add(
+                listOf("episodes failed", series.id, System.currentTimeMillis() - t0, e.javaClass.simpleName, e.message?.take(80)).joinToString(" "),
+            )
             return@withContext if (hasCache) EpisodeLoad.Ready else EpisodeLoad.Failed(episodeLoadFailure(e))
         }
         val withSiblings = if (source.type == SourceType.STALKER && !fetched.isNullOrEmpty()) {
             fetched + siblingSeasonEpisodes(series, source, fetched)
         } else fetched
+        tv.own.owntv.core.PerfJournal.add(
+            listOf("episodes done", series.id, fetched?.size, withSiblings?.size, System.currentTimeMillis() - t0).joinToString(" "),
+        )
         if (withSiblings.isNullOrEmpty()) return@withContext stored
         applyEpisodes(series.id, withSiblings)
         EpisodeLoad.Ready
@@ -169,6 +179,7 @@ class SeriesRepository(
             haveSeasons.addAll(eps.map { it.seasonNumber })
         }
         android.util.Log.i(TAG, "sibling season records seriesId=${series.id} siblings=${siblings.size} episodes=${out.size}")
+        tv.own.owntv.core.PerfJournal.add("episodes siblings id=${series.id} records=${siblings.size} added=${out.size}")
         return out
     }
 
@@ -295,6 +306,7 @@ class SeriesRepository(
             TAG,
             "stalker episodes seriesId=${series.id} remoteId=$remoteId seasons=${seasons.size} episodes=${episodes.size}",
         )
+        tv.own.owntv.core.PerfJournal.add("episodes stalker id=${series.id} seasons=${seasons.size} episodes=${episodes.size}")
         if (episodes.isNotEmpty()) return episodes
         // Some portals answer the film listing with seasons that carry neither an episode list nor a
         // cmd: Ministra's three-level tree, where each season is one more request. Asked only when

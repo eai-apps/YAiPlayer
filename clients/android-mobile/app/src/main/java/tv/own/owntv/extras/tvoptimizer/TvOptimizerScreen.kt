@@ -195,8 +195,11 @@ private fun DebugGuide(vm: TvOptimizerViewModel) {
 
 @Composable
 private fun Connect(s: OptimizerUiState, vm: TvOptimizerViewModel) {
+    // Finds the TV box by itself on entering this step (owner 12.11): the fields below are only a fallback.
+    androidx.compose.runtime.LaunchedEffect(Unit) { vm.autoConnect() }
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Title(stringResource(R.string.tv_optimizer_connect_title))
+        if (s.connecting && s.host.isBlank()) Body(stringResource(R.string.atv_screen_searching))
         OutlinedTextField(
             value = s.host, onValueChange = vm::setHost, singleLine = true,
             label = { Text(stringResource(R.string.tv_optimizer_ip_hint)) },
@@ -219,14 +222,15 @@ private fun Connect(s: OptimizerUiState, vm: TvOptimizerViewModel) {
                         ConnectProblem.UNREACHABLE -> R.string.opt_connect_unreachable
                         ConnectProblem.NOT_ALLOWED -> R.string.opt_connect_not_allowed
                         ConnectProblem.OTHER -> R.string.opt_connect_other
+                        ConnectProblem.NOT_FOUND -> R.string.atv_screen_not_found
                     },
                 ),
                 warn = true,
             )
         }
         StageButton(
-            onClick = vm::connect, text = stringResource(R.string.tv_optimizer_connect_btn), style = StageButtonStyle.PRIMARY,
-            enabled = !s.connecting && s.host.count { it == '.' } == 3, modifier = Modifier.fillMaxWidth(),
+            onClick = { if (s.host.isBlank()) vm.autoConnect(force = true) else vm.connect() }, text = stringResource(R.string.tv_optimizer_connect_btn), style = StageButtonStyle.PRIMARY,
+            enabled = !s.connecting, modifier = Modifier.fillMaxWidth(),
         )
     }
 }

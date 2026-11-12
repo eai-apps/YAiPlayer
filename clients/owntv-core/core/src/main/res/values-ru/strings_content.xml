@@ -436,4 +436,5 @@
     <string name="backup_applied_success">Настройки успешно восстановлены</string>
     <string name="content_archive_only">Только с архивом</string>
     <string name="content_archive_only_on">Только с архивом: вкл.</string>
+    <string name="content_episodes_slow">Портал долго отдаёт серии этого сериала. Они появятся здесь сами, как только придут.</string>
 </resources>

@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import tv.own.owntv.core.categorylock.clearWhenSealed
 import tv.own.owntv.core.categorylock.sealedCategoryIds
@@ -89,6 +90,9 @@ class DetailViewModel(
     val loading: StateFlow<Boolean> = _loading
 
     /** Why the open show has no episodes when the provider refused or failed the request; null otherwise. */
+    private val _episodesSlow = MutableStateFlow(false)
+    /** The portal has not answered within [EPISODE_WAIT_MS]: the page stops spinning and says so. */
+    val episodesSlow: StateFlow<Boolean> = _episodesSlow
     private val _episodesFailure = MutableStateFlow<String?>(null)
     val episodesFailure: StateFlow<String?> = _episodesFailure
 
@@ -328,7 +332,23 @@ class DetailViewModel(
                         loadSeriesPage(enriched)
                     }
                 }
-                _episodesFailure.value = (seriesRepository.loadEpisodes(entity) as? EpisodeLoad.Failed)?.reason
+                // The spinner waits at most EPISODE_WAIT_MS (owner 12.11: «Хорошая американская семья» spun forever);
+                // the fetch goes on and its episodes appear by themselves (the list is read from the database).
+                _episodesSlow.value = false
+                val load = async { seriesRepository.loadEpisodes(entity) }
+                val first = kotlinx.coroutines.withTimeoutOrNull(EPISODE_WAIT_MS) { load.await() }
+                if (first == null) {
+                    _episodesSlow.value = true
+                    launch {
+                        val late = load.await()
+                        if (target.value == Target(tab, id)) {
+                            _episodesSlow.value = false
+                            _episodesFailure.value = (late as? EpisodeLoad.Failed)?.reason
+                        }
+                    }
+                } else {
+                    _episodesFailure.value = (first as? EpisodeLoad.Failed)?.reason
+                }
             }
             _loading.value = false
             val pid = profileId.value
@@ -564,3 +584,5 @@ private fun LibraryTab.mediaType() =
 /** Finished at 95 %, which is also where the mark-watched marker and the TV app's card sit. */
 private fun PlaybackProgressEntity.isFinished(): Boolean =
     durationMs > 0 && positionMs >= (durationMs * 0.95f).toLong()
+
+private const val EPISODE_WAIT_MS = 20_000L

@@ -727,4 +727,5 @@
     <string name="backup_applied_success">Settings restored successfully</string>
     <string name="content_archive_only">Archive only</string>
     <string name="content_archive_only_on">Archive only: on</string>
+    <string name="content_episodes_slow">The portal is slow to send the episodes of this show. They will appear here by themselves as soon as they arrive.</string>
 </resources>

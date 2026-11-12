@@ -254,4 +254,14 @@ class TvOptimizerTest {
         // Nothing but enable / Home commands ever reached the TV during a rollback.
         assertTrue(tv.history.all { it.startsWith("pm enable") || it.startsWith("cmd package") || it.startsWith("am start") })
     }
+
+    /** Owner 12.11: the TV box is found on the Wi-Fi, no address typed. */
+    @Test fun `finder tries known addresses first, then the phone's subnet`() {
+        val hosts = AdbFinder.subnetHosts("192.168.2.17")
+        assertEquals(253, hosts.size)
+        assertTrue("192.168.2.43" in hosts)
+        assertFalse("192.168.2.17" in hosts)
+        assertTrue(AdbFinder.subnetHosts("fe80::1").isEmpty())
+        assertEquals(listOf("192.168.2.43", "192.168.2.50"), AdbFinder.candidates(listOf(null, " 192.168.2.43"), listOf("192.168.2.43", "192.168.2.50", "tv.local")))
+    }
 }

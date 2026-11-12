@@ -21,7 +21,7 @@ import kotlinx.coroutines.withContext
 /** Wizard order: warning → debugging steps → connection → list choice → plan → applying → result; manage any time. */
 enum class OptimizerStep { WELCOME, DEBUG_GUIDE, CONNECT, CHOOSE_LIST, PLAN, APPLYING, RESULT, MANAGE, LAUNCHER, PRIVACY }
 
-enum class ConnectProblem { NOT_LOCAL, UNREACHABLE, NOT_ALLOWED, OTHER }
+enum class ConnectProblem { NOT_LOCAL, UNREACHABLE, NOT_ALLOWED, OTHER, NOT_FOUND }
 
 enum class LauncherPhase { IDLE, INSTALLING, WAITING_CONFIRM, ACTIVE, FAILED, REVERTED }
 
@@ -94,6 +94,27 @@ class TvOptimizerViewModel(app: Application) : AndroidViewModel(app) {
     fun brandListCount(): Int = _ui.value.tv?.let { t -> catalog?.modelsOfBrand(t.brand.ifBlank { t.manufacturer })?.size } ?: 0
 
     // ---- connection and analysis ----
+    private var autoTried = false
+
+    /**
+     * Owner 12.11: no address, no port. The address the remote uses, the remembered TV boxes, then the whole Wi-Fi
+     * is searched for network debugging (5555); found → connects at once. Once per wizard; «Подключиться» repeats.
+     */
+    fun autoConnect(force: Boolean = false) {
+        if (_ui.value.connecting || (autoTried && !force)) return
+        autoTried = true
+        _ui.update { it.copy(connecting = true, connectProblem = null) }
+        viewModelScope.launch {
+            val host = AdbFinder.find(getApplication(), listOf(_ui.value.host.takeIf { it.isNotBlank() }))
+            if (host == null) {
+                _ui.update { it.copy(connecting = false, connectProblem = ConnectProblem.NOT_FOUND) }
+                return@launch
+            }
+            _ui.update { it.copy(host = host, port = AdbTransport.DEFAULT_ADB_PORT.toString(), connecting = false) }
+            connect()
+        }
+    }
+
     fun connect() {
         val s = _ui.value
         val port = s.port.toIntOrNull()?.takeIf { it in 1..65535 } ?: AdbTransport.DEFAULT_ADB_PORT

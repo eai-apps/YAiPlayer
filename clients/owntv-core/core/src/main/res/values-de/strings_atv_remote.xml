@@ -132,4 +132,8 @@
     <string name="atv_voice_prompt">Sagen Sie, was auf dem Fernseher gesucht werden soll</string>
     <string name="atv_voice_missing">Dieses Telefon hat keine Spracheingabe.</string>
     <string name="atv_open_app_title">App auf der TV-Box öffnen</string>
+    <string name="atv_screen_searching">Suche die TV-Box im WLAN…</string>
+    <string name="atv_screen_not_found">In diesem WLAN wurde keine TV-Box mit aktiviertem Debugging gefunden. Auf der TV-Box: Einstellungen → Geräteeinstellungen → Entwickleroptionen → USB-Debugging (oder Netzwerk-Debugging) an.</string>
+    <string name="atv_screen_not_allowed">Die TV-Box hat dieses Telefon nicht zugelassen. Auf dem Fernseher «Immer von diesem Computer zulassen» ankreuzen und OK drücken, dann erneut Verbinden.</string>
+    <string name="atv_screen_unreachable">Die TV-Box wurde gefunden, hat das Debugging aber nicht geöffnet. TV-Box neu starten und erneut Verbinden.</string>
 </resources>

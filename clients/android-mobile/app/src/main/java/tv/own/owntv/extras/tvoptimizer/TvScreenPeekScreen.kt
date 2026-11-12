@@ -43,7 +43,8 @@ import tv.own.owntv.mobile.ui.stage.stageText
 fun TvScreenPeekScreen(host: String?, onBack: () -> Unit, vm: TvScreenPeekViewModel = viewModel()) {
     val palette = LocalStagePalette.current
     val s by vm.state.collectAsStateWithLifecycle()
-    LaunchedEffect(host) { if (!host.isNullOrBlank() && s.host.isBlank()) vm.setHost(host) }
+    // Opens by itself: the remote's address, the remembered boxes, then the whole Wi-Fi (owner 12.11).
+    LaunchedEffect(host) { vm.autoConnect(host) }
     Column(
         Modifier.fillMaxSize().stageBackground().statusBarsPadding().navigationBarsPadding()
             .verticalScroll(rememberScrollState()).padding(16.dp),
@@ -54,14 +55,17 @@ fun TvScreenPeekScreen(host: String?, onBack: () -> Unit, vm: TvScreenPeekViewMo
             Text(stringResource(R.string.atv_screen_title), style = stageText(16f, 700), color = palette.text)
         }
         if (!s.connected) {
-            Text(stringResource(R.string.atv_screen_hint), style = stageText(12.5f, 500), color = palette.muted)
-            StageField(value = s.host, onValueChange = vm::setHost, label = stringResource(R.string.atv_enter_ip),
-                keyboardType = KeyboardType.Decimal, enabled = !s.connecting, onImeDone = vm::connect)
-            StageButton(onClick = vm::connect, text = stringResource(R.string.atv_connect), icon = MobileIcons.Tv,
-                style = StageButtonStyle.PRIMARY, modifier = Modifier.fillMaxWidth())
-            if (s.connecting) {
+            if (s.searching || s.connecting) {
                 LinearProgressIndicator(Modifier.fillMaxWidth())
-                Text(stringResource(R.string.atv_screen_allow), style = stageText(12.5f, 600), color = palette.text)
+                Text(stringResource(if (s.searching) R.string.atv_screen_searching else R.string.atv_screen_allow),
+                    style = stageText(13f, 600), color = palette.text)
+            } else {
+                StageButton(onClick = { vm.autoConnect(host) }, text = stringResource(R.string.atv_connect), icon = MobileIcons.Tv,
+                    style = StageButtonStyle.PRIMARY, modifier = Modifier.fillMaxWidth())
+                Text(stringResource(R.string.atv_screen_hint), style = stageText(12.5f, 500), color = palette.muted)
+                // Manual address only as a fallback, under everything else.
+                StageField(value = s.host, onValueChange = vm::setHost, label = stringResource(R.string.atv_enter_ip),
+                    keyboardType = KeyboardType.Decimal, enabled = !s.connecting, onImeDone = vm::connect)
             }
         } else {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -76,6 +80,15 @@ fun TvScreenPeekScreen(host: String?, onBack: () -> Unit, vm: TvScreenPeekViewMo
             if (s.busy && s.image == null) LinearProgressIndicator(Modifier.fillMaxWidth())
         }
         s.image?.let { Image(it.asImageBitmap(), contentDescription = stringResource(R.string.atv_screen_title), contentScale = ContentScale.FillWidth, modifier = Modifier.fillMaxWidth()) }
-        if (s.failed) Text(stringResource(R.string.atv_screen_failed), style = stageText(12.5f, 600), color = palette.danger)
+        if (s.failed) {
+            val msg = when (s.problem) {
+                TvScreenPeekViewModel.Problem.NOT_FOUND -> R.string.atv_screen_not_found
+                TvScreenPeekViewModel.Problem.NOT_ALLOWED -> R.string.atv_screen_not_allowed
+                TvScreenPeekViewModel.Problem.UNREACHABLE -> R.string.atv_screen_unreachable
+                else -> R.string.atv_screen_failed
+            }
+            Text(stringResource(msg), style = stageText(12.5f, 600), color = palette.danger)
+            s.detail?.let { Text(it, style = stageText(11f, 500), color = palette.dim) }
+        }
     }
 }

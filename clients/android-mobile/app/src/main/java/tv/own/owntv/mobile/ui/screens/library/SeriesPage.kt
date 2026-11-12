@@ -137,6 +137,7 @@ internal fun SeriesPage(
     val season by vm.season.collectAsStateWithLifecycle()
     val loading by vm.loading.collectAsStateWithLifecycle()
     val episodesFailure by vm.episodesFailure.collectAsStateWithLifecycle()
+    val episodesSlow by vm.episodesSlow.collectAsStateWithLifecycle()
     val favorite by vm.isFavorite.collectAsStateWithLifecycle()
     val episodeProgress by vm.episodeProgress.collectAsStateWithLifecycle()
     val completedIds by vm.completedIds.collectAsStateWithLifecycle()
@@ -315,6 +316,7 @@ internal fun SeriesPage(
                     val failure = episodesFailure?.takeIf { episodes.isEmpty() }
                     Text(
                         if (failure != null) stringResource(R.string.content_episodes_load_failed, failure)
+                        else if (episodesSlow && episodes.isEmpty()) stringResource(R.string.content_episodes_slow)
                         else stringResource(R.string.content_no_episodes),
                         style = stageText(13f, 500), color = palette.muted, modifier = Modifier.padding(vertical = 24.dp),
                     )

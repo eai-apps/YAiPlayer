@@ -37,6 +37,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transformLatest
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import tv.own.owntv.core.customize.CustomizationStore
 import tv.own.owntv.core.customize.SectionCustomizations
@@ -932,6 +933,10 @@ class SeriesViewModel(
             }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyMap())
 
+    private val _episodesSlow = MutableStateFlow(false)
+    /** The portal has not answered within [EPISODE_WAIT_MS]: the screen stops spinning and says so. */
+    val episodesSlow: StateFlow<Boolean> = _episodesSlow
+
     fun openSeries(s: SeriesEntity) {
         _openedSeries.value = s
         viewModelScope.launch {
@@ -944,7 +949,23 @@ class SeriesViewModel(
         viewModelScope.launch {
             _episodesLoading.value = true
             _episodesFailure.value = null
-            _episodesFailure.value = (seriesRepository.loadEpisodes(s) as? EpisodeLoad.Failed)?.reason
+            _episodesSlow.value = false
+            // The spinner waits at most EPISODE_WAIT_MS (owner 12.11: a show spun forever). The fetch goes on; its
+            // episodes appear by themselves, since the list is read from the database.
+            val load = async { seriesRepository.loadEpisodes(s) }
+            val first = kotlinx.coroutines.withTimeoutOrNull(EPISODE_WAIT_MS) { load.await() }
+            if (first == null) {
+                _episodesSlow.value = true
+                launch {
+                    val late = load.await()
+                    if (_openedSeries.value?.id == s.id) {
+                        _episodesSlow.value = false
+                        _episodesFailure.value = (late as? EpisodeLoad.Failed)?.reason
+                    }
+                }
+            } else {
+                _episodesFailure.value = (first as? EpisodeLoad.Failed)?.reason
+            }
             // Jump to where you left off: seed the last-watched episode (and its season) from saved progress
             // BEFORE clearing loading, so the screen's focus effect lands on it instead of episode 1.
             val eps = seriesDao.episodesBySeries(s.id).first()
@@ -1467,6 +1488,7 @@ class SeriesViewModel(
 
     private companion object {
         const val TAG = "OwnTVHome"
+        const val EPISODE_WAIT_MS = 20_000L
 
         /**
          * How long the user must stay on a season before the grid fetches its stills. Longer than the

@@ -132,4 +132,8 @@
     <string name="atv_voice_prompt">Say what to search for on the TV</string>
     <string name="atv_voice_missing">This phone has no voice input.</string>
     <string name="atv_open_app_title">Open an app on the TV box</string>
+    <string name="atv_screen_searching">Looking for the TV box on your Wi-Fi…</string>
+    <string name="atv_screen_not_found">No TV box with debugging switched on was found on this Wi-Fi. On the TV box: Settings → Device Preferences → Developer options → USB debugging (or Network debugging) on. Phone and TV box on the same Wi-Fi.</string>
+    <string name="atv_screen_not_allowed">The TV box did not allow this phone. Look at the TV: tick «Always allow from this computer» and press OK, then tap Connect again.</string>
+    <string name="atv_screen_unreachable">The TV box was found but did not open debugging. Restart the TV box and tap Connect again.</string>
 </resources>

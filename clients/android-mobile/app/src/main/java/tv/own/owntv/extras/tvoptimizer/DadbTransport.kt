@@ -62,6 +62,13 @@ class DadbTransport(context: Context) : AdbTransport {
         }
     }
 
+    override suspend fun execBytes(cmd: String): Result<ByteArray> = withContext(Dispatchers.IO) {
+        runCatching {
+            val d = dadb ?: error("not connected")
+            d.open("exec:$cmd").use { it.source.readByteArray() }
+        }
+    }
+
     override suspend fun disconnect() = withContext(Dispatchers.IO) { disconnectNow() }
 
     private fun disconnectNow() {
