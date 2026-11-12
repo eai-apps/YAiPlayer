@@ -253,7 +253,14 @@ class SeriesRepository(
     private suspend fun fetchStalkerEpisodes(series: SeriesEntity, source: SourceEntity, remoteId: String): List<EpisodeEntity>? {
         val mac = source.mac?.let { StalkerClient.canonicalizeMac(it) } ?: return null
         val creds = source.stalkerCredentials(mac)
-        if (source.id in vodTreeSources) return fetchStalkerVodTree(series, mac, creds, remoteId)
+        // The film-catalogue tree is a fallback only, for every show (operator 12.11: after one show answered
+        // through it, every NEW show of the portal went that way only and failed with IOException). A portal
+        // known to use it gets it tried first, but the normal routes still follow when it brings nothing.
+        if (source.id in vodTreeSources) {
+            val first = runCatching { withTimeoutOrNull(TREE_BUDGET_MS) { fetchStalkerVodTree(series, mac, creds, remoteId) } }
+                .getOrNull().orEmpty()
+            if (first.isNotEmpty()) return first
+        }
         suspend fun seasonsFrom(type: String): List<StalkerClient.SeasonItem> {
             val seasons = ArrayList<StalkerClient.SeasonItem>()
             var page = 1
@@ -290,17 +297,24 @@ class SeriesRepository(
             ).map { it.trim() }.filter { it.length >= 2 }.distinct()
             for (query in queries) {
                 val found = ArrayList<StalkerClient.SeasonItem>()
+                var seen = 0
                 var page = 1
                 while (page <= MAX_SEARCH_PAGES) {
                     val p = stalkerAuth.withAuthRetry(creds) { session ->
                         stalkerClient.searchSeasonRows(session.apiBase, mac, session.token, creds.userAgent, catRemote, query, page)
                     }
+                    seen += p.items.size
                     found += p.items.filter { it.id == remoteId }
                     val maxPer = p.maxPageItems.takeIf { it > 0 } ?: p.items.size
                     val pages = if (maxPer > 0) (p.totalItems + maxPer - 1) / maxPer else 1
                     if (found.isNotEmpty() || p.items.isEmpty() || page >= pages) break
                     page++
                 }
+                // Which title the portal knew the show by, and what came back (exported with «Экспорт журнала»).
+                tv.own.owntv.core.PerfJournal.add(
+                    "episodes search id=${series.id} q=${query.take(48)} rows=$seen found=${found.size} ids=" +
+                        found.take(3).joinToString { it.id },
+                )
                 if (found.isNotEmpty()) return found
             }
             return emptyList()
@@ -362,11 +376,14 @@ class SeriesRepository(
         )
         tv.own.owntv.core.PerfJournal.add("episodes stalker id=${series.id} seasons=${seasons.size} episodes=${episodes.size}")
         if (episodes.isNotEmpty()) return episodes
+        if (source.id in vodTreeSources) return emptyList() // the tree was asked above
         // Some portals answer the film listing with seasons that carry neither an episode list nor a
         // cmd: Ministra's three-level tree, where each season is one more request. Asked only when
         // nothing playable came back, so every other portal costs nothing extra.
         val tree = try {
-            fetchStalkerVodTree(series, mac, creds, remoteId)
+            // Bounded: a portal that ignores movie_id answers the tree with its whole catalogue, page after page,
+            // which used to eat the show's whole minute and end in IOException («Хорошая американская семья»).
+            withTimeoutOrNull(TREE_BUDGET_MS) { fetchStalkerVodTree(series, mac, creds, remoteId) }.orEmpty()
         } catch (c: kotlinx.coroutines.CancellationException) {
             throw c
         } catch (e: Exception) {
@@ -374,6 +391,7 @@ class SeriesRepository(
             android.util.Log.i(TAG, "stalker vod tree failed remoteId=$remoteId (${e.message})")
             emptyList()
         }
+        tv.own.owntv.core.PerfJournal.add("episodes tree id=${series.id} episodes=${tree.size}")
         if (tree.isNotEmpty()) vodTreeSources += source.id
         return tree
     }
@@ -462,6 +480,8 @@ class SeriesRepository(
         /** A show with more season records than this is not a show split by season. */
         const val MAX_SIBLING_RECORDS = 30
         private const val SIBLING_PARALLEL = 3
+        /** Longest the film-catalogue tree may take for one show. */
+        private const val TREE_BUDGET_MS = 20_000L
         /** A one-season record with other records is re-read at most this often (one show with a duplicate record). */
         private const val SIBLING_RECHECK_MS = 10L * 60 * 1000
 
