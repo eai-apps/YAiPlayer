@@ -203,9 +203,12 @@ data class RestorePoint(
     val stockHome: String? = null,
     /** Our launcher was set as Home and the user confirmed it works. */
     val launcherActive: Boolean = false,
+    /** Global settings YAiPlayer changed (animations, process limit, Private DNS) with their old values; null = unset. */
+    val settings: Map<String, String?> = emptyMap(),
 ) {
     fun toJson(): JSONObject = JSONObject().put("tvId", tvId).put("label", label).put("createdAt", createdAt)
         .put("packages", JSONArray(packages.sorted())).put("stockHome", stockHome ?: "").put("launcherActive", launcherActive)
+        .put("settings", JSONObject().also { o -> settings.forEach { (k, v) -> o.put(k, v ?: "") } })
 
     companion object {
         fun fromJson(o: JSONObject): RestorePoint? {
@@ -214,7 +217,14 @@ data class RestorePoint(
             val pkgs = List(arr.length()) { arr.optString(it) }
                 .filter { runCatching { AdbCommandHelper.buildEnableCommand(it) }.isSuccess }.toSet()
             val home = o.optString("stockHome").takeIf { OptimizerEngine.isComponent(it) }
-            return RestorePoint(tvId, o.optString("label"), o.optLong("createdAt"), pkgs, home, o.optBoolean("launcherActive"))
+            val settings = LinkedHashMap<String, String?>()
+            o.optJSONObject("settings")?.let { js ->
+                js.keys().forEach { k ->
+                    val v = js.optString(k).takeIf { it.isNotEmpty() }
+                    if (RestorableSettings.valid(k, v)) settings[k] = v
+                }
+            }
+            return RestorePoint(tvId, o.optString("label"), o.optLong("createdAt"), pkgs, home, o.optBoolean("launcherActive"), settings)
         }
 
         fun listToJson(points: List<RestorePoint>): String = JSONArray(points.map { it.toJson() }).toString()
@@ -237,7 +247,57 @@ object OptimizerScripts {
     fun restoreScript(point: RestorePoint): String =
         (listOf("# YAiPlayer restore point: ${point.label}") +
             point.packages.sorted().map { "adb shell " + AdbCommandHelper.buildEnableCommand(it) } +
-            listOfNotNull(point.stockHome?.let { "adb shell cmd package set-home-activity --user 0 $it" })).joinToString("\n")
+            listOfNotNull(point.stockHome?.let { "adb shell cmd package set-home-activity --user 0 $it" }) +
+            point.settings.flatMap { (k, v) -> RestorableSettings.restoreCommands(k, v) }.distinct().map { "adb shell $it" }).joinToString("\n")
+
+    /**
+     * Every command «Ускорь ТВ» would send for this plan, in order, before anything runs («Показать все команды»).
+     */
+    fun planScript(packages: Collection<String>, speed: Map<String, String>, dns: Boolean, launcher: Boolean, debuggingOff: Boolean): String {
+        val lines = ArrayList<String>()
+        lines += "# 1. Точка восстановления сохраняется на телефоне до первого изменения"
+        if (packages.isNotEmpty()) {
+            lines += "# 2. Отключить приложения (не удаляются)"
+            packages.sorted().forEach { lines += "adb shell " + AdbCommandHelper.buildDisableCommand(it) }
+        }
+        if (speed.isNotEmpty()) {
+            lines += "# 3. Ускорить приставку (прежние значения запоминаются)"
+            speed.forEach { (k, v) -> lines += "adb shell " + SpeedTweaks.putCommand(k, v) }
+        }
+        if (dns) {
+            lines += "# 4. Частный DNS AdGuard"
+            PrivateDns.enableCommands().forEach { lines += "adb shell $it" }
+        }
+        if (launcher) {
+            lines += "# 5. Новый главный экран: установка, страховка 150 с, переключение"
+            lines += "adb install launcher.apk"
+            lines += "adb shell cmd package set-home-activity --user 0 ${OptimizerSafety.OUR_LAUNCHER_HOME}"
+        }
+        if (debuggingOff) {
+            lines += "# 6. Выключить сетевую отладку"
+            lines += "adb shell settings put global adb_wifi_enabled 0"
+            lines += "adb shell settings put global adb_enabled 0"
+        }
+        return lines.joinToString("\n")
+    }
+}
+
+/** The global settings «Ускорь ТВ» may change and put back. */
+object RestorableSettings {
+    fun valid(key: String, value: String?): Boolean = when (key) {
+        in SpeedTweaks.ALL_KEYS -> value == null || SpeedTweaks.validValue(value)
+        PrivateDns.MODE_KEY -> value == null || PrivateDns.validMode(value)
+        PrivateDns.HOST_KEY -> value == null || PrivateDns.validHost(value)
+        else -> false
+    }
+
+    fun restoreCommands(key: String, old: String?): List<String> = when (key) {
+        in SpeedTweaks.ALL_KEYS -> listOf(SpeedTweaks.putCommand(key, old))
+        PrivateDns.MODE_KEY, PrivateDns.HOST_KEY -> listOf(
+            if (old == null) "settings delete global $key" else "settings put global $key $old",
+        )
+        else -> emptyList()
+    }
 }
 
 /** Findings of the tracking audit: matched by package name and by how the community lists file the app. */
@@ -383,6 +443,29 @@ class OptimizerEngine(private val transport: AdbTransport) {
         val out = runCatching { shell("cmd package set-home-activity --user 0 $stockHome") }.getOrDefault("")
         runCatching { shell(HOME_INTENT) }
         return out.contains("Success")
+    }
+
+    /** One global setting as the TV has it now; null = never set. Throws when the TV does not answer. */
+    suspend fun readGlobal(key: String): String? {
+        require(RestorableSettings.valid(key, null))
+        return PrivateDns.parse(shell("settings get global $key"))?.takeIf { RestorableSettings.valid(key, it) }
+    }
+
+    /** Sets (or with null deletes) one global setting; true when the TV reads back the new value. */
+    suspend fun putGlobal(key: String, value: String?): Boolean = runCatching {
+        require(RestorableSettings.valid(key, value))
+        val cmd = if (value == null) "settings delete global $key" else "settings put global $key $value"
+        shell(cmd)
+        readGlobal(key) == value
+    }.getOrDefault(false)
+
+    /** Free memory, processes, idle load and the Home screen start time. */
+    suspend fun measure(now: Long): TvMeasure {
+        val mem = runCatching { shell("cat /proc/meminfo") }.getOrDefault("")
+        val ps = runCatching { shell("ps -A -o PID") }.getOrDefault("")
+        val load = runCatching { shell("cat /proc/loadavg") }.getOrDefault("")
+        val am = runCatching { shell(HOME_INTENT) }.getOrDefault("")
+        return TvMeasureParser.build(now, mem, ps, load, am)
     }
 
     suspend fun uninstallLauncher(): Boolean =

@@ -264,4 +264,100 @@ class TvOptimizerTest {
         assertTrue(AdbFinder.subnetHosts("fe80::1").isEmpty())
         assertEquals(listOf("192.168.2.43", "192.168.2.50"), AdbFinder.candidates(listOf(null, " 192.168.2.43"), listOf("192.168.2.43", "192.168.2.50", "tv.local")))
     }
+
+    // ---- «Ускорь ТВ», этап 1–4 (12.11): группы приставки, скорость, DNS, все команды, замеры, отчёты ----
+
+    private fun tv(brand: String = "Acme", man: String = brand, model: String = "X1", android: String = "10", fp: String = "acme/x1/x1:10/QP1A/1:user/release-keys") =
+        TvInfo(brand, man, model, android, fp, "id")
+
+    @Test fun `tv box verdict follows cleanyourtv groups`() {
+        assertEquals(TvVerdict.FULL, TvAssessor.assess(tv(), knownModel = true, launcherBundled = true).verdict)
+        assertEquals(VerdictReason.UNKNOWN_MODEL, TvAssessor.assess(tv(), knownModel = false, launcherBundled = true).reason)
+        assertEquals(VerdictReason.NO_LAUNCHER_BUNDLED, TvAssessor.assess(tv(), knownModel = true, launcherBundled = false).reason)
+        assertEquals(VerdictReason.FIRE_OS, TvAssessor.assess(tv(brand = "Amazon"), knownModel = true, launcherBundled = true).reason)
+        assertEquals(VerdictReason.OLD_ANDROID, TvAssessor.assess(tv(android = "7.1.2"), knownModel = true, launcherBundled = true).reason)
+        assertEquals(VerdictReason.CASTING_DEVICE, TvAssessor.assess(tv(brand = "google", model = "Chromecast"), knownModel = true, launcherBundled = true).reason)
+        assertEquals(VerdictReason.CHINA_BUILD, TvAssessor.assess(tv(brand = "TCL", fp = "tcl/cn_t2/x:9/1:user/release-keys"), knownModel = true, launcherBundled = true).reason)
+        assertEquals(TvVerdict.NO_LAUNCHER, TvAssessor.assess(tv(android = "7"), knownModel = true, launcherBundled = true).verdict)
+    }
+
+    @Test fun `speed plan and commands are strict`() {
+        val plan = SpeedTweaks.plan(SpeedLevel.HALF, 2)
+        assertEquals(4, plan.size)
+        assertEquals("0.5", plan["animator_duration_scale"])
+        assertEquals("2", plan["background_process_limit"])
+        assertTrue(SpeedTweaks.plan(null, null).isEmpty())
+        assertEquals("settings delete global window_animation_scale", SpeedTweaks.putCommand("window_animation_scale", null))
+        assertNull(SpeedTweaks.parse("null\n"))
+        assertEquals("1.0", SpeedTweaks.parse(" 1.0 "))
+        assertTrue(runCatching { SpeedTweaks.putCommand("adb_enabled", "0") }.isFailure)
+        assertTrue(runCatching { SpeedTweaks.putCommand("window_animation_scale", "0; reboot") }.isFailure)
+        assertTrue(runCatching { SpeedTweaks.plan(null, 9) }.isFailure)
+    }
+
+    @Test fun `old settings live in the restore point and come back exactly`() {
+        val p = RestorePoint("tv", "Acme X1", 1L, setOf("com.vendor.ads"), null, false,
+            linkedMapOf("window_animation_scale" to null, "animator_duration_scale" to "1.0", "private_dns_mode" to "opportunistic"))
+        val back = RestorePoint.listFromJson(RestorePoint.listToJson(listOf(p))).single()
+        assertEquals(p.settings, back.settings)
+        val bad = RestorePoint.listFromJson("""[{"tvId":"t","packages":[],"settings":{"adb_enabled":"1","window_animation_scale":"1; rm -rf /","private_dns_specifier":"evil host"}}]""").single()
+        assertTrue(bad.settings.isEmpty())
+        val script = OptimizerScripts.restoreScript(p)
+        assertTrue("adb shell settings delete global window_animation_scale" in script)
+        assertTrue("adb shell settings put global animator_duration_scale 1.0" in script)
+        assertTrue("adb shell settings put global private_dns_mode opportunistic" in script)
+    }
+
+    @Test fun `global settings are confirmed by reading them back`() = runBlocking {
+        val store = mutableMapOf<String, String>()
+        val fake = ScriptedTv { cmd ->
+            when {
+                cmd.startsWith("settings get global ") -> store[cmd.removePrefix("settings get global ")] ?: "null"
+                cmd.startsWith("settings put global ") -> { val (k, v) = cmd.removePrefix("settings put global ").split(" "); store[k] = v; "" }
+                cmd.startsWith("settings delete global ") -> { store.remove(cmd.removePrefix("settings delete global ")); "" }
+                else -> ""
+            }
+        }
+        val engine = OptimizerEngine(fake)
+        assertNull(engine.readGlobal("window_animation_scale"))
+        assertTrue(engine.putGlobal("window_animation_scale", "0.5"))
+        assertEquals("0.5", engine.readGlobal("window_animation_scale"))
+        assertTrue(engine.putGlobal("window_animation_scale", null))
+        assertNull(engine.readGlobal("window_animation_scale"))
+        assertFalse(engine.putGlobal("adb_enabled", "0"))
+        assertFalse(fake.history.any { "adb_enabled" in it })
+    }
+
+    @Test fun `all commands are shown in order before anything runs`() {
+        val text = OptimizerScripts.planScript(setOf("com.vendor.ads"), SpeedTweaks.plan(SpeedLevel.OFF, null), dns = true, launcher = true, debuggingOff = true)
+        val lines = text.lines()
+        val disable = lines.indexOfFirst { "pm disable-user --user 0 com.vendor.ads" in it }
+        val speed = lines.indexOfFirst { "window_animation_scale 0" in it }
+        val dns = lines.indexOfFirst { "private_dns_mode hostname" in it }
+        val off = lines.indexOfFirst { "adb_enabled 0" in it }
+        assertTrue(disable in 0 until speed && speed < dns && dns < off)
+        assertFalse("adb_enabled" in OptimizerScripts.planScript(emptySet(), emptyMap(), dns = false, launcher = false, debuggingOff = false))
+        assertEquals(listOf("settings delete global private_dns_specifier", "settings put global private_dns_mode off"), PrivateDns.restoreCommands("off", null))
+    }
+
+    @Test fun `measurements and reports`() {
+        val m = TvMeasureParser.build(
+            1L,
+            "MemTotal:        1843200 kB\nMemFree:  100 kB\nMemAvailable:     614400 kB\n",
+            "PID\n1\n2\n3\n",
+            "1.52 1.20 0.90 2/600 1234",
+            "Starting: Intent\nStatus: ok\nThisTime: 640\nTotalTime: 812\nComplete",
+        )
+        assertEquals(600, m.memAvailableMb)
+        assertEquals(1800, m.memTotalMb)
+        assertEquals(3, m.processes)
+        assertEquals(1.52, m.loadAvg!!, 0.001)
+        assertEquals(812, m.homeStartMs)
+        val r = OptimizerReports.problemReport(tv(), "CONNECT", "нет связи с 192.168.1.50", listOf("mac 00:1A:2B:3C:4D:5E", "serialno=ABC123"))
+        assertFalse("192.168.1.50" in r)
+        assertFalse("00:1A:2B:3C:4D:5E" in r)
+        assertFalse("ABC123" in r)
+        val add = OptimizerReports.addTvReport(tv(), setOf("com.vendor.ads"), setOf("com.vendor.spy"), setOf("com.vendor.launcher"))
+        assertTrue("com.vendor.ads" in add && "com.vendor.spy" in add && "model: X1" in add)
+    }
 }

@@ -140,7 +140,13 @@
 3	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	not connected
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	not local
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/DadbTransport.kt	ok
-8	empty	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	\0
+14	empty	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	\0
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	# 1. Точка восстановления сохраняется на телефоне до первого изменения
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	# 2. Отключить приложения (не удаляются)
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	# 3. Ускорить приставку (прежние значения запоминаются)
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	# 4. Частный DNS AdGuard
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	# 5. Новый главный экран: установка, страховка 150 с, переключение
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	# 6. Выключить сетевую отладку
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	# YAiPlayer restore point: ${point.label}
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	$brand|$model|$androidId
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	%02x
@@ -153,8 +159,13 @@
 2	regex	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	[0-9a-f]{16}
 1	regex	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z0-9_]+)+/[A-Za-z0-9_.]+
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	acr
-2	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	adb shell
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	adb install launcher.apk
+4	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	adb shell
+2	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	adb shell $it
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	adb shell cmd package set-home-activity --user 0 $it
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	adb shell cmd package set-home-activity --user 0 ${OptimizerSafety.OUR_LAUNCHER_HOME}
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	adb shell settings put global adb_enabled 0
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	adb shell settings put global adb_wifi_enabled 0
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	ads
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	adservices
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	advert
@@ -168,6 +179,8 @@
 2	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	bad package list
 2	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	brand
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	bugreport
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	cat /proc/loadavg
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	cat /proc/meminfo
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	cmd package query-activities --brief -a android.intent.action.MAIN -c android.intent.category.HOME
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	cmd package resolve-activity --brief -a android.intent.action.MAIN -c android.intent.category.HOME
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	cmd package set-home-activity --user 0 $stockHome
@@ -205,14 +218,20 @@
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	pm list packages -e --user 0
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	pm uninstall --user 0 ${OptimizerSafety.OUR_LAUNCHER}
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	preload
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	ps -A -o PID
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	ro.build.fingerprint
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	ro.build.version.release
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	ro.product.brand
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	ro.product.manufacturer
 1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	ro.product.model
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	samba
+2	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	settings
+2	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	settings delete global $key
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	settings get global $key
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	settings get secure android_id
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	settings get secure default_input_method
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	settings put global $key $old
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	settings put global $key $value
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	settings put global adb_enabled 0
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	settings put global adb_wifi_enabled 0
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	source
@@ -229,6 +248,61 @@
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	viewing
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	voice
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerCore.kt	yaiplayer-rollback-$token >$WORK_DIR/watchdog-$token.log 2>&1 &
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	# Помогите добавить приставку (YAiPlayer «Ускорь ТВ»)
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	# Сообщить о проблеме (YAiPlayer «Ускорь ТВ»)
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	## Включённые приложения (${enabled.size})
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	## Выключенные приложения (${disabled.size})
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	## Журнал
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	$1=<скрыто>
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	$key:
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	${tv.brand} ${tv.manufacturer} ${tv.model} ${tv.fingerprint}
+1	regex	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	(?i)(serial|serialno|android_id)\\s*[:=]\\s*\\S+
+1	regex	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	-?[0-9]{1,3}(\\.[0-9]{1,3})?
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	0
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	0.5
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	<ip>
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	<mac>
+2	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	Amazon
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	MemAvailable
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	MemTotal
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	ThisTime:
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	TotalTime:
+1	regex	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	[_/-]cn[_/-]|china
+1	regex	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\\.[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)+
+1	regex	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	\\b([0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}\\b
+1	regex	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	\\b(\\d{1,3}\\.){3}\\d{1,3}\\b
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	android: ${tv.android}
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	animator_duration_scale
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	background_process_limit
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	brand: ${tv.brand}
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	build: ${tv.fingerprint.substringAfter(':', tv.fingerprint).substringBefore('/')}
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	chromecast
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	dns.adguard-dns.com
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	fireos
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	home: ${homeHandlers.sorted().joinToString()}
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	hostname
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	manufacturer: ${tv.manufacturer}
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	model: ${tv.model}
+2	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	null
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	off
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	opportunistic
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	private_dns_mode
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	private_dns_specifier
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	settings delete global $HOST_KEY
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	settings delete global $MODE_KEY
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	settings delete global $key
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	settings get global $key
+2	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	settings put global $HOST_KEY $host
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	settings put global $MODE_KEY $mode
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	settings put global $MODE_KEY hostname
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	settings put global $key $value
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	streamer
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	tcl
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	transition_animation_scale
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	window_animation_scale
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	ТВ: ${it.label}, Android ${it.android}
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	Что случилось: $problem
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerExtras.kt	Шаг: $step
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	$OUR_LAUNCHER/.MainActivity
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	.cast
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	.ota
@@ -303,21 +377,41 @@
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	upgrade
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	voice
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/OptimizerSafety.kt	wifi
-2	empty	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	\0
+3	empty	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	\0
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	${i + 1}.
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	/
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	1
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	adb
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	g$group
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	hostname
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	k$kind
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	text/plain
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	·
+4	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	—
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	•
 4	empty	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	\0
+1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	${java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.ROOT).format(java.util.Date())} $line
+1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	${m.memAvailableMb}|${m.processes}|${m.loadAvg}|${m.homeStartMs}
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	%02x
+1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	DNS AdGuard
+1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	HH:mm:ss
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	host
+1	protocol	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	hostname
+1	preference-key	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	measure_after
+1	preference-key	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	measure_before
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	restore_points
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	tv_optimizer_v2
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	tvhome.apk
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	tvoptimizer/catalog.json
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	tvoptimizer/launcher.apk
+1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	вернуть всё: приложения ${appsBack.size}, настройки ${settingsBack.size}
+1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	возвращены настройки: $back
+1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	до
+1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	замер ${if (after) "после" else "до"}: $m
+1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	ошибка подключения: $problem ${e?.javaClass?.simpleName.orEmpty()}
+1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	подключено
+1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	после
+1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	скорость: $changes
 2	empty	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvScreenPeek.kt	\0
 1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvScreenPeek.kt	${e.javaClass.simpleName}: ${e.message?.take(100).orEmpty()}
 1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvScreenPeek.kt	${t.javaClass.simpleName}: ${t.message?.take(80).orEmpty()}
