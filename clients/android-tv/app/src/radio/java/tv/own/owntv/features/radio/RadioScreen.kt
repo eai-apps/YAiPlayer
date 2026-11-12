@@ -9,6 +9,7 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,6 +21,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -42,6 +44,7 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -84,6 +87,33 @@ internal fun genreName(id: String): String {
     return if (res != 0) stringResource(res) else id
 }
 
+/** One line under the genre's name on its tile (as on the site); null when there is none. */
+@SuppressLint("DiscouragedApi")
+@Composable
+internal fun genreDescription(id: String): String? {
+    val context = LocalContext.current
+    val res = context.resources.getIdentifier("radio_genre_${id}_desc", "string", context.packageName)
+    return if (res != 0) stringResource(res) else null
+}
+
+/** The genre's glyph in the TV's own icon set. */
+internal fun glyphIcon(g: RadioLook.Glyph): OwnTVIcon = when (g) {
+    RadioLook.Glyph.TOP -> OwnTVIcon.TREND
+    RadioLook.Glyph.SPARKLE -> OwnTVIcon.SPARKLE
+    RadioLook.Glyph.GUITAR -> OwnTVIcon.AUDIO
+    RadioLook.Glyph.RETRO -> OwnTVIcon.HISTORY
+    RadioLook.Glyph.BEAT -> OwnTVIcon.EQ
+    RadioLook.Glyph.MIC -> OwnTVIcon.MIC
+    RadioLook.Glyph.NOTE -> OwnTVIcon.HEADPHONES
+    RadioLook.Glyph.CALM -> OwnTVIcon.BEDTIME
+    RadioLook.Glyph.SUN -> OwnTVIcon.SUN
+    RadioLook.Glyph.FILM -> OwnTVIcon.MOVIES
+    RadioLook.Glyph.HEART -> OwnTVIcon.FAVORITE
+    RadioLook.Glyph.SPORT -> OwnTVIcon.SPORTS
+    RadioLook.Glyph.TALK -> OwnTVIcon.PERSON
+    RadioLook.Glyph.NEWS -> OwnTVIcon.INFO
+}
+
 internal fun gradientOf(colors: LongArray): Brush = Brush.linearGradient(colors.map { Color(it) })
 
 private enum class RadioView { HOME, LIST, ACCOUNT }
@@ -91,7 +121,7 @@ private enum class RadioView { HOME, LIST, ACCOUNT }
 /**
  * Radio on the TV, after the YAiPlay Radio site (owner 12.11): coloured genre tiles; a genre opens its stations; a
  * mini player at the bottom (not buttons in the top corner) that opens a full player with the station's art and a
- * light equalizer. The page sits on the player's own background. Back: full player → genres → out (radio stops).
+ * light equalizer. The page sits on the player's own background. Back: full player → genres → out (the radio plays on).
  */
 @Composable
 fun RadioScreen(onBack: () -> Unit, vm: RadioViewModel = viewModel()) {
@@ -109,6 +139,8 @@ fun RadioScreen(onBack: () -> Unit, vm: RadioViewModel = viewModel()) {
     var expanded by rememberSaveable { mutableStateOf(false) }
     val homeFirst = remember { FocusRequester() }
     val listFirst = remember { FocusRequester() }
+    val context = LocalContext.current
+    val luckyFailed = stringResource(R.string.radio_lucky_failed)
 
     BackHandler {
         when {
@@ -156,6 +188,14 @@ fun RadioScreen(onBack: () -> Unit, vm: RadioViewModel = viewModel()) {
                 when (view) {
                     RadioView.HOME -> HomeGrid(
                         first = homeFirst,
+                        onLucky = {
+                            vm.lucky { ok ->
+                                if (!ok) android.widget.Toast.makeText(context, luckyFailed, android.widget.Toast.LENGTH_LONG).show()
+                                else expanded = true
+                            }
+                        },
+                        onTrending = { t -> open(RadioMode.Genre(RadioGenres.all.first()), t) },
+                        onMyCountry = { t -> open(RadioMode.Country(vm.myCountry()), t) },
                         onFavorites = { t -> open(RadioMode.Favorites, t) },
                         onCollections = { t -> open(RadioMode.Collections, t) },
                         onAccount = { t -> open(RadioMode.Account, t, account = true) },
@@ -173,7 +213,7 @@ fun RadioScreen(onBack: () -> Unit, vm: RadioViewModel = viewModel()) {
                             stringResource(if (mode == RadioMode.Favorites) R.string.radio_favorites_empty else R.string.radio_empty),
                             style = stageText(22, 600), color = StageColors.Muted, modifier = Modifier.align(Alignment.Center),
                         )
-                        else -> StationGrid(stations, current?.id, listFirst, onPlay = vm.player::play, onFavorite = vm::toggleFavorite)
+                        else -> StationGrid(stations, current?.id, favorites.map { it.id }.toSet(), listFirst, onPlay = vm.player::play, onFavorite = vm::toggleFavorite)
                     }
                 }
             }
@@ -201,6 +241,9 @@ fun RadioScreen(onBack: () -> Unit, vm: RadioViewModel = viewModel()) {
 @Composable
 private fun HomeGrid(
     first: FocusRequester,
+    onLucky: () -> Unit,
+    onTrending: (String) -> Unit,
+    onMyCountry: (String) -> Unit,
     onFavorites: (String) -> Unit,
     onCollections: (String) -> Unit,
     onAccount: (String) -> Unit,
@@ -209,40 +252,72 @@ private fun HomeGrid(
     val favTitle = stringResource(R.string.radio_favorites)
     val colTitle = stringResource(R.string.radio_collections)
     val accTitle = stringResource(R.string.radio_account)
+    val trendTitle = stringResource(R.string.radio_trending)
+    val countryTitle = stringResource(R.string.radio_my_country)
     LazyVerticalGrid(
-        columns = GridCells.Fixed(5),
+        columns = GridCells.Fixed(4),
         horizontalArrangement = Arrangement.spacedBy(20.mpx),
         verticalArrangement = Arrangement.spacedBy(20.mpx),
         contentPadding = PaddingValues(top = 6.mpx, bottom = 40.mpx, start = 6.mpx, end = 6.mpx),
         modifier = Modifier.fillMaxSize().focusGroup(),
     ) {
-        item { GenreTile(favTitle, longArrayOf(0xFFDB2777, 0xFF9333EA, 0xFF0891B2), OwnTVIcon.FAVORITE, Modifier.focusRequester(first)) { onFavorites(favTitle) } }
+        // The site's top row: «Мне повезёт», «В тренде», «Моя страна» (owner 12.11).
+        item {
+            GenreTile(stringResource(R.string.radio_lucky), longArrayOf(0xFF7C3AED, 0xFFDB2777, 0xFFF59E0B), OwnTVIcon.PLAY_CIRCLE,
+                stringResource(R.string.radio_lucky_desc), Modifier.focusRequester(first), onClick = onLucky)
+        }
+        item { GenreTile(trendTitle, RadioLook.colorsOf("popular"), OwnTVIcon.TREND, stringResource(R.string.radio_trending_desc)) { onTrending(trendTitle) } }
+        item { GenreTile(countryTitle, longArrayOf(0xFF0F766E, 0xFF0891B2, 0xFF2563EB), OwnTVIcon.LANGUAGE, stringResource(R.string.radio_my_country_desc)) { onMyCountry(countryTitle) } }
+        item { GenreTile(favTitle, longArrayOf(0xFFDB2777, 0xFF9333EA, 0xFF0891B2), OwnTVIcon.FAVORITE) { onFavorites(favTitle) } }
         item { GenreTile(colTitle, longArrayOf(0xFF0E7490, 0xFF2563EB, 0xFF6D28D9), OwnTVIcon.LIST) { onCollections(colTitle) } }
         item { GenreTile(accTitle, longArrayOf(0xFF1E293B, 0xFF0F766E, 0xFF4C1D95), OwnTVIcon.PERSON) { onAccount(accTitle) } }
         item(span = { GridItemSpan(2) }) { Spacer(Modifier.height(1.mpx)) }
         items(RadioGenres.all, key = { it.id }) { g ->
             val name = genreName(g.id)
-            GenreTile(name, RadioLook.colorsOf(g.id)) { onGenre(g, name) }
+            GenreTile(name, RadioLook.colorsOf(g.id), glyphIcon(RadioLook.glyphOf(g.id)), genreDescription(g.id)) { onGenre(g, name) }
         }
     }
 }
 
+/**
+ * A genre tile as on the site: the genre's gradient as a glass card, its glyph in a small square, the name and one
+ * line of description, the same glyph large and faint in the corner; the frame lights up in focus.
+ */
 @Composable
-private fun GenreTile(name: String, colors: LongArray, icon: OwnTVIcon? = null, modifier: Modifier = Modifier, onClick: () -> Unit) {
+private fun GenreTile(
+    name: String,
+    colors: LongArray,
+    icon: OwnTVIcon? = null,
+    description: String? = null,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+) {
     val r = 22.mpx
+    val shape = RoundedCornerShape(r)
     StageSurface(
         onClick = onClick, radius = r, focusStyle = StageFocus.POSTER,
-        modifier = modifier.fillMaxWidth().height(150.mpx),
-    ) { _ ->
-        Box(Modifier.fillMaxSize().clip(RoundedCornerShape(r)).background(gradientOf(colors))) {
+        modifier = modifier.fillMaxWidth().height(170.mpx),
+    ) { focused ->
+        Box(
+            Modifier.fillMaxSize().clip(shape).background(gradientOf(colors))
+                .border(2.mpx, Color.White.copy(alpha = if (focused) 0.55f else 0.12f), shape),
+        ) {
             icon?.let {
-                tv.own.owntv.ui.components.OwnTVIcon(it, tint = Color.White.copy(alpha = 0.9f),
-                    modifier = Modifier.align(Alignment.TopEnd).padding(16.mpx).size(40.mpx))
+                tv.own.owntv.ui.components.OwnTVIcon(it, tint = Color.White.copy(alpha = 0.13f),
+                    modifier = Modifier.align(Alignment.BottomEnd).offset(x = 22.mpx, y = 22.mpx).size(130.mpx))
+                Box(
+                    Modifier.padding(16.mpx).size(50.mpx).clip(RoundedCornerShape(14.mpx)).background(Color.Black.copy(alpha = 0.28f)),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    tv.own.owntv.ui.components.OwnTVIcon(it, tint = Color.White, modifier = Modifier.size(28.mpx))
+                }
             }
-            Text(
-                name, style = stageText(24, 800), color = Color.White, maxLines = 2, overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.align(Alignment.BottomStart).padding(18.mpx),
-            )
+            Column(Modifier.align(Alignment.BottomStart).padding(start = 18.mpx, end = 18.mpx, bottom = 16.mpx)) {
+                Text(name, style = stageText(24, 800), color = Color.White, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                description?.let {
+                    Text(it, style = stageText(16, 500), color = Color.White.copy(alpha = 0.8f), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                }
+            }
         }
     }
 }
@@ -251,6 +326,7 @@ private fun GenreTile(name: String, colors: LongArray, icon: OwnTVIcon? = null, 
 private fun StationGrid(
     stations: List<RadioStation>,
     playingId: String?,
+    favoriteIds: Set<String>,
     first: FocusRequester,
     onPlay: (RadioStation) -> Unit,
     onFavorite: (RadioStation) -> Unit,
@@ -273,11 +349,15 @@ private fun StationGrid(
             ) { _ ->
                 Row(Modifier.padding(horizontal = 14.mpx), verticalAlignment = Alignment.CenterVertically) {
                     StationArt(s, 76.mpx, letter = 32)
-                    Column(Modifier.padding(start = 14.mpx)) {
+                    Column(Modifier.padding(start = 14.mpx).weight(1f)) {
                         Text(s.name, style = stageText(20, 700), color = StageColors.Text, maxLines = 2, overflow = TextOverflow.Ellipsis)
                         stationLine(s)?.let {
                             Text(it, style = stageText(15, 500), color = StageColors.Muted, maxLines = 1, overflow = TextOverflow.Ellipsis)
                         }
+                    }
+                    // The heart: long-press OK adds or removes the station (as before), the mark shows the result.
+                    if (s.id in favoriteIds) {
+                        tv.own.owntv.ui.components.OwnTVIcon(OwnTVIcon.FAVORITE, tint = Color(0xFFF43F5E), modifier = Modifier.size(26.mpx))
                     }
                 }
             }
@@ -288,7 +368,7 @@ private fun StationGrid(
 /** Country and bitrate. The station's raw tags (`kannadahits` and the like) are never shown (owner 12.11). */
 @Composable
 internal fun stationLine(s: RadioStation): String? = listOfNotNull(
-    s.country?.takeIf { it.isNotBlank() },
+    s.country?.takeIf { it.isNotBlank() }?.let { c -> RadioLook.flag(s.countryCode)?.let { "$it $c" } ?: c },
     s.bitrate.takeIf { it > 0 }?.let { stringResource(R.string.radio_kbps, it) },
 ).joinToString(" · ").ifBlank { null }
 
@@ -366,9 +446,16 @@ private fun FullPlayer(
     val colors = RadioLook.placeholderColors(station.name)
     Box(
         Modifier.fillMaxSize()
-            .background(tv.own.owntv.ui.theme.LocalStagePalette.current.page)
-            .background(Brush.verticalGradient(listOf(Color(colors[0]).copy(alpha = 0.55f), Color.Transparent))),
+            .background(tv.own.owntv.ui.theme.LocalStagePalette.current.page),
     ) {
+        // A blurred copy of the cover fills the screen (as on the site); blur needs Android 12, older boxes keep the
+        // colour wash only, and light mode (animations off) keeps it too: blur is costly on weak boxes.
+        val art = cover ?: station.favicon
+        if (!art.isNullOrBlank() && android.os.Build.VERSION.SDK_INT >= 31 && animationsOn) {
+            AsyncImage(model = art, contentDescription = null, contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize().blur(48.mpx), alpha = 0.45f)
+        }
+        Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color(colors[0]).copy(alpha = 0.55f), Color.Transparent))))
         Row(Modifier.fillMaxSize().padding(80.mpx), verticalAlignment = Alignment.CenterVertically) {
             StationArt(station, 420.mpx, letter = 170, radius = 36.mpx, cover = cover)
             Column(Modifier.padding(start = 64.mpx).fillMaxHeight(), verticalArrangement = Arrangement.Center) {

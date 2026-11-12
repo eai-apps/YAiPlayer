@@ -9,6 +9,7 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,6 +21,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -27,6 +29,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
@@ -40,6 +43,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -60,6 +64,7 @@ import tv.own.owntv.mobile.ui.stage.LocalStagePalette
 import tv.own.owntv.mobile.ui.stage.StageButton
 import tv.own.owntv.mobile.ui.stage.StagePill
 import tv.own.owntv.mobile.ui.stage.StageSearchField
+import tv.own.owntv.mobile.ui.stage.StageSegmented
 import tv.own.owntv.mobile.ui.stage.stageAccent
 import tv.own.owntv.mobile.ui.stage.stageBackground
 import tv.own.owntv.mobile.ui.stage.stageGlass
@@ -79,6 +84,33 @@ internal fun genreName(id: String): String {
     val context = LocalContext.current
     val res = context.resources.getIdentifier("radio_genre_$id", "string", context.packageName)
     return if (res != 0) stringResource(res) else id
+}
+
+/** One line under the genre's name on its tile (as on the site); null when there is none. */
+@SuppressLint("DiscouragedApi")
+@Composable
+internal fun genreDescription(id: String): String? {
+    val context = LocalContext.current
+    val res = context.resources.getIdentifier("radio_genre_${id}_desc", "string", context.packageName)
+    return if (res != 0) stringResource(res) else null
+}
+
+/** The genre's glyph in the phone's own icon set. */
+private fun glyphIcon(g: RadioLook.Glyph): androidx.compose.ui.graphics.vector.ImageVector = when (g) {
+    RadioLook.Glyph.TOP -> MobileIcons.Trend
+    RadioLook.Glyph.SPARKLE -> MobileIcons.AutoAwesome
+    RadioLook.Glyph.GUITAR -> MobileIcons.MusicNote
+    RadioLook.Glyph.RETRO -> MobileIcons.History
+    RadioLook.Glyph.BEAT -> MobileIcons.Bolt
+    RadioLook.Glyph.MIC -> MobileIcons.Mic
+    RadioLook.Glyph.NOTE -> MobileIcons.Headphones
+    RadioLook.Glyph.CALM -> MobileIcons.Bedtime
+    RadioLook.Glyph.SUN -> MobileIcons.WbSunny
+    RadioLook.Glyph.FILM -> MobileIcons.Movie
+    RadioLook.Glyph.HEART -> MobileIcons.Favorite
+    RadioLook.Glyph.SPORT -> MobileIcons.Sports
+    RadioLook.Glyph.TALK -> MobileIcons.Person
+    RadioLook.Glyph.NEWS -> MobileIcons.Info
 }
 
 private fun gradientOf(colors: LongArray): Brush = Brush.linearGradient(colors.map { Color(it) })
@@ -103,6 +135,10 @@ fun RadioScreen(onBack: () -> Unit, vm: RadioViewModel = viewModel()) {
     var home by rememberSaveable { mutableStateOf(true) }
     var heading by rememberSaveable { mutableStateOf<String?>(null) }
     var expanded by rememberSaveable { mutableStateOf(false) }
+    // Stations as tiles or as a list (owner 12.11, as on the site); remembered while the app runs.
+    var tiles by rememberSaveable { mutableStateOf(false) }
+    val context = LocalContext.current
+    val luckyFailed = stringResource(R.string.radio_lucky_failed)
     BackHandler {
         when {
             expanded -> expanded = false
@@ -110,7 +146,7 @@ fun RadioScreen(onBack: () -> Unit, vm: RadioViewModel = viewModel()) {
             else -> onBack()
         }
     }
-    // Leaving the radio stops it: it must never play on under a channel.
+    // Leaving the radio keeps it playing in the background (notification); a channel takes the sound and pauses it.
 
     fun open(m: RadioMode, title: String) {
         vm.select(m)
@@ -140,6 +176,14 @@ fun RadioScreen(onBack: () -> Unit, vm: RadioViewModel = viewModel()) {
         Box(Modifier.weight(1f).fillMaxWidth()) {
             when {
                 home && query.isBlank() -> HomeGrid(
+                    onLucky = {
+                        vm.lucky { ok ->
+                            if (!ok) android.widget.Toast.makeText(context, luckyFailed, android.widget.Toast.LENGTH_LONG).show()
+                            else expanded = true
+                        }
+                    },
+                    onTrending = { open(RadioMode.Genre(RadioGenres.all.first()), it) },
+                    onMyCountry = { open(RadioMode.Country(vm.myCountry()), it) },
                     onFavorites = { open(RadioMode.Favorites, it) },
                     onCollections = { open(RadioMode.Collections, it) },
                     onGenre = { g, t -> open(RadioMode.Genre(g), t) },
@@ -153,10 +197,33 @@ fun RadioScreen(onBack: () -> Unit, vm: RadioViewModel = viewModel()) {
                     stringResource(if (mode == RadioMode.Favorites) R.string.radio_favorites_empty else R.string.radio_empty),
                     style = stageText(14f, 600), color = palette.muted, modifier = Modifier.align(Alignment.Center).padding(24.dp),
                 )
-                else -> LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(vertical = 6.dp)) {
-                    items(stations, key = { it.id }) { s ->
-                        StationRow(s, playing = current?.id == s.id, favorite = favorites.any { it.id == s.id },
-                            onPlay = { vm.player.play(s) }, onFavorite = { vm.toggleFavorite(s) })
+                else -> Column(Modifier.fillMaxSize()) {
+                    StageSegmented(
+                        options = listOf(stringResource(R.string.radio_view_list), stringResource(R.string.radio_view_tiles)),
+                        selected = if (tiles) 1 else 0,
+                        onSelect = { tiles = it == 1 },
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
+                    )
+                    if (tiles) {
+                        LazyVerticalGrid(
+                            columns = GridCells.Adaptive(150.dp),
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            verticalArrangement = Arrangement.spacedBy(10.dp),
+                            contentPadding = PaddingValues(16.dp),
+                            modifier = Modifier.fillMaxSize(),
+                        ) {
+                            items(stations, key = { it.id }) { s ->
+                                StationCard(s, playing = current?.id == s.id, favorite = favorites.any { it.id == s.id },
+                                    onPlay = { vm.player.play(s) }, onFavorite = { vm.toggleFavorite(s) })
+                            }
+                        }
+                    } else {
+                        LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(vertical = 6.dp)) {
+                            items(stations, key = { it.id }) { s ->
+                                StationRow(s, playing = current?.id == s.id, favorite = favorites.any { it.id == s.id },
+                                    onPlay = { vm.player.play(s) }, onFavorite = { vm.toggleFavorite(s) })
+                            }
+                        }
                     }
                 }
             }
@@ -177,9 +244,18 @@ fun RadioScreen(onBack: () -> Unit, vm: RadioViewModel = viewModel()) {
 }
 
 @Composable
-private fun HomeGrid(onFavorites: (String) -> Unit, onCollections: (String) -> Unit, onGenre: (tv.own.owntv.radio.RadioGenre, String) -> Unit) {
+private fun HomeGrid(
+    onLucky: () -> Unit,
+    onTrending: (String) -> Unit,
+    onMyCountry: (String) -> Unit,
+    onFavorites: (String) -> Unit,
+    onCollections: (String) -> Unit,
+    onGenre: (tv.own.owntv.radio.RadioGenre, String) -> Unit,
+) {
     val fav = stringResource(R.string.radio_favorites)
     val col = stringResource(R.string.radio_collections)
+    val trend = stringResource(R.string.radio_trending)
+    val country = stringResource(R.string.radio_my_country)
     LazyVerticalGrid(
         columns = GridCells.Adaptive(150.dp),
         horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -187,29 +263,98 @@ private fun HomeGrid(onFavorites: (String) -> Unit, onCollections: (String) -> U
         contentPadding = PaddingValues(16.dp),
         modifier = Modifier.fillMaxSize(),
     ) {
-        item { GenreTile(fav, longArrayOf(0xFFDB2777, 0xFF9333EA, 0xFF0891B2)) { onFavorites(fav) } }
-        item { GenreTile(col, longArrayOf(0xFF0E7490, 0xFF2563EB, 0xFF6D28D9)) { onCollections(col) } }
+        // The site's top row: «Мне повезёт», «В тренде», «Моя страна» (owner 12.11).
+        item(span = { GridItemSpan(maxLineSpan) }) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                QuickTile(stringResource(R.string.radio_lucky), longArrayOf(0xFF7C3AED, 0xFFDB2777, 0xFFF59E0B), MobileIcons.PlayCircle, Modifier.weight(1f), onLucky)
+                QuickTile(trend, RadioLook.colorsOf("popular"), MobileIcons.Trend, Modifier.weight(1f)) { onTrending(trend) }
+                QuickTile(country, longArrayOf(0xFF0F766E, 0xFF0891B2, 0xFF2563EB), MobileIcons.Translate, Modifier.weight(1f)) { onMyCountry(country) }
+            }
+        }
+        item { GenreTile(fav, longArrayOf(0xFFDB2777, 0xFF9333EA, 0xFF0891B2), MobileIcons.Favorite) { onFavorites(fav) } }
+        item { GenreTile(col, longArrayOf(0xFF0E7490, 0xFF2563EB, 0xFF6D28D9), MobileIcons.PlaylistPlay) { onCollections(col) } }
         items(RadioGenres.all, key = { it.id }) { g ->
             val name = genreName(g.id)
-            GenreTile(name, RadioLook.colorsOf(g.id)) { onGenre(g, name) }
+            GenreTile(name, RadioLook.colorsOf(g.id), glyphIcon(RadioLook.glyphOf(g.id)), genreDescription(g.id)) { onGenre(g, name) }
         }
     }
 }
 
 @Composable
-private fun GenreTile(name: String, colors: LongArray, onClick: () -> Unit) {
-    Box(
-        Modifier.fillMaxWidth().aspectRatio(1.6f).clip(RoundedCornerShape(16.dp)).background(gradientOf(colors)).clickable(onClick = onClick),
+private fun QuickTile(name: String, colors: LongArray, icon: androidx.compose.ui.graphics.vector.ImageVector, modifier: Modifier, onClick: () -> Unit) {
+    val shape = RoundedCornerShape(14.dp)
+    Column(
+        modifier.height(76.dp).clip(shape).background(gradientOf(colors)).border(1.dp, Color.White.copy(alpha = 0.14f), shape)
+            .clickable(onClick = onClick).padding(10.dp),
+        verticalArrangement = Arrangement.SpaceBetween,
     ) {
-        Text(name, style = stageText(15f, 800), color = Color.White, maxLines = 2, overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.align(Alignment.BottomStart).padding(12.dp))
+        androidx.compose.material3.Icon(icon, contentDescription = null, tint = Color.White, modifier = Modifier.size(20.dp))
+        Text(name, style = stageText(12.5f, 800), color = Color.White, maxLines = 1, overflow = TextOverflow.Ellipsis)
+    }
+}
+
+/**
+ * A genre tile as on the site: the genre's gradient as a glass card, its glyph in a small square, the name and one
+ * line of description, the same glyph large and faint in the corner.
+ */
+@Composable
+private fun GenreTile(
+    name: String,
+    colors: LongArray,
+    icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
+    description: String? = null,
+    onClick: () -> Unit,
+) {
+    val shape = RoundedCornerShape(16.dp)
+    Box(
+        Modifier.fillMaxWidth().aspectRatio(1.25f).clip(shape).background(gradientOf(colors))
+            .border(1.dp, Color.White.copy(alpha = 0.14f), shape).clickable(onClick = onClick),
+    ) {
+        icon?.let {
+            androidx.compose.material3.Icon(it, contentDescription = null, tint = Color.White.copy(alpha = 0.13f),
+                modifier = Modifier.align(Alignment.BottomEnd).offset(x = 14.dp, y = 14.dp).size(86.dp))
+            Box(
+                Modifier.padding(10.dp).size(34.dp).clip(RoundedCornerShape(10.dp)).background(Color.Black.copy(alpha = 0.28f)),
+                contentAlignment = Alignment.Center,
+            ) { androidx.compose.material3.Icon(it, contentDescription = null, tint = Color.White, modifier = Modifier.size(19.dp)) }
+        }
+        Column(Modifier.align(Alignment.BottomStart).padding(12.dp)) {
+            Text(name, style = stageText(15f, 800), color = Color.White, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            description?.let { Text(it, style = stageText(11.5f, 500), color = Color.White.copy(alpha = 0.8f), maxLines = 1, overflow = TextOverflow.Ellipsis) }
+        }
+    }
+}
+
+/** A station as a tile (the «Плитка» view): big logo or letter, name, country with flag and bitrate, heart. */
+@Composable
+private fun StationCard(s: RadioStation, playing: Boolean, favorite: Boolean, onPlay: () -> Unit, onFavorite: () -> Unit) {
+    val palette = LocalStagePalette.current
+    val shape = RoundedCornerShape(16.dp)
+    Column(
+        Modifier.fillMaxWidth().clip(shape).background(palette.ink.copy(alpha = 0.05f))
+            .border(if (playing) 2.dp else 1.dp, if (playing) stageAccent.accent else palette.ink.copy(alpha = 0.08f), shape)
+            .clickable(onClick = onPlay).padding(10.dp),
+    ) {
+        Box {
+            StationArt(s, 130.dp, 52f, radius = 12.dp)
+            Box(Modifier.align(Alignment.TopEnd).padding(4.dp)) {
+                StagePill(
+                    onClick = onFavorite,
+                    icon = if (favorite) MobileIcons.Favorite else MobileIcons.FavoriteBorder,
+                    contentDescription = stringResource(if (favorite) R.string.radio_fav_remove else R.string.radio_fav_add),
+                )
+            }
+        }
+        Text(s.name, style = stageText(13.5f, 700), color = if (playing) stageAccent.accent else palette.text,
+            maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 8.dp))
+        stationLine(s)?.let { Text(it, style = stageText(11f, 500), color = palette.muted, maxLines = 1, overflow = TextOverflow.Ellipsis) }
     }
 }
 
 /** Country and bitrate; the station's raw tags are never shown (owner 12.11). */
 @Composable
 private fun stationLine(s: RadioStation): String? = listOfNotNull(
-    s.country?.takeIf { it.isNotBlank() },
+    s.country?.takeIf { it.isNotBlank() }?.let { c -> RadioLook.flag(s.countryCode)?.let { "$it $c" } ?: c },
     s.bitrate.takeIf { it > 0 }?.let { stringResource(R.string.radio_kbps, it) },
 ).joinToString(" · ").ifBlank { null }
 
@@ -291,8 +436,17 @@ private fun FullPlayer(
 ) {
     val palette = LocalStagePalette.current
     val colors = RadioLook.placeholderColors(s.name)
+    // A blurred copy of the cover fills the screen (as on the site); blur needs Android 12 and is skipped with
+    // animations off (light mode), where the colour wash alone stays.
+    val art = cover ?: s.favicon
+    val blurred = !art.isNullOrBlank() && android.os.Build.VERSION.SDK_INT >= 31 && LocalMobileMotion.current.enabled
+    Box(Modifier.fillMaxSize().stageBackground()) {
+    if (blurred) {
+        AsyncImage(model = art, contentDescription = null, contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize().blur(40.dp), alpha = 0.5f)
+    }
     Column(
-        Modifier.fillMaxSize().stageBackground()
+        Modifier.fillMaxSize()
             .background(Brush.verticalGradient(listOf(Color(colors[0]).copy(alpha = 0.5f), Color.Transparent)))
             .statusBarsPadding().navigationBarsPadding().padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -320,6 +474,7 @@ private fun FullPlayer(
             }
             StagePill(onClick = onStop, icon = MobileIcons.Close, contentDescription = stringResource(R.string.radio_stop))
         }
+    }
     }
 }
 

@@ -36,8 +36,8 @@ class RadioRepository(context: Context) {
     }
 
     /** Tries the mirrors in turn; the first that answers wins. */
-    suspend fun search(tag: String?, name: String? = null): List<RadioStation> = withContext(Dispatchers.IO) {
-        val path = RadioUrls.searchPath(tag, name)
+    suspend fun search(tag: String?, name: String? = null, countryCode: String? = null): List<RadioStation> = withContext(Dispatchers.IO) {
+        val path = RadioUrls.searchPath(tag, name, countryCode = countryCode)
         cache[path]?.let { return@withContext it }
         var last: Exception? = null
         for (m in RadioUrls.mirrors) {

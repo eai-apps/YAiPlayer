@@ -16,6 +16,8 @@ data class RadioStation(
     val codec: String?,
     val bitrate: Int,
     val clicks: Int,
+    /** ISO 3166 code («DE»), for the flag beside the country (owner 12.11: «страна с флагом», as on the site). */
+    val countryCode: String? = null,
 )
 
 /** A genre of the sample's list: [tag] is what Radio Browser searches by; empty = the world top. */
@@ -60,6 +62,7 @@ object RadioParser {
             codec = o.optString("codec").takeIf { it.isNotBlank() },
             bitrate = o.optInt("bitrate", 0),
             clicks = o.optInt("clickcount", 0),
+            countryCode = o.optString("countrycode").trim().uppercase().takeIf { it.length == 2 && it.all { c -> c in 'A'..'Z' } },
         )
     }
 
@@ -92,7 +95,7 @@ object RadioParser {
     fun toJson(s: RadioStation): JSONObject = JSONObject()
         .put("stationuuid", s.id).put("name", s.name).put("url_resolved", s.url).put("homepage", s.homepage ?: "")
         .put("favicon", s.favicon ?: "").put("tags", s.tags.joinToString(",")).put("country", s.country ?: "")
-        .put("codec", s.codec ?: "").put("bitrate", s.bitrate).put("clickcount", s.clicks)
+        .put("codec", s.codec ?: "").put("bitrate", s.bitrate).put("clickcount", s.clicks).put("countrycode", s.countryCode ?: "")
 }
 
 object RadioUrls {
@@ -107,7 +110,7 @@ object RadioUrls {
     const val CATALOG = "https://yaiplay-radio.pages.dev/catalog.json"
 
     /** Same query as the sample's fetchStations: working stations, most listened first, a margin for duplicates. */
-    fun searchPath(tag: String?, name: String?, limit: Int = 120): String {
+    fun searchPath(tag: String?, name: String?, limit: Int = 120, countryCode: String? = null): String {
         val q = linkedMapOf(
             "hidebroken" to "true",
             "order" to "clickcount",
@@ -116,6 +119,7 @@ object RadioUrls {
         )
         tag?.trim()?.lowercase()?.takeIf { it.isNotEmpty() }?.let { q["tag"] = it }
         name?.trim()?.takeIf { it.isNotEmpty() }?.let { q["name"] = it }
+        countryCode?.trim()?.uppercase()?.takeIf { it.length == 2 }?.let { q["countrycode"] = it }
         return "/json/stations/search?" + q.entries.joinToString("&") { (k, v) -> k + "=" + java.net.URLEncoder.encode(v, "UTF-8") }
     }
 }

@@ -62,4 +62,31 @@ object RadioLook {
 
     /** The first letter or digit of the name, upper case; "♪" when there is none. */
     fun initial(name: String): String = name.firstOrNull { it.isLetterOrDigit() }?.uppercaseChar()?.toString() ?: "\u266A"
+
+    /** What the genre tile shows as its glyph (as on the site); each app draws it with its own icon set. */
+    enum class Glyph { TOP, SPARKLE, GUITAR, RETRO, BEAT, MIC, NOTE, CALM, SUN, FILM, HEART, SPORT, TALK, NEWS }
+
+    fun glyphOf(genreId: String): Glyph = when (genreId) {
+        "popular", "kpop" -> Glyph.TOP
+        "pop", "indie", "christmas" -> Glyph.SPARKLE
+        "rock", "metal", "country", "folk", "blues" -> Glyph.GUITAR
+        "80s", "90s", "2000s", "70s", "oldies", "synthwave" -> Glyph.RETRO
+        "dance", "house", "techno", "dnb", "electronic", "trance", "disco", "funk" -> Glyph.BEAT
+        "hiphop", "rnb" -> Glyph.MIC
+        "chillout", "lofi", "ambient" -> Glyph.CALM
+        "latino", "reggae" -> Glyph.SUN
+        "soundtracks" -> Glyph.FILM
+        "kids" -> Glyph.HEART
+        "sport" -> Glyph.SPORT
+        "comedy" -> Glyph.TALK
+        "news" -> Glyph.NEWS
+        else -> Glyph.NOTE
+    }
+
+    /** The flag emoji of an ISO 3166 code («DE» → 🇩🇪); null for anything else. */
+    fun flag(countryCode: String?): String? {
+        val c = countryCode?.trim()?.uppercase() ?: return null
+        if (c.length != 2 || !c.all { it in 'A'..'Z' }) return null
+        return String(Character.toChars(0x1F1E6 + (c[0] - 'A'))) + String(Character.toChars(0x1F1E6 + (c[1] - 'A')))
+    }
 }

@@ -19,6 +19,8 @@ sealed interface RadioMode {
     data class Search(val query: String) : RadioMode
     /** Sign-in to the YAiPlay Radio account: favourites shared with the site and the user's other devices. */
     data object Account : RadioMode
+    /** «Моя страна»: the most listened stations of one country (ISO code), as on the site. */
+    data class Country(val code: String) : RadioMode
 }
 
 /** The radio screen's state, shared by the TV and the phone. */
@@ -102,12 +104,26 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
 
     fun retry() = load(_mode.value)
 
+    /** «Мне повезёт» (as on the site): a random station from the world top; false when the list could not load. */
+    fun lucky(onDone: (Boolean) -> Unit = {}) {
+        viewModelScope.launch {
+            val top = runCatching { repository.search(RadioGenres.all.first().tag) }.getOrDefault(emptyList())
+            val pick = top.take(80).randomOrNull()
+            if (pick != null) player.play(pick)
+            onDone(pick != null)
+        }
+    }
+
+    /** The phone's or TV box's own country, for «Моя страна». */
+    fun myCountry(): String = (java.util.Locale.getDefault().country.takeIf { it.length == 2 } ?: "DE").uppercase()
+
     private fun load(mode: RadioMode) {
         job?.cancel()
         job = viewModelScope.launch {
             when (mode) {
                 is RadioMode.Genre -> fetch { repository.search(mode.genre.tag) }
                 is RadioMode.Search -> fetch { repository.search(null, mode.query) }
+                is RadioMode.Country -> fetch { repository.search(null, null, mode.code) }
                 RadioMode.Account -> {
                     _loading.value = false
                     _failed.value = false
