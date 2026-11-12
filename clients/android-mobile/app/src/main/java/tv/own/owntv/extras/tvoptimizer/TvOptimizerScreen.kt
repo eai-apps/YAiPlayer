@@ -515,10 +515,12 @@ private fun Manage(s: OptimizerUiState, vm: TvOptimizerViewModel) {
             }
             if (s.leftoversChecked) {
                 item {
-                    if (s.leftovers.isEmpty()) Body(stringResource(R.string.opt_leftovers_none))
+                    if (s.leftovers.isEmpty() && s.settingsBack.isEmpty()) Body(stringResource(R.string.opt_leftovers_none))
                     else Column {
-                        Body(stringResource(R.string.opt_leftovers_found, s.leftovers.size), warn = true)
+                        if (s.leftovers.isNotEmpty()) Body(stringResource(R.string.opt_leftovers_found, s.leftovers.size), warn = true)
                         s.leftovers.forEach { Text(it, style = stageText(12f, 500), color = palette.muted) }
+                        if (s.settingsBack.isNotEmpty()) Body(stringResource(R.string.opt_leftovers_settings, s.settingsBack.size), warn = true)
+                        s.settingsBack.keys.forEach { Text(it, style = stageText(12f, 500), color = palette.muted) }
                         StageButton(onClick = vm::disableLeftovers, text = stringResource(R.string.opt_leftovers_fix), small = true, enabled = !s.busy)
                     }
                 }

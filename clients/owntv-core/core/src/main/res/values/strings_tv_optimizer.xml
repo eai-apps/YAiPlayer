@@ -209,4 +209,5 @@
     <string name="opt_look_ok">Done: the Home screen restarted with the new look.</string>
     <string name="opt_look_fail">Did not work: the TV box did not take a file or did not restart Home. Check the connection and try again.</string>
     <string name="opt_look_credit">Themes and the Home screen: the Clean Your TV project by Gathin (MIT licence).</string>
+    <string name="opt_leftovers_settings">Settings the TV box put back by itself: %1$d</string>
 </resources>

@@ -46,6 +46,8 @@ data class OptimizerUiState(
     val restorePoint: RestorePoint? = null,
     val leftovers: List<String> = emptyList(),
     val leftoversChecked: Boolean = false,
+    /** Settings YAiPlayer changed that the TV has put back by itself (firmware update, reboot): key → wanted value. */
+    val settingsBack: Map<String, String?> = emptyMap(),
     val privacy: List<PrivacyFinding> = emptyList(),
     val launcherBundled: Boolean = false,
     val launcherPhase: LauncherPhase = LauncherPhase.IDLE,
@@ -485,7 +487,9 @@ class TvOptimizerViewModel(app: Application) : AndroidViewModel(app) {
         savePoint(point)
         _ui.update { it.copy(restorePoint = point) }
         var ok = true
-        changes.forEach { (k, v) -> if (!engine.putGlobal(k, v)) ok = false }
+        changes.forEach { (k, v) ->
+            if (engine.putGlobal(k, v)) prefs.edit().putString(KEY_APPLIED + k, v ?: "").apply() else ok = false
+        }
         _ui.update { it.copy(busy = false, message = if (ok) null else R_PARTLY) }
         return ok
     }
@@ -498,6 +502,7 @@ class TvOptimizerViewModel(app: Application) : AndroidViewModel(app) {
             val back = keys.filter { k -> k in point.settings && engine.putGlobal(k, point.settings[k]) }
             val left = point.copy(settings = point.settings - back.toSet())
             savePoint(left)
+            back.forEach { prefs.edit().remove(KEY_APPLIED + it).apply() }
             log("возвращены настройки: $back")
             _ui.update { it.copy(busy = false, restorePoint = left) }
             if (back.any { it in SpeedTweaks.ALL_KEYS }) readSpeed()
@@ -623,8 +628,21 @@ class TvOptimizerViewModel(app: Application) : AndroidViewModel(app) {
         _ui.update { it.copy(busy = true) }
         viewModelScope.launch {
             enabled = runCatching { engine.enabledPackages() }.getOrDefault(enabled)
-            _ui.update { it.copy(busy = false, leftovers = point.packages.filter { p -> p in enabled }.sorted(), leftoversChecked = true) }
+            val back = LinkedHashMap<String, String?>()
+            for (k in point.settings.keys) {
+                val wanted = appliedSetting(k) ?: continue
+                val now = runCatching { engine.readGlobal(k) }.getOrNull()
+                if (now != wanted.value) back[k] = wanted.value
+            }
+            _ui.update { it.copy(busy = false, leftovers = point.packages.filter { p -> p in enabled }.sorted(), settingsBack = back, leftoversChecked = true) }
         }
+    }
+
+    /** The value YAiPlayer last set for [key] (wrapped: null inside means «deleted»), or null if it set nothing. */
+    private fun appliedSetting(key: String): Lazy<String?>? {
+        if (!prefs.contains(KEY_APPLIED + key)) return null
+        val v = prefs.getString(KEY_APPLIED + key, "").orEmpty().ifEmpty { null }
+        return lazyOf(v)
     }
 
     fun disableLeftovers() {
@@ -632,7 +650,10 @@ class TvOptimizerViewModel(app: Application) : AndroidViewModel(app) {
         _ui.update { it.copy(busy = true) }
         viewModelScope.launch {
             val ok = left.filter { engine.disable(it) }
-            _ui.update { it.copy(busy = false, leftovers = left - ok.toSet()) }
+            val settings = _ui.value.settingsBack
+            val again = settings.filter { (k, v) -> engine.putGlobal(k, v) }.keys
+            log("после прошивки снова: приложения ${ok.size}, настройки ${again.size}")
+            _ui.update { it.copy(busy = false, leftovers = left - ok.toSet(), settingsBack = settings - again) }
         }
     }
 
@@ -745,6 +766,7 @@ class TvOptimizerViewModel(app: Application) : AndroidViewModel(app) {
         const val WATCHDOG_SECONDS = 150
         const val THEMES_ASSET = "tvoptimizer/themes.json"
         private const val KEY_LOOK_THEME = "look_theme"
+        private const val KEY_APPLIED = "applied_"
         val R_LOOK_OK = tv.own.owntv.core.R.string.opt_look_ok
         val R_LOOK_FAIL = tv.own.owntv.core.R.string.opt_look_fail
         private const val KEY_BEFORE = "measure_before"

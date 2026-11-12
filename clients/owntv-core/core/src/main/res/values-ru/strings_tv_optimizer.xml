@@ -209,4 +209,5 @@
     <string name="opt_look_ok">Готово: главный экран перезапущен с новым видом.</string>
     <string name="opt_look_fail">Не получилось: приставка не приняла файл или не перезапустила главный экран. Проверьте связь и повторите.</string>
     <string name="opt_look_credit">Темы и главный экран: проект Clean Your TV, автор Gathin (лицензия MIT).</string>
+    <string name="opt_leftovers_settings">Настройки, которые приставка вернула сама: %1$d</string>
 </resources>

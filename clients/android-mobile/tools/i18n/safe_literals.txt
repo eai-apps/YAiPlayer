@@ -457,13 +457,14 @@
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	·
 4	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	—
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerScreen.kt	•
-6	empty	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	\0
+8	empty	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	\0
 1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	${java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.ROOT).format(java.util.Date())} $line
 1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	${m.memAvailableMb}|${m.processes}|${m.loadAvg}|${m.homeStartMs}
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	%02x
 2	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	-
 1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	DNS AdGuard
 1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	HH:mm:ss
+1	preference-key	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	applied_
 2	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	config.json
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	decode
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	host
@@ -497,6 +498,7 @@
 1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	ошибка подключения: $problem ${e?.javaClass?.simpleName.orEmpty()}
 1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	подключено
 1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	после
+1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	после прошивки снова: приложения ${ok.size}, настройки ${again.size}
 1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	свой
 1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvOptimizerViewModel.kt	скорость: $changes
 2	empty	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvScreenPeek.kt	\0
