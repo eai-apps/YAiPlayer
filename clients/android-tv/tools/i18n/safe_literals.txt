@@ -19,13 +19,6 @@
 # category protocol: Stable protocol or comparison identifier.
 # category technical: Reviewed non-user-facing technical literal.
 
-3	empty	app/src/radio/java/tv/own/owntv/features/radio/RadioAccount.kt	\0
-1	technical	app/src/radio/java/tv/own/owntv/features/radio/RadioScreen.kt	,
-1	compiler	app/src/radio/java/tv/own/owntv/features/radio/RadioScreen.kt	DiscouragedApi
-1	compiler	app/src/radio/java/tv/own/owntv/features/radio/RadioScreen.kt	LocalContextResourcesRead
-1	locale	app/src/radio/java/tv/own/owntv/features/radio/RadioScreen.kt	radio_genre_$id
-1	locale	app/src/radio/java/tv/own/owntv/features/radio/RadioScreen.kt	string
-1	technical	app/src/radio/java/tv/own/owntv/features/radio/RadioScreen.kt	·
 1	log	app/src/main/java/tv/own/owntv/BlurredBackdropLoader.kt	BgImage
 1	log	app/src/main/java/tv/own/owntv/BlurredBackdropLoader.kt	blur: bounds decode failed for $path
 1	log	app/src/main/java/tv/own/owntv/BlurredBackdropLoader.kt	blur: crop/scale/blur threw ${t.javaClass.simpleName}: ${t.message}
@@ -1498,3 +1491,11 @@
 2	empty	app/src/main/java/tv/own/owntv/ui/theme/OwnTVColors.kt	\0
 2	empty	app/src/main/java/tv/own/owntv/ui/theme/Theme.kt	\0
 1	empty	app/src/noradio/java/tv/own/owntv/features/radio/RadioFeature.kt	\0
+3	empty	app/src/radio/java/tv/own/owntv/features/radio/RadioAccount.kt	\0
+1	compiler	app/src/radio/java/tv/own/owntv/features/radio/RadioScreen.kt	DiscouragedApi
+1	compiler	app/src/radio/java/tv/own/owntv/features/radio/RadioScreen.kt	LocalContextResourcesRead
+1	technical	app/src/radio/java/tv/own/owntv/features/radio/RadioScreen.kt	eq$i
+1	technical	app/src/radio/java/tv/own/owntv/features/radio/RadioScreen.kt	radioEq
+1	locale	app/src/radio/java/tv/own/owntv/features/radio/RadioScreen.kt	radio_genre_$id
+1	locale	app/src/radio/java/tv/own/owntv/features/radio/RadioScreen.kt	string
+1	technical	app/src/radio/java/tv/own/owntv/features/radio/RadioScreen.kt	·

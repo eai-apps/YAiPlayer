@@ -2,7 +2,7 @@
 <resources>
     <!-- Copyright (C) 2026 YAiPlayer authors. Original code, written for YAiPlayer. -->
     <string name="light_mode_title">Лёгкий режим</string>
-    <string name="light_mode_description">Лёгкий режим отключает превью каналов и анимации. Рекомендуется для слабых устройств, если что-то тормозит.</string>
+    <string name="light_mode_description">Лёгкий режим выключает анимации, меню отзывается быстрее. Желательно включить, если у вас слабая приставка. Превью каналов — отдельный переключатель рядом.</string>
     <string name="light_mode_prompt_title">Включить лёгкий режим?</string>
     <string name="light_mode_prompt_body">Меню будет быстрее на этом устройстве.</string>
     <string name="light_mode_action_enable">Включить</string>

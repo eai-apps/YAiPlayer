@@ -6162,6 +6162,7 @@
 1	empty	core/src/main/java/tv/own/owntv/extras/favoriteshub/FavoritesHubFeed.kt	\0
 1	empty	core/src/main/java/tv/own/owntv/extras/favoriteshub/FavoritesHubGrouping.kt	\0
 2	empty	core/src/main/java/tv/own/owntv/extras/favoriteshub/FavoritesHubViewModel.kt	\0
+2	compiler	core/src/main/java/tv/own/owntv/extras/lightmode/LightModePolicy.kt	UNUSED_PARAMETER
 4	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	$host:$port
 1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	${System.currentTimeMillis()}:${java.util.UUID.randomUUID()}
 1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	/cmd

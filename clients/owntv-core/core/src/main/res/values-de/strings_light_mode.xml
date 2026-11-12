@@ -2,7 +2,7 @@
 <resources>
     <!-- Copyright (C) 2026 YAiPlayer authors. Original code, written for YAiPlayer. -->
     <string name="light_mode_title">Leicht-Modus</string>
-    <string name="light_mode_description">Optimierung für schwächere Geräte: Deaktiviert Videovorschau in Menüs und reduziert Animationen.</string>
+    <string name="light_mode_description">Der leichte Modus schaltet die Animationen aus, die Menüs reagieren schneller. Empfohlen für eine schwache TV-Box. Die Sendervorschau hat daneben einen eigenen Schalter.</string>
     <string name="light_mode_prompt_title">Leicht-Modus aktivieren?</string>
     <string name="light_mode_prompt_body">Die Menüs reagieren auf diesem Gerät schneller.</string>
     <string name="light_mode_action_enable">Aktivieren</string>

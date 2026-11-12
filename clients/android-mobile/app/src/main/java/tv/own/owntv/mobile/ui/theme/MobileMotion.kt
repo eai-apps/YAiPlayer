@@ -30,6 +30,9 @@ class MobileMotion(level: AnimationLevel) {
 
     private val off = level == AnimationLevel.OFF
 
+    /** False when animations are off (light mode or the user's setting): a looping effect then stands still. */
+    val enabled: Boolean get() = !off
+
     /** A pane arriving, a sheet settling, an element travelling from one screen to the next. */
     fun <T> spatial(): FiniteAnimationSpec<T> = if (off) snap() else spring(0.85f, 380f)
 

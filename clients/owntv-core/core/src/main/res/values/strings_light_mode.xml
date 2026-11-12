@@ -2,7 +2,7 @@
 <resources>
     <!-- Copyright (C) 2026 YAiPlayer authors. Original code, written for YAiPlayer. -->
     <string name="light_mode_title">Light mode</string>
-    <string name="light_mode_description">Light mode turns off the channel previews and the animations. Recommended for low-end devices if anything feels slow.</string>
+    <string name="light_mode_description">Light mode switches off the animations, so the menus respond faster. Recommended on a weak TV box. Channel previews have their own switch next to it.</string>
     <string name="light_mode_prompt_title">Enable light mode?</string>
     <string name="light_mode_prompt_body">Menus will be faster on this device.</string>
     <string name="light_mode_action_enable">Enable</string>

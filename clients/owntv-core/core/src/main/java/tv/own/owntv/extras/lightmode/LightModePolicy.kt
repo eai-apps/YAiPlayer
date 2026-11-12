@@ -9,20 +9,15 @@ import tv.own.owntv.core.theme.AnimationLevel
 object LightModePolicy {
 
     /**
-     * When Light Mode is active, hero preview streaming in the main row is disabled.
-     * When Light Mode is inactive, the user's saved preference is respected.
+     * Owner 12.11: Light Mode is about animations only; the previews have their own switches next to it
+     * (Settings → Video player: «Лёгкий режим» and «Превью каналов»). The saved preference always wins.
      */
-    fun isEffectiveHeroPreview(savedHeroPreview: Boolean, lightMode: Boolean): Boolean {
-        return if (lightMode) false else savedHeroPreview
-    }
+    @Suppress("UNUSED_PARAMETER")
+    fun isEffectiveHeroPreview(savedHeroPreview: Boolean, lightMode: Boolean): Boolean = savedHeroPreview
 
-    /**
-     * When Light Mode is active, channel list live video preview is disabled.
-     * When Light Mode is inactive, the user's saved preference is respected.
-     */
-    fun isEffectiveLivePreview(savedLivePreview: Boolean, lightMode: Boolean): Boolean {
-        return if (lightMode) false else savedLivePreview
-    }
+    /** The channel list's live preview follows its own switch, whatever Light Mode says (owner 12.11). */
+    @Suppress("UNUSED_PARAMETER")
+    fun isEffectiveLivePreview(savedLivePreview: Boolean, lightMode: Boolean): Boolean = savedLivePreview
 
     /**
      * When Light Mode is active, animations are set to OFF to maximize responsiveness on budget chipsets.

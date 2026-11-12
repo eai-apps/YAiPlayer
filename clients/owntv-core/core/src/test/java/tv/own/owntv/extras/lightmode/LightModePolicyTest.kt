@@ -16,8 +16,8 @@ class LightModePolicyTest {
     }
 
     @Test
-    fun `effective hero preview is forced false when light mode is on`() {
-        assertFalse(LightModePolicy.isEffectiveHeroPreview(savedHeroPreview = true, lightMode = true))
+    fun `hero preview keeps its own switch when light mode is on`() {
+        assertTrue(LightModePolicy.isEffectiveHeroPreview(savedHeroPreview = true, lightMode = true))
         assertFalse(LightModePolicy.isEffectiveHeroPreview(savedHeroPreview = false, lightMode = true))
     }
 
@@ -28,8 +28,8 @@ class LightModePolicyTest {
     }
 
     @Test
-    fun `effective live preview is forced false when light mode is on`() {
-        assertFalse(LightModePolicy.isEffectiveLivePreview(savedLivePreview = true, lightMode = true))
+    fun `live preview keeps its own switch when light mode is on`() {
+        assertTrue(LightModePolicy.isEffectiveLivePreview(savedLivePreview = true, lightMode = true))
         assertFalse(LightModePolicy.isEffectiveLivePreview(savedLivePreview = false, lightMode = true))
     }
 
@@ -57,10 +57,10 @@ class LightModePolicyTest {
         assertEquals(originalLive, LightModePolicy.isEffectiveLivePreview(originalLive, lightMode))
         assertEquals(originalAnim, LightModePolicy.isEffectiveAnimationLevel(originalAnim, lightMode))
 
-        // 2. Light mode turned on -> previews disabled, animations off
+        // 2. Light mode turned on -> animations off, previews keep their own switches (owner 12.11)
         lightMode = true
-        assertFalse(LightModePolicy.isEffectiveHeroPreview(originalHero, lightMode))
-        assertFalse(LightModePolicy.isEffectiveLivePreview(originalLive, lightMode))
+        assertEquals(originalHero, LightModePolicy.isEffectiveHeroPreview(originalHero, lightMode))
+        assertEquals(originalLive, LightModePolicy.isEffectiveLivePreview(originalLive, lightMode))
         assertEquals(AnimationLevel.OFF, LightModePolicy.isEffectiveAnimationLevel(originalAnim, lightMode))
 
         // 3. Light mode turned off -> previous saved values return untouched
