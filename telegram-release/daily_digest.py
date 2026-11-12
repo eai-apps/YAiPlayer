@@ -142,6 +142,11 @@ def essence(text: str) -> str:
         body = body[:25 + m.start()]
     if len(body) > ESSENCE_MAX:
         cut = body[:ESSENCE_MAX]
+        # Never cut inside brackets or quotes: «(например, …» would end the line at an open parenthesis.
+        if cut.count("(") > cut.count(")") and cut.rfind("(") >= 30:
+            cut = cut[:cut.rfind("(")].rstrip()
+        if cut.count("«") > cut.count("»") and cut.rfind("«") >= 30:
+            cut = cut[:cut.rfind("«")].rstrip()
         comma = cut.rfind(", ")
         body = (cut[:comma] if comma >= 40 else cut.rsplit(" ", 1)[0]).rstrip(",;: ")
     return (body[:1].lower() + body[1:]) if body else body
