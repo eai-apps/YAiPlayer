@@ -27,6 +27,9 @@ object CorePerf {
 
     /** Emits [message] under [TAG], but only in a maintainer build. */
     inline fun log(message: () -> String) {
-        if (CoreBuildInfo.devTools) Log.i(TAG, message())
+        // Every build keeps the mark in PerfJournal (exported with the error log); logcat only in a maintainer build.
+        val text = message()
+        PerfJournal.add(text)
+        if (CoreBuildInfo.devTools) Log.i(TAG, text)
     }
 }

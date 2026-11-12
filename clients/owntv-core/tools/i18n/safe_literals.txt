@@ -22,6 +22,10 @@
 3	technical	core/src/main/java/tv/own/owntv/core/CoreBuildInfo.kt	\0
 1	technical	core/src/main/java/tv/own/owntv/core/CoreBuildInfo.kt	ahXN00/OwnTV
 1	log	core/src/main/java/tv/own/owntv/core/CorePerf.kt	OwnTVPerf
+1	empty	core/src/main/java/tv/own/owntv/core/PerfJournal.kt	\0
+1	log	core/src/main/java/tv/own/owntv/core/PerfJournal.kt	$label ${(System.nanoTime() - t0) / 1_000_000} ms
+1	log	core/src/main/java/tv/own/owntv/core/PerfJournal.kt	${time.get()!!.format(Date())} $message
+1	technical	core/src/main/java/tv/own/owntv/core/PerfJournal.kt	MM-dd HH:mm:ss.SSS
 3	technical	core/src/main/java/tv/own/owntv/core/backup/BackupContainer.kt	..
 2	technical	core/src/main/java/tv/own/owntv/core/backup/BackupContainer.kt	Corrupt backup header
 2	technical	core/src/main/java/tv/own/owntv/core/backup/BackupContainer.kt	Not an OwnTV backup file
@@ -1690,7 +1694,7 @@
 1	sql	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	SELECT COUNT(DISTINCT seasonNumber) FROM episodes WHERE seriesId = :seriesId AND seasonNumber > 0
 1	sql	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	SELECT categoryId, COUNT(*) AS itemCount FROM series
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	SELECT categoryId, COUNT(*) AS itemCount FROM series WHERE sourceId = :sourceId AND categoryId IS NOT NULL GROUP BY categoryId
-1	sql	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	SELECT id, name FROM series WHERE sourceId IN (:sourceIds) AND name LIKE '%[S%'
+2	sql	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	SELECT id, name, categoryId FROM series WHERE sourceId IN (:sourceIds) AND name LIKE '%[S%'
 2	sql	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	SELECT id, sourceId, categoryId, name, year, remoteId, sortOrder, canonicalTitle,
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	SELECT remoteId FROM series WHERE sourceId = :sourceId AND categoryId = :categoryId AND remoteId IS NOT NULL
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	SELECT remoteId FROM series WHERE sourceId = :sourceId AND categoryId IN (:categoryIds) AND remoteId IS NOT NULL
@@ -7411,6 +7415,7 @@
 1	sql	player-core/src/main/java/tv/own/owntv/player/PlaybackErrorLog.kt	${MediaStore.MediaColumns._ID} DESC
 1	technical	player-core/src/main/java/tv/own/owntv/player/PlaybackErrorLog.kt	--- last crash ---
 1	technical	player-core/src/main/java/tv/own/owntv/player/PlaybackErrorLog.kt	--- live diagnostics (most recent) ---
+1	log	player-core/src/main/java/tv/own/owntv/player/PlaybackErrorLog.kt	--- performance (most recent) ---
 1	protocol	player-core/src/main/java/tv/own/owntv/player/PlaybackErrorLog.kt	:direct
 1	protocol	player-core/src/main/java/tv/own/owntv/player/PlaybackErrorLog.kt	:gpu
 2	protocol	player-core/src/main/java/tv/own/owntv/player/PlaybackErrorLog.kt	:hardware
@@ -7666,6 +7671,7 @@
 1	technical	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	**:**:**:**:**:**
 1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	--- Last Crash ---
 1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	--- Live Diagnostics ---
+1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	--- Performance ---
 8	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	----------------------------------------------------------------------
 1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	.txt
 2	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	======================================================================

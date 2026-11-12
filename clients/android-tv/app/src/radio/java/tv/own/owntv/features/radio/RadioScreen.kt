@@ -29,7 +29,6 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -118,7 +117,6 @@ fun RadioScreen(onBack: () -> Unit, vm: RadioViewModel = viewModel()) {
             else -> onBack()
         }
     }
-    DisposableEffect(Unit) { onDispose { vm.player.stop() } }
     LaunchedEffect(view, loading) {
         kotlinx.coroutines.delay(60)
         runCatching { if (view == RadioView.HOME) homeFirst.requestFocus() else if (!loading) listFirst.requestFocus() }
@@ -342,7 +340,7 @@ private fun MiniPlayer(
         }
         if (status == RadioPlayer.Status.PLAYING) Equalizer(Modifier.padding(end = 18.mpx).height(40.mpx).width(56.mpx))
         StageButton(text = null, onClick = onToggle, round = true, height = 64.mpx,
-            icon = if (status == RadioPlayer.Status.PLAYING || status == RadioPlayer.Status.BUFFERING) OwnTVIcon.PAUSE else OwnTVIcon.PLAY, iconFilled = true)
+            icon = if (tv.own.owntv.radio.RadioPlayback.showsPause(status)) OwnTVIcon.PAUSE else OwnTVIcon.PLAY, iconFilled = true)
         StageButton(text = null, onClick = onFavorite, round = true, height = 64.mpx, icon = OwnTVIcon.FAVORITE, iconFilled = favorite,
             modifier = Modifier.padding(start = 12.mpx))
         StageButton(text = null, onClick = onStop, round = true, height = 64.mpx, icon = OwnTVIcon.CLOSE,
@@ -383,7 +381,7 @@ private fun FullPlayer(
                 Equalizer(Modifier.padding(top = 36.mpx).height(90.mpx).width(220.mpx), playing = status == RadioPlayer.Status.PLAYING)
                 Row(Modifier.padding(top = 40.mpx).focusGroup()) {
                     StageButton(text = null, onClick = onToggle, round = true, height = 96.mpx,
-                        icon = if (status == RadioPlayer.Status.PLAYING || status == RadioPlayer.Status.BUFFERING) OwnTVIcon.PAUSE else OwnTVIcon.PLAY, iconFilled = true,
+                        icon = if (tv.own.owntv.radio.RadioPlayback.showsPause(status)) OwnTVIcon.PAUSE else OwnTVIcon.PLAY, iconFilled = true,
                         modifier = Modifier.focusRequester(first))
                     StageButton(text = null, onClick = onFavorite, round = true, height = 96.mpx, icon = OwnTVIcon.FAVORITE,
                         iconFilled = favorite, modifier = Modifier.padding(start = 20.mpx))

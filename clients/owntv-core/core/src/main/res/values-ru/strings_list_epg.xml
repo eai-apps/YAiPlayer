@@ -3,5 +3,5 @@
     <!-- Copyright (C) 2026 YAiPlayer authors. Original code, written for YAiPlayer. -->
     <string name="refresh_list_epg">Обновить программу в списке</string>
     <string name="channel_preview">Превью каналов</string>
-    <string name="channel_preview_description">Выбранный канал играет в небольшом окне рядом со списком. Лёгкий режим отключает превью независимо от этой настройки.</string>
+    <string name="channel_preview_description">Выбранный канал играет в небольшом окне рядом со списком. Это отдельный переключатель: лёгкий режим выключает только анимации и превью не трогает.</string>
 </resources>

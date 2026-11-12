@@ -24,7 +24,8 @@ sealed interface RadioMode {
 /** The radio screen's state, shared by the TV and the phone. */
 class RadioViewModel(app: Application) : AndroidViewModel(app) {
     val repository = RadioRepository(app)
-    val player = RadioPlayer(app)
+    /** The app-wide radio player: it outlives this screen and plays on in the background (owner 12.11). */
+    val player = RadioPlayer.get(app)
 
     private val _mode = MutableStateFlow<RadioMode>(RadioMode.Genre(RadioGenres.all.first()))
     val mode: StateFlow<RadioMode> = _mode.asStateFlow()
@@ -151,8 +152,4 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-    override fun onCleared() {
-        player.release()
-        super.onCleared()
-    }
 }

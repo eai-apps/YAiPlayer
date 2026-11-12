@@ -1,0 +1,50 @@
+name: WHATS_NEW check
+# Правило владельца 12.11 (задание Opus №3, п.10): любое заметное изменение в приложениях = строка
+# «Тема: суть» в docs/WHATS_NEW.md в том же коммите, иначе в описании выпуска и в Telegram уйдёт заглушка
+# «Внутренние улучшения и исправления». Это ПРЕДУПРЕЖДЕНИЕ, не ошибка: проверка никогда не валит сборку.
+on:
+  push:
+    branches: ['test/**', main]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Есть ли пункт в WHATS_NEW
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Сравнить с main
+        shell: bash
+        run: |
+          set +e
+          if [ "${GITHUB_REF_NAME}" = "main" ]; then
+            base="${{ github.event.before }}"
+          else
+            git fetch -q origin main
+            base="$(git merge-base origin/main HEAD)"
+          fi
+          if [ -z "$base" ] || ! git cat-file -e "$base^{commit}" 2>/dev/null; then
+            echo "Нет базы для сравнения, проверка пропущена."
+            exit 0
+          fi
+          changed="$(git diff --name-only "$base" HEAD)"
+          apps="$(echo "$changed" | grep -E '^clients/' | grep -vE '(/src/test/|/src/androidTest/|/tools/i18n/|\.md$)')"
+          notes="$(echo "$changed" | grep -x 'docs/WHATS_NEW.md')"
+          if [ -n "$apps" ] && [ -z "$notes" ]; then
+            echo "::warning title=Нет пункта в docs/WHATS_NEW.md::Изменён код приложений ($(echo "$apps" | wc -l) файлов), а docs/WHATS_NEW.md нет. Если изменение заметно пользователю, добавьте строку «Тема: суть». Скрытые функции и то, что не подтверждено на устройстве, не пишем."
+            {
+              echo "### Нет пункта в docs/WHATS_NEW.md"
+              echo "Изменены файлы приложений:"
+              echo '```'
+              echo "$apps" | head -40
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Всё в порядке."
+          fi
+          exit 0

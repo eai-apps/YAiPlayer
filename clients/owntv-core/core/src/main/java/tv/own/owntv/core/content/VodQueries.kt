@@ -1,7 +1,13 @@
 package tv.own.owntv.core.content
 
 import androidx.paging.PagingSource
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
+import tv.own.owntv.core.database.dao.CategoryItemCount
 import tv.own.owntv.core.database.dao.CustomCategoryDao
 import tv.own.owntv.core.database.dao.MovieDao
 import tv.own.owntv.core.database.dao.SeriesDao
@@ -169,8 +175,10 @@ fun seriesCountFlow(
     val sealed = sealedCats.toList()
     return when (key) {
         LiveKey.All, LiveKey.Catchup ->
-            if (hiddenCats.isEmpty()) seriesDao.countAll(ids)
-            else seriesDao.countAllExcluding(ids, hiddenCats.toList())
+            (if (hiddenCats.isEmpty()) seriesDao.countAll(ids) else seriesDao.countAllExcluding(ids, hiddenCats.toList()))
+                .combine(hiddenSeasonRecordCategories(seriesDao, ids)) { n, cats ->
+                    (n - SeasonRecordTitle.hiddenInCount(cats, null, hiddenCats)).coerceAtLeast(0)
+                }
         LiveKey.Favorites -> if (sealed.isEmpty()) seriesDao.countFavorites(profileId, ids)
             else seriesDao.countFavoritesExcluding(profileId, ids, sealed)
         LiveKey.History -> if (sealed.isEmpty()) seriesDao.countHistory(profileId, ids)
@@ -178,5 +186,28 @@ fun seriesCountFlow(
         is LiveKey.Custom -> if (sealed.isEmpty()) customCategoryDao.countMembers(profileId, MediaType.SERIES, key.id, ids)
             else customCategoryDao.countMembersExcluding(profileId, MediaType.SERIES, key.id, ids, sealed)
         is LiveKey.Folder -> seriesDao.countByCategory(key.id)
+            .combine(hiddenSeasonRecordCategories(seriesDao, ids)) { n, cats ->
+                (n - SeasonRecordTitle.hiddenInCount(cats, key.id)).coerceAtLeast(0)
+            }
     }
 }
+
+/**
+ * The category of every season record that one-card-per-show hides ([SeasonRecordTitle.cards]), one entry per
+ * record, recomputed when the series table changes; worked out off the main thread. Empty on any error.
+ */
+fun hiddenSeasonRecordCategories(seriesDao: SeriesDao, ids: List<Long>): Flow<List<Long?>> =
+    seriesDao.observeSeasonRecordNames(ids)
+        .map { rows -> runCatching { SeasonRecordTitle.hiddenCategories(rows.map { Triple(it.id, it.name, it.categoryId) }) }.getOrDefault(emptyList()) }
+        .flowOn(Dispatchers.Default)
+        .distinctUntilChanged()
+
+/** Series per provider folder, counting shows rather than season records (owner 12.11). */
+fun seriesFolderCounts(seriesDao: SeriesDao, ids: List<Long>): Flow<List<CategoryItemCount>> =
+    seriesDao.observeCountsByCategory(ids).combine(hiddenSeasonRecordCategories(seriesDao, ids)) { rows, cats ->
+        if (cats.isEmpty()) rows
+        else {
+            val minus = cats.filterNotNull().groupingBy { it }.eachCount()
+            rows.map { it.copy(itemCount = (it.itemCount - (minus[it.categoryId] ?: 0)).coerceAtLeast(0)) }
+        }
+    }

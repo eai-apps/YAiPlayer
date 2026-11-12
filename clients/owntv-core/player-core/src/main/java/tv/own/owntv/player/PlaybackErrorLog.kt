@@ -317,6 +317,12 @@ object PlaybackErrorLog {
                 appendLine("--- live diagnostics (most recent) ---")
                 appendLine(live)
             }
+            val perf = tv.own.owntv.core.PerfJournal.snapshot()
+            if (perf.isNotBlank()) {
+                appendLine()
+                appendLine("--- performance (most recent) ---")
+                appendLine(perf)
+            }
         }
         writeToDownloads(appContext, text)
     }.getOrNull()

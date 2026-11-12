@@ -52,6 +52,8 @@ android {
     defaultConfig {
         buildConfigField("boolean", "SELF_UPDATE", (!playStore).toString())
         buildConfigField("boolean", "RADIO", (!playStore).toString())
+        // The radio's background service (RadioPlaybackService) exists only in the build with the radio.
+        manifestPlaceholders["radioEnabled"] = (!playStore).toString()
         manifestPlaceholders["installPermission"] =
             if (playStore) "android.permission.INTERNET" else "android.permission.REQUEST_INSTALL_PACKAGES"
         applicationId = "com.yai.iptv.player.mobile"
@@ -378,6 +380,8 @@ dependencies {
     if (!playStore) {
         implementation("androidx.media3:media3-exoplayer:${libs.versions.media3.get()}")
         implementation("androidx.media3:media3-exoplayer-hls:${libs.versions.media3.get()}")
+        // Radio in the background: MediaSession for the notification, lock screen, headphones and Bluetooth.
+        implementation("androidx.media3:media3-session:${libs.versions.media3.get()}")
     }
 
     implementation(libs.coil.compose)

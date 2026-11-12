@@ -49,6 +49,8 @@ android {
     defaultConfig {
         buildConfigField("boolean", "SELF_UPDATE", (!playStore).toString())
         buildConfigField("boolean", "RADIO", (!playStore).toString())
+        // The radio's background service (RadioPlaybackService) exists only in the build with the radio.
+        manifestPlaceholders["radioEnabled"] = (!playStore).toString()
         manifestPlaceholders["installPermission"] =
             if (playStore) "android.permission.INTERNET" else "android.permission.REQUEST_INSTALL_PACKAGES"
         applicationId = "com.yai.iptv.player.tv"
@@ -442,6 +444,8 @@ dependencies {
     implementation(libs.androidx.media3.exoplayer.dash)
     implementation(libs.androidx.media3.ui)
     implementation(libs.androidx.media3.datasource.okhttp)
+    // Radio in the background: MediaSession for the notification, headphones and the system pause (radio build only).
+    if (!playStore) implementation("androidx.media3:media3-session:${libs.versions.media3.get()}")
 
     // In-app YouTube trailer playback — WebView-backed IFrame player; the only ToS-clean
     // way to play YouTube trailers inside the app. Falls back to an "Open in YouTube" intent.

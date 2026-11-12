@@ -548,10 +548,12 @@ class SeriesViewModel(
      */
     private val seasonCards: Flow<tv.own.owntv.core.content.SeasonRecordTitle.Cards> = combine(ctx, _listRefresh) { c, _ -> c }
         .map { c ->
+            // Any failure shows the list without merging rather than an empty or crashed tab (task Opus №3, п.8).
             runCatching {
-                tv.own.owntv.core.content.SeasonRecordTitle.cards(
-                    seriesDao.seasonRecordNames(c.sourceIds.ifEmpty { listOf(-1L) }).map { it.id to it.name },
-                )
+                val rows = seriesDao.seasonRecordNames(c.sourceIds.ifEmpty { listOf(-1L) })
+                tv.own.owntv.core.PerfJournal.measure("series_merge records=${rows.size}") {
+                    tv.own.owntv.core.content.SeasonRecordTitle.cards(rows.map { it.id to it.name })
+                }
             }.getOrDefault(tv.own.owntv.core.content.SeasonRecordTitle.Cards(emptySet(), emptyMap()))
         }
         .flowOn(kotlinx.coroutines.Dispatchers.Default) // never on the main thread
@@ -599,7 +601,7 @@ class SeriesViewModel(
     /** The count beside every category (Stage sheet / column): one grouped query for the folders. */
     val railCounts: StateFlow<Map<LiveKey, Int>> = combine(ctx, hiddenCategoryIds, railItems, sealedCategoryIds) { c, hidden, items, sealed ->
             val single = items.filter { it.key !is LiveKey.Folder }.map { item -> countFlow(item.key, c, hidden, sealed).map { mapOf(item.key to it) } }
-            val folders = seriesDao.observeCountsByCategory(c.sourceIds.ifEmpty { listOf(-1L) })
+            val folders = tv.own.owntv.core.content.seriesFolderCounts(seriesDao, c.sourceIds.ifEmpty { listOf(-1L) })
                 .map { rows -> rows.associate { LiveKey.Folder(it.categoryId) as LiveKey to it.itemCount } }
             combine(single + folders) { parts -> parts.fold(emptyMap<LiveKey, Int>()) { acc, m -> acc + m } }.throttleLatest()
         }

@@ -72,4 +72,5 @@
     <string name="radio_err_too_many">Zu viele Versuche. Bitte in einer Stunde erneut versuchen.</string>
     <string name="radio_err_unavailable">Die Synchronisierung ist gerade nicht verfügbar. Bitte später erneut versuchen.</string>
     <string name="radio_err_network">Keine Verbindung zum Synchronisierungsserver.</string>
+    <string name="radio_playing">Radio läuft</string>
 </resources>

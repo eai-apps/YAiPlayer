@@ -13,21 +13,24 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 /**
- * The radio's own small player (Media3). Plays while the radio screen is open; leaving the screen stops it.
- * Separate from the TV player on purpose: radio must not touch the channel playback or its history.
+ * The radio's own small player (Media3), one per app process ([get]). Keeps playing after the radio screen is
+ * left (owner 12.11): [RadioPlaybackService] publishes it as a MediaSession, so the notification, the lock
+ * screen, headphones / Bluetooth keys and the system pause control the same player as the on-screen button.
+ * Separate from the TV player on purpose: radio must not touch the channel playback or its history; when a
+ * channel starts, the TV player takes audio focus and the radio pauses by itself.
  */
-class RadioPlayer(context: Context) {
+class RadioPlayer private constructor(context: Context) {
+    private val app = context.applicationContext
     enum class Status { IDLE, BUFFERING, PLAYING, PAUSED, ERROR }
 
     // Music audio focus: another app's sound pauses the radio, and unplugging headphones does too.
-    private val player = ExoPlayer.Builder(context.applicationContext).build().apply {
+    private val player = ExoPlayer.Builder(app).build().apply {
         setAudioAttributes(
             AudioAttributes.Builder().setUsage(C.USAGE_MEDIA).setContentType(C.AUDIO_CONTENT_TYPE_MUSIC).build(),
             true,
@@ -46,6 +49,9 @@ class RadioPlayer(context: Context) {
     private val _title = MutableStateFlow<String?>(null)
     /** What the station says is on now (ICY stream title), when it says anything. */
     val title: StateFlow<String?> = _title.asStateFlow()
+
+    /** The Media3 player itself, for the MediaSession of [RadioPlaybackService]. */
+    internal val exoPlayer: Player get() = player
 
     init {
         player.addListener(object : Player.Listener {
@@ -76,13 +82,7 @@ class RadioPlayer(context: Context) {
      * stream re-buffers often, and during that [ExoPlayer.isPlaying] is false although the user is playing.
      */
     private fun update() {
-        _status.value = when {
-            _status.value == Status.ERROR && player.playbackState == Player.STATE_IDLE -> Status.ERROR
-            player.playbackState == Player.STATE_IDLE -> Status.IDLE
-            !player.playWhenReady -> Status.PAUSED
-            player.playbackState == Player.STATE_BUFFERING -> Status.BUFFERING
-            else -> Status.PLAYING
-        }
+        _status.value = RadioPlayback.status(_status.value == Status.ERROR, player.playbackState, player.playWhenReady)
     }
 
     fun play(station: RadioStation) {
@@ -90,17 +90,25 @@ class RadioPlayer(context: Context) {
         _title.value = null
         loadCover(null)
         _status.value = Status.BUFFERING
-        player.setMediaItem(MediaItem.fromUri(station.url))
+        val meta = MediaMetadata.Builder()
+            .setStation(station.name)
+            .setTitle(station.name)
+            .setArtist(listOfNotNull(station.country, station.bitrate.takeIf { it > 0 }?.let { "$it kbps" }).joinToString(" · "))
+            .apply { station.favicon?.takeIf { it.startsWith("http") }?.let { setArtworkUri(android.net.Uri.parse(it)) } }
+            .build()
+        player.setMediaItem(MediaItem.Builder().setUri(station.url).setMediaId(station.id).setMediaMetadata(meta).build())
         player.prepare()
         player.play()
+        // The service keeps the process alive and shows the notification while the radio plays.
+        runCatching { app.startService(android.content.Intent(app, RadioPlaybackService::class.java)) }
     }
 
     fun toggle() {
         val s = _current.value ?: return
-        when {
-            _status.value == Status.ERROR || player.playbackState == Player.STATE_IDLE -> play(s)
-            player.playWhenReady -> player.pause() // also while buffering
-            else -> player.play()
+        when (RadioPlayback.toggle(_status.value == Status.ERROR, player.playbackState, player.playWhenReady)) {
+            RadioPlayback.Action.RESTART -> play(s)
+            RadioPlayback.Action.PAUSE -> player.pause() // also while buffering
+            RadioPlayback.Action.RESUME -> player.play()
         }
         update()
     }
@@ -118,13 +126,44 @@ class RadioPlayer(context: Context) {
 
     fun stop() {
         player.stop()
+        player.clearMediaItems()
         _current.value = null
         loadCover(null)
         _status.value = Status.IDLE
     }
 
-    fun release() {
-        scope.cancel()
-        player.release()
+    companion object {
+        @Volatile private var instance: RadioPlayer? = null
+
+        /** The one radio player of this app; must be first called on the main thread (Media3 binds to it). */
+        fun get(context: Context): RadioPlayer =
+            instance ?: synchronized(this) { instance ?: RadioPlayer(context).also { instance = it } }
     }
+}
+
+/**
+ * What the play / pause button does and what it shows, as plain functions (tested in RadioPlaybackTest).
+ * «Play wish» (playWhenReady) decides, not «audible right now»: a live stream re-buffers often, and during that
+ * isPlaying is false although the user is playing; a pause pressed then must still pause.
+ */
+object RadioPlayback {
+    enum class Action { RESTART, PAUSE, RESUME }
+
+    fun toggle(error: Boolean, playbackState: Int, playWhenReady: Boolean): Action = when {
+        error || playbackState == Player.STATE_IDLE -> Action.RESTART
+        playWhenReady -> Action.PAUSE
+        else -> Action.RESUME
+    }
+
+    fun status(error: Boolean, playbackState: Int, playWhenReady: Boolean): RadioPlayer.Status = when {
+        error && playbackState == Player.STATE_IDLE -> RadioPlayer.Status.ERROR
+        playbackState == Player.STATE_IDLE -> RadioPlayer.Status.IDLE
+        !playWhenReady -> RadioPlayer.Status.PAUSED
+        playbackState == Player.STATE_BUFFERING -> RadioPlayer.Status.BUFFERING
+        else -> RadioPlayer.Status.PLAYING
+    }
+
+    /** The button shows «pause» while the user wants sound (playing or buffering), «play» otherwise. */
+    fun showsPause(status: RadioPlayer.Status): Boolean =
+        status == RadioPlayer.Status.PLAYING || status == RadioPlayer.Status.BUFFERING
 }

@@ -406,6 +406,19 @@
             </intent-filter>
         </service>
 
+
+        <!-- Radio in the background (Media3 MediaSessionService). Present and enabled only in the build with the
+             radio; the Play-store build has no such class and keeps it disabled. -->
+        <service
+            android:name="tv.own.owntv.radio.RadioPlaybackService"
+            android:enabled="${radioEnabled}"
+            android:exported="true"
+            android:foregroundServiceType="mediaPlayback"
+            tools:ignore="MissingClass">
+            <intent-filter>
+                <action android:name="androidx.media3.session.MediaSessionService" />
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

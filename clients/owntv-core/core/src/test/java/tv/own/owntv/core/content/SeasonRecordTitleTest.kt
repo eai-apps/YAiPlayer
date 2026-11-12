@@ -68,4 +68,33 @@ class SeasonRecordTitleTest {
         assertEquals("Баба-яга / Яга", cards.names[31L])
         assertFalse(30L in cards.names)
     }
+
+    /** П8 of task Opus №3: 100 000 records, half of them shows with no partner (the slowest path). */
+    @Test fun hundredThousandRecordsStayFast() {
+        val rows = (0 until 100_000).map { n ->
+            n.toLong() to if (n % 2 == 0) "Сериал номер ${n / 10} [S0${n % 5 + 1}] [ua] [ru]"
+            else "Совсем отдельное и довольно длинное название сериала номер $n [S01]"
+        }
+        val t0 = System.nanoTime()
+        val cards = SeasonRecordTitle.cards(rows)
+        val ms = (System.nanoTime() - t0) / 1_000_000
+        assertTrue("took $ms ms", ms < 5_000)
+        assertEquals(50_000 - 10_000, cards.hidden.size)
+    }
+
+    /** Owner 12.11: the counts beside the categories counted `[Sxx]` records, not shows. */
+    @Test fun countsLoseHiddenSeasonRecords() {
+        val rows = listOf(
+            Triple(7L, "Извне [S01]", 1L), Triple(10L, "Извне [S02] [ua] [ru]", 1L), Triple(12L, "Извне [S04]", 2L),
+            Triple(30L, "Остров сокровищ", 1L), Triple(40L, "Тьма [S01]", null), Triple(41L, "Тьма [S02]", 3L),
+        )
+        val hidden = SeasonRecordTitle.hiddenCategories(rows)
+        assertEquals(listOf(1L, 2L, 3L), hidden.sortedBy { it ?: 0 })
+        // «All»: 6 rows, 3 cards (Извне, Тьма, Остров сокровищ): 3 records hidden.
+        assertEquals(3, SeasonRecordTitle.hiddenInCount(hidden, null))
+        assertEquals(1, SeasonRecordTitle.hiddenInCount(hidden, 1L))
+        assertEquals(1, SeasonRecordTitle.hiddenInCount(hidden, 2L))
+        // A hidden category is already left out of «All».
+        assertEquals(2, SeasonRecordTitle.hiddenInCount(hidden, null, hiddenCats = setOf(3L)))
+    }
 }

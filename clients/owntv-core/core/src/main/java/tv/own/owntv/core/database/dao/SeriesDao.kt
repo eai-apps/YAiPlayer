@@ -422,9 +422,13 @@ interface SeriesDao {
     suspend fun deleteNullRemoteIds(sourceId: Long)
 
     /** Every season record (`[Sxx]` in the name) of these playlists, for one card per show in the list. */
-    @Query("SELECT id, name FROM series WHERE sourceId IN (:sourceIds) AND name LIKE '%[S%'")
+    @Query("SELECT id, name, categoryId FROM series WHERE sourceId IN (:sourceIds) AND name LIKE '%[S%'")
     suspend fun seasonRecordNames(sourceIds: List<Long>): List<SeriesIdName>
+
+    /** The same rows, observed: the category counts subtract the season records one card per show hides. */
+    @Query("SELECT id, name, categoryId FROM series WHERE sourceId IN (:sourceIds) AND name LIKE '%[S%'")
+    fun observeSeasonRecordNames(sourceIds: List<Long>): Flow<List<SeriesIdName>>
 }
 
-/** A series row's id and name only. */
-data class SeriesIdName(val id: Long, val name: String)
+/** A series row's id, name and category only. */
+data class SeriesIdName(val id: Long, val name: String, val categoryId: Long?)

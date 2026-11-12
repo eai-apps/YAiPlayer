@@ -92,6 +92,22 @@ object SeasonRecordTitle {
 
     data class Cards(val hidden: Set<Long>, val names: Map<Long, String>)
 
+    /**
+     * How many hidden season records a count must lose (owner 12.11: the counts beside the series categories
+     * counted `[Sxx]` records, not shows). [hiddenCategories] holds one entry per hidden record (its category);
+     * [folder] null means «All» (records in [hiddenCats] are already left out of that count).
+     */
+    fun hiddenInCount(hiddenCategories: Collection<Long?>, folder: Long?, hiddenCats: Set<Long> = emptySet()): Int =
+        if (folder != null) hiddenCategories.count { it == folder }
+        else hiddenCategories.count { it == null || it !in hiddenCats }
+
+    /** The category of every record [cards] hides, one entry per record (rows: id, name, category). */
+    fun hiddenCategories(rows: List<Triple<Long, String, Long?>>): List<Long?> {
+        val cards = cards(rows.map { it.first to it.second })
+        if (cards.hidden.isEmpty()) return emptyList()
+        return rows.filter { it.first in cards.hidden }.map { it.third }
+    }
+
     private const val MIN_BASE = 3
     private val ALT_TITLE = String(charArrayOf(' ', '/', ' '))
     /** How a season subtitle follows the title. A bare «-» or «/» is part of titles («Баба-яга / Яга»), not one. */

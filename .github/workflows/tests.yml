@@ -29,7 +29,7 @@ jobs:
         working-directory: clients/android-mobile
         run: |
           chmod +x gradlew
-          ./gradlew :app:testStandardDebugUnitTest --tests 'tv.own.owntv.extras.tvoptimizer.TvOptimizerTest' --tests 'tv.own.owntv.radio.RadioParserTest' --tests 'tv.own.owntv.radio.RadioSyncTest' --tests 'tv.own.owntv.radio.RadioLookTest' -Powntv.corePath=${GITHUB_WORKSPACE}/clients/owntv-core --no-daemon --stacktrace
+          ./gradlew :app:testStandardDebugUnitTest --tests 'tv.own.owntv.extras.tvoptimizer.TvOptimizerTest' --tests 'tv.own.owntv.radio.RadioParserTest' --tests 'tv.own.owntv.radio.RadioSyncTest' --tests 'tv.own.owntv.radio.RadioLookTest' --tests 'tv.own.owntv.radio.RadioPlaybackTest' -Powntv.corePath=${GITHUB_WORKSPACE}/clients/owntv-core --no-daemon --stacktrace
   core-unit:
     name: Core unit tests
     runs-on: ubuntu-latest

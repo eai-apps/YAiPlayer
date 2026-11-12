@@ -12,4 +12,10 @@ object RadioFeature {
 
     @Composable
     fun Screen(onBack: () -> Unit) = Unit
+
+    @Composable
+    fun playingLabel(): String? = null
+
+    @Composable
+    fun nowPlaying(): String? = null
 }

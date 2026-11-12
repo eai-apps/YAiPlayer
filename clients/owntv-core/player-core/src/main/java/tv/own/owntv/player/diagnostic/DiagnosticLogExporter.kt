@@ -153,6 +153,12 @@ object DiagnosticLogExporter {
             appendLine("--- Live Diagnostics ---")
             appendLine(maskSensitiveText(liveDiag))
         }
+        val perf = tv.own.owntv.core.PerfJournal.snapshot()
+        if (perf.isNotBlank()) {
+            appendLine()
+            appendLine("--- Performance ---")
+            appendLine(maskSensitiveText(perf))
+        }
     }
 
     /**

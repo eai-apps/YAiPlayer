@@ -627,7 +627,10 @@ private fun SeriesGrid(
     val listPin = tv.own.owntv.features.categorylock.rememberListPinFocus(series.itemCount, firstItemFocus, { scrollToIndex(0) }) { focusTitles() }
     val sealed = selectedItem?.sealed == true
     val onEnterPin: () -> Unit = { selectedItem?.let { listPin.askedFromList(); lockVm.open(tv.own.owntv.core.model.MediaType.SERIES, it.key) } }
-    val emptyText = if (sealed) stringResource(R.string.content_category_locked_placeholder) else if (searchQuery.isNotBlank()) stringResource(R.string.content_no_series_found, searchQuery.trim()) else stringResource(R.string.content_no_series_here)
+    // While the first page (and the season merge) is still loading, the empty list says «Загрузка…», never
+    // «no series here»: on a big Stalker catalogue the tab used to claim it was empty for seconds (owner 12.11).
+    val stillLoading = series.itemCount == 0 && series.loadState.refresh is androidx.paging.LoadState.Loading
+    val emptyText = if (sealed) stringResource(R.string.content_category_locked_placeholder) else if (stillLoading) stringResource(R.string.settings_loading) else if (searchQuery.isNotBlank()) stringResource(R.string.content_no_series_found, searchQuery.trim()) else stringResource(R.string.content_no_series_here)
 
     BoxWithConstraints(
         modifier = modifier

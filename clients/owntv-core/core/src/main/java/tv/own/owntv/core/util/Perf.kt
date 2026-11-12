@@ -27,6 +27,8 @@ object Perf {
     fun stamp(label: String) {
         val base = t0
         if (base < 0) return
-        Log.d(TAG, "$label @${SystemClock.elapsedRealtime() - base}ms")
+        val line = "$label @${SystemClock.elapsedRealtime() - base}ms"
+        tv.own.owntv.core.PerfJournal.add(line)
+        Log.d(TAG, line)
     }
 }

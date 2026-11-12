@@ -266,7 +266,7 @@ class LibraryViewModel(
                     .map { mapOf(item.key to it) }
             }
             // A sealed folder shows no count: how many titles it holds is the lock's business.
-            val folders = (if (movie) movieDao.observeCountsByCategory(ids.ifEmpty { listOf(-1L) }) else seriesDao.observeCountsByCategory(ids.ifEmpty { listOf(-1L) }))
+            val folders = (if (movie) movieDao.observeCountsByCategory(ids.ifEmpty { listOf(-1L) }) else tv.own.owntv.core.content.seriesFolderCounts(seriesDao, ids.ifEmpty { listOf(-1L) }))
                 .map { rows -> rows.filter { it.categoryId !in sealed }.associate { LiveKey.Folder(it.categoryId) as LiveKey to it.itemCount } }
             combine(single + folders) { parts -> parts.fold(emptyMap<LiveKey, Int>()) { acc, m -> acc + m } }
         }

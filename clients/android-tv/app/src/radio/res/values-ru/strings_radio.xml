@@ -72,4 +72,5 @@
     <string name="radio_err_too_many">Слишком много попыток. Подождите час.</string>
     <string name="radio_err_unavailable">Синхронизация сейчас недоступна. Попробуйте позже.</string>
     <string name="radio_err_network">Нет связи с сервером синхронизации.</string>
+    <string name="radio_playing">Радио играет</string>
 </resources>

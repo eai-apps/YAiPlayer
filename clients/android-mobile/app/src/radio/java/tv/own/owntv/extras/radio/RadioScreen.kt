@@ -34,7 +34,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -112,7 +111,6 @@ fun RadioScreen(onBack: () -> Unit, vm: RadioViewModel = viewModel()) {
         }
     }
     // Leaving the radio stops it: it must never play on under a channel.
-    DisposableEffect(Unit) { onDispose { vm.player.stop() } }
 
     fun open(m: RadioMode, title: String) {
         vm.select(m)
@@ -279,7 +277,7 @@ private fun MiniPlayer(
         if (status == RadioPlayer.Status.PLAYING) Equalizer(Modifier.padding(end = 8.dp).height(22.dp).width(28.dp))
         StagePill(onClick = onFavorite, icon = if (favorite) MobileIcons.Favorite else MobileIcons.FavoriteBorder,
             contentDescription = stringResource(if (favorite) R.string.radio_fav_remove else R.string.radio_fav_add))
-        StagePill(onClick = onToggle, icon = if (status == RadioPlayer.Status.PLAYING || status == RadioPlayer.Status.BUFFERING) MobileIcons.Pause else MobileIcons.PlayArrow,
+        StagePill(onClick = onToggle, icon = if (tv.own.owntv.radio.RadioPlayback.showsPause(status)) MobileIcons.Pause else MobileIcons.PlayArrow,
             contentDescription = stringResource(R.string.radio_play_pause), modifier = Modifier.padding(start = 6.dp))
         StagePill(onClick = onStop, icon = MobileIcons.Close, contentDescription = stringResource(R.string.radio_stop),
             modifier = Modifier.padding(start = 6.dp))
@@ -316,7 +314,7 @@ private fun FullPlayer(
                 contentAlignment = Alignment.Center,
             ) {
                 androidx.compose.material3.Icon(
-                    if (status == RadioPlayer.Status.PLAYING || status == RadioPlayer.Status.BUFFERING) MobileIcons.Pause else MobileIcons.PlayArrow,
+                    if (tv.own.owntv.radio.RadioPlayback.showsPause(status)) MobileIcons.Pause else MobileIcons.PlayArrow,
                     contentDescription = stringResource(R.string.radio_play_pause), tint = Color.White, modifier = Modifier.size(34.dp),
                 )
             }
