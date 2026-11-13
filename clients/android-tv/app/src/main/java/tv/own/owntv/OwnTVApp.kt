@@ -116,6 +116,7 @@ class OwnTVApp : Application(), SingletonImageLoader.Factory, androidx.work.Conf
         // default that happens to be right for one app is a trap for every other one.
         tv.own.owntv.core.CoreBuildInfo.releaseRepo = "eai-apps/YAiPlayer"
         tv.own.owntv.core.CoreBuildInfo.releaseAssetMarker = "YAiPlayer-TV"
+        if (BuildConfig.BETA) tv.own.owntv.core.CoreBuildInfo.releaseTag = "beta"
         // Fixed for this process before any player exists: the setting applies only after a restart.
         tv.own.owntv.core.player.FfmpegAudioSetting.load(this)
         // First thing after the context exists: a crash from here on leaves a trace on disk that the

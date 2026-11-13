@@ -39,6 +39,8 @@ class AccountService(
     private val sources: SourceRepository,
     private val profiles: ProfileManager,
     private val catalog: CatalogSyncScheduler,
+    private val favorites: AccountFavorites,
+    private val favoriteDao: tv.own.owntv.core.database.dao.FavoriteDao,
 ) {
     val session = store.session
     private val mutex = Mutex()
@@ -46,6 +48,17 @@ class AccountService(
     val signedIn get() = store.session.value != null
     val unlocked get() = store.dataKey != null
     fun accountProfileIds(): Set<Long> = store.profileLinks.values.toSet()
+
+    /**
+     * Local profiles (not the account's, not [guestId]) with no source at all: leftovers such as an empty
+     * «Профиль» from an earlier first run. With the account on they are not shown on the chooser (owner 13.11);
+     * a local profile that has playlists stays, so nobody loses what they set up before the update.
+     */
+    suspend fun emptyLocalProfileIds(profileIds: Collection<Long>, guestId: Long?): Set<Long> {
+        val withSources = sourceDao.allLinks().map { it.profileId }.toSet()
+        val account = accountProfileIds()
+        return profileIds.filter { it != guestId && it !in account && it !in withSources }.toSet()
+    }
 
     private fun token() = store.session.value?.token ?: throw AccountApiException(401, "unauthorized")
 
@@ -145,6 +158,7 @@ class AccountService(
         runCatching { api.obj("POST", "/v1/auth/logout", null, token()) }
         removeLocalAccountData()
         store.clear()
+        favorites.clear()
     }
 
     private suspend fun removeLocalAccountData() {
@@ -171,6 +185,9 @@ class AccountService(
             launch {
                 delay(START_DELAY_MS)
                 while (true) { syncQuietly(); delay(PULL_EVERY_MS) }
+            }
+            launch {
+                favoriteDao.observeChangeMarker().distinctUntilChanged().drop(1).debounce(PUSH_DEBOUNCE_MS).collect { syncQuietly() }
             }
             sourceDao.observeAll()
                 .map { list -> list.joinToString("|") { "${it.id}:${SourceRecords.fingerprint(it)}" } }
@@ -200,9 +217,10 @@ class AccountService(
             val (added, updated, removed) = applySources(records, dk)
             applySharing(serverProfiles)
             val (pushed, locked) = push(t, dk)
-            Report(pulled, added, updated, removed, pushed, locked).also { Log.i(TAG, "sync $it") }
+            val favPushed = runCatching { syncFavorites(t, records) }.onFailure { Log.w(TAG, "favorites: ${it.message}") }.getOrDefault(0)
+            Report(pulled, added, updated, removed, pushed + favPushed, locked).also { Log.i(TAG, "sync $it") }
         } catch (e: AccountApiException) {
-            if (e.status == 401 || e.code == "account_blocked") { removeLocalAccountData(); store.clear() }
+            if (e.status == 401 || e.code == "account_blocked") { removeLocalAccountData(); store.clear(); favorites.clear() }
             throw e
         }
     }
@@ -301,6 +319,36 @@ class AccountService(
             val lid = profileLinks[p.getString("id")] ?: continue
             mainSources.forEach { sourceDao.link(ProfileSourceCrossRef(profileId = lid, sourceId = it.id)) }
         }
+    }
+
+    /** Favorites of the account's profiles, both ways (see [AccountFavorites]). Returns how many records went up. */
+    private suspend fun syncFavorites(t: String, records: Map<String, JSONObject>): Int {
+        val profileLinks = store.profileLinks
+        val sourceLinks = store.sourceLinks
+        for (r in records.values) {
+            if (r.optString("kind") != "favorite" || r.optBoolean("deleted")) continue
+            val lid = profileLinks[r.optString("profileId")] ?: continue
+            val sourceLid = sourceLinks[r.optJSONObject("data")?.optString("source")]?.localId ?: continue
+            runCatching { favorites.apply(r, lid, sourceLid) }.onFailure { Log.w(TAG, "favorite apply: ${it.message}") }
+        }
+        val ridByLocal = sourceLinks.entries.associate { it.value.localId to it.key }
+        val changes = JSONArray()
+        val pending = HashMap<String, JSONObject>()
+        for ((sid, lid) in profileLinks) {
+            for (s in sourceDao.observeForProfile(lid).first()) {
+                val rid = ridByLocal[s.id] ?: continue
+                val (id, change) = favorites.change(sid, lid, rid, s.id) ?: continue
+                changes.put(change); pending[id] = change
+            }
+        }
+        if (changes.length() == 0) return 0
+        val r = api.obj("POST", "/v1/sync", JSONObject().put("changes", changes), t)
+        val applied = r.optJSONArray("applied") ?: JSONArray()
+        for (i in 0 until applied.length()) {
+            val a = applied.getJSONObject(i)
+            pending[a.getString("id")]?.let { favorites.accepted(a.getString("id"), a.getInt("rev"), it) }
+        }
+        return applied.length()
     }
 
     /** Local changes in the account's profiles go up: new sources, edited ones, deleted ones. */

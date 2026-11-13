@@ -523,6 +523,7 @@
 1	protocol	app/src/main/java/tv/own/owntv/mobile/MainActivity.kt	toggle
 1	protocol	app/src/main/java/tv/own/owntv/mobile/MainActivity.kt	tv.own.owntv.mobile.PIP
 1	technical	app/src/main/java/tv/own/owntv/mobile/OwnTVMobileApp.kt	YAiPlayer-Mobile
+1	technical	app/src/main/java/tv/own/owntv/mobile/OwnTVMobileApp.kt	beta
 1	technical	app/src/main/java/tv/own/owntv/mobile/OwnTVMobileApp.kt	eai-apps/YAiPlayer
 1	technical	app/src/main/java/tv/own/owntv/mobile/OwnTVMobileApp.kt	image_cache
 1	protocol	app/src/main/java/tv/own/owntv/mobile/cast/CastPlaybackEngine.kt	CAST

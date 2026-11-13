@@ -34,7 +34,7 @@ val playStore = (findProperty("owntv.playStore") as String?)?.toBoolean() == tru
 /**
  * -Powntv.beta=true: the BETA build for checking a branch on a device before it goes to main (owner 13.11):
  * its own package (".beta") and name «YAiPlayer Beta», so it installs NEXT TO the normal app by a permanent link
- * (GitHub release "beta", workflow beta.yml); signed with the same key; no self-update to the normal release.
+ * (GitHub release "beta", workflow beta.yml); signed with the same key; updates itself from the "beta" release only.
  */
 val beta = (findProperty("owntv.beta") as String?)?.toBoolean() == true
 
@@ -56,7 +56,7 @@ android {
     }
 
     defaultConfig {
-        buildConfigField("boolean", "SELF_UPDATE", (!playStore && !beta).toString())
+        buildConfigField("boolean", "SELF_UPDATE", (!playStore).toString())
         buildConfigField("boolean", "BETA", beta.toString())
         manifestPlaceholders["appLabel"] = if (beta) "YAiPlayer Beta" else "@string/app_name"
         buildConfigField("boolean", "RADIO", (!playStore).toString())

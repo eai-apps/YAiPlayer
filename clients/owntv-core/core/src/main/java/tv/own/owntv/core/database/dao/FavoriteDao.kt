@@ -36,6 +36,10 @@ interface FavoriteDao {
     @Query("SELECT EXISTS(SELECT 1 FROM favorites WHERE profileId = :profileId AND mediaType = :type AND itemId = :itemId)")
     suspend fun exists(profileId: Long, type: MediaType, itemId: Long): Boolean
 
+    /** Changes whenever any favorite is added or removed (account sync, owner 13.11). */
+    @Query("SELECT COUNT(*) || ':' || IFNULL(MAX(addedAt), 0) || ':' || IFNULL(SUM(itemId), 0) FROM favorites")
+    fun observeChangeMarker(): Flow<String>
+
     @Query("SELECT COUNT(*) FROM favorites WHERE profileId = :profileId AND mediaType = :type")
     fun count(profileId: Long, type: MediaType): Flow<Int>
 

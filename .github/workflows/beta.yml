@@ -2,7 +2,8 @@ name: Beta (installable by link, next to the normal app)
 
 # Owner 13.11: a branch is checked on a device BEFORE it goes to main, by a permanent public link —
 # no archives, no debug keys. The beta has its own package (.beta) and name «YAiPlayer Beta», installs next to
-# the normal app and is signed with the same key. Links (always the latest beta):
+# the normal app and is signed with the same key, and updates itself from this release (title beta-N).
+# Links (always the latest beta):
 #   https://github.com/eai-apps/YAiPlayer/releases/download/beta/YAiPlayer-Mobile-beta.apk
 #   https://github.com/eai-apps/YAiPlayer/releases/download/beta/YAiPlayer-TV-beta.apk
 # The phone beta also has «Поставить бету на ТВ» in the remote's TV screen (over Wi-Fi debugging).
@@ -112,8 +113,9 @@ jobs:
           Телефон: https://github.com/$REPO/releases/download/beta/YAiPlayer-Mobile-beta.apk
           ТВ: https://github.com/$REPO/releases/download/beta/YAiPlayer-TV-beta.apk"
           if ! gh release view beta --repo "$REPO" >/dev/null 2>&1; then
-            gh release create beta --repo "$REPO" --prerelease --target "$GITHUB_SHA" --title "Бета для проверки" --notes "$notes" dist/*.apk
+            gh release create beta --repo "$REPO" --prerelease --target "$GITHUB_SHA" --title "beta-${{ github.run_number }}" --notes "$notes" dist/*.apk
           else
             gh release upload beta --repo "$REPO" --clobber dist/*.apk
-            gh release edit beta --repo "$REPO" --prerelease --notes "$notes"
+            # the title carries the build number: the beta app updates itself when it grows
+            gh release edit beta --repo "$REPO" --prerelease --title "beta-${{ github.run_number }}" --notes "$notes"
           fi

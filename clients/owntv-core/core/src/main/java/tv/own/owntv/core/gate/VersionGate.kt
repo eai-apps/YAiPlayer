@@ -51,6 +51,8 @@ object VersionGateLogic {
     }
 
     fun decide(cfg: GateConfig?, currentVersion: String, nowMs: Long): GateState {
+        // The beta build (own package, own update channel) is never blocked by the release's minimum version.
+        if (tv.own.owntv.core.CoreBuildInfo.releaseTag != null) return GateState.Ok
         if (cfg == null || !cfg.enforce || cfg.minVersion.isBlank()) return GateState.Ok
         if (!isOlder(currentVersion, cfg.minVersion)) return GateState.Ok
         val at = cfg.blockAtMs ?: return GateState.Block(cfg.updateUrl)

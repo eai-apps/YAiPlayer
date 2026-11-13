@@ -62,10 +62,13 @@ fun ProfileGate(onEnter: (Long) -> Unit, onAddProfile: () -> Unit, modifier: Mod
     val accountSession = accountService?.session?.collectAsStateWithLifecycle()?.value
     val accountProfileIds = remember(accountSession, profiles) { accountService?.accountProfileIds() ?: emptySet() }
     LaunchedEffect(accountSession != null) { if (accountSession != null) accountService?.syncQuietly() }
+    val emptyLocalIds by androidx.compose.runtime.produceState(emptySet<Long>(), profiles, accountProfileIds) {
+        value = accountService?.emptyLocalProfileIds(profiles.map { it.id }, guestId) ?: emptySet()
+    }
     var showAccount by remember { mutableStateOf(false) }
 
-    val visibleProfiles = remember(profiles, hiddenProfileIds, guestId, accountProfileIds) {
-        profiles.filter { it.id == guestId || (it.id !in hiddenProfileIds && it.id !in accountProfileIds) }
+    val visibleProfiles = remember(profiles, hiddenProfileIds, guestId, accountProfileIds, emptyLocalIds) {
+        profiles.filter { it.id == guestId || (it.id !in hiddenProfileIds && it.id !in accountProfileIds && it.id !in emptyLocalIds) }
     }
 
     var menuProfile by remember { mutableStateOf<ProfileEntity?>(null) }

@@ -65,8 +65,46 @@
 1	json	core/src/main/java/tv/own/owntv/core/account/AccountErrors.kt	login_taken
 1	json	core/src/main/java/tv/own/owntv/core/account/AccountErrors.kt	network
 1	json	core/src/main/java/tv/own/owntv/core/account/AccountErrors.kt	not_found
+2	empty	core/src/main/java/tv/own/owntv/core/account/AccountFavorites.kt	\0
+1	technical	core/src/main/java/tv/own/owntv/core/account/AccountFavorites.kt	$profileSid|$sourceRid
+1	technical	core/src/main/java/tv/own/owntv/core/account/AccountFavorites.kt	%02x
+1	technical	core/src/main/java/tv/own/owntv/core/account/AccountFavorites.kt	SHA-256
+4	json	core/src/main/java/tv/own/owntv/core/account/AccountFavorites.kt	at
+1	json	core/src/main/java/tv/own/owntv/core/account/AccountFavorites.kt	baseRev
+3	json	core/src/main/java/tv/own/owntv/core/account/AccountFavorites.kt	data
+3	json	core/src/main/java/tv/own/owntv/core/account/AccountFavorites.kt	ep
+2	json	core/src/main/java/tv/own/owntv/core/account/AccountFavorites.kt	fav
+1	json	core/src/main/java/tv/own/owntv/core/account/AccountFavorites.kt	fav_
+1	json	core/src/main/java/tv/own/owntv/core/account/AccountFavorites.kt	favorite
+2	json	core/src/main/java/tv/own/owntv/core/account/AccountFavorites.kt	fp
+2	json	core/src/main/java/tv/own/owntv/core/account/AccountFavorites.kt	id
+3	json	core/src/main/java/tv/own/owntv/core/account/AccountFavorites.kt	items
+2	json	core/src/main/java/tv/own/owntv/core/account/AccountFavorites.kt	k
+3	json	core/src/main/java/tv/own/owntv/core/account/AccountFavorites.kt	kind
+3	json	core/src/main/java/tv/own/owntv/core/account/AccountFavorites.kt	name
+2	json	core/src/main/java/tv/own/owntv/core/account/AccountFavorites.kt	p
+1	json	core/src/main/java/tv/own/owntv/core/account/AccountFavorites.kt	profileId
+3	json	core/src/main/java/tv/own/owntv/core/account/AccountFavorites.kt	rev
+4	json	core/src/main/java/tv/own/owntv/core/account/AccountFavorites.kt	rid
+3	json	core/src/main/java/tv/own/owntv/core/account/AccountFavorites.kt	season
+3	json	core/src/main/java/tv/own/owntv/core/account/AccountFavorites.kt	sname
+1	json	core/src/main/java/tv/own/owntv/core/account/AccountFavorites.kt	source
+2	json	core/src/main/java/tv/own/owntv/core/account/AccountFavorites.kt	src
+3	json	core/src/main/java/tv/own/owntv/core/account/AccountFavorites.kt	srid
+4	json	core/src/main/java/tv/own/owntv/core/account/AccountFavorites.kt	t
+1	technical	core/src/main/java/tv/own/owntv/core/account/AccountFavorites.kt	yai_account_fav_v1
 1	technical	core/src/main/java/tv/own/owntv/core/account/AccountService.kt	${it.id}:${SourceRecords.fingerprint(it)}
+2	technical	core/src/main/java/tv/own/owntv/core/account/AccountService.kt	/v1/sync
+10	json	core/src/main/java/tv/own/owntv/core/account/AccountService.kt	POST
+2	json	core/src/main/java/tv/own/owntv/core/account/AccountService.kt	applied
 1	technical	core/src/main/java/tv/own/owntv/core/account/AccountService.kt	auto sync: ${it.message}
+2	json	core/src/main/java/tv/own/owntv/core/account/AccountService.kt	changes
+3	json	core/src/main/java/tv/own/owntv/core/account/AccountService.kt	data
+3	json	core/src/main/java/tv/own/owntv/core/account/AccountService.kt	deleted
+1	json	core/src/main/java/tv/own/owntv/core/account/AccountService.kt	favorite
+1	technical	core/src/main/java/tv/own/owntv/core/account/AccountService.kt	favorite apply: ${it.message}
+1	technical	core/src/main/java/tv/own/owntv/core/account/AccountService.kt	favorites: ${it.message}
+14	json	core/src/main/java/tv/own/owntv/core/account/AccountService.kt	id
 1	technical	core/src/main/java/tv/own/owntv/core/account/AccountService.kt	|
 3	technical	core/src/main/java/tv/own/owntv/core/backup/BackupContainer.kt	..
 2	technical	core/src/main/java/tv/own/owntv/core/backup/BackupContainer.kt	Corrupt backup header

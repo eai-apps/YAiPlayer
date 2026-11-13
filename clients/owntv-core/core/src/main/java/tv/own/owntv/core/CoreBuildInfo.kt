@@ -82,6 +82,12 @@ object CoreBuildInfo {
      */
     var releaseAssetMarker: String = ""
 
+    /**
+     * The beta build (owner 13.11) updates itself from the fixed prerelease tag "beta" instead of the latest
+     * release; its version is the build number at the end of the release title ("beta-12"). Null = normal app.
+     */
+    var releaseTag: String? = null
+
     /** Whether channel preview (small player) is on until the user chooses; the phone app turns it off so a tap opens full screen. */
     var livePreviewDefault: Boolean = true
 

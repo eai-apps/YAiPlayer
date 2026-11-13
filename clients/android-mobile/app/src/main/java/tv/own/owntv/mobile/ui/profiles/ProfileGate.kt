@@ -105,6 +105,9 @@ fun ProfileGate(
     val accountSession = accountService?.session?.collectAsStateWithLifecycle()?.value
     val accountProfileIds = remember(accountSession, profiles) { accountService?.accountProfileIds() ?: emptySet() }
     LaunchedEffect(accountSession != null) { if (accountSession != null) accountService?.syncQuietly() }
+    val emptyLocalIds by androidx.compose.runtime.produceState(emptySet<Long>(), profiles, accountProfileIds) {
+        value = accountService?.emptyLocalProfileIds(profiles.map { it.id }, vm.guestProfileId.value) ?: emptySet()
+    }
     if (showAccount) {
         AccountScreen(
             profiles = profiles,
@@ -121,8 +124,8 @@ fun ProfileGate(
     val hiddenProfileIds by vm.hiddenProfileIds.collectAsStateWithLifecycle()
     val guestId by vm.guestProfileId.collectAsStateWithLifecycle()
 
-    val visibleProfiles = remember(profiles, hiddenProfileIds, guestId, accountProfileIds) {
-        profiles.filter { it.id == guestId || (it.id !in hiddenProfileIds && it.id !in accountProfileIds) }
+    val visibleProfiles = remember(profiles, hiddenProfileIds, guestId, accountProfileIds, emptyLocalIds) {
+        profiles.filter { it.id == guestId || (it.id !in hiddenProfileIds && it.id !in accountProfileIds && it.id !in emptyLocalIds) }
     }
 
     Column(

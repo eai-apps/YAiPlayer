@@ -102,6 +102,7 @@ class OwnTVMobileApp : Application(), androidx.work.Configuration.Provider {
         // the whole download.
         CoreBuildInfo.releaseRepo = "eai-apps/YAiPlayer"
         CoreBuildInfo.releaseAssetMarker = "YAiPlayer-Mobile"
+        if (BuildConfig.BETA) CoreBuildInfo.releaseTag = "beta"
         CoreBuildInfo.livePreviewDefault = false
         // A phone runs on battery: automatic refreshes pause off screen and the background check waits for a charger.
         CoreBuildInfo.batteryPowered = true

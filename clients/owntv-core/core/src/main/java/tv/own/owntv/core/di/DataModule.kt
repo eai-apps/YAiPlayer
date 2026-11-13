@@ -424,6 +424,7 @@ val dataModule = module {
     single {
         tv.own.owntv.core.account.AccountService(
             api = get(), store = get(), profileDao = get(), sourceDao = get(), sources = get(), profiles = get(), catalog = get(),
+            favorites = tv.own.owntv.core.account.AccountFavorites(androidContext(), get(), get()), favoriteDao = get(),
         )
     }
     single { EpgSyncScheduler(androidContext()) }

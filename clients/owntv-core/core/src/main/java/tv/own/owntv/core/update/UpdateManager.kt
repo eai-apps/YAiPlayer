@@ -105,7 +105,7 @@ class UpdateManager(
         scope.launch {
             runCatching {
                 val request = Request.Builder()
-                    .url("https://api.github.com/repos/${CoreBuildInfo.releaseRepo}/releases/latest")
+                    .url("https://api.github.com/repos/${CoreBuildInfo.releaseRepo}/releases/" + (CoreBuildInfo.releaseTag?.let { "tags/$it" } ?: "latest"))
                     .header("Accept", "application/vnd.github+json")
                     .header("User-Agent", "OwnTV")
                     .build()
@@ -114,7 +114,8 @@ class UpdateManager(
                     val body = resp.body.string()
                     if (body.isBlank()) throw InvalidReleaseResponseException()
                     val o = runCatching { JSONObject(body) }.getOrElse { throw InvalidReleaseResponseException() }
-                    val version = o.optString("tag_name").removePrefix("v").takeIf { it.isNotBlank() }
+                    val version = (if (CoreBuildInfo.releaseTag != null) o.optString("name") else o.optString("tag_name").removePrefix("v"))
+                        .takeIf { it.isNotBlank() }
                         ?: throw InvalidReleaseResponseException()
                     val notes = o.optString("body").take(16_000)
                     val assets = o.optJSONArray("assets") ?: throw InvalidReleaseResponseException()
@@ -323,6 +324,11 @@ class UpdateManager(
 
     /** Numeric segment-wise compare: "1.10.0" > "1.9.3"; non-numeric junk compares as 0. */
     private fun isNewer(remote: String, local: String): Boolean {
+        if (CoreBuildInfo.releaseTag != null) {
+            // beta: "beta-12" vs "beta-11" — the build number decides
+            fun build(s: String) = Regex("(\\d+)$").find(s.trim())?.value?.toIntOrNull() ?: 0
+            return build(remote) > build(local)
+        }
         val r = remote.split('.').map { it.takeWhile(Char::isDigit).toIntOrNull() ?: 0 }
         val l = local.split('.').map { it.takeWhile(Char::isDigit).toIntOrNull() ?: 0 }
         for (i in 0 until maxOf(r.size, l.size)) {

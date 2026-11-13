@@ -37,6 +37,7 @@
 1	performance	app/src/main/java/tv/own/owntv/MainActivity.kt	profiles-loaded
 1	compiler	app/src/main/java/tv/own/owntv/OwnTVApp.kt	DEPRECATION
 1	technical	app/src/main/java/tv/own/owntv/OwnTVApp.kt	YAiPlayer-TV
+1	technical	app/src/main/java/tv/own/owntv/OwnTVApp.kt	beta
 1	technical	app/src/main/java/tv/own/owntv/OwnTVApp.kt	eai-apps/YAiPlayer
 1	file-path	app/src/main/java/tv/own/owntv/OwnTVApp.kt	image_cache
 1	performance	app/src/main/java/tv/own/owntv/OwnTVApp.kt	koin-started
