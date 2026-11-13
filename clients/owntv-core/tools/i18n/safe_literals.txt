@@ -2671,6 +2671,7 @@
 1	log	core/src/main/java/tv/own/owntv/core/live/WatchSession.kt	watch open sourceId=$sourceId watching=${_watching.value}
 1	preference-key	core/src/main/java/tv/own/owntv/core/menu/ContentMenus.kt	add_to_multiview
 1	preference-key	core/src/main/java/tv/own/owntv/core/menu/ContentMenus.kt	catchup
+1	json	core/src/main/java/tv/own/owntv/core/menu/ContentMenus.kt	check_epg
 2	preference-key	core/src/main/java/tv/own/owntv/core/menu/ContentMenus.kt	delete_subtitles
 1	preference-key	core/src/main/java/tv/own/owntv/core/menu/ContentMenus.kt	download
 1	preference-key	core/src/main/java/tv/own/owntv/core/menu/ContentMenus.kt	epg_offset
@@ -5355,6 +5356,9 @@
 1	log	core/src/main/java/tv/own/owntv/core/sync/CatalogPriority.kt	CatalogPriority
 1	log	core/src/main/java/tv/own/owntv/core/sync/CatalogPriority.kt	pagesLeft=${row.lastPage - row.nextPage + 1}
 1	log	core/src/main/java/tv/own/owntv/core/sync/CatalogPriority.kt	priority category sourceId=${row.sourceId} type=${row.mediaType} cat=${row.categoryRemoteId}
+1	log	core/src/main/java/tv/own/owntv/core/sync/ChannelGuideCheck.kt	ChannelGuideCheck
+1	json	core/src/main/java/tv/own/owntv/core/sync/ChannelGuideCheck.kt	channel_check
+1	log	core/src/main/java/tv/own/owntv/core/sync/ChannelGuideCheck.kt	guide check failed for ${channel.id}
 1	technical	core/src/main/java/tv/own/owntv/core/sync/HiddenCategorySync.kt	$sourceId:
 1	log	core/src/main/java/tv/own/owntv/core/sync/ImportFinalizer.kt	ImportFinalizer
 1	log	core/src/main/java/tv/own/owntv/core/sync/ImportFinalizer.kt	Metadata eviction: cache=$cache matches=$matches
@@ -5420,8 +5424,10 @@
 1	preference-key	core/src/main/java/tv/own/owntv/core/sync/PortalCeilingStore.kt	clean_runs_$sourceId
 1	preference-key	core/src/main/java/tv/own/owntv/core/sync/PortalCeilingStore.kt	owntv_portal_ceiling
 1	log	core/src/main/java/tv/own/owntv/core/sync/QuickActionsSync.kt	QuickActionsSync
+1	log	core/src/main/java/tv/own/owntv/core/sync/QuickActionsSync.kt	guide on enter failed
 1	technical	core/src/main/java/tv/own/owntv/core/sync/QuickActionsSync.kt	manual_builtin
 2	technical	core/src/main/java/tv/own/owntv/core/sync/QuickActionsSync.kt	manual_resync
+1	json	core/src/main/java/tv/own/owntv/core/sync/QuickActionsSync.kt	profile_enter
 1	log	core/src/main/java/tv/own/owntv/core/sync/QuickActionsSync.kt	quick sync failed sourceId=${source.id} action=$action
 1	technical	core/src/main/java/tv/own/owntv/core/sync/RefreshQueue.kt	c
 1	technical	core/src/main/java/tv/own/owntv/core/sync/RefreshQueue.kt	g
@@ -6580,12 +6586,13 @@
 1	technical	player-core/src/main/java/tv/own/owntv/player/AudioDynamics.kt	alimiter=limit=$CEILING:level=0
 1	technical	player-core/src/main/java/tv/own/owntv/player/AudioDynamics.kt	dynaudnorm=f=250:g=15:p=0.95:m=${fmt(LEVEL_MAX.toDouble())}:r=${fmt(TARGET_RMS)}
 1	technical	player-core/src/main/java/tv/own/owntv/player/AudioDynamics.kt	lavfi=[${chain.joinToString(",")}]
-1	empty	player-core/src/main/java/tv/own/owntv/player/AudioOutputPolicy.kt	\0
+4	empty	player-core/src/main/java/tv/own/owntv/player/AudioOutputPolicy.kt	\0
 1	technical	player-core/src/main/java/tv/own/owntv/player/AudioOutputPolicy.kt	${f.channelCount}ch
 1	technical	player-core/src/main/java/tv/own/owntv/player/AudioOutputPolicy.kt	${f.sampleRate / 1000}kHz
 1	technical	player-core/src/main/java/tv/own/owntv/player/AudioOutputPolicy.kt	?
 8	log	player-core/src/main/java/tv/own/owntv/player/AudioOutputPolicy.kt	AudioOutputPolicy
 1	compiler	player-core/src/main/java/tv/own/owntv/player/AudioOutputPolicy.kt	DEPRECATION
+1	log	player-core/src/main/java/tv/own/owntv/player/AudioOutputPolicy.kt	OwnTVRenderers
 1	technical	player-core/src/main/java/tv/own/owntv/player/AudioOutputPolicy.kt	audio
 1	log	player-core/src/main/java/tv/own/owntv/player/AudioOutputPolicy.kt	audio decoder released: $decoderName
 1	log	player-core/src/main/java/tv/own/owntv/player/AudioOutputPolicy.kt	audio decoder: $decoderName (init ${initializationDurationMs}ms, passthrough=$passthrough)
@@ -6598,6 +6605,8 @@
 1	technical	player-core/src/main/java/tv/own/owntv/player/AudioOutputPolicy.kt	audio.passthrough
 1	technical	player-core/src/main/java/tv/own/owntv/player/AudioOutputPolicy.kt	audio.raw
 1	technical	player-core/src/main/java/tv/own/owntv/player/AudioOutputPolicy.kt	decoded
+1	log	player-core/src/main/java/tv/own/owntv/player/AudioOutputPolicy.kt	decoder refused adaptive output — next decoders are non-adaptive
+1	technical	player-core/src/main/java/tv/own/owntv/player/AudioOutputPolicy.kt	dynamicanwbuffer
 1	log	player-core/src/main/java/tv/own/owntv/player/AudioOutputPolicy.kt	forcing stereo for this session: $reason
 1	log	player-core/src/main/java/tv/own/owntv/player/AudioOutputPolicy.kt	lang=${format.language} reuse=${decoderReuseEvaluation?.result}
 1	technical	player-core/src/main/java/tv/own/owntv/player/AudioOutputPolicy.kt	no sound from the audio output after ${AudioOutputPolicy.NO_AUDIO_GRACE_MS / 1000}s ($what)
@@ -6839,6 +6848,7 @@
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	decoder exhausted: no MediaCodec instance available
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	decoder failed before first frame ($why) — rebuild ${tune.decoderRebuilds} in ${delayMs}ms
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	decoder failure before first frame — rebuild ${tune.decoderRebuilds} in ${delayMs}ms
+1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	decoder refused adaptive output — retrying non-adaptive
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	device
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	discontinuitySeq=${manifest.mediaPlaylist.discontinuitySequence}
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	distinct segments on this load

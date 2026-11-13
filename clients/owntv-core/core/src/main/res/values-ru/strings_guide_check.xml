@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="guide_check_action">Проверить телепрограмму канала</string>
+    <plurals name="guide_check_found">
+        <item quantity="one">Телепрограмма «%1$s»: впереди %2$d передача (id %3$s)</item>
+        <item quantity="few">Телепрограмма «%1$s»: впереди %2$d передачи (id %3$s)</item>
+        <item quantity="many">Телепрограмма «%1$s»: впереди %2$d передач (id %3$s)</item>
+        <item quantity="other">Телепрограмма «%1$s»: впереди %2$d передач (id %3$s)</item>
+    </plurals>
+    <string name="guide_check_no_id">У «%1$s» нет идентификатора телепрограммы. Выберите её через «Сопоставить EPG».</string>
+    <string name="guide_check_no_playlist_guide">У «%1$s» нет телепрограммы, и плейлист не указывает свою.</string>
+    <string name="guide_check_loading">Для «%1$s» телепрограммы пока нет — загружаю телепрограмму плейлиста…</string>
+    <string name="guide_check_still_loading">Телепрограмма плейлиста ещё загружается — проверьте «%1$s» через несколько минут.</string>
+    <string name="guide_check_none_after">В телепрограмме плейлиста нет «%1$s». Попробуйте «Сопоставить EPG» или дополнительный источник.</string>
+    <string name="guide_check_failed">Не удалось проверить телепрограмму.</string>
+</resources>

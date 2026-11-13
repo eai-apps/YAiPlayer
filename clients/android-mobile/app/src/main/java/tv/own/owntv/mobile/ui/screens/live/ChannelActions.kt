@@ -164,6 +164,9 @@ fun ChannelMenu(
                 add(SheetAction("remove_history", stringResource(R.string.content_remove_history), MobileIcons.History, group = chan) { vm.removeFromHistory(channel.id) })
             }
             add(SheetAction("match_epg", stringResource(R.string.content_match_epg), MobileIcons.Guide, group = guide, value = matchValue) { dialog = ChannelDialog.MATCH_EPG })
+            add(SheetAction("check_epg", stringResource(tv.own.owntv.core.R.string.guide_check_action), MobileIcons.Guide, group = guide) {
+                runCatching { org.koin.core.context.GlobalContext.get().get<tv.own.owntv.core.sync.ChannelGuideCheck>().check(channel) }
+            })
             add(SheetAction("epg_offset", stringResource(R.string.content_epg_time_offset), MobileIcons.Schedule, group = guide, value = offsetValue) { dialog = ChannelDialog.EPG_OFFSET })
             add(SheetAction("refresh_list_epg", stringResource(tv.own.owntv.core.R.string.refresh_list_epg), MobileIcons.Refresh, group = guide) { vm.refreshListEpg() })
             if (canMove) {

@@ -1277,6 +1277,10 @@ private fun ChannelContextMenu(
         add(MenuAction("hide", stringResource(R.string.content_hide_channel), OwnTVIcon.EYE_OFF, group = chan, onClick = onHide))
         if (isHistory) add(MenuAction("remove_history", stringResource(R.string.content_remove_history), OwnTVIcon.HISTORY, group = chan, onClick = onRemoveFromHistory))
         add(MenuAction("match_epg", stringResource(R.string.content_match_epg), OwnTVIcon.EPG, group = guide, onClick = onMatchEpg))
+        add(MenuAction("check_epg", stringResource(R.string.guide_check_action), OwnTVIcon.EPG, group = guide, onClick = {
+            runCatching { org.koin.core.context.GlobalContext.get().get<tv.own.owntv.core.sync.ChannelGuideCheck>().check(channel) }
+            onDismiss()
+        }))
         add(MenuAction("epg_offset", stringResource(R.string.content_epg_time_offset), OwnTVIcon.CLOCK, group = guide, onClick = onEpgOffset))
         add(MenuAction("refresh_list_epg", stringResource(R.string.refresh_list_epg), OwnTVIcon.REFRESH, group = guide, onClick = onRefreshListEpg))
         if (canMove) {

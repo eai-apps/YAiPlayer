@@ -1383,6 +1383,7 @@ class LivePreviewEngine(
         override fun onCues(cueGroup: androidx.media3.common.text.CueGroup) { _cues.value = cueGroup.cues }
 
         override fun onPlayerError(error: PlaybackException) {
+            if (OwnTVRenderersFactory.noteDecoderFailure(error, diagnostics.recentError())) LiveDiagnosticsLog.event("decoder refused adaptive output — retrying non-adaptive")
             android.util.Log.w(LiveDiagnosticsLog.TAG, "ExoPlayer error: ${error.errorCodeName}", error)
             LiveDiagnosticsLog.event("player_error code=${error.errorCodeName} hasPlayed=${tune.hasPlayed}")
             // A decoder or audio-output failure while tunneled is the tunnel's; a network one is not.

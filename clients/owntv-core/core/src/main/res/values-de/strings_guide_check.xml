@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="guide_check_action">EPG für diesen Sender prüfen</string>
+    <plurals name="guide_check_found">
+        <item quantity="one">EPG für „%1$s“: %2$d Sendung voraus (ID %3$s)</item>
+        <item quantity="other">EPG für „%1$s“: %2$d Sendungen voraus (ID %3$s)</item>
+    </plurals>
+    <string name="guide_check_no_id">„%1$s“ hat keine EPG-ID. Wähle sie über „EPG zuordnen“.</string>
+    <string name="guide_check_no_playlist_guide">„%1$s“ hat kein EPG, und die Playlist nennt kein eigenes.</string>
+    <string name="guide_check_loading">Noch kein EPG für „%1$s“ – lade das EPG der Playlist…</string>
+    <string name="guide_check_still_loading">Das EPG der Playlist lädt noch – prüfe „%1$s“ in ein paar Minuten erneut.</string>
+    <string name="guide_check_none_after">Im EPG der Playlist fehlt „%1$s“. Versuche „EPG zuordnen“ oder eine zusätzliche Quelle.</string>
+    <string name="guide_check_failed">EPG konnte nicht geprüft werden.</string>
+</resources>

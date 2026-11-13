@@ -167,6 +167,7 @@
 1	technical	app/src/main/java/tv/own/owntv/features/live/LiveScreen.kt	add_to_multiview
 2	technical	app/src/main/java/tv/own/owntv/features/live/LiveScreen.kt	catchup
 1	technical	app/src/main/java/tv/own/owntv/features/live/LiveScreen.kt	channel
+1	json	app/src/main/java/tv/own/owntv/features/live/LiveScreen.kt	check_epg
 2	technical	app/src/main/java/tv/own/owntv/features/live/LiveScreen.kt	epg_offset
 1	preference-key	app/src/main/java/tv/own/owntv/features/live/LiveScreen.kt	favourite
 1	preference-key	app/src/main/java/tv/own/owntv/features/live/LiveScreen.kt	hide

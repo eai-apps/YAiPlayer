@@ -441,6 +441,7 @@ val dataModule = module {
         )
     }
     single { tv.own.owntv.core.sync.QuickActionsSync(get(), get(), get(), get(), get(), get()) }
+    single { tv.own.owntv.core.sync.ChannelGuideCheck(androidContext(), get(), get(), get(), get(), get(), get(), get()) }
     // settings, sourceDao, channelDao, catalogSyncScheduler, importFinalizer
     single { tv.own.owntv.core.sync.M3uVodResort(get(), get(), get(), get(), get()) }
     // profileDao, sourceDao, sourceRepository, backup, settings, connectivity, importFinalizer,

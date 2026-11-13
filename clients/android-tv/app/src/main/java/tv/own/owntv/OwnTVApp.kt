@@ -164,6 +164,13 @@ class OwnTVApp : Application(), SingletonImageLoader.Factory, androidx.work.Conf
         // Main account (owner 13.11): changes go up and the account comes down by themselves.
         if (tv.own.owntv.core.account.AccountConfig.ENABLED) {
             runCatching { GlobalContext.get().get<tv.own.owntv.core.account.AccountService>().startAuto(appScope) }
+            runCatching {
+                val koin = GlobalContext.get()
+                val sourceDao = koin.get<tv.own.owntv.core.database.dao.SourceDao>()
+                koin.get<tv.own.owntv.core.sync.QuickActionsSync>().startGuideOnEnter(
+                    appScope, koin.get<tv.own.owntv.core.settings.SettingsRepository>().activeProfileId, sourceDao::observeForProfile,
+                )
+            }
         }
         // Background resync for stale profiles: register periodic worker once at start if enabled.
         appScope.launch {

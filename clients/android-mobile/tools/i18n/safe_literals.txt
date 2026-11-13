@@ -773,6 +773,7 @@
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/live/ChannelActions.kt	+
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/live/ChannelActions.kt	add_to_multiview
 1	preference-key	app/src/main/java/tv/own/owntv/mobile/ui/screens/live/ChannelActions.kt	catchup
+1	json	app/src/main/java/tv/own/owntv/mobile/ui/screens/live/ChannelActions.kt	check_epg
 1	preference-key	app/src/main/java/tv/own/owntv/mobile/ui/screens/live/ChannelActions.kt	epg_offset
 1	preference-key	app/src/main/java/tv/own/owntv/mobile/ui/screens/live/ChannelActions.kt	favourite
 1	preference-key	app/src/main/java/tv/own/owntv/mobile/ui/screens/live/ChannelActions.kt	hide

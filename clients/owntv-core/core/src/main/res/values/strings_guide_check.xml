@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="guide_check_action">Check guide for this channel</string>
+    <plurals name="guide_check_found">
+        <item quantity="one">Guide for «%1$s»: %2$d programme ahead (id %3$s)</item>
+        <item quantity="other">Guide for «%1$s»: %2$d programmes ahead (id %3$s)</item>
+    </plurals>
+    <string name="guide_check_no_id">«%1$s» has no guide id. Use «Match EPG» to pick its guide channel.</string>
+    <string name="guide_check_no_playlist_guide">«%1$s» has no guide, and its playlist names no guide of its own.</string>
+    <string name="guide_check_loading">No guide for «%1$s» yet — loading the playlist\'s guide…</string>
+    <string name="guide_check_still_loading">The playlist\'s guide is still loading — check «%1$s» again in a few minutes.</string>
+    <string name="guide_check_none_after">The playlist\'s guide has nothing for «%1$s». Try «Match EPG» or an additional guide source.</string>
+    <string name="guide_check_failed">Could not check the guide.</string>
+</resources>

@@ -2,6 +2,9 @@
 package tv.own.owntv.core.sync
 
 import androidx.work.ExistingWorkPolicy
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import tv.own.owntv.core.database.dao.EpgDao
 import tv.own.owntv.core.database.entity.SourceEntity
@@ -72,6 +75,49 @@ class QuickActionsSync(
         }
     }
 
+    /**
+     * Owner 13.11: entering a profile (or an account) loads the guide the playlist itself names, when it has none
+     * yet or it is older than [GUIDE_STALE_MS]. Only the playlist's own guide: the additional sources stay manual.
+     * Asked once per guide while a profile stays active; a source that arrives later (an account's playlist after
+     * its first load) is picked up when the profile's list changes.
+     */
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class, kotlinx.coroutines.FlowPreview::class)
+    fun startGuideOnEnter(
+        appScope: kotlinx.coroutines.CoroutineScope,
+        activeProfileId: kotlinx.coroutines.flow.Flow<Long>,
+        sourcesFor: (Long) -> kotlinx.coroutines.flow.Flow<List<SourceEntity>>,
+    ) {
+        if (guideOnEnterStarted) return
+        guideOnEnterStarted = true
+        val asked = HashSet<Long>()
+        appScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+            activeProfileId.distinctUntilChanged()
+                .flatMapLatest { id ->
+                    asked.clear()
+                    if (id < 0) kotlinx.coroutines.flow.flowOf(emptyList()) else sourcesFor(id)
+                }
+                .debounce(GUIDE_ON_ENTER_DELAY_MS)
+                .collect { sources ->
+                    runCatching {
+                        val now = System.currentTimeMillis()
+                        // A playlist not loaded yet runs its guide with its first load; it is looked at again once loaded.
+                        sources.filter { it.lastSyncAt != null }.forEach { source ->
+                            val own = selectedGuideSources(source).filter { !it.builtin }
+                            own.forEach { src ->
+                                val fresh = src.lastSyncAt?.let { now - it < GUIDE_STALE_MS } == true
+                                if (!fresh && asked.add(src.id)) {
+                                    val base = epgDao.countForSources(listOf(src.id))
+                                    epgSyncScheduler.enqueueSync(src.id, "profile_enter", base, ExistingWorkPolicy.KEEP)
+                                }
+                            }
+                        }
+                    }.onFailure { android.util.Log.w(TAG, "guide on enter failed", it) }
+                }
+        }
+    }
+
+    @Volatile private var guideOnEnterStarted = false
+
     private suspend fun selectedGuideSources(source: SourceEntity): List<tv.own.owntv.core.epg.EpgSource> {
         val allEpg = epgSourceStore.getAll()
         val urls = epgRepository.guideUrls(source).toSet()
@@ -82,5 +128,8 @@ class QuickActionsSync(
 
     private companion object {
         const val TAG = "QuickActionsSync"
+        const val GUIDE_STALE_MS = 12 * 60 * 60 * 1000L
+        /** After the profile settles (and after a new account playlist's own first load has begun). */
+        const val GUIDE_ON_ENTER_DELAY_MS = 8_000L
     }
 }
