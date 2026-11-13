@@ -5,4 +5,9 @@
     <string name="guide_offer_body">%1$d of %2$d channels have no programme. Load the missing guide from additional source %3$d? It runs in the background; the next source is offered afterwards if channels are still missing.</string>
     <string name="guide_offer_load">Load from source %1$d</string>
     <string name="guide_offer_later">Not now</string>
+    <string name="guide_choice_title">Which TV guide to update</string>
+    <string name="guide_choice_own">From the playlist</string>
+    <string name="guide_choice_provider">From the provider</string>
+    <string name="guide_choice_feed">Additional source %1$d</string>
+    <string name="guide_choice_all">All at once (heavy for weak boxes)</string>
 </resources>

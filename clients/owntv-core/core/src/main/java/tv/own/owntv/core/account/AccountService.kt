@@ -201,6 +201,11 @@ class AccountService(
     /** A sync whose failure (offline, signed out) only goes to the log. */
     suspend fun syncQuietly() {
         if (!signedIn) return
+        // Never compete with playback on a weak box: wait until nothing is being watched (owner 13.11: lag).
+        runCatching {
+            val watch = org.koin.core.context.GlobalContext.get().get<tv.own.owntv.core.live.WatchSession>()
+            if (watch.watching.value.isNotEmpty()) return
+        }
         runCatching { sync() }.onFailure { Log.w(TAG, "auto sync: ${it.message}") }
     }
 
@@ -313,11 +318,13 @@ class AccountService(
         for (i in 0 until server.length()) server.getJSONObject(i).let { if (it.optBoolean("isMain")) mainSid = it.getString("id") }
         val mainLocal = mainSid?.let { profileLinks[it] } ?: return
         val mainSources = sourceDao.observeForProfile(mainLocal).first()
+        // Write only what is missing: every write to the links wakes every channel list in the app (owner 13.11: lag).
+        val existing = sourceDao.allLinks().mapTo(HashSet()) { it.profileId to it.sourceId }
         for (i in 0 until server.length()) {
             val p = server.getJSONObject(i)
             if (!p.optBoolean("shareSources") || p.optBoolean("isMain")) continue
             val lid = profileLinks[p.getString("id")] ?: continue
-            mainSources.forEach { sourceDao.link(ProfileSourceCrossRef(profileId = lid, sourceId = it.id)) }
+            mainSources.filter { (lid to it.id) !in existing }.forEach { sourceDao.link(ProfileSourceCrossRef(profileId = lid, sourceId = it.id)) }
         }
     }
 

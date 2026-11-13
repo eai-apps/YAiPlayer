@@ -5,4 +5,9 @@
     <string name="guide_offer_body">У %1$d из %2$d каналов нет телепрограммы. Загрузить недостающую из дополнительного источника %3$d? Загрузка идёт в фоне; если после неё каналов без программы останется много, предложим следующий источник.</string>
     <string name="guide_offer_load">Загрузить из источника %1$d</string>
     <string name="guide_offer_later">Не сейчас</string>
+    <string name="guide_choice_title">Какую телепрограмму обновить</string>
+    <string name="guide_choice_own">Из плейлиста</string>
+    <string name="guide_choice_provider">От провайдера</string>
+    <string name="guide_choice_feed">Дополнительный источник %1$d</string>
+    <string name="guide_choice_all">Всё сразу (тяжело для слабых приставок)</string>
 </resources>

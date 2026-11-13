@@ -5,4 +5,9 @@
     <string name="guide_offer_body">%1$d von %2$d Sendern haben kein Programm. Das fehlende aus der zusätzlichen Quelle %3$d laden? Es lädt im Hintergrund; fehlt danach noch etwas, wird die nächste Quelle angeboten.</string>
     <string name="guide_offer_load">Aus Quelle %1$d laden</string>
     <string name="guide_offer_later">Nicht jetzt</string>
+    <string name="guide_choice_title">Welches TV-Programm aktualisieren</string>
+    <string name="guide_choice_own">Aus der Playlist</string>
+    <string name="guide_choice_provider">Vom Anbieter</string>
+    <string name="guide_choice_feed">Zusätzliche Quelle %1$d</string>
+    <string name="guide_choice_all">Alles auf einmal (schwer für schwache Boxen)</string>
 </resources>

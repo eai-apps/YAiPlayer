@@ -4,6 +4,7 @@ package tv.own.owntv.extras.portal
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -30,6 +31,41 @@ fun PortalResyncDialog(
     val options = PortalResyncOption.availableFor(source)
     val control: tv.own.owntv.core.sync.RefreshControl = org.koin.compose.koinInject()
     val running by control.running.collectAsStateWithLifecycle(initialValue = null)
+    // «Только телепрограмму» opens a second list: which guide (owner 13.11).
+    var guideMenu by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
+    if (guideMenu) {
+        val gFocus = remember { FocusRequester() }
+        LaunchedEffect(Unit) { kotlinx.coroutines.delay(60); runCatching { gFocus.requestFocus() } }
+        StagePopup(
+            onDismiss = { guideMenu = false },
+            title = stringResource(tv.own.owntv.core.R.string.guide_choice_title),
+            body = source?.name ?: stringResource(R.string.content_all_playlists),
+            buttons = { StageButton(stringResource(R.string.common_cancel), onClick = { guideMenu = false }, height = 56.mpx, textSize = 19) },
+        ) {
+            GuideChoice.entries.forEachIndexed { i, c ->
+                val label = when (c) {
+                    GuideChoice.OWN -> stringResource(c.ownLabel(source))
+                    GuideChoice.FEED_1, GuideChoice.FEED_2, GuideChoice.FEED_3 -> stringResource(c.labelRes, c.feed)
+                    GuideChoice.ALL -> stringResource(c.labelRes)
+                }
+                StagePopupOption(
+                    title = label,
+                    onClick = {
+                        when (c) {
+                            GuideChoice.OWN -> onSelectOption(PortalResyncOption.EPG_ONLY)
+                            GuideChoice.ALL -> { onSelectOption(PortalResyncOption.EPG_ONLY); GuideChoice.runFeeds(source, listOf(1, 2, 3)) }
+                            else -> GuideChoice.runFeeds(source, listOf(c.feed))
+                        }
+                        guideMenu = false
+                        onDismiss()
+                    },
+                    modifier = if (i == 0) Modifier.focusRequester(gFocus) else Modifier,
+                    leading = { StagePopupIcon(OwnTVIcon.EPG) },
+                )
+            }
+        }
+        return
+    }
 
     StagePopup(
         onDismiss = onDismiss,
@@ -60,6 +96,7 @@ fun PortalResyncDialog(
             StagePopupOption(
                 title = stringResource(option.labelRes),
                 onClick = {
+                    if (option == PortalResyncOption.EPG_ONLY) { guideMenu = true; return@StagePopupOption }
                     onSelectOption(option)
                     onDismiss()
                 },
