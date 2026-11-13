@@ -11,4 +11,9 @@
     <string name="guide_check_still_loading">The playlist\'s guide is still loading — check «%1$s» again in a few minutes.</string>
     <string name="guide_check_none_after">The playlist\'s guide has nothing for «%1$s». Try «Match EPG» or an additional guide source.</string>
     <string name="guide_check_failed">Could not check the guide.</string>
+    <plurals name="guide_offer_filled">
+        <item quantity="one">Source %1$d: guide added for %2$d channel</item>
+        <item quantity="other">Source %1$d: guide added for %2$d channels</item>
+    </plurals>
+    <string name="guide_offer_filled_none">Source %1$d has no guide for the missing channels.</string>
 </resources>

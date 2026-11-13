@@ -43,10 +43,19 @@ class GuideOffer(
     fun afterPlaylistGuide() { declined = false; evaluate(after = 0) }
 
     /** Additional source [number] finished: offer the next one if channels are still missing. */
-    fun afterFeed(feedId: Long) {
+    fun afterFeed(feedId: Long, filled: Int = 0) {
         scope.launch {
             val n = store.getAll().filter { it.builtin }.indexOfFirst { it.id == feedId }
-            if (n >= 0) evaluate(after = n + 1)
+            if (n < 0) return@launch
+            // Owner 13.11: the next offer came at once and nothing seemed loaded. Say what this source gave first.
+            runCatching {
+                val context = org.koin.core.context.GlobalContext.get().get<android.content.Context>()
+                val text = if (filled > 0) context.resources.getQuantityString(tv.own.owntv.core.R.plurals.guide_offer_filled, filled, n + 1, filled)
+                else context.getString(tv.own.owntv.core.R.string.guide_offer_filled_none, n + 1)
+                kotlinx.coroutines.withContext(Dispatchers.Main) { android.widget.Toast.makeText(context, text, android.widget.Toast.LENGTH_LONG).show() }
+            }
+            kotlinx.coroutines.delay(NEXT_OFFER_DELAY_MS)
+            evaluate(after = n + 1)
         }
     }
 
@@ -93,6 +102,7 @@ class GuideOffer(
     }
 
     companion object {
+        private const val NEXT_OFFER_DELAY_MS = 4_000L
         fun fromKoin(): GuideOffer = org.koin.core.context.GlobalContext.get().get()
     }
 }

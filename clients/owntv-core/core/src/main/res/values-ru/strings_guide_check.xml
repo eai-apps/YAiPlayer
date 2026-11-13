@@ -13,4 +13,11 @@
     <string name="guide_check_still_loading">Телепрограмма плейлиста ещё загружается — проверьте «%1$s» через несколько минут.</string>
     <string name="guide_check_none_after">В телепрограмме плейлиста нет «%1$s». Попробуйте «Сопоставить EPG» или дополнительный источник.</string>
     <string name="guide_check_failed">Не удалось проверить телепрограмму.</string>
+    <plurals name="guide_offer_filled">
+        <item quantity="one">Источник %1$d: телепрограмма добавлена для %2$d канала</item>
+        <item quantity="few">Источник %1$d: телепрограмма добавлена для %2$d каналов</item>
+        <item quantity="many">Источник %1$d: телепрограмма добавлена для %2$d каналов</item>
+        <item quantity="other">Источник %1$d: телепрограмма добавлена для %2$d каналов</item>
+    </plurals>
+    <string name="guide_offer_filled_none">В источнике %1$d нет телепрограммы для недостающих каналов.</string>
 </resources>

@@ -6586,13 +6586,12 @@
 1	technical	player-core/src/main/java/tv/own/owntv/player/AudioDynamics.kt	alimiter=limit=$CEILING:level=0
 1	technical	player-core/src/main/java/tv/own/owntv/player/AudioDynamics.kt	dynaudnorm=f=250:g=15:p=0.95:m=${fmt(LEVEL_MAX.toDouble())}:r=${fmt(TARGET_RMS)}
 1	technical	player-core/src/main/java/tv/own/owntv/player/AudioDynamics.kt	lavfi=[${chain.joinToString(",")}]
-4	empty	player-core/src/main/java/tv/own/owntv/player/AudioOutputPolicy.kt	\0
+1	empty	player-core/src/main/java/tv/own/owntv/player/AudioOutputPolicy.kt	\0
 1	technical	player-core/src/main/java/tv/own/owntv/player/AudioOutputPolicy.kt	${f.channelCount}ch
 1	technical	player-core/src/main/java/tv/own/owntv/player/AudioOutputPolicy.kt	${f.sampleRate / 1000}kHz
 1	technical	player-core/src/main/java/tv/own/owntv/player/AudioOutputPolicy.kt	?
 8	log	player-core/src/main/java/tv/own/owntv/player/AudioOutputPolicy.kt	AudioOutputPolicy
 1	compiler	player-core/src/main/java/tv/own/owntv/player/AudioOutputPolicy.kt	DEPRECATION
-1	log	player-core/src/main/java/tv/own/owntv/player/AudioOutputPolicy.kt	OwnTVRenderers
 1	technical	player-core/src/main/java/tv/own/owntv/player/AudioOutputPolicy.kt	audio
 1	log	player-core/src/main/java/tv/own/owntv/player/AudioOutputPolicy.kt	audio decoder released: $decoderName
 1	log	player-core/src/main/java/tv/own/owntv/player/AudioOutputPolicy.kt	audio decoder: $decoderName (init ${initializationDurationMs}ms, passthrough=$passthrough)
@@ -6605,8 +6604,6 @@
 1	technical	player-core/src/main/java/tv/own/owntv/player/AudioOutputPolicy.kt	audio.passthrough
 1	technical	player-core/src/main/java/tv/own/owntv/player/AudioOutputPolicy.kt	audio.raw
 1	technical	player-core/src/main/java/tv/own/owntv/player/AudioOutputPolicy.kt	decoded
-1	log	player-core/src/main/java/tv/own/owntv/player/AudioOutputPolicy.kt	decoder refused adaptive output — next decoders are non-adaptive
-1	technical	player-core/src/main/java/tv/own/owntv/player/AudioOutputPolicy.kt	dynamicanwbuffer
 1	log	player-core/src/main/java/tv/own/owntv/player/AudioOutputPolicy.kt	forcing stereo for this session: $reason
 1	log	player-core/src/main/java/tv/own/owntv/player/AudioOutputPolicy.kt	lang=${format.language} reuse=${decoderReuseEvaluation?.result}
 1	technical	player-core/src/main/java/tv/own/owntv/player/AudioOutputPolicy.kt	no sound from the audio output after ${AudioOutputPolicy.NO_AUDIO_GRACE_MS / 1000}s ($what)
@@ -6762,6 +6759,7 @@
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	$name=${v.second}
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	${Math.round(it)} FPS
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	${buffered}ms buffered (needs ${startMs}ms) after ${waitedMs}ms, no frame,
+1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	${c.javaClass.simpleName}: ${c.message}
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	${error.errorCodeName} again after playing — this stream's content is unplayable on ExoPlayer
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	${error.errorCodeName} while a reconnect waits — running it now
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	${f.width}x${f.height}
@@ -6783,6 +6781,7 @@
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	7.1
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	: $it
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	://
+1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	<-
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	AV1
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	Age
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	Authorization
@@ -6840,6 +6839,7 @@
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	buffered but never started playing ($detail)
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	buffering stalled
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	building tunneled player (N19)
+1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	codec[code=${c.errorCode} transient=${c.isTransient} recoverable=${c.isRecoverable} diag=${c.diagnosticInfo}] ${c.message}
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	connection pool evict failed: ${it.javaClass.simpleName}
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	critical memory pressure — next tune rebuilds with the low-RAM buffer
 1	protocol	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	dash
@@ -6848,7 +6848,7 @@
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	decoder exhausted: no MediaCodec instance available
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	decoder failed before first frame ($why) — rebuild ${tune.decoderRebuilds} in ${delayMs}ms
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	decoder failure before first frame — rebuild ${tune.decoderRebuilds} in ${delayMs}ms
-1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	decoder refused adaptive output — retrying non-adaptive
+1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	decoder failure cause: ${decoderCause(error)}
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	device
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	discontinuitySeq=${manifest.mediaPlaylist.discontinuitySequence}
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	distinct segments on this load
@@ -6878,6 +6878,7 @@
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	http_response role=${HttpDiagnostics.requestRole(requested)} code=${response.code}
 1	url	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	https://
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	idle mid-live
+1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	init[${c.codecInfo?.name} mime=${c.mimeType} secure=${c.secureDecoderRequired} diag=${c.diagnosticInfo}] ${c.message}
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	isLiveContent=$isLiveContent buffering=${_buffering.value} reconnect=${tune.retryCount}/$MAX_RECONNECTS
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	kind unknown
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	knownHlsHost=$knownHlsHost knownDashHost=$knownDashHost

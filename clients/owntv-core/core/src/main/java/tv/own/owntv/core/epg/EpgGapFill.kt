@@ -61,7 +61,9 @@ class EpgGapFill(
                 .filter { src ->
                     when (src.type) {
                         SourceType.STALKER -> src.id in portalExtra
-                        else -> ownGuideMissing(src)
+                        // Asked for by name («Load from source N», owner 13.11): fill whatever channels still
+                        // lack a programme, even beside a working playlist guide — the offer counted exactly those.
+                        else -> onlyFeed != null || ownGuideMissing(src)
                     }
                 }
             if (playlists.isEmpty()) return@withContext 0

@@ -307,7 +307,6 @@ class ExoSubtitleEngine(
         }
 
         override fun onPlayerError(error: PlaybackException) {
-            OwnTVRenderersFactory.noteDecoderFailure(error)
             android.util.Log.w(TAG, "ExoPlayer error: ${error.errorCodeName}", error)
             // A decode-class failure gets this engine's software rung before playback leaves it. The
             // old behaviour handed EVERY Exo error straight to mpv, so a file the software decoder

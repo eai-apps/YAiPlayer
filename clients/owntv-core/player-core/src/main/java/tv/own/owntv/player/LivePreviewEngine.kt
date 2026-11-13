@@ -553,6 +553,18 @@ class LivePreviewEngine(
         "hevc" -> "HEVC"; "avc" -> "H.264"; "av01" -> "AV1"; "x-vnd.on2.vp9", "vp9" -> "VP9"
         "mp4v-es" -> "MPEG-4"; "mpeg2" -> "MPEG-2"; else -> m.uppercase()
     }
+    /** Every cause of [error] with the decoder's own words: name, format, CodecException code and diagnostics. */
+    private fun decoderCause(error: Throwable): String =
+        generateSequence(error.cause) { it.cause }.take(MAX_CAUSE_DEPTH).joinToString(" <- ") { c ->
+            when (c) {
+                is androidx.media3.exoplayer.mediacodec.MediaCodecRenderer.DecoderInitializationException ->
+                    "init[${c.codecInfo?.name} mime=${c.mimeType} secure=${c.secureDecoderRequired} diag=${c.diagnosticInfo}] ${c.message}"
+                is android.media.MediaCodec.CodecException ->
+                    "codec[code=${c.errorCode} transient=${c.isTransient} recoverable=${c.isRecoverable} diag=${c.diagnosticInfo}] ${c.message}"
+                else -> "${c.javaClass.simpleName}: ${c.message}"
+            }
+        }.take(MAX_CAUSE_TEXT)
+
     private fun codecDetail(kind: String, e: Exception): String {
         (e as? android.media.MediaCodec.CodecException)?.let { return "$kind codec: ${it.diagnosticInfo}" }
         return "$kind codec: ${e.message ?: e.javaClass.simpleName}"
@@ -1392,9 +1404,11 @@ class LivePreviewEngine(
         override fun onCues(cueGroup: androidx.media3.common.text.CueGroup) { _cues.value = cueGroup.cues }
 
         override fun onPlayerError(error: PlaybackException) {
-            if (OwnTVRenderersFactory.noteDecoderFailure(error, diagnostics.recentError())) LiveDiagnosticsLog.event("decoder refused adaptive output — retrying non-adaptive")
             android.util.Log.w(LiveDiagnosticsLog.TAG, "ExoPlayer error: ${error.errorCodeName}", error)
             LiveDiagnosticsLog.event("player_error code=${error.errorCodeName} hasPlayed=${tune.hasPlayed}")
+            // Owner 13.11, Amlogic: the line shown was ACodec's «setPortMode … DynamicANWBuffer failed», which
+            // Android logs and then ignores — the real reason was never written. Write the cause chain itself.
+            if (error.errorCode in DECODER_CAUSE_CODES) LiveDiagnosticsLog.event("decoder failure cause: ${decoderCause(error)}")
             // A decoder or audio-output failure while tunneled is the tunnel's; a network one is not.
             if (tunneledNow && error.errorCode in TUNNEL_FAILURE_CODES) { tunnelingFailed(error.errorCodeName); return }
             // mid-stream drop → reconnect, unless a reconnect from the SAME failed prepare is already
@@ -3898,6 +3912,14 @@ class LivePreviewEngine(
         private const val FLAP_WINDOW_MS = 6_000L
         private const val FLAP_LIMIT = 12
         private const val MAX_FLAP_REOPENS = 3
+        private const val MAX_CAUSE_TEXT = 1500
+        private val DECODER_CAUSE_CODES = setOf(
+            PlaybackException.ERROR_CODE_DECODER_INIT_FAILED,
+            PlaybackException.ERROR_CODE_DECODER_QUERY_FAILED,
+            PlaybackException.ERROR_CODE_DECODING_FAILED,
+            PlaybackException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED,
+            PlaybackException.ERROR_CODE_DECODING_FORMAT_EXCEEDS_CAPABILITIES,
+        )
         private const val FLAP_MIN_PROGRESS_MS = 3_000L // real playback inside the window == choppy, not flapping
         // "Buffered but not playing" (see [openWatchdog] branch 1). Four consecutive polls == four seconds
         // of a satisfied load control with no frame, which no healthy channel produces: once enough is

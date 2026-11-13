@@ -81,11 +81,11 @@ class EpgSyncWorker(
                     return Result.success()
                 }
                 val koin = org.koin.core.context.GlobalContext.get()
-                tv.own.owntv.core.epg.EpgGapFill(koin.get(), store, epgRepository, koin.get())
+                val filled = tv.own.owntv.core.epg.EpgGapFill(koin.get(), store, epgRepository, koin.get())
                     .run(onlyFeed = source.id.takeIf { reason == "manual_feed" })
                 if (reason == "manual_feed") {
                     store.setSynced(source.id, System.currentTimeMillis(), null)
-                    runCatching { tv.own.owntv.core.epg.GuideOffer.fromKoin().afterFeed(source.id) }
+                    runCatching { tv.own.owntv.core.epg.GuideOffer.fromKoin().afterFeed(source.id, filled) }
                 }
                 return Result.success()
             }

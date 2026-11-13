@@ -1,8 +1,6 @@
 package tv.own.owntv.player
 
 import android.content.Context
-import android.media.MediaFormat
-import android.os.Build
 import android.os.Handler
 import androidx.media3.common.Format
 import androidx.media3.common.MimeTypes
@@ -131,10 +129,11 @@ class OwnTVRenderersFactory(
             context, extensionRendererMode, mediaCodecSelector, enableDecoderFallback,
             eventHandler, eventListener, allowedVideoJoiningTimeMs, out,
         )
+        if (!onSurfaceOnly) return
         val i = out.indexOfFirst { it is MediaCodecVideoRenderer }
         if (i < 0) return
         // Built as DefaultRenderersFactory builds its own; the options it adds are ones this factory never sets.
-        out[i] = OwnVideoRenderer(
+        out[i] = OnSurfaceVideoRenderer(
             MediaCodecVideoRenderer.Builder(context)
                 .setCodecAdapterFactory(codecAdapterFactory)
                 .setMediaCodecSelector(mediaCodecSelector)
@@ -143,64 +142,18 @@ class OwnTVRenderersFactory(
                 .setEventHandler(eventHandler)
                 .setEventListener(eventListener)
                 .setMaxDroppedFramesToNotify(MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY),
-            onSurfaceOnly,
         )
     }
 
-    private class OwnVideoRenderer(builder: MediaCodecVideoRenderer.Builder, private val onSurfaceOnly: Boolean) : MediaCodecVideoRenderer(builder) {
-        private val waitForScreen: Boolean get() = onSurfaceOnly || nonAdaptive
-
+    private class OnSurfaceVideoRenderer(builder: MediaCodecVideoRenderer.Builder) : MediaCodecVideoRenderer(builder) {
         // Only a codec still to be started is refused the stand-in: a running one keeps being moved, because
         // releasing it instead costs a black screen until the next keyframe (up to 2 s measured on the TCL).
         override fun shouldUsePlaceholderSurface(codecInfo: MediaCodecInfo): Boolean =
-            if (waitForScreen) codec != null && super.shouldUsePlaceholderSurface(codecInfo) else super.shouldUsePlaceholderSurface(codecInfo)
+            codec != null && super.shouldUsePlaceholderSurface(codecInfo)
 
         // Android 15's surface-less mode is the same start, moved later.
         override fun shouldUseDetachedSurface(codecInfo: MediaCodecInfo): Boolean =
-            if (waitForScreen) codec != null && super.shouldUseDetachedSurface(codecInfo) else super.shouldUseDetachedSurface(codecInfo)
-
-        /**
-         * Amlogic boxes (owner 13.11, VS KM6: «Amedia Premium HD», «viju+ Megahit HD») fail to configure the
-         * decoder with "setPortMode on output to DynamicANWBuffer failed" — the step Android takes for adaptive
-         * playback, which max-width/max-height ask for — on the hardware and the software decoder alike, while
-         * other players play those channels. After that failure [nonAdaptive] is on: the next decoder is asked
-         * for no adaptive playback and waits for the real screen. An experiment, not a confirmed cause.
-         */
-        override fun getMediaFormat(
-            format: Format,
-            codecMimeType: String,
-            codecMaxValues: CodecMaxValues,
-            codecOperatingRate: Float,
-            deviceNeedsNoPostProcessWorkaround: Boolean,
-            tunnelingAudioSessionId: Int,
-        ): MediaFormat {
-            val mediaFormat = super.getMediaFormat(
-                format, codecMimeType, codecMaxValues, codecOperatingRate, deviceNeedsNoPostProcessWorkaround, tunnelingAudioSessionId,
-            )
-            if (nonAdaptive && Build.VERSION.SDK_INT >= 29) {
-                mediaFormat.removeKey(MediaFormat.KEY_MAX_WIDTH)
-                mediaFormat.removeKey(MediaFormat.KEY_MAX_HEIGHT)
-            }
-            return mediaFormat
-        }
-    }
-
-    companion object {
-        /** See [OwnVideoRenderer.getMediaFormat]: set for the rest of the session after the Amlogic failure. */
-        @Volatile @JvmStatic var nonAdaptive: Boolean = false
-
-        /** Switches [nonAdaptive] on when [error] (or the decoder's own log line, [logText]) is the Amlogic refusal; true the first time it does. */
-        @JvmStatic
-        fun noteDecoderFailure(error: Throwable?, logText: String? = null): Boolean {
-            if (nonAdaptive) return false
-            val text = generateSequence(error) { it.cause }.take(8)
-                .mapNotNull { (it as? android.media.MediaCodec.CodecException)?.diagnosticInfo?.plus(" " + it.message) ?: it.message }
-                .joinToString(" ").plus(" " + logText.orEmpty()).lowercase()
-            if ("dynamicanwbuffer" !in text) return false
-            nonAdaptive = true
-            android.util.Log.w("OwnTVRenderers", "decoder refused adaptive output — next decoders are non-adaptive")
-            return true
-        }
+            codec != null && super.shouldUseDetachedSurface(codecInfo)
     }
 
     override fun buildAudioSink(

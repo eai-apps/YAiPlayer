@@ -11,4 +11,9 @@
     <string name="guide_check_still_loading">Das EPG der Playlist lädt noch – prüfe „%1$s“ in ein paar Minuten erneut.</string>
     <string name="guide_check_none_after">Im EPG der Playlist fehlt „%1$s“. Versuche „EPG zuordnen“ oder eine zusätzliche Quelle.</string>
     <string name="guide_check_failed">EPG konnte nicht geprüft werden.</string>
+    <plurals name="guide_offer_filled">
+        <item quantity="one">Quelle %1$d: EPG für %2$d Sender ergänzt</item>
+        <item quantity="other">Quelle %1$d: EPG für %2$d Sender ergänzt</item>
+    </plurals>
+    <string name="guide_offer_filled_none">Quelle %1$d hat kein EPG für die fehlenden Sender.</string>
 </resources>
