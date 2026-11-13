@@ -31,6 +31,12 @@ plugins {
 
 /** -Powntv.playStore=true: the Google Play build (no radio, no self-update). Default: the normal APK. */
 val playStore = (findProperty("owntv.playStore") as String?)?.toBoolean() == true
+/**
+ * -Powntv.beta=true: the BETA build for checking a branch on a device before it goes to main (owner 13.11):
+ * its own package (".beta") and name «YAiPlayer Beta», so it installs NEXT TO the normal app by a permanent link
+ * (GitHub release "beta", workflow beta.yml); signed with the same key; no self-update to the normal release.
+ */
+val beta = (findProperty("owntv.beta") as String?)?.toBoolean() == true
 
 android {
     namespace = "tv.own.owntv"
@@ -47,7 +53,9 @@ android {
     }
 
     defaultConfig {
-        buildConfigField("boolean", "SELF_UPDATE", (!playStore).toString())
+        buildConfigField("boolean", "SELF_UPDATE", (!playStore && !beta).toString())
+        buildConfigField("boolean", "BETA", beta.toString())
+        manifestPlaceholders["appLabel"] = if (beta) "YAiPlayer Beta" else "@string/app_name"
         buildConfigField("boolean", "RADIO", (!playStore).toString())
         // The radio's background service (RadioPlaybackService) exists only in the build with the radio.
         // TV: the radio never plays in the background (owner 12.11), so its background service stays off.
@@ -55,6 +63,7 @@ android {
         manifestPlaceholders["installPermission"] =
             if (playStore) "android.permission.INTERNET" else "android.permission.REQUEST_INSTALL_PACKAGES"
         applicationId = "com.yai.iptv.player.tv"
+        if (beta) applicationIdSuffix = ".beta"
         minSdk = 26
         targetSdk = 36
         // CI injects these from the git tag (see .github/workflows/android.yml) so releases never

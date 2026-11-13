@@ -142,4 +142,5 @@
     <string name="atv_screen_installing">Lade die neueste Version und installiere sie auf der TV-Box…</string>
     <string name="atv_screen_installed">Installiert. Starten Sie YAiPlayer auf der TV-Box.</string>
     <string name="atv_screen_install_failed">Installation fehlgeschlagen: %1$s</string>
+    <string name="atv_screen_install_beta">Beta auf dem TV installieren</string>
 </resources>

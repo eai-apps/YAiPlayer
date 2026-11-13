@@ -89,7 +89,7 @@ import tv.own.owntv.mobile.ui.stage.stageAccent
 import tv.own.owntv.mobile.ui.stage.stageText
 
 /** Package of the YAiPlayer TV app, launched from the remote's app row. */
-private const val YAIPLAYER_TV_PACKAGE = "com.yai.iptv.player.tv"
+private val YAIPLAYER_TV_PACKAGE = if (tv.own.owntv.mobile.BuildConfig.BETA) "com.yai.iptv.player.tv.beta" else "com.yai.iptv.player.tv"
 
 /**
  * App shortcuts on the remote: our own round letter badges (no foreign logos), launched by link or package name.

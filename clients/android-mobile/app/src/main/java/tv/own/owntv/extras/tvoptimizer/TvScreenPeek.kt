@@ -138,14 +138,19 @@ class TvScreenPeekViewModel(app: Application) : AndroidViewModel(app) {
      * Downloads the newest TV APK (the release's permanent link) and installs it over the app on the TV box through
      * the debugging connection: the way to update a TV app that crashes on start and cannot update itself.
      */
-    fun installLatestOnTv() {
+    fun installLatestOnTv() = installOnTv(TV_APK_URL)
+
+    /** The beta TV build (installs next to the normal app), only offered in the phone's beta build. */
+    fun installBetaOnTv() = installOnTv(BETA_TV_APK_URL)
+
+    private fun installOnTv(apkUrl: String) {
         if (!_state.value.connected || _state.value.installing) return
         _state.update { it.copy(installing = true, installResult = null) }
         viewModelScope.launch {
             val result = runCatching {
                 val file = java.io.File(getApplication<Application>().cacheDir, "YAiPlayer-TV.apk")
                 withContext(Dispatchers.IO) {
-                    var url = java.net.URL(TV_APK_URL)
+                    var url = java.net.URL(apkUrl)
                     var conn: java.net.HttpURLConnection
                     var hops = 0
                     while (true) {
@@ -193,6 +198,7 @@ class TvScreenPeekViewModel(app: Application) : AndroidViewModel(app) {
     companion object {
         const val LIVE_INTERVAL_MS = 2_000L
         const val TV_APK_URL = "https://github.com/eai-apps/YAiPlayer/releases/latest/download/YAiPlayer-TV.apk"
+        const val BETA_TV_APK_URL = "https://github.com/eai-apps/YAiPlayer/releases/download/beta/YAiPlayer-TV-beta.apk"
         /** A PNG of the screen as base64 on stdout; `toybox base64` is on Android 6+. */
         const val SCREENCAP = "screencap -p | base64"
     }

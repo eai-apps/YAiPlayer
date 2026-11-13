@@ -1,0 +1,119 @@
+name: Beta (installable by link, next to the normal app)
+
+# Owner 13.11: a branch is checked on a device BEFORE it goes to main, by a permanent public link —
+# no archives, no debug keys. The beta has its own package (.beta) and name «YAiPlayer Beta», installs next to
+# the normal app and is signed with the same key. Links (always the latest beta):
+#   https://github.com/eai-apps/YAiPlayer/releases/download/beta/YAiPlayer-Mobile-beta.apk
+#   https://github.com/eai-apps/YAiPlayer/releases/download/beta/YAiPlayer-TV-beta.apk
+# The phone beta also has «Поставить бету на ТВ» in the remote's TV screen (over Wi-Fi debugging).
+# Nothing is posted to Telegram. A prerelease never becomes «latest», so the normal app never updates to it.
+
+on:
+  push:
+    branches: ['test/**']
+    paths:
+      - 'clients/android-tv/**'
+      - 'clients/android-mobile/**'
+      - 'clients/owntv-core/**'
+      - '.github/workflows/beta.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: beta
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - app: android-tv
+            name: TV
+          - app: android-mobile
+            name: Mobile
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+      - uses: actions/setup-java@v4
+        id: jdk17
+        if: matrix.app == 'android-mobile'
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Accept SDK licenses
+        run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
+      - name: Restore signing key
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > "$RUNNER_TEMP/yaiplayer-release.jks"
+          test -s "$RUNNER_TEMP/yaiplayer-release.jks"
+      - name: TV launcher for «Ускорь телевизор»
+        if: matrix.app == 'android-mobile'
+        working-directory: clients/tv-launcher
+        env:
+          JAVA_HOME: ${{ steps.jdk17.outputs.path }}
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:assembleRelease --no-daemon --stacktrace
+          mkdir -p ../android-mobile/app/src/main/assets/tvoptimizer
+          cp app/build/outputs/apk/release/app-release.apk ../android-mobile/app/src/main/assets/tvoptimizer/launcher.apk
+      - name: Build signed beta
+        working-directory: clients/${{ matrix.app }}
+        env:
+          VERSION_CODE: ${{ github.run_number }}
+          VERSION_NAME: beta-${{ github.run_number }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          export KEYSTORE_FILE="$RUNNER_TEMP/yaiplayer-release.jks"
+          chmod +x gradlew
+          ./gradlew :app:assembleStandardRelease -Powntv.beta=true -Powntv.corePath=${GITHUB_WORKSPACE}/clients/owntv-core --no-daemon --stacktrace
+      - name: Collect APK
+        run: |
+          mkdir -p out
+          apk=$(ls clients/${{ matrix.app }}/app/build/outputs/apk/standard/release/*.apk | head -n1)
+          cp "$apk" out/YAiPlayer-${{ matrix.name }}-beta.apk
+          bt=$(ls -d $ANDROID_HOME/build-tools/* | sort -V | tail -n1)
+          "$bt/aapt2" dump badging out/YAiPlayer-${{ matrix.name }}-beta.apk | grep -E "^package|application-label:" | head -3
+          "$bt/apksigner" verify --print-certs out/YAiPlayer-${{ matrix.name }}-beta.apk | head -3
+      - uses: actions/upload-artifact@v4
+        with:
+          name: beta-${{ matrix.name }}
+          path: out/*.apk
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Publish to the «beta» prerelease (permanent links)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          ls -l dist
+          notes="Бета для проверки на устройстве: ветка ${{ github.ref_name }}, сборка ${{ github.run_number }}, коммит ${GITHUB_SHA::7}, $(date -u '+%d.%m.%Y %H:%M') UTC.
+          Ставится РЯДОМ с обычным приложением (своё имя «YAiPlayer Beta»).
+          Телефон: https://github.com/$REPO/releases/download/beta/YAiPlayer-Mobile-beta.apk
+          ТВ: https://github.com/$REPO/releases/download/beta/YAiPlayer-TV-beta.apk"
+          if ! gh release view beta --repo "$REPO" >/dev/null 2>&1; then
+            gh release create beta --repo "$REPO" --prerelease --target "$GITHUB_SHA" --title "Бета для проверки" --notes "$notes" dist/*.apk
+          else
+            gh release upload beta --repo "$REPO" --clobber dist/*.apk
+            gh release edit beta --repo "$REPO" --prerelease --notes "$notes"
+          fi

@@ -142,4 +142,5 @@
     <string name="atv_screen_installing">Скачиваю свежую версию и устанавливаю на приставку…</string>
     <string name="atv_screen_installed">Установлено. Запустите YAiPlayer на приставке.</string>
     <string name="atv_screen_install_failed">Не получилось установить: %1$s</string>
+    <string name="atv_screen_install_beta">Поставить бету на ТВ</string>
 </resources>

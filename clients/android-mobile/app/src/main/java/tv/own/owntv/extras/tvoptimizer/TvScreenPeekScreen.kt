@@ -84,6 +84,11 @@ fun TvScreenPeekScreen(host: String?, onBack: () -> Unit, vm: TvScreenPeekViewMo
                 StageButton(onClick = vm::installLatestOnTv, text = stringResource(R.string.atv_screen_install), icon = MobileIcons.Download,
                     small = true, enabled = !s.installing)
             }
+            // Beta build only (owner 13.11): put the beta TV build on the box over Wi-Fi, next to the normal app.
+            if (tv.own.owntv.mobile.BuildConfig.BETA) {
+                StageButton(onClick = vm::installBetaOnTv, text = stringResource(R.string.atv_screen_install_beta), icon = MobileIcons.Download,
+                    small = true, enabled = !s.installing)
+            }
             if (s.installing) {
                 LinearProgressIndicator(Modifier.fillMaxWidth())
                 Text(stringResource(R.string.atv_screen_installing), style = stageText(12.5f, 600), color = palette.text)

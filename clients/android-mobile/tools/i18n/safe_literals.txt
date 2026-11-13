@@ -46,6 +46,7 @@
 1	protocol	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	com.apple.atve.androidtv.appletv
 1	protocol	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	com.wbd.stream
 1	protocol	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	com.yai.iptv.player.tv
+1	technical	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	com.yai.iptv.player.tv.beta
 1	url	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	https://app.primevideo.com
 1	url	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	https://www.disneyplus.com
 1	url	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	https://www.netflix.com/title
@@ -508,6 +509,7 @@
 1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvScreenPeek.kt	Location
 1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvScreenPeek.kt	YAiPlayer-TV.apk
 1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvScreenPeek.kt	file too small
+1	technical	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvScreenPeek.kt	https://github.com/eai-apps/YAiPlayer/releases/download/beta/YAiPlayer-TV-beta.apk
 1	url	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvScreenPeek.kt	https://github.com/eai-apps/YAiPlayer/releases/latest/download/YAiPlayer-TV.apk
 1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvScreenPeek.kt	logcat -d -b crash -t 400
 1	log	app/src/main/java/tv/own/owntv/extras/tvoptimizer/TvScreenPeek.kt	logcat -d -t 800 AndroidRuntime:E ActivityManager:W *:S
