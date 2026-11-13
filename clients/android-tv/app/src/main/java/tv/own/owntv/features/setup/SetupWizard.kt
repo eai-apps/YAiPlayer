@@ -84,6 +84,7 @@ fun Onboarding(firstRun: Boolean, onDone: (Long?) -> Unit, onCancel: () -> Unit,
     val defaultIptvName = stringResource(R.string.setup_default_iptv)
     val defaultPlaylistName = stringResource(R.string.setup_name_default_playlist)
     val defaultPortalName = stringResource(R.string.setup_default_portal)
+    val guestNameForAccount = stringResource(R.string.profiles_guest_name)
     var step by rememberSaveable(firstRun) { mutableStateOf(if (firstRun) Step.WELCOME else Step.CREATE_PROFILE) }
     val importState by vm.state.collectAsStateWithLifecycle()
     val progress by vm.progress.collectAsStateWithLifecycle()
@@ -117,7 +118,13 @@ fun Onboarding(firstRun: Boolean, onDone: (Long?) -> Unit, onCancel: () -> Unit,
                 title = stringResource(R.string.setup_before_you_start),
                 sub = stringResource(R.string.setup_disclaimer),
                 back = WizardAction(stringResource(R.string.common_back), { step = Step.DISPLAY_SIZE }),
-                next = WizardAction(stringResource(R.string.setup_i_understand), { step = Step.SETUP_CHOICE }, rememberFirstFocus()),
+                next = WizardAction(stringResource(R.string.setup_i_understand), {
+                    // With the account on (owner 13.11): after language and the notice comes the chooser —
+                    // «Войти в аккаунт», «Гость», «Радио» — not the setup cards. The guest profile is made
+                    // quietly so the app has a profile to stand on; nothing is entered until the person picks.
+                    if (tv.own.owntv.core.account.AccountConfig.ENABLED) vm.startGuest(guestNameForAccount) { onDone(null) }
+                    else step = Step.SETUP_CHOICE
+                }, rememberFirstFocus()),
             )
             // First decision: start fresh or bring everything back from a backup (profiles included —
             // no point creating a profile first that the restore would replace).

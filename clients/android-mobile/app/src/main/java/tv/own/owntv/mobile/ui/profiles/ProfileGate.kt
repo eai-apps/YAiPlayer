@@ -37,6 +37,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -103,6 +104,7 @@ fun ProfileGate(
         if (tv.own.owntv.core.account.AccountConfig.ENABLED) org.koin.compose.koinInject() else null
     val accountSession = accountService?.session?.collectAsStateWithLifecycle()?.value
     val accountProfileIds = remember(accountSession, profiles) { accountService?.accountProfileIds() ?: emptySet() }
+    LaunchedEffect(accountSession != null) { if (accountSession != null) accountService?.syncQuietly() }
     if (showAccount) {
         AccountScreen(
             profiles = profiles,
@@ -155,7 +157,7 @@ fun ProfileGate(
         )
         // The guest ("no registration, no profile") is a tile of its own until its profile exists.
         val guestMissing = visibleProfiles.none { it.id == guestId }
-        val tiles: List<Any> = (if (accountService != null) listOf("account") else emptyList()) + visibleProfiles + "add" + (if (guestMissing) listOf("guest") else emptyList()) + (if (TV_OPTIMIZER_READY) listOf("tv_optimizer") else emptyList()) +
+        val tiles: List<Any> = (if (accountService != null) listOf("account") else emptyList()) + visibleProfiles + (if (accountService == null) listOf("add") else emptyList()) + (if (guestMissing) listOf("guest") else emptyList()) + (if (TV_OPTIMIZER_READY) listOf("tv_optimizer") else emptyList()) +
             (if (tv.own.owntv.extras.radio.RadioFeature.AVAILABLE) listOf("radio") else emptyList()) + listOf("remote")
         tiles.chunked(2).forEach { pair ->
             Row(Modifier.fillMaxWidth().padding(bottom = 26.dp), horizontalArrangement = Arrangement.spacedBy(20.dp)) {

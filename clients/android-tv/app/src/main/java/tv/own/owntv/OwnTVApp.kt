@@ -160,6 +160,10 @@ class OwnTVApp : Application(), SingletonImageLoader.Factory, androidx.work.Conf
             kotlinx.coroutines.delay(SPORTS_START_DELAY_MS)
             runCatching { GlobalContext.get().get<tv.own.owntv.core.sports.SportsRepository>().appStarted() }
         }
+        // Main account (owner 13.11): changes go up and the account comes down by themselves.
+        if (tv.own.owntv.core.account.AccountConfig.ENABLED) {
+            runCatching { GlobalContext.get().get<tv.own.owntv.core.account.AccountService>().startAuto(appScope) }
+        }
         // Background resync for stale profiles: register periodic worker once at start if enabled.
         appScope.launch {
             runCatching {

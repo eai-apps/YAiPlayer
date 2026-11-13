@@ -61,6 +61,7 @@ fun ProfileGate(onEnter: (Long) -> Unit, onAddProfile: () -> Unit, modifier: Mod
         if (tv.own.owntv.core.account.AccountConfig.ENABLED) org.koin.compose.koinInject() else null
     val accountSession = accountService?.session?.collectAsStateWithLifecycle()?.value
     val accountProfileIds = remember(accountSession, profiles) { accountService?.accountProfileIds() ?: emptySet() }
+    LaunchedEffect(accountSession != null) { if (accountSession != null) accountService?.syncQuietly() }
     var showAccount by remember { mutableStateOf(false) }
 
     val visibleProfiles = remember(profiles, hiddenProfileIds, guestId, accountProfileIds) {
@@ -95,6 +96,9 @@ fun ProfileGate(onEnter: (Long) -> Unit, onAddProfile: () -> Unit, modifier: Mod
     var lastFocusedId by remember { mutableStateOf<Long?>(null) }
     var returnFocusTrigger by remember { mutableIntStateOf(0) }
 
+    LaunchedEffect(visibleProfiles.isEmpty()) {
+        if (visibleProfiles.isEmpty()) { kotlinx.coroutines.delay(50); runCatching { addFocus.requestFocus() } }
+    }
     LaunchedEffect(visibleProfiles.isNotEmpty()) {
         if (visibleProfiles.isNotEmpty()) {
             val target = lastFocusedId?.let { profileFocus[it] } ?: profileFocus.getOrPut(visibleProfiles.first().id) { FocusRequester() }
@@ -144,6 +148,7 @@ fun ProfileGate(onEnter: (Long) -> Unit, onAddProfile: () -> Unit, modifier: Mod
                             onClick = { showAccount = true },
                             label = accountSession?.login ?: stringResource(tv.own.owntv.core.R.string.account_tile_sign_in),
                             icon = OwnTVIcon.PERSON,
+                            modifier = Modifier.focusRequester(addFocus),
                         )
                     }
                 }
@@ -156,7 +161,8 @@ fun ProfileGate(onEnter: (Long) -> Unit, onAddProfile: () -> Unit, modifier: Mod
                         onClick = { choose(p) },
                     )
                 }
-                item { AddTile(onClick = onAddProfile, modifier = Modifier.focusRequester(addFocus)) }
+                // With the account on, new profiles are made INSIDE the account (owner 13.11): no «Add profile» here.
+                if (accountService == null) item { AddTile(onClick = onAddProfile, modifier = Modifier.focusRequester(addFocus)) }
                 // "No registration, no profile": shown until the guest profile exists (then it is a tile above).
                 if (visibleProfiles.none { it.id == guestId }) {
                     item { AddTile(onClick = { vm.enterGuest(guestName, onEnter) }, label = guestName, icon = OwnTVIcon.PERSON) }

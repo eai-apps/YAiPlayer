@@ -337,8 +337,12 @@ open class MainActivity : ComponentActivity() {
                 loadedProfileId?.let { quickStartSettings.quickStart(it) } ?: kotlinx.coroutines.flow.flowOf<Boolean?>(null)
             }
             val quickStart by quickStartFlow.collectAsStateWithLifecycle<Boolean?>(null)
-            val shouldShowProfileGate = profilesLoaded && quickStart != null &&
-                tv.own.owntv.features.profiles.profileGateRequired(profiles, if (quickStart == true) loadedProfileId else null)
+            // With the account on, the chooser (account / Guest / Radio) is the start screen (owner 13.11),
+            // unless quick start skips it for the last profile.
+            val shouldShowProfileGate = profilesLoaded && quickStart != null && (
+                (tv.own.owntv.core.account.AccountConfig.ENABLED && quickStart != true) ||
+                    tv.own.owntv.features.profiles.profileGateRequired(profiles, if (quickStart == true) loadedProfileId else null)
+                )
             // Keep the pure launch policy in the actual composition path as well as in its unit
             // tests. The policy checks the Room list, active-id membership, and authentication as
             // one decision; a future branch must not accidentally make the shell depend on only

@@ -2,7 +2,16 @@
 package tv.own.owntv.core.account
 
 import android.util.Log
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.json.JSONArray
@@ -146,6 +155,36 @@ class AccountService(
     suspend fun createProfile(name: String) {
         api.obj("POST", "/v1/profiles", JSONObject().put("name", name.trim().take(40)), token())
         sync()
+    }
+
+    // ---------- automatic sync (owner 13.11: a playlist added on the phone must reach the TV by itself) ----------
+    private var auto: Job? = null
+
+    /**
+     * Started once from the Application: a local change to sources goes up a few seconds later, and the account
+     * is pulled at start and every [PULL_EVERY_MS] while the app runs (and whenever the chooser opens).
+     */
+    @OptIn(FlowPreview::class)
+    fun startAuto(scope: CoroutineScope) {
+        if (auto != null) return
+        auto = scope.launch {
+            launch {
+                delay(START_DELAY_MS)
+                while (true) { syncQuietly(); delay(PULL_EVERY_MS) }
+            }
+            sourceDao.observeAll()
+                .map { list -> list.joinToString("|") { "${it.id}:${SourceRecords.fingerprint(it)}" } }
+                .distinctUntilChanged()
+                .drop(1)
+                .debounce(PUSH_DEBOUNCE_MS)
+                .collect { syncQuietly() }
+        }
+    }
+
+    /** A sync whose failure (offline, signed out) only goes to the log. */
+    suspend fun syncQuietly() {
+        if (!signedIn) return
+        runCatching { sync() }.onFailure { Log.w(TAG, "auto sync: ${it.message}") }
     }
 
     // ---------- sync ----------
@@ -318,5 +357,10 @@ class AccountService(
         return pushed to locked
     }
 
-    private companion object { const val TAG = "AccountService" }
+    private companion object {
+        const val TAG = "AccountService"
+        const val START_DELAY_MS = 5_000L
+        const val PULL_EVERY_MS = 5 * 60_000L
+        const val PUSH_DEBOUNCE_MS = 4_000L
+    }
 }

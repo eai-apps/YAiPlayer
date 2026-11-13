@@ -187,7 +187,9 @@ fun MobileShell(
     val quickStartFlow = remember(activeId) { quickStartSettings.quickStart(activeId) }
     val quickStart by quickStartFlow.collectAsStateWithLifecycle(null as Boolean?)
     if (quickStart == null) return
-    val gateRequired = profileGateRequired(loadedProfiles, if (quickStart == true) activeId else null)
+    // With the account on, the chooser is the start screen (owner 13.11) unless quick start skips it.
+    val gateRequired = (tv.own.owntv.core.account.AccountConfig.ENABLED && quickStart != true) ||
+        profileGateRequired(loadedProfiles, if (quickStart == true) activeId else null)
     // With no chooser needed (one profile, no PIN) the person using the app has entered as that profile;
     // so adding a second profile keeps them in rather than throwing them to "Who's watching?".
     LaunchedEffect(gateRequired, activeId) { if (!gateRequired) gateSession.unlock(activeId) }

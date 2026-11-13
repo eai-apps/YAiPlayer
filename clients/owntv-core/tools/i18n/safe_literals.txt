@@ -65,6 +65,9 @@
 1	json	core/src/main/java/tv/own/owntv/core/account/AccountErrors.kt	login_taken
 1	json	core/src/main/java/tv/own/owntv/core/account/AccountErrors.kt	network
 1	json	core/src/main/java/tv/own/owntv/core/account/AccountErrors.kt	not_found
+1	technical	core/src/main/java/tv/own/owntv/core/account/AccountService.kt	${it.id}:${SourceRecords.fingerprint(it)}
+1	technical	core/src/main/java/tv/own/owntv/core/account/AccountService.kt	auto sync: ${it.message}
+1	technical	core/src/main/java/tv/own/owntv/core/account/AccountService.kt	|
 3	technical	core/src/main/java/tv/own/owntv/core/backup/BackupContainer.kt	..
 2	technical	core/src/main/java/tv/own/owntv/core/backup/BackupContainer.kt	Corrupt backup header
 2	technical	core/src/main/java/tv/own/owntv/core/backup/BackupContainer.kt	Not an OwnTV backup file
