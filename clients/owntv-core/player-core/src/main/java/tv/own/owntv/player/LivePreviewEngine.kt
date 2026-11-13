@@ -1159,6 +1159,15 @@ class LivePreviewEngine(
             dropPrerollAndReopen(url)
             return
         }
+        // Owner 13.11 («4ever Cinema HD», VS KM6): mid-stream the flap came with the position jumping back
+        // (-6000ms) — the stream's clock restarting — and «Повторить» always cured it. So a channel that has
+        // already played is reopened from the live edge first, as that button does, before being given up on.
+        if (url != null && tune.hasPlayed && tune.flapReopens < MAX_FLAP_REOPENS) {
+            tune.flapReopens++
+            LiveDiagnosticsLog.event("re-buffer flap ($detail) mid-stream — reopening from the live edge (${tune.flapReopens}/$MAX_FLAP_REOPENS)")
+            reconnect("re-buffer flap", immediate = true, force = true)
+            return
+        }
         LiveDiagnosticsLog.event("re-buffer flap ($detail) with no pre-buffer — giving up on ExoPlayer for this stream")
         failLoad("playback kept re-buffering ($detail)")
     }
@@ -2061,7 +2070,7 @@ class LivePreviewEngine(
      *  For an expiring-URL source (Stalker) the reconnect must NOT replay the now-dead
      *  resolved URL — a [reconnectUrlProvider] mints a fresh one first (null/absent → replay as-is,
      *  which is correct for M3U/Xtream and direct-URL Stalker portals). */
-    private fun reconnect(reason: String, fastHlsHttpRecovery: Boolean = false, immediate: Boolean = false) {
+    private fun reconnect(reason: String, fastHlsHttpRecovery: Boolean = false, immediate: Boolean = false, force: Boolean = false) {
         mainHandler.removeCallbacks(stallWatchdog); mainHandler.removeCallbacks(progressWatchdog); mainHandler.removeCallbacks(fpsFastRefresh)
         mainHandler.removeCallbacks(openWatchdog)
         mainHandler.removeCallbacks(healthyReset) // this attempt is a failure, not a recovery
@@ -2123,7 +2132,8 @@ class LivePreviewEngine(
                 // outage. Recent bytes also cover a connection that has answered but not yet buffered a sample.
                 val playing = p.playbackState == Player.STATE_READY && _state.value == State.PLAYING
                 val refilling = p.playbackState == Player.STATE_BUFFERING && receivingData
-                if (playing || refilling) {
+                // [force]: a flapping stream looks "refilling" between its flaps, yet it never recovers on its own.
+                if (!force && (playing || refilling)) {
                     LiveDiagnosticsLog.event("reconnect skipped — the stream came back on its own")
                     // Still buffering: if this refill stalls again, the watchdog reconnects as usual.
                     if (refilling) { mainHandler.removeCallbacks(stallWatchdog); mainHandler.postDelayed(stallWatchdog, STALL_MS) }
@@ -3887,6 +3897,7 @@ class LivePreviewEngine(
         // times a minute and clears the window long before reaching the limit.
         private const val FLAP_WINDOW_MS = 6_000L
         private const val FLAP_LIMIT = 12
+        private const val MAX_FLAP_REOPENS = 3
         private const val FLAP_MIN_PROGRESS_MS = 3_000L // real playback inside the window == choppy, not flapping
         // "Buffered but not playing" (see [openWatchdog] branch 1). Four consecutive polls == four seconds
         // of a satisfied load control with no frame, which no healthy channel produces: once enough is
@@ -3980,6 +3991,8 @@ internal data class TuneState(
     var flapWindowStartMs: Long = 0L,
     var flapCount: Int = 0,
     var flapWindowStartPos: Long = 0L,
+    /** Mid-stream flaps answered with a reopen this tune (see [LivePreviewEngine.noteRebufferFlap]). */
+    var flapReopens: Int = 0,
     /** A no-pre-roll reopen is queued; ignore further flapping until it lands. */
     var prerollRetunePending: Boolean = false,
     /** The top-level request ended at an HLS manifest even though the submitted URL looked like raw TS. */
