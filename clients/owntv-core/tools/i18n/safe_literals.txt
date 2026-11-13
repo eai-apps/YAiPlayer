@@ -66,6 +66,8 @@
 1	json	core/src/main/java/tv/own/owntv/core/account/AccountErrors.kt	network
 1	json	core/src/main/java/tv/own/owntv/core/account/AccountErrors.kt	not_found
 2	empty	core/src/main/java/tv/own/owntv/core/account/AccountFavorites.kt	\0
+1	technical	core/src/main/java/tv/own/owntv/core/account/AccountFavorites.kt	
+1	technical	core/src/main/java/tv/own/owntv/core/account/AccountFavorites.kt	
 1	technical	core/src/main/java/tv/own/owntv/core/account/AccountFavorites.kt	$profileSid|$sourceRid
 1	technical	core/src/main/java/tv/own/owntv/core/account/AccountFavorites.kt	%02x
 1	technical	core/src/main/java/tv/own/owntv/core/account/AccountFavorites.kt	SHA-256
@@ -105,6 +107,10 @@
 1	technical	core/src/main/java/tv/own/owntv/core/account/AccountService.kt	favorite apply: ${it.message}
 1	technical	core/src/main/java/tv/own/owntv/core/account/AccountService.kt	favorites: ${it.message}
 14	json	core/src/main/java/tv/own/owntv/core/account/AccountService.kt	id
+4	json	core/src/main/java/tv/own/owntv/core/account/AccountService.kt	kind
+5	json	core/src/main/java/tv/own/owntv/core/account/AccountService.kt	profileId
+3	json	core/src/main/java/tv/own/owntv/core/account/AccountService.kt	rev
+4	json	core/src/main/java/tv/own/owntv/core/account/AccountService.kt	source
 1	technical	core/src/main/java/tv/own/owntv/core/account/AccountService.kt	|
 3	technical	core/src/main/java/tv/own/owntv/core/backup/BackupContainer.kt	..
 2	technical	core/src/main/java/tv/own/owntv/core/backup/BackupContainer.kt	Corrupt backup header
@@ -1482,6 +1488,7 @@
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/FavoriteDao.kt	LEFT JOIN series s ON f.mediaType = 'SERIES' AND f.itemId = s.id
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/FavoriteDao.kt	SELECT * FROM favorites
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/FavoriteDao.kt	SELECT COUNT(*) FROM favorites WHERE profileId = :profileId AND mediaType = :type
+1	sql	core/src/main/java/tv/own/owntv/core/database/dao/FavoriteDao.kt	SELECT COUNT(*) || ':' || IFNULL(MAX(addedAt), 0) || ':' || IFNULL(SUM(itemId), 0) FROM favorites
 2	sql	core/src/main/java/tv/own/owntv/core/database/dao/FavoriteDao.kt	SELECT EXISTS(SELECT 1 FROM favorites WHERE profileId = :profileId AND mediaType = :type AND itemId = :itemId)
 1	sql	core/src/main/java/tv/own/owntv/core/database/dao/FavoriteDao.kt	SELECT addedAt FROM favorites WHERE profileId = :profileId AND mediaType = :type AND itemId = :itemId
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/FavoriteDao.kt	SELECT f.profileId AS profileId, f.mediaType AS mediaType, f.itemId AS itemId,
@@ -6085,6 +6092,7 @@
 1	technical	core/src/main/java/tv/own/owntv/core/ui/stage/StageGlyph.kt	M8 8a4 4 0 1 0 8 0a4 4 0 1 0 -8 0zM4 21a8 8 0 0 1 16 0
 1	technical	core/src/main/java/tv/own/owntv/core/ui/stage/StageGlyph.kt	M9 18l6-6-6-6
 1	technical	core/src/main/java/tv/own/owntv/core/ui/stage/StageGlyph.kt	M9.5 2.5H14.5A2.5 2.5 0 0 1 17 5V19A2.5 2.5 0 0 1 14.5 21.5H9.5A2.5 2.5 0 0 1 7 19V5A2.5 2.5 0 0 1 9.5 2.5zM11 18.5h2
+1	regex	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	(\\d+)$
 1	technical	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	.apk
 1	technical	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	.fileprovider
 1	technical	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	.share
@@ -6097,13 +6105,15 @@
 1	json	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	assets
 1	json	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	body
 1	json	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	browser_download_url
-1	url	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	https://api.github.com/repos/${CoreBuildInfo.releaseRepo}/releases/latest
+1	technical	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	https://api.github.com/repos/${CoreBuildInfo.releaseRepo}/releases/
 1	log	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	install cancelled by user
 1	log	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	install refused status=$status message=$message
-1	json	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	name
+1	technical	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	latest
+2	technical	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	name
 1	file-path	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	owntv-update
 2	file-path	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	owntv-update.apk
 1	json	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	tag_name
+1	technical	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	tags/$it
 1	log	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	truncated: got $copied of $total bytes
 1	uri	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	tv.own.owntv.UPDATE_INSTALL_STATUS
 1	log	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	unparseable APK (${apk.length()} bytes)
