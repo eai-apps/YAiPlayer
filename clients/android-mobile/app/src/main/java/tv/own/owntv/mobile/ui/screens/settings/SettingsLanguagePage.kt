@@ -91,14 +91,7 @@ fun SettingsLanguagePage(
             )
         }
 
-        settingsGroup(key = "help") {
-            StageSettingRow(
-                title = stringResource(R.string.settings_language_help_translate),
-                subtitle = stringResource(R.string.settings_language_contribution_description),
-                icon = MobileIcons.Translate,
-                onClick = { helpSheet = true },
-            ) { StageRowValue("", StageChevron.FORWARD) }
-        }
+        // Owner 13.11: no «help translate» row (QR / OwnTV project link) in YAiPlayer.
 
         settingsGroup(key = "languages") {
             if (showSystem) {

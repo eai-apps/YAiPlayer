@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2026 YAiPlayer authors. Additional guide offered, not loaded by itself (owner 13.11). -->
+<resources>
+    <string name="guide_offer_title">Nicht alle Sender haben ein TV-Programm</string>
+    <string name="guide_offer_body">%1$d von %2$d Sendern haben kein Programm. Das fehlende aus der zusätzlichen Quelle %3$d laden? Es lädt im Hintergrund; fehlt danach noch etwas, wird die nächste Quelle angeboten.</string>
+    <string name="guide_offer_load">Aus Quelle %1$d laden</string>
+    <string name="guide_offer_later">Nicht jetzt</string>
+</resources>

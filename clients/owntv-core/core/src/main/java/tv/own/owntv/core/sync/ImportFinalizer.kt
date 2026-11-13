@@ -42,7 +42,12 @@ class ImportFinalizer(
         if (includeGuide) {
             val repository = org.koin.core.context.GlobalContext.get().get<tv.own.owntv.core.repository.EpgRepository>()
             val syncedSource = db.sourceDao().getById(source.id) ?: source
-            repository.guideUrls(syncedSource).forEach { url ->
+            val urls = repository.guideUrls(syncedSource)
+            // A playlist with no guide of its own: offer additional source 1 right away (owner 13.11).
+            if (urls.isEmpty() && source.type != tv.own.owntv.core.model.SourceType.STALKER) {
+                runCatching { tv.own.owntv.core.epg.GuideOffer.fromKoin().afterPlaylistGuide() }
+            }
+            urls.forEach { url ->
                 val guide = epgSourceStore.ensure(source.name, url, source.userAgent)
                 if (epgSourceStore.builtinEnabled.firstOrNull() != true) {
                     org.koin.core.context.GlobalContext.get().get<tv.own.owntv.core.sync.work.EpgSyncScheduler>()

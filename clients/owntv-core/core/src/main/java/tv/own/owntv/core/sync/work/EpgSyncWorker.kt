@@ -73,9 +73,20 @@ class EpgSyncWorker(
 
         try {
             if (source.builtin) {
+                // Owner 13.11: an additional source never downloads by itself after a playlist is added — the
+                // app offers it (GuideOffer) and runs it only when the person says «Load», or on the schedule /
+                // a manual refresh once it has been loaded at least once.
+                if (reason != "manual_feed" && source.lastSyncAt == null) {
+                    Log.i(TAG, "built-in feed ${source.id} not requested yet ($reason): skipped")
+                    return Result.success()
+                }
                 val koin = org.koin.core.context.GlobalContext.get()
                 tv.own.owntv.core.epg.EpgGapFill(koin.get(), store, epgRepository, koin.get())
                     .run(onlyFeed = source.id.takeIf { reason == "manual_feed" })
+                if (reason == "manual_feed") {
+                    store.setSynced(source.id, System.currentTimeMillis(), null)
+                    runCatching { tv.own.owntv.core.epg.GuideOffer.fromKoin().afterFeed(source.id) }
+                }
                 return Result.success()
             }
             val programmes = try {
@@ -94,6 +105,8 @@ class EpgSyncWorker(
             if (source.url.startsWith("stalker://")) tv.own.owntv.core.util.GuideTrace.add("guide: stored $programmes programmes")
             store.setSynced(source.id, System.currentTimeMillis(), null)
             if (!inputData.getBoolean(KEY_IN_QUEUE, false)) tv.own.owntv.core.sync.BuiltinGuide.fromKoin().onPlaylistImported()
+            // A playlist's own guide is in: if channels still lack a programme, offer additional source 1 (owner 13.11).
+            if (!source.url.startsWith("stalker://")) runCatching { tv.own.owntv.core.epg.GuideOffer.fromKoin().afterPlaylistGuide() }
             // A series rule is a standing instruction about programmes that do not exist in the
             // database until the guide mentioning them is fetched — so this is the moment "record
             // every showing" becomes actual timers. Best-effort: a rule that could not be

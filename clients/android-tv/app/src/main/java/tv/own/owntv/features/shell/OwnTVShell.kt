@@ -2214,6 +2214,7 @@ fun OwnTVShell(
         }
         tv.own.owntv.features.update.SubscriptionExpiryHost(enabled = selectedSection != MainSection.SETTINGS && playerMode == PlayerMode.NONE)
         if (tv.own.owntv.BuildConfig.SELF_UPDATE) tv.own.owntv.features.update.VersionGateHost()
+        tv.own.owntv.features.update.GuideOfferHost()
 
         val lightModePromptDismissed by settingsRepo.lightModePromptDismissed.collectAsStateWithLifecycle(initialValue = null)
         val lightModeOn by settingsRepo.lightModeEnabled.collectAsStateWithLifecycle(initialValue = false)

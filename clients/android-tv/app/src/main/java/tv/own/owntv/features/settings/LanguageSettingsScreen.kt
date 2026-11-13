@@ -165,7 +165,8 @@ fun LanguageSettingsScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
         stringResource(R.string.common_ok) to stringResource(R.string.settings_key_use),
         stringResource(R.string.common_back) to stringResource(R.string.settings_group_app),
     )
-    val translate: @Composable () -> Unit = { TranslateBlock() }
+    // Owner 13.11: no «help translate» QR / OwnTV project link in YAiPlayer.
+    val translate: (@Composable () -> Unit)? = null
     StageFullPage(
         parents = listOf(stringResource(R.string.settings_group_app)),
         title = stringResource(R.string.settings_language),

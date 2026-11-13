@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2026 YAiPlayer authors. Additional guide offered, not loaded by itself (owner 13.11). -->
+<resources>
+    <string name="guide_offer_title">Не у всех каналов есть телепрограмма</string>
+    <string name="guide_offer_body">У %1$d из %2$d каналов нет телепрограммы. Загрузить недостающую из дополнительного источника %3$d? Загрузка идёт в фоне; если после неё каналов без программы останется много, предложим следующий источник.</string>
+    <string name="guide_offer_load">Загрузить из источника %1$d</string>
+    <string name="guide_offer_later">Не сейчас</string>
+</resources>

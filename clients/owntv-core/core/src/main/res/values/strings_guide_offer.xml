@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2026 YAiPlayer authors. Additional guide offered, not loaded by itself (owner 13.11). -->
+<resources>
+    <string name="guide_offer_title">Not all channels have a TV guide</string>
+    <string name="guide_offer_body">%1$d of %2$d channels have no programme. Load the missing guide from additional source %3$d? It runs in the background; the next source is offered afterwards if channels are still missing.</string>
+    <string name="guide_offer_load">Load from source %1$d</string>
+    <string name="guide_offer_later">Not now</string>
+</resources>

@@ -480,11 +480,18 @@ open class MainActivity : ComponentActivity() {
                             // Run 2+ (or a single locked profile): "Who's watching?" — choose a profile or add one.
                             // Also opens when the sidebar avatar is single-clicked (switchProfileRequested),
                             // which is the only way to switch when there's a single unpinned profile.
-                            gateRequired && !authenticatedForActiveProfile -> ProfileGate(
+                            gateRequired && !authenticatedForActiveProfile -> {
+                                // Nothing of the last session plays behind the chooser (owner 13.11).
+                                androidx.compose.runtime.LaunchedEffect(Unit) {
+                                    engines.onAppBackgrounded()
+                                    engines.discardBackgroundRestore()
+                                }
+                                ProfileGate(
                                 onEnter = { profileId -> gateSession.authenticateProfile(profileId) },
                                 onAddProfile = { gateSession.startAddingProfile() },
                                 modifier = Modifier.fillMaxSize(),
                             )
+                            }
                             shellReady -> OwnTVShell(
                                 selectedSection = selectedSection,
                                 visibleSections = visibleSections,
@@ -510,7 +517,12 @@ open class MainActivity : ComponentActivity() {
                                 pendingDeepLink = pendingDeepLink,
                                 onDeepLinkConsumed = { pendingDeepLink = null },
                                 isOffline = !isOnline,
-                                onExitApp = { finish() },
+                                onExitApp = {
+                                    // Owner 13.11: after «Выйти» the channel kept sounding, and on the next start it played
+                                    // again behind the profile chooser (the background restore). Exit = stop and forget it.
+                                    tv.own.owntv.features.profiles.stopPlaybackForProfileGate(shellViewModel, engines)
+                                    finish()
+                                },
                                 onStartupSettled = { startupSettled = true },
                                 onSwitchProfile = {
                                     // Stop playback and return to the "Who's watching?" gate — no app restart.
