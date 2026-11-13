@@ -459,10 +459,11 @@ class HomeViewModel(
         // Second pass: what is on now. Only the guide fields are taken, so nothing the user already sees
         // (the hero position, the focused rail) is reset when it lands.
         val full = feed.load(profileId)
+        val was = _uiState.value
         _uiState.value = _uiState.value.copy(
-            recentGuide = full.recentGuide,
-            favoriteGuide = full.favoriteGuide,
-            railGuide = full.railGuide,
+            recentGuide = full.recentGuide.keepingStillOnAir(was.recentGuide),
+            favoriteGuide = full.favoriteGuide.keepingStillOnAir(was.favoriteGuide),
+            railGuide = full.railGuide.keepingStillOnAir(was.railGuide),
             onAirItems = full.onAirItems,
         )
     }

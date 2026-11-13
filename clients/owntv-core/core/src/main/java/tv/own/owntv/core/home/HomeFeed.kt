@@ -141,6 +141,25 @@ data class GuideSliceState(
 ) {
     val hasContent: Boolean
         get() = channels.isNotEmpty()
+
+    /**
+     * A refresh read while a guide is being rewritten (a sync deletes then inserts) comes back empty for some
+     * channels for a moment; Home then showed the programme, lost it and showed it again (owner 13.11).
+     * Keep what [previous] had for a channel whose new list is empty while that programme is still on air.
+     */
+    fun keepingStillOnAir(previous: GuideSliceState): GuideSliceState {
+        if (previous.programmes.isEmpty()) return this
+        val t = if (now > 0) now else System.currentTimeMillis()
+        var changed = false
+        val merged = HashMap(programmes)
+        for (ch in channels) {
+            if (!programmes[ch.id].isNullOrEmpty()) continue
+            val old = previous.programmes[ch.id]?.filter { it.stopMs > t } ?: continue
+            if (old.isEmpty()) continue
+            merged[ch.id] = old; changed = true
+        }
+        return if (changed) copy(programmes = merged) else this
+    }
 }
 
 /** One channel category drawn as its own Home rail: its name and its first channels. */

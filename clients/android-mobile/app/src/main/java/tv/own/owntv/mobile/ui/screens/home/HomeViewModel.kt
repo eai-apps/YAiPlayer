@@ -128,10 +128,11 @@ class HomeViewModel(
                 resolveHeroBackdrops(feed.heroItems)
                 if (pid >= 0) {
                     val full = reader.load(pid)
+                    val was = _feed.value
                     _feed.value = _feed.value?.copy(
-                        recentGuide = full.recentGuide,
-                        favoriteGuide = full.favoriteGuide,
-                        railGuide = full.railGuide,
+                        recentGuide = was?.let { full.recentGuide.keepingStillOnAir(it.recentGuide) } ?: full.recentGuide,
+                        favoriteGuide = was?.let { full.favoriteGuide.keepingStillOnAir(it.favoriteGuide) } ?: full.favoriteGuide,
+                        railGuide = was?.let { full.railGuide.keepingStillOnAir(it.railGuide) } ?: full.railGuide,
                         onAirItems = full.onAirItems,
                     )
                 }
