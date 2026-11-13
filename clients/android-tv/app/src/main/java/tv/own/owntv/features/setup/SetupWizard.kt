@@ -122,7 +122,7 @@ fun Onboarding(firstRun: Boolean, onDone: (Long?) -> Unit, onCancel: () -> Unit,
                     // With the account on (owner 13.11): after language and the notice comes the chooser —
                     // «Войти в аккаунт», «Гость», «Радио» — not the setup cards. The guest profile is made
                     // quietly so the app has a profile to stand on; nothing is entered until the person picks.
-                    if (tv.own.owntv.core.account.AccountConfig.ENABLED) vm.startGuest(guestNameForAccount) { onDone(null) }
+                    if (tv.own.owntv.core.account.AccountConfig.ENABLED) vm.startGuest(guestNameForAccount) { vm.finish { onDone(null) } } // finish() makes the guest the active profile
                     else step = Step.SETUP_CHOICE
                 }, rememberFirstFocus()),
             )

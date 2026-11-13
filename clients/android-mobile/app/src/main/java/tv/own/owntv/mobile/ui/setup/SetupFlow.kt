@@ -209,7 +209,7 @@ fun SetupFlow(
             // With the account on (owner 13.11): after language and the notice comes the chooser (account / Guest /
             // Radio / Remote), not the setup cards; a guest profile is made quietly, nothing is entered yet.
             Step.DISCLAIMER -> DisclaimerStep(
-                onAgree = { if (tv.own.owntv.core.account.AccountConfig.ENABLED) vm.startGuest { onDone(null) } else step = Step.CHOICE },
+                onAgree = { if (tv.own.owntv.core.account.AccountConfig.ENABLED) vm.startGuest { vm.finish { onDone(null) } } /* finish() makes the guest the active profile */ else step = Step.CHOICE },
                 onBack = { step = Step.DISPLAY_SIZE },
             )
             Step.CHOICE -> SetupChoiceStep(
