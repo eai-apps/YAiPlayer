@@ -257,6 +257,19 @@
 1	technical	app/src/main/java/tv/own/owntv/features/movies/MoviesScreen.kt	◀
 1	preference-key	app/src/main/java/tv/own/owntv/features/pip/PictureInPicture.kt	on_leave
 1	preference-key	app/src/main/java/tv/own/owntv/features/pip/PictureInPicture.kt	owntv_pip
+4	empty	app/src/main/java/tv/own/owntv/features/profiles/AccountScreen.kt	\0
+1	technical	app/src/main/java/tv/own/owntv/features/profiles/AccountScreen.kt	$loginLabel: ${login.ifBlank { "—" }}
+1	technical	app/src/main/java/tv/own/owntv/features/profiles/AccountScreen.kt	$pass2Label: ${if (password2.isEmpty()) "—" else "•".repeat(password2.length)}
+1	technical	app/src/main/java/tv/own/owntv/features/profiles/AccountScreen.kt	$passLabel: ${if (password.isEmpty()) "—" else "•".repeat(password.length)}
+1	technical	app/src/main/java/tv/own/owntv/features/profiles/AccountScreen.kt	TV
+2	technical	app/src/main/java/tv/own/owntv/features/profiles/AccountScreen.kt	https://
+1	technical	app/src/main/java/tv/own/owntv/features/profiles/AccountScreen.kt	ok
+2	technical	app/src/main/java/tv/own/owntv/features/profiles/AccountScreen.kt	tv
+3	technical	app/src/main/java/tv/own/owntv/features/profiles/AccountScreen.kt	waiting
+1	technical	app/src/main/java/tv/own/owntv/features/profiles/AccountScreen.kt	·
+3	technical	app/src/main/java/tv/own/owntv/features/profiles/AccountScreen.kt	—
+2	technical	app/src/main/java/tv/own/owntv/features/profiles/AccountScreen.kt	•
+1	technical	app/src/main/java/tv/own/owntv/features/profiles/AccountScreen.kt	＋
 5	empty	app/src/main/java/tv/own/owntv/features/profiles/ProfileComponents.kt	\0
 1	technical	app/src/main/java/tv/own/owntv/features/profiles/ProfilePictureChooser.kt	bmp
 1	technical	app/src/main/java/tv/own/owntv/features/profiles/ProfilePictureChooser.kt	jpeg

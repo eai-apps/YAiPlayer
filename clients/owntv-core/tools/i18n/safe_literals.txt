@@ -26,6 +26,45 @@
 1	log	core/src/main/java/tv/own/owntv/core/PerfJournal.kt	$label ${(System.nanoTime() - t0) / 1_000_000} ms
 1	log	core/src/main/java/tv/own/owntv/core/PerfJournal.kt	${time.get()!!.format(Date())} $message
 1	technical	core/src/main/java/tv/own/owntv/core/PerfJournal.kt	MM-dd HH:mm:ss.SSS
+1	technical	core/src/main/java/tv/own/owntv/core/account/AccountApi.kt	${AccountConfig.TENANT}/app/1
+1	json	core/src/main/java/tv/own/owntv/core/account/AccountApi.kt	Authorization
+1	technical	core/src/main/java/tv/own/owntv/core/account/AccountApi.kt	Bearer $token
+1	json	core/src/main/java/tv/own/owntv/core/account/AccountApi.kt	DELETE
+2	json	core/src/main/java/tv/own/owntv/core/account/AccountApi.kt	GET
+1	technical	core/src/main/java/tv/own/owntv/core/account/AccountApi.kt	X-YAi-Client
+1	technical	core/src/main/java/tv/own/owntv/core/account/AccountApi.kt	[
+1	technical	core/src/main/java/tv/own/owntv/core/account/AccountApi.kt	application/json
+1	json	core/src/main/java/tv/own/owntv/core/account/AccountApi.kt	code
+1	json	core/src/main/java/tv/own/owntv/core/account/AccountApi.kt	error
+1	json	core/src/main/java/tv/own/owntv/core/account/AccountApi.kt	kind
+1	json	core/src/main/java/tv/own/owntv/core/account/AccountApi.kt	message
+1	json	core/src/main/java/tv/own/owntv/core/account/AccountApi.kt	name
+1	json	core/src/main/java/tv/own/owntv/core/account/AccountApi.kt	network
+1	json	core/src/main/java/tv/own/owntv/core/account/AccountApi.kt	server_error
+1	technical	core/src/main/java/tv/own/owntv/core/account/AccountApi.kt	{}
+1	technical	core/src/main/java/tv/own/owntv/core/account/AccountConfig.kt	https://yaiplayer-api.yai-media-player.workers.dev
+1	technical	core/src/main/java/tv/own/owntv/core/account/AccountConfig.kt	https://yaiplayer.pages.dev
+1	json	core/src/main/java/tv/own/owntv/core/account/AccountConfig.kt	yai
+1	empty	core/src/main/java/tv/own/owntv/core/account/AccountCrypto.kt	\0
+1	technical	core/src/main/java/tv/own/owntv/core/account/AccountCrypto.kt	-
+1	technical	core/src/main/java/tv/own/owntv/core/account/AccountCrypto.kt	ABCDEFGHJKMNPQRSTUVWXYZ23456789
+2	json	core/src/main/java/tv/own/owntv/core/account/AccountCrypto.kt	AES
+2	technical	core/src/main/java/tv/own/owntv/core/account/AccountCrypto.kt	AES/GCM/NoPadding
+4	json	core/src/main/java/tv/own/owntv/core/account/AccountCrypto.kt	EC
+1	json	core/src/main/java/tv/own/owntv/core/account/AccountCrypto.kt	ECDH
+3	technical	core/src/main/java/tv/own/owntv/core/account/AccountCrypto.kt	HmacSHA256
+1	technical	core/src/main/java/tv/own/owntv/core/account/AccountCrypto.kt	PBKDF2WithHmacSHA256
+1	technical	core/src/main/java/tv/own/owntv/core/account/AccountCrypto.kt	bad P-256 point
+2	technical	core/src/main/java/tv/own/owntv/core/account/AccountCrypto.kt	secp256r1
+1	technical	core/src/main/java/tv/own/owntv/core/account/AccountCrypto.kt	yai-key-transfer-v1
+1	json	core/src/main/java/tv/own/owntv/core/account/AccountErrors.kt	account_blocked
+1	json	core/src/main/java/tv/own/owntv/core/account/AccountErrors.kt	bad_login
+1	json	core/src/main/java/tv/own/owntv/core/account/AccountErrors.kt	bad_login_format
+1	json	core/src/main/java/tv/own/owntv/core/account/AccountErrors.kt	bad_recovery_code
+1	json	core/src/main/java/tv/own/owntv/core/account/AccountErrors.kt	device_limit
+1	json	core/src/main/java/tv/own/owntv/core/account/AccountErrors.kt	login_taken
+1	json	core/src/main/java/tv/own/owntv/core/account/AccountErrors.kt	network
+1	json	core/src/main/java/tv/own/owntv/core/account/AccountErrors.kt	not_found
 3	technical	core/src/main/java/tv/own/owntv/core/backup/BackupContainer.kt	..
 2	technical	core/src/main/java/tv/own/owntv/core/backup/BackupContainer.kt	Corrupt backup header
 2	technical	core/src/main/java/tv/own/owntv/core/backup/BackupContainer.kt	Not an OwnTV backup file
