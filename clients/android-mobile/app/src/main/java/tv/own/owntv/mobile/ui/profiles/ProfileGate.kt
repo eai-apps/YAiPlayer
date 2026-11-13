@@ -83,6 +83,7 @@ fun ProfileGate(
     var showTvOptimizer by remember { mutableStateOf(false) }
     var showRemote by remember { mutableStateOf(false) }
     var showRadio by remember { mutableStateOf(false) }
+    var showAccount by remember { mutableStateOf(false) }
     val fallbackName = stringResource(R.string.profiles_default_name)
 
     if (showRemote) {
@@ -97,6 +98,20 @@ fun ProfileGate(
 
     fun enter(profile: ProfileEntity) = vm.switchTo(profile) { onEntered(profile) }
 
+    // Main account (owner 13.11): its profiles live inside the account tile, not next to Guest.
+    val accountService: tv.own.owntv.core.account.AccountService? =
+        if (tv.own.owntv.core.account.AccountConfig.ENABLED) org.koin.compose.koinInject() else null
+    val accountSession = accountService?.session?.collectAsStateWithLifecycle()?.value
+    val accountProfileIds = remember(accountSession, profiles) { accountService?.accountProfileIds() ?: emptySet() }
+    if (showAccount) {
+        AccountScreen(
+            profiles = profiles,
+            onEnter = { p -> showAccount = false; if (p.pinHash == null) enter(p) else pinFor = p },
+            onBack = { showAccount = false },
+        )
+        return
+    }
+
     // The brand on top, the question and its line, then two columns of 104 dp avatars — the
     // current profile ringed — and the outlined Add profile, on the Stage background.
     val palette = LocalStagePalette.current
@@ -104,8 +119,8 @@ fun ProfileGate(
     val hiddenProfileIds by vm.hiddenProfileIds.collectAsStateWithLifecycle()
     val guestId by vm.guestProfileId.collectAsStateWithLifecycle()
 
-    val visibleProfiles = remember(profiles, hiddenProfileIds, guestId) {
-        profiles.filter { it.id == guestId || it.id !in hiddenProfileIds }
+    val visibleProfiles = remember(profiles, hiddenProfileIds, guestId, accountProfileIds) {
+        profiles.filter { it.id == guestId || (it.id !in hiddenProfileIds && it.id !in accountProfileIds) }
     }
 
     Column(
@@ -140,14 +155,20 @@ fun ProfileGate(
         )
         // The guest ("no registration, no profile") is a tile of its own until its profile exists.
         val guestMissing = visibleProfiles.none { it.id == guestId }
-        val tiles: List<Any> = visibleProfiles + "add" + (if (guestMissing) listOf("guest") else emptyList()) + (if (TV_OPTIMIZER_READY) listOf("tv_optimizer") else emptyList()) +
+        val tiles: List<Any> = (if (accountService != null) listOf("account") else emptyList()) + visibleProfiles + "add" + (if (guestMissing) listOf("guest") else emptyList()) + (if (TV_OPTIMIZER_READY) listOf("tv_optimizer") else emptyList()) +
             (if (tv.own.owntv.extras.radio.RadioFeature.AVAILABLE) listOf("radio") else emptyList()) + listOf("remote")
         tiles.chunked(2).forEach { pair ->
             Row(Modifier.fillMaxWidth().padding(bottom = 26.dp), horizontalArrangement = Arrangement.spacedBy(20.dp)) {
                 pair.forEach { tile ->
                     val profile = tile as? ProfileEntity
                     Box(Modifier.weight(1f), contentAlignment = Alignment.TopCenter) {
-                        if (tile == "guest") {
+                        if (tile == "account") {
+                            AddProfileTile(
+                                onClick = { showAccount = true },
+                                label = accountSession?.login ?: stringResource(tv.own.owntv.core.R.string.account_tile_sign_in),
+                                icon = MobileIcons.Person,
+                            )
+                        } else if (tile == "guest") {
                             AddProfileTile(
                                 onClick = { vm.enterGuest(onEntered) },
                                 label = stringResource(R.string.profiles_guest_name),

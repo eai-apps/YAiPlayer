@@ -418,6 +418,14 @@ val dataModule = module {
     // context, okHttpClient — in-app updates from GitHub Releases
     single { UpdateManager(androidContext(), get(), get()) }
     single { CatalogSyncScheduler(androidContext()) }
+    // Main account (owner 13.11): login + profiles inside, synced with the account server (yai-cloud).
+    single { tv.own.owntv.core.account.AccountStore(androidContext()) }
+    single { tv.own.owntv.core.account.AccountApi(get<OkHttpClient>()) }
+    single {
+        tv.own.owntv.core.account.AccountService(
+            api = get(), store = get(), profileDao = get(), sourceDao = get(), sources = get(), profiles = get(), catalog = get(),
+        )
+    }
     single { EpgSyncScheduler(androidContext()) }
     // settings, sourceRepository, profileDao, catalogSyncScheduler, epgSyncScheduler, epgSourceStore,
     // epgDao, importFinalizer, vodResort — the Auto refresh settings, run by both apps on start and resume.

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2026 YAiPlayer authors. Main account (owner 13.11). -->
+<resources>
+    <string name="account_tile">Konto</string>
+    <string name="account_tile_sign_in">Anmelden</string>
+    <string name="account_title">Ihr Konto</string>
+    <string name="account_intro">Ein Login für TV-Box, Handy und Website: Profile und Playlists erscheinen überall. Passwörter Ihrer Quellen werden auf Ihren Geräten verschlüsselt — wir sehen sie nicht.</string>
+    <string name="account_sign_in">Anmelden</string>
+    <string name="account_register">Konto erstellen</string>
+    <string name="account_recover">Passwort vergessen?</string>
+    <string name="account_by_code">Mit Code anmelden</string>
+    <string name="account_login">Login</string>
+    <string name="account_password">Passwort</string>
+    <string name="account_password2">Passwort wiederholen</string>
+    <string name="account_login_hint">3–32 Zeichen: lateinische Buchstaben, Ziffern, Punkt, Bindestrich, Unterstrich</string>
+    <string name="account_password_hint">Mindestens 8 Zeichen</string>
+    <string name="account_code_title">Ihr Wiederherstellungscode</string>
+    <string name="account_code_text">Notieren Sie diesen Code. Nur damit (oder von einem angemeldeten Gerät) erhalten Sie Zugang und Quellen-Passwörter zurück, wenn Sie das Passwort vergessen. Wir speichern ihn nicht.</string>
+    <string name="account_code_saved">Ich habe den Code notiert</string>
+    <string name="account_continue">Weiter</string>
+    <string name="account_recovery_code">Wiederherstellungscode</string>
+    <string name="account_new_password">Neues Passwort</string>
+    <string name="account_back">Zurück</string>
+    <string name="account_code_screen_text">Öffnen Sie auf dem Handy oder Computer %1$s, melden Sie sich an und geben Sie diesen Code ein — oder scannen Sie den QR-Code.</string>
+    <string name="account_code_waiting">Warte auf Bestätigung…</string>
+    <string name="account_profiles">Profile</string>
+    <string name="account_new_profile">Neues Profil</string>
+    <string name="account_profile_name">Profilname</string>
+    <string name="account_sync">Jetzt synchronisieren</string>
+    <string name="account_synced">Synchronisiert: %1$d hinzugefügt, %2$d aktualisiert, %3$d entfernt, %4$d gesendet</string>
+    <string name="account_locked_title">Quellen-Passwörter sind gesperrt</string>
+    <string name="account_locked_text">Geben Sie einmal das Kontopasswort (oder den Wiederherstellungscode) ein, um die Passwörter Ihrer Playlists und Portale auf diesem Gerät zu öffnen.</string>
+    <string name="account_unlock">Entsperren</string>
+    <string name="account_use_code">Wiederherstellungscode verwenden</string>
+    <string name="account_confirm_tv">Am TV mit Code anmelden</string>
+    <string name="account_confirm_tv_hint">Auf der TV-Box «Mit Code anmelden» wählen und den angezeigten Code eingeben.</string>
+    <string name="account_confirm">Bestätigen</string>
+    <string name="account_confirmed">Fertig — der TV meldet sich in Sekunden an.</string>
+    <string name="account_sign_out">Abmelden</string>
+    <string name="account_sign_out_text">Die Kontoprofile verlassen dieses Gerät, im Konto bleiben sie erhalten.</string>
+    <string name="account_link_hint">Damit Sie den Zugang nie verlieren, verknüpfen Sie Telegram im Konto auf %1$s.</string>
+    <string name="account_err_network">Keine Verbindung zum Server. Internet prüfen.</string>
+    <string name="account_err_bad_login">Falscher Login oder falsches Passwort.</string>
+    <string name="account_err_login_taken">Dieser Login ist vergeben.</string>
+    <string name="account_err_weak_password">Passwort zu kurz: mindestens 8 Zeichen.</string>
+    <string name="account_err_bad_login_format">Login: 3–32 lateinische Buchstaben, Ziffern, Punkt, Bindestrich oder Unterstrich.</string>
+    <string name="account_err_too_many">Zu viele Versuche. 15 Minuten warten.</string>
+    <string name="account_err_bad_recovery">Falscher Login oder Wiederherstellungscode.</string>
+    <string name="account_err_mismatch">Passwörter stimmen nicht überein.</string>
+    <string name="account_err_not_found">Code nicht gefunden oder abgelaufen.</string>
+    <string name="account_err_blocked">Dieses Konto ist gesperrt. Support kontaktieren.</string>
+    <string name="account_err_device_limit">Gerätelimit erreicht. Melden Sie eines im Konto ab.</string>
+    <string name="account_err_generic">Etwas ist schiefgelaufen. Später erneut versuchen.</string>
+    <string name="account_err_wrong_unlock">Hat nicht geklappt. Passwort oder Code prüfen.</string>
+</resources>

@@ -74,3 +74,7 @@
    ```bash
    python tools/brand/yai_brand.py
    ```
+
+
+## Аккаунт и сервер (13.11)
+Адрес сервера аккаунтов, сайта-кабинета и tenant — один файл `clients/owntv-core/core/src/main/java/tv/own/owntv/core/account/AccountConfig.kt` (`API_BASE`, `SITE_URL`, `TENANT`, `ENABLED`). У оператора — адрес его сервера (yai-cloud `worker/deploy/install-operator.sh`).

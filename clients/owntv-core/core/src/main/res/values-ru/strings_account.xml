@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2026 YAiPlayer authors. Main account (owner 13.11). -->
+<resources>
+    <string name="account_tile">Аккаунт</string>
+    <string name="account_tile_sign_in">Войти в аккаунт</string>
+    <string name="account_title">Ваш аккаунт</string>
+    <string name="account_intro">Один логин для приставки, телефона и сайта: профили и плейлисты появятся везде. Пароли ваших источников шифруются на ваших устройствах — мы их не видим.</string>
+    <string name="account_sign_in">Войти</string>
+    <string name="account_register">Зарегистрироваться</string>
+    <string name="account_recover">Забыли пароль?</string>
+    <string name="account_by_code">Войти по коду</string>
+    <string name="account_login">Логин</string>
+    <string name="account_password">Пароль</string>
+    <string name="account_password2">Пароль ещё раз</string>
+    <string name="account_login_hint">3–32 знака: латиница, цифры, точка, дефис, подчёркивание</string>
+    <string name="account_password_hint">Не короче 8 знаков</string>
+    <string name="account_code_title">Ваш код восстановления</string>
+    <string name="account_code_text">Запишите этот код. Только с ним (или с уже вошедшего устройства) можно вернуть доступ и пароли источников, если вы забудете пароль. Мы его не храним.</string>
+    <string name="account_code_saved">Я записал код</string>
+    <string name="account_continue">Продолжить</string>
+    <string name="account_recovery_code">Код восстановления</string>
+    <string name="account_new_password">Новый пароль</string>
+    <string name="account_back">Назад</string>
+    <string name="account_code_screen_text">На телефоне или компьютере откройте %1$s, войдите и введите этот код — или наведите камеру на QR-код.</string>
+    <string name="account_code_waiting">Ждём подтверждения…</string>
+    <string name="account_profiles">Профили</string>
+    <string name="account_new_profile">Новый профиль</string>
+    <string name="account_profile_name">Имя профиля</string>
+    <string name="account_sync">Синхронизировать</string>
+    <string name="account_synced">Синхронизировано: добавлено %1$d, обновлено %2$d, удалено %3$d, отправлено %4$d</string>
+    <string name="account_locked_title">Пароли источников закрыты</string>
+    <string name="account_locked_text">Введите пароль аккаунта (или код восстановления) один раз, чтобы открыть на этом устройстве пароли ваших плейлистов и порталов.</string>
+    <string name="account_unlock">Открыть</string>
+    <string name="account_use_code">Ввести код восстановления</string>
+    <string name="account_confirm_tv">Вход на ТВ по коду</string>
+    <string name="account_confirm_tv_hint">На приставке выберите «Войти по коду» и введите код с экрана ТВ.</string>
+    <string name="account_confirm">Подтвердить</string>
+    <string name="account_confirmed">Готово — приставка войдёт через несколько секунд.</string>
+    <string name="account_sign_out">Выйти из аккаунта</string>
+    <string name="account_sign_out_text">Профили аккаунта уйдут с этого устройства, в аккаунте они останутся.</string>
+    <string name="account_link_hint">Чтобы не потерять доступ, привяжите Telegram в кабинете на %1$s.</string>
+    <string name="account_err_network">Нет связи с сервером. Проверьте интернет.</string>
+    <string name="account_err_bad_login">Неверный логин или пароль.</string>
+    <string name="account_err_login_taken">Такой логин уже занят.</string>
+    <string name="account_err_weak_password">Пароль слишком короткий: нужно не меньше 8 знаков.</string>
+    <string name="account_err_bad_login_format">Логин: 3–32 знака — латиница, цифры, точка, дефис, подчёркивание.</string>
+    <string name="account_err_too_many">Слишком много попыток. Подождите 15 минут.</string>
+    <string name="account_err_bad_recovery">Неверный логин или код восстановления.</string>
+    <string name="account_err_mismatch">Пароли не совпадают.</string>
+    <string name="account_err_not_found">Код не найден или устарел.</string>
+    <string name="account_err_blocked">Аккаунт заблокирован. Обратитесь в поддержку.</string>
+    <string name="account_err_device_limit">Достигнут предел устройств. Выйдите на одном из них в кабинете.</string>
+    <string name="account_err_generic">Что-то пошло не так. Попробуйте позже.</string>
+    <string name="account_err_wrong_unlock">Не подошло. Проверьте пароль или код.</string>
+</resources>

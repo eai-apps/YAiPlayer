@@ -56,8 +56,15 @@ fun ProfileGate(onEnter: (Long) -> Unit, onAddProfile: () -> Unit, modifier: Mod
     val guestId by vm.guestProfileId.collectAsStateWithLifecycle()
     val guestName = stringResource(R.string.profiles_guest_name)
 
-    val visibleProfiles = remember(profiles, hiddenProfileIds, guestId) {
-        profiles.filter { it.id == guestId || it.id !in hiddenProfileIds }
+    // Main account (owner 13.11): its profiles live inside the account tile, next to Guest and Radio.
+    val accountService: tv.own.owntv.core.account.AccountService? =
+        if (tv.own.owntv.core.account.AccountConfig.ENABLED) org.koin.compose.koinInject() else null
+    val accountSession = accountService?.session?.collectAsStateWithLifecycle()?.value
+    val accountProfileIds = remember(accountSession, profiles) { accountService?.accountProfileIds() ?: emptySet() }
+    var showAccount by remember { mutableStateOf(false) }
+
+    val visibleProfiles = remember(profiles, hiddenProfileIds, guestId, accountProfileIds) {
+        profiles.filter { it.id == guestId || (it.id !in hiddenProfileIds && it.id !in accountProfileIds) }
     }
 
     var menuProfile by remember { mutableStateOf<ProfileEntity?>(null) }
@@ -69,6 +76,17 @@ fun ProfileGate(onEnter: (Long) -> Unit, onAddProfile: () -> Unit, modifier: Mod
     var showRadio by remember { mutableStateOf(false) }
     if (showRadio) {
         tv.own.owntv.features.radio.RadioFeature.Screen(onBack = { showRadio = false })
+        return
+    }
+    if (showAccount) {
+        AccountScreen(
+            profiles = profiles,
+            onEnter = { p ->
+                showAccount = false
+                if (p.pinHash != null) { pinError = false; pinForEnter = p } else vm.switchTo(p) { onEnter(p.id) }
+            },
+            onBack = { showAccount = false },
+        )
         return
     }
 
@@ -120,6 +138,15 @@ fun ProfileGate(onEnter: (Long) -> Unit, onAddProfile: () -> Unit, modifier: Mod
                 horizontalArrangement = Arrangement.spacedBy(28.dp),
                 modifier = Modifier.focusGroup().padding(horizontal = 48.dp),
             ) {
+                if (accountService != null) {
+                    item {
+                        AddTile(
+                            onClick = { showAccount = true },
+                            label = accountSession?.login ?: stringResource(tv.own.owntv.core.R.string.account_tile_sign_in),
+                            icon = OwnTVIcon.PERSON,
+                        )
+                    }
+                }
                 items(visibleProfiles, key = { it.id }) { p ->
                     val requester = profileFocus.getOrPut(p.id) { FocusRequester() }
                     ProfileTile(
