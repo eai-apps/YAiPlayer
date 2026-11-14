@@ -1031,7 +1031,8 @@ class LiveTuneController(
                 engine = if (onExo) "ExoPlayer" else "mpv",
                 live = true,
                 reason = reason,
-                detail = detail,
+                // The channel's tracks with the failure (owner 15.11): what it carried, what was switched on.
+                detail = LiveDiagnosticsLog.currentTracks?.let { "$detail\n  tracks — $it" } ?: detail,
             )
 
         override fun onEngineStarted() = engineStarted()

@@ -887,6 +887,7 @@ class LivePreviewEngine(
         }.joinToString("; ")
         if (line.isEmpty() || line == lastTracksLine) return
         lastTracksLine = line
+        LiveDiagnosticsLog.currentTracks = "ExoPlayer: $line"
         LiveDiagnosticsLog.event("tracks: $line")
     }
     private var fpsAttempts = 0
@@ -1699,6 +1700,7 @@ class LivePreviewEngine(
         directSource: String? = null,
     ) {
         LiveDiagnosticsLog.event("play() engine=$engineId url=${HttpClient.redactUrl(url)} muted=$muted")
+        LiveDiagnosticsLog.currentTracks = null; lastTracksLine = null
         // THE reset. Everything a new channel must not inherit from the previous one lives in
         // [TuneState], so forgetting it is one assignment that cannot be partially done.
         tune = TuneState(playStartedMs = android.os.SystemClock.elapsedRealtime())

@@ -2995,6 +2995,7 @@ class OwnTVPlayer(
         isLiveContent = isLive
         currentUrl = url
         currentContentKey = meta.contentKey
+        LiveDiagnosticsLog.currentTracks = null
         LiveDiagnosticsLog.event(
             "mpv_load live=$isLive url=${HttpClient.redactUrl(url)} " +
                 "ua=${if (currentUserAgent.isNullOrBlank()) "default" else "custom"}",
@@ -4897,7 +4898,10 @@ class OwnTVPlayer(
                 val on = if (m.getPropertyBoolean("track-list/$i/selected") == true) " [ON]" else ""
                 "$type $codec $lang $extra$on"
             }
-            if (line.isNotEmpty()) LiveDiagnosticsLog.event("mpv tracks: $line")
+            if (line.isNotEmpty()) {
+                LiveDiagnosticsLog.currentTracks = "mpv: $line"
+                LiveDiagnosticsLog.event("mpv tracks: $line")
+            }
         }
     }
 

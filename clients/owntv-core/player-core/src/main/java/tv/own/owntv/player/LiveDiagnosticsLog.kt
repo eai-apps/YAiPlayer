@@ -24,6 +24,13 @@ object LiveDiagnosticsLog {
 
     @Volatile var enabled: Boolean = CoreBuildInfo.debug || CoreBuildInfo.diagnosticBuild
 
+    /**
+     * The current channel's tracks (video, audio, subtitles: codec, language, support), as the engine last
+     * read them; cleared at each new load. Owner 15.11: written into the error journal with each failure,
+     * so an error says what the channel carried. Null until the engine has read them.
+     */
+    @Volatile var currentTracks: String? = null
+
     private const val MAX_EVENTS = 1000
 
     /**
