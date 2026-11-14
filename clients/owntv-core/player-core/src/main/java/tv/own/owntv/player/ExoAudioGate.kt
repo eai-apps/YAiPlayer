@@ -59,7 +59,17 @@ object FfmpegAudio {
      * track a device decoder rates "exceeds capabilities" — tracks the chip plays fine — away from it.
      */
     fun takes(mime: String, deviceDecoder: (String) -> Boolean, ffmpeg: (String) -> Boolean): Boolean =
-        !deviceDecoder(mime) && ffmpeg(mime)
+        if (mime in FFMPEG_FIRST) ffmpeg(mime) else !deviceDecoder(mime) && ffmpeg(mime)
+
+    /**
+     * MPEG audio layers I/II go to FFmpeg whatever the device lists (owner 14.11, VS KM6: «Amedia Premium HD»
+     * — MP2 + AC3 + MP2 — kept failing with «no decoder» for audio/mpeg-L2 on the MediaCodec renderer while
+     * single-MP2 channels played through FFmpeg). The MediaCodec renderer is denied them in [hideFromDevice].
+     */
+    val FFMPEG_FIRST = setOf(MimeTypes.AUDIO_MPEG_L1, MimeTypes.AUDIO_MPEG_L2)
+
+    /** The MediaCodec audio renderer is told there is no decoder for [mime]: FFmpeg has it instead. */
+    fun hideFromDevice(mime: String): Boolean = mime in FFMPEG_FIRST && supports(mime)
 }
 
 /** Which audio ExoPlayer can play — the film engine's hand-off gate and the "no playable audio" check. */

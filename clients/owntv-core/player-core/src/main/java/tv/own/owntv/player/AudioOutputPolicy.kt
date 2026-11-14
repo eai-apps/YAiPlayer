@@ -176,8 +176,12 @@ class OwnTVRenderersFactory(
         eventListener: AudioRendererEventListener,
         out: ArrayList<Renderer>,
     ) {
+        // MP1/MP2 only through FFmpeg (see FfmpegAudio.FFMPEG_FIRST): the device renderer never claims them.
+        val selector = if (FfmpegAudio.available) MediaCodecSelector { mime, secure, tunneling ->
+            if (FfmpegAudio.hideFromDevice(mime)) emptyList() else mediaCodecSelector.getDecoderInfos(mime, secure, tunneling)
+        } else mediaCodecSelector
         super.buildAudioRenderers(
-            context, extensionRendererMode, mediaCodecSelector, enableDecoderFallback,
+            context, extensionRendererMode, selector, enableDecoderFallback,
             audioSink, eventHandler, eventListener, out,
         )
         if (FfmpegAudio.available) out.add(FfmpegAudioRenderer(eventHandler, eventListener, audioSink))

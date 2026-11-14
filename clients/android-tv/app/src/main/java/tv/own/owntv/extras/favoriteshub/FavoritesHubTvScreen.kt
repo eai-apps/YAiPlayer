@@ -98,7 +98,8 @@ fun FavoritesHubTvScreen(
             .fillMaxSize()
             .onFocusChanged { if (it.hasFocus) onChildFocused() }
             .focusGroup(),
-        contentPadding = PaddingValues(top = 40.mpx, bottom = 64.mpx),
+        // Below the shell's status pills and clock (≈34 + 70 px), which this header ran into.
+        contentPadding = PaddingValues(top = 120.mpx, bottom = 64.mpx),
         verticalArrangement = Arrangement.spacedBy(24.mpx),
     ) {
         // Header with title and Playlist filter pills
@@ -150,9 +151,11 @@ private fun FavoritesHubHeaderTv(
             .fillMaxWidth()
             .padding(start = contentStart, end = 64.mpx),
     ) {
+        // Filters right after the title, not pushed to the right edge: there they sat under the shell's
+        // «Last channel» and playlist pills and the clock (owner 14.11, photo).
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            horizontalArrangement = Arrangement.spacedBy(28.mpx),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(

@@ -861,7 +861,22 @@ class LivePreviewEngine(
             // A CH+/− press that led here adds the whole wait the user saw, including the app's zap delay.
             val sincePress = ZapTiming.sincePress(t.pressAtMs, now)
             LiveDiagnosticsLog.event("first frame after ${now - t.startedMs}ms${ZapTiming.pressSuffix(sincePress)}")
+            mainHandler.removeCallbacks(noAudioCheck)
+            noAudioCheckUrl = currentUrl
+            mainHandler.postDelayed(noAudioCheck, NO_AUDIO_CHECK_MS)
         }
+    }
+    /** Picture but no audio track at all on HLS: reopen once from the segments (see [buildHlsFactory]). */
+    @Volatile private var noAudioCheckUrl: String? = null
+    private val noAudioCheck: Runnable = Runnable {
+        val p = player ?: return@Runnable
+        val url = currentUrl ?: return@Runnable
+        if (url != noAudioCheckUrl || _state.value == State.ERROR) return@Runnable
+        if (!activeIsHls || LiveStreamQuirks.needsFullHlsPrepare(nonIdrKey(url))) return@Runnable
+        if (p.currentTracks.groups.any { it.type == androidx.media3.common.C.TRACK_TYPE_AUDIO }) return@Runnable
+        LiveStreamQuirks.rememberNeedsFullHlsPrepare(nonIdrKey(url))
+        LiveDiagnosticsLog.event("HLS opened with no audio track — reopening without chunkless preparation")
+        rebuildForSettingChange()
     }
     private var fpsAttempts = 0
     private val fpsFastRefresh: Runnable = Runnable {
@@ -1062,6 +1077,11 @@ class LivePreviewEngine(
                 }
             } else {
                 openStuckPolls = 0
+                // Owner 14.11, «FilmBox+ Festival» (raw TS, mpv: «non-existing PPS 0 referenced»): sound decoded,
+                // picture never, and the buffer never reached the start mark, so (1) never fired and the channel
+                // sat 12 s before mpv. Data is arriving without a picture: try the keyframes-without-IDR reader
+                // early, once per channel, as (1) would.
+                if (buffered > 0L && waitedMs >= NON_IDR_EARLY_MS && !_audioOnly.value && retryWithNonIdrKeyframes(url)) return
             }
             // (2) a pre-roll the stream can't fill.
             val targetMs = effectivePrerollSecs() * 1000L
@@ -2001,6 +2021,7 @@ class LivePreviewEngine(
     /** Stop playback and free the decoder/connection (e.g. before mpv takes over for fullscreen). Keeps the
      *  ExoPlayer instance alive for the next preview. */
     fun stop() {
+        mainHandler.removeCallbacks(noAudioCheck)
         LiveDiagnosticsLog.event("stop() — intentional")
         tune.stoppingIntentionally = true
         currentUrl = null
@@ -3372,8 +3393,11 @@ class LivePreviewEngine(
             .setDrmSessionManagerProvider(tv.own.owntv.core.drm.InlineClearKeyDrmProvider)
     }
 
-    private fun buildHlsFactory(tsFlags: Int): HlsMediaSource.Factory =
+    private fun buildHlsFactory(tsFlags: Int, chunkless: Boolean = true): HlsMediaSource.Factory =
         HlsMediaSource.Factory(cachedHttpDataSource!!)
+            // Chunkless preparation builds the tracks from the playlist's CODECS alone; a playlist that names
+            // only the video leaves the channel without sound. Such a channel is opened from its segments.
+            .setAllowChunklessPreparation(chunkless)
             .setDrmSessionManagerProvider(tv.own.owntv.core.drm.InlineClearKeyDrmProvider)
             // Read per playlist load, so the setting needs no cache reset.
             .setPlaylistParserFactory(SdrVariants.ParserFactory { preferSdr })
@@ -3395,7 +3419,9 @@ class LivePreviewEngine(
         } else cachedDefaultFactory!!
 
     private fun hlsFactoryFor(url: String): HlsMediaSource.Factory =
-        if (LiveStreamQuirks.needsNonIdrKeyframes(nonIdrKey(url))) {
+        if (LiveStreamQuirks.needsFullHlsPrepare(nonIdrKey(url))) {
+            buildHlsFactory(if (LiveStreamQuirks.needsNonIdrKeyframes(nonIdrKey(url))) NON_IDR_TS_FLAGS else 0, chunkless = false)
+        } else if (LiveStreamQuirks.needsNonIdrKeyframes(nonIdrKey(url))) {
             cachedHlsFactoryNonIdr ?: buildHlsFactory(NON_IDR_TS_FLAGS).also { cachedHlsFactoryNonIdr = it }
         } else cachedHlsCcFactory!!
 
@@ -3918,6 +3944,8 @@ class LivePreviewEngine(
         private const val FLAP_LIMIT = 12
         private const val MAX_FLAP_REOPENS = 3
         private const val MAX_CAUSE_TEXT = 1500
+        private const val NO_AUDIO_CHECK_MS = 2_500L
+        private const val NON_IDR_EARLY_MS = 4_500L
         private val DECODER_CAUSE_CODES = setOf(
             PlaybackException.ERROR_CODE_DECODER_INIT_FAILED,
             PlaybackException.ERROR_CODE_DECODER_QUERY_FAILED,

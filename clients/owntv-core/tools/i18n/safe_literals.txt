@@ -6798,6 +6798,7 @@
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	FairPlay-protected channel — not playable on Android
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	H.264
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	HEVC
+1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	HLS opened with no audio track — reopening without chunkless preparation
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	HTTP $HTTP_TOO_MANY_REQUESTS with Retry-After ${secs}s — waiting it out and retrying automatically
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	HTTP 458 while the previous engine's session was still open — waiting and retrying once
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	IDLE

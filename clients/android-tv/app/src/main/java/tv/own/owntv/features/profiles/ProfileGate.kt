@@ -175,6 +175,8 @@ fun ProfileGate(onEnter: (Long) -> Unit, onAddProfile: () -> Unit, modifier: Mod
                 }
             }
         }
+        }
+        GateVersionCorner(Modifier.align(Alignment.TopEnd).padding(top = 36.mpx, end = 48.mpx))
     }
 
     menuProfile?.let { p ->
@@ -333,5 +335,42 @@ private fun AddTile(onClick: () -> Unit, label: String = stringResource(R.string
         }
         Spacer(Modifier.height(10.dp))
         Text(label, style = tv.own.owntv.ui.theme.stageText(32, 600), color = tv.own.owntv.ui.theme.StageColors.Muted)
+    }
+}
+
+/**
+ * Owner 14.11: the version in the top-right corner of «Кто смотрит?», with the update check beside it,
+ * and «Обновить сейчас» when a newer build is out (the beta's own channel on the beta).
+ */
+@Composable
+private fun GateVersionCorner(modifier: Modifier = Modifier) {
+    val manager = runCatching { org.koin.core.context.GlobalContext.get().get<tv.own.owntv.core.update.UpdateManager>() }.getOrNull()
+    val current = tv.own.owntv.BuildConfig.VERSION_NAME
+    val state = manager?.state?.collectAsStateWithLifecycle()?.value
+    LaunchedEffect(manager) { if (manager?.state?.value == tv.own.owntv.core.update.UpdateManager.State.Idle) manager.check() }
+    val R2 = tv.own.owntv.core.R.string
+    Column(modifier, horizontalAlignment = Alignment.End) {
+        Text("v$current", style = tv.own.owntv.ui.theme.stageText(22, 700), color = StageColors.Text)
+        val line = when (state) {
+            tv.own.owntv.core.update.UpdateManager.State.Checking -> stringResource(R2.update_checking)
+            tv.own.owntv.core.update.UpdateManager.State.UpToDate -> stringResource(R2.update_latest, current)
+            is tv.own.owntv.core.update.UpdateManager.State.Downloading -> stringResource(R2.update_downloading, state.percent)
+            is tv.own.owntv.core.update.UpdateManager.State.Available -> stringResource(R2.update_available_version, state.info.version, current)
+            else -> null
+        }
+        line?.let {
+            Spacer(Modifier.height(6.mpx))
+            Text(it, style = tv.own.owntv.ui.theme.stageText(17, 500), color = StageColors.Text.copy(alpha = 0.7f), textAlign = TextAlign.End)
+        }
+        if (state is tv.own.owntv.core.update.UpdateManager.State.Available) {
+            Spacer(Modifier.height(10.mpx))
+            tv.own.owntv.ui.stage.StageButton(
+                text = stringResource(R2.update_now),
+                onClick = { manager.downloadAndInstall() },
+                height = 52.mpx,
+                textSize = 19,
+                tinted = true,
+            )
+        }
     }
 }
