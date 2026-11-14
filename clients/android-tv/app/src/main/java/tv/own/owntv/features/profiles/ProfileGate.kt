@@ -175,7 +175,6 @@ fun ProfileGate(onEnter: (Long) -> Unit, onAddProfile: () -> Unit, modifier: Mod
                 }
             }
         }
-        }
         GateVersionCorner(Modifier.align(Alignment.TopEnd).padding(top = 36.mpx, end = 48.mpx))
     }
 
