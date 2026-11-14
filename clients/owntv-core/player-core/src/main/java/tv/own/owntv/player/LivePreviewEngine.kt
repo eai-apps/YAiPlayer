@@ -1514,7 +1514,12 @@ class LivePreviewEngine(
             _state.value = State.ERROR
             _isPlaying.value = false
             _buffering.value = false
-            val raw = tune.lastCodecError ?: diagnostics.recentError()
+            // Owner 14.11: the logcat line shown here was ACodec's ignored «setPortMode» warning while the real
+            // failure was «no decoder for audio/mpeg-L2». A decoder that could not start names itself first.
+            val initFailure = generateSequence(error.cause) { it.cause }
+                .filterIsInstance<androidx.media3.exoplayer.mediacodec.MediaCodecRenderer.DecoderInitializationException>().firstOrNull()
+            val raw = initFailure?.let { "decoder init failed for ${it.mimeType}: ${it.codecInfo?.name ?: "no decoder on this device"}" }
+                ?: tune.lastCodecError ?: diagnostics.recentError()
                 ?: error.errorCodeName + ((error.cause?.message ?: error.message)?.let { ": $it" } ?: "")
             _error.value = PlayerErrors.visibleFailure(raw, currentUrl, PlaybackFailure.Channel)
             _errorInfo.value = ErrorInfo(PlayerErrors.reasonFor(raw), exoSpec(), raw)

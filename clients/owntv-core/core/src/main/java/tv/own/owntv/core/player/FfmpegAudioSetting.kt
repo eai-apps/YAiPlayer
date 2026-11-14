@@ -4,8 +4,10 @@ import android.content.Context
 
 /**
  * "FFmpeg audio decoder": whether ExoPlayer may decode sound with the engine's FFmpeg, for formats the
- * device has no decoder for (DTS, TrueHD, MP2 on many boxes). Off by default — ExoPlayer then uses only
- * the device's own audio decoders and passthrough, exactly the audio path it had before FFmpeg audio.
+ * device has no decoder for (DTS, TrueHD, MP2 on many boxes). On by default since beta-12 (owner 14.11,
+ * VS KM6: many channels silent or failing in ExoPlayer — their first track is MP2, the box has no MP2
+ * decoder, and ExoPlayer then fails with DECODER_INIT_FAILED for audio/mpeg-L2). The device's own decoders
+ * and passthrough still win; FFmpeg takes only what they cannot. Off: the audio path from before FFmpeg audio.
  *
  * Read once per process, at app start ([load]), and fixed for the life of the process: a change only
  * takes effect after a restart, so no player ever runs half on one audio path and half on the other.
@@ -16,8 +18,10 @@ object FfmpegAudioSetting {
 
     private const val PREFS_NAME = "owntv_audio_engine"
     private const val KEY_FFMPEG_AUDIO = "ffmpeg_audio"
+    /** Also for installs that never touched the switch: they had no MP2 sound, not a choice. */
+    private const val DEFAULT_ON = true
 
-    /** What this process plays with. False until [load] runs, which means "off". */
+    /** What this process plays with. False until [load] runs. */
     @Volatile
     var active: Boolean = false
         private set
@@ -29,7 +33,7 @@ object FfmpegAudioSetting {
 
     /** The saved choice — what the next start of the app will use. */
     fun saved(context: Context): Boolean =
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).getBoolean(KEY_FFMPEG_AUDIO, false)
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).getBoolean(KEY_FFMPEG_AUDIO, DEFAULT_ON)
 
     /** Saves the choice for the next start. Written synchronously: the caller restarts the app right after. */
     fun save(context: Context, on: Boolean): Boolean =

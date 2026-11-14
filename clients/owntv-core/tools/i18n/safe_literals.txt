@@ -6849,6 +6849,7 @@
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	decoder failed before first frame ($why) — rebuild ${tune.decoderRebuilds} in ${delayMs}ms
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	decoder failure before first frame — rebuild ${tune.decoderRebuilds} in ${delayMs}ms
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	decoder failure cause: ${decoderCause(error)}
+1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	decoder init failed for ${it.mimeType}: ${it.codecInfo?.name ?: "no decoder on this device"}
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	device
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	discontinuitySeq=${manifest.mediaPlaylist.discontinuitySequence}
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	distinct segments on this load
@@ -6900,6 +6901,7 @@
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	network restored — resuming the channel the ladder gave up on
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	network revalidated
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	no data for ${failingSecs}s; gave up after ${tune.retryCount} reconnects
+1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	no decoder on this device
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	no picture after ${now - tune.readySinceMs}ms
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	no response from ${HttpClient.redactHost(host)} within ${RESPONSE_DEADLINE_MS}ms — request abandoned ($misses in a row)
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	not built
