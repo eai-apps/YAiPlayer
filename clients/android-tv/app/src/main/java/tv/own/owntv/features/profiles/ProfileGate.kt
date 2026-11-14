@@ -347,14 +347,13 @@ private fun GateVersionCorner(modifier: Modifier = Modifier) {
     val current = tv.own.owntv.BuildConfig.VERSION_NAME
     val state = manager?.state?.collectAsStateWithLifecycle()?.value
     LaunchedEffect(manager) { if (manager?.state?.value == tv.own.owntv.core.update.UpdateManager.State.Idle) manager.check() }
-    val R2 = tv.own.owntv.core.R.string
     Column(modifier, horizontalAlignment = Alignment.End) {
         Text("v$current", style = tv.own.owntv.ui.theme.stageText(22, 700), color = StageColors.Text)
         val line = when (state) {
-            tv.own.owntv.core.update.UpdateManager.State.Checking -> stringResource(R2.update_checking)
-            tv.own.owntv.core.update.UpdateManager.State.UpToDate -> stringResource(R2.update_latest, current)
-            is tv.own.owntv.core.update.UpdateManager.State.Downloading -> stringResource(R2.update_downloading, state.percent)
-            is tv.own.owntv.core.update.UpdateManager.State.Available -> stringResource(R2.update_available_version, state.info.version, current)
+            tv.own.owntv.core.update.UpdateManager.State.Checking -> stringResource(tv.own.owntv.core.R.string.update_checking)
+            tv.own.owntv.core.update.UpdateManager.State.UpToDate -> stringResource(tv.own.owntv.core.R.string.update_latest, current)
+            is tv.own.owntv.core.update.UpdateManager.State.Downloading -> stringResource(tv.own.owntv.core.R.string.update_downloading, state.percent)
+            is tv.own.owntv.core.update.UpdateManager.State.Available -> stringResource(tv.own.owntv.core.R.string.update_available_version, state.info.version, current)
             else -> null
         }
         line?.let {
@@ -364,7 +363,7 @@ private fun GateVersionCorner(modifier: Modifier = Modifier) {
         if (state is tv.own.owntv.core.update.UpdateManager.State.Available) {
             Spacer(Modifier.height(10.mpx))
             tv.own.owntv.ui.stage.StageButton(
-                text = stringResource(R2.update_now),
+                text = stringResource(tv.own.owntv.core.R.string.update_now),
                 onClick = { manager.downloadAndInstall() },
                 height = 52.mpx,
                 textSize = 19,
