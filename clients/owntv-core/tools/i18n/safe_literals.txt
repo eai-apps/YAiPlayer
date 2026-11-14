@@ -6752,8 +6752,9 @@
 1	log	player-core/src/main/java/tv/own/owntv/player/LiveLadder.kt	ExoPlayer + TS
 1	log	player-core/src/main/java/tv/own/owntv/player/LiveLadder.kt	mpv + HLS
 1	log	player-core/src/main/java/tv/own/owntv/player/LiveLadder.kt	mpv + TS
-12	empty	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	\0
+14	empty	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	\0
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	$idx@${LiveStreamQuirks.hostKey(abs)}${HttpClient.redactUrl(abs.substringAfter("://").substringAfter('/')).takeLast(28)}
+1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	$kind ${f.sampleMimeType ?: f.codecs ?: "?"} ${f.language ?: "-"} $detail [$support${if (g.isTrackSelected(i)) ", ON" else ""}]
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	$kind codec: ${e.message ?: e.javaClass.simpleName}
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	$kind codec: ${it.diagnosticInfo}
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	$name=${v.second}
@@ -6762,14 +6763,16 @@
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	${c.javaClass.simpleName}: ${c.message}
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	${error.errorCodeName} again after playing — this stream's content is unplayable on ExoPlayer
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	${error.errorCodeName} while a reconnect waits — running it now
-1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	${f.width}x${f.height}
+1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	${f.channelCount}ch ${f.sampleRate}Hz
+2	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	${f.width}x${f.height}
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	${tune.flapCount} re-buffers in ${now - tune.flapWindowStartMs}ms, position advanced ${advancedMs}ms
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	${videoSize.height}p
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	%.1f Mbps
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	%.2f:1
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	, $it
+1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	, ON
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	, init ${initializationDurationMs}ms)
-1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	-
+2	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	-
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	.
 2	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	.m3u8
 2	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	.mpd
@@ -6781,7 +6784,9 @@
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	7.1
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	: $it
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	://
+1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	;
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	<-
+1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	?
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	AV1
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	Age
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	Authorization
@@ -6798,7 +6803,6 @@
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	FairPlay-protected channel — not playable on Android
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	H.264
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	HEVC
-1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	HLS opened with no audio track — reopening without chunkless preparation
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	HTTP $HTTP_TOO_MANY_REQUESTS with Retry-After ${secs}s — waiting it out and retrying automatically
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	HTTP 458 while the previous engine's session was still open — waiting and retrying once
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	IDLE
@@ -6827,7 +6831,7 @@
 1	mime	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	application/dash+xml
 1	mime	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	application/vnd.apple.mpegurl
 1	mime	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	application/x-mpegurl
-2	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	audio
+3	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	audio
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	audio decoder released: $decoderName
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	audio decoder: $decoderName ($kind, init ${initializationDurationMs}ms)
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	audio format: ${format.sampleMimeType} ${format.sampleRate}Hz ${format.channelCount}ch
@@ -6910,6 +6914,7 @@
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	open stalled with no video renderer — reopening with keyframes without IDR allowed
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	open stalled — $detail
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	open stalled: $detail — the stream is buffered but unplayable here
+1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	other
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	output audio delay: $ms ms, engine total ${_audioDelayMs.value + ms} ms
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	owntv-http-evict
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	panel serves both HLS and plain TS — dropped the HLS lesson, retrying as TS
@@ -6982,8 +6987,9 @@
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	stream frozen — no progress ${noProgressMs}ms
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	targetDurSec=${playlist.targetDurationUs / 1_000_000.0} windowSec=${playlist.durationUs / 1_000_000.0}
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	targetOffsetSec=${targetOffsetSecs ?: -1}
-1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	text
+2	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	text
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	the renderer fell back after the hardware one failed
+1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	tracks: $line
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	tracks: audio=${audio.size} text=${text.size}
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	trying direct_source: ${HttpClient.redactUrl(target)}
 2	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	tunneled playback failed ($reason) — turned off on this device
@@ -6996,7 +7002,7 @@
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	url=${HttpClient.redactUrl(request.url.toString())}
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	url=${HttpClient.redactUrl(url)}
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	variants=${mv.variants.size} audios=${mv.audios.size} subs=${mv.subtitles.size}
-2	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	video
+3	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	video
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	video decoder: $decoderName (
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	video surface attached (${id(s)}), decoder ${if (player == null) "not built" else "running"}
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	video surface detached (${id(previous!!)})
@@ -7101,11 +7107,12 @@
 1	technical	player-core/src/main/java/tv/own/owntv/player/MpvLoadOptions.kt	video-sync
 1	technical	player-core/src/main/java/tv/own/owntv/player/MpvLoadOptions.kt	wait_keyframe=1
 2	technical	player-core/src/main/java/tv/own/owntv/player/MpvLoadOptions.kt	yes
-11	empty	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	\0
+13	empty	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	\0
 1	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	$STREAM_RECONNECT_OPTIONS,$LIVE_TS_RECONNECT_OPTIONS
 1	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	$reason — archive rescue: reopening mid-GOP catch-up in software decode
 1	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	$reason — rescue rung 1: hwdec=mediacodec-copy (GL compositing)
 1	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	$reason — rescue rung 2: software decode
+1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	$type $codec $lang $extra$on
 1	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	$what must be called on the main thread, was ${Thread.currentThread().name}
 2	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	${Math.round(it)} FPS
 1	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	${android.os.Build.MANUFACTURER} ${android.os.Build.BRAND}
@@ -7115,6 +7122,8 @@
 1	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	${h}p
 1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	${load.currentVideoCodec} is outside hwdec-codecs
 2	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	${load.currentWidthPx}x${load.currentHeightPx}
+1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	${m.getPropertyInt("track-list/$i/demux-channel-count") ?: 0}ch ${m.getPropertyInt("track-list/$i/demux-samplerate") ?: 0}Hz
+1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	${m.getPropertyInt("track-list/$i/demux-w") ?: 0}x${m.getPropertyInt("track-list/$i/demux-h") ?: 0}
 1	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	${prefix.trim().trimEnd(':')}: $t
 1	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	${width}x$height
 1	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	%.1f
@@ -7125,7 +7134,7 @@
 1	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	+nobuffer+genpts
 1	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	+nobuffer+genpts+discardcorrupt
 1	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	,
-1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	-
+2	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	-
 1	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	.ts
 1	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	/sdk_
 3	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	0
@@ -7142,6 +7151,8 @@
 1	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	7.1
 1	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	8MiB
 1	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	://
+1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	;
+2	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	?
 1	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	Android SDK built for
 1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	CC software-decode override ${if (on) "ON" else "OFF"} (height=${load.currentHeightPx}px)
 1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	CC track selected but software decode not viable (height=${load.currentHeightPx}px, gl=${!glUnsupported}) — captions may stay empty
@@ -7181,6 +7192,7 @@
 1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	VOD starting on ExoPlayer (preferred engine setting)
 1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	VOD terminally failed on ExoPlayer ($exoError) — falling back to mpv
 1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	VOD terminally failed on mpv ($mpvError) — falling back to ExoPlayer
+1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	[ON]
 1	regex	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	[a-z0-9_]+
 4	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	af
 1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	af=${getPropertyString("af").orEmpty().ifEmpty { "none" }}
@@ -7196,7 +7208,7 @@
 1	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	archive didn't start on hardware
 1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	archive stalled for ${now - stillSince}ms at ${pos}ms
 1	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	attachSurface
-1	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	audio
+2	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	audio
 1	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	audio drained ${"%.1f".format(vfps / cfps)}× too fast
 1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	audio filters: ${getPropertyString("af").orEmpty().ifEmpty { "none" }}
 1	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	audio output produced no sound
@@ -7367,6 +7379,7 @@
 1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	mpv surface attached in ${android.os.SystemClock.elapsedRealtime() - t0}ms, pending load=$pendingLoad
 1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	mpv surface detach still queued after ${SURFACE_DETACH_WAIT_MS}ms — mpv core busy
 1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	mpv surface detached in ${android.os.SystemClock.elapsedRealtime() - t0}ms
+1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	mpv tracks: $line
 1	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	mpv-cmd
 1	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	mpv-version
 1	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	mpv: $reason
@@ -7456,16 +7469,19 @@
 4	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	time-pos
 1	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	tls-verify
 1	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	tone-mapping
-1	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	track-list/$i/codec
+2	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	track-list/$i/codec
+1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	track-list/$i/demux-channel-count
 1	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	track-list/$i/demux-fps
-1	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	track-list/$i/demux-h
+2	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	track-list/$i/demux-h
+1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	track-list/$i/demux-samplerate
+1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	track-list/$i/demux-w
 1	protocol	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	track-list/$i/forced
 2	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	track-list/$i/id
-1	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	track-list/$i/lang
-1	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	track-list/$i/selected
+2	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	track-list/$i/lang
+3	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	track-list/$i/selected
 1	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	track-list/$i/title
-3	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	track-list/$i/type
-3	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	track-list/count
+4	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	track-list/$i/type
+4	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	track-list/count
 1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	trimmed probe found no audio — re-probing fully
 1	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	ua=${if (currentUserAgent.isNullOrBlank()) "default" else "custom"}
 3	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	unknown
@@ -7477,7 +7493,7 @@
 1	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	vd-lavc-fast
 1	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	vd-lavc-skiploopfilter
 4	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	vid
-2	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	video
+3	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	video
 1	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	video-aspect-override
 5	technical	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	video-bitrate
 1	log	player-core/src/main/java/tv/own/owntv/player/OwnTVPlayer.kt	video-bitrate=${getPropertyString("video-bitrate")}

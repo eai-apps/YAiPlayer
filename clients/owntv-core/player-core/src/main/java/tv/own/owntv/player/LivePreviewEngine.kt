@@ -861,22 +861,33 @@ class LivePreviewEngine(
             // A CH+/− press that led here adds the whole wait the user saw, including the app's zap delay.
             val sincePress = ZapTiming.sincePress(t.pressAtMs, now)
             LiveDiagnosticsLog.event("first frame after ${now - t.startedMs}ms${ZapTiming.pressSuffix(sincePress)}")
-            mainHandler.removeCallbacks(noAudioCheck)
-            noAudioCheckUrl = currentUrl
-            mainHandler.postDelayed(noAudioCheck, NO_AUDIO_CHECK_MS)
         }
     }
-    /** Picture but no audio track at all on HLS: reopen once from the segments (see [buildHlsFactory]). */
-    @Volatile private var noAudioCheckUrl: String? = null
-    private val noAudioCheck: Runnable = Runnable {
-        val p = player ?: return@Runnable
-        val url = currentUrl ?: return@Runnable
-        if (url != noAudioCheckUrl || _state.value == State.ERROR) return@Runnable
-        if (!activeIsHls || LiveStreamQuirks.needsFullHlsPrepare(nonIdrKey(url))) return@Runnable
-        if (p.currentTracks.groups.any { it.type == androidx.media3.common.C.TRACK_TYPE_AUDIO }) return@Runnable
-        LiveStreamQuirks.rememberNeedsFullHlsPrepare(nonIdrKey(url))
-        LiveDiagnosticsLog.event("HLS opened with no audio track — reopening without chunkless preparation")
-        rebuildForSettingChange()
+    @Volatile private var lastTracksLine: String? = null
+
+    /**
+     * Owner 15.11: every track the channel carries in the exported journal — codec, language, channels,
+     * whether this device can play it and which one is on — so a silent or failing channel shows why.
+     */
+    private fun logTracks(tracks: androidx.media3.common.Tracks) {
+        val line = tracks.groups.flatMap { g ->
+            (0 until g.length).map { i ->
+                val f = g.getTrackFormat(i)
+                val kind = when (g.type) {
+                    C.TRACK_TYPE_VIDEO -> "video"; C.TRACK_TYPE_AUDIO -> "audio"; C.TRACK_TYPE_TEXT -> "text"; else -> "other"
+                }
+                val detail = when (g.type) {
+                    C.TRACK_TYPE_VIDEO -> "${f.width}x${f.height}"
+                    C.TRACK_TYPE_AUDIO -> "${f.channelCount}ch ${f.sampleRate}Hz"
+                    else -> ""
+                }
+                val support = androidx.media3.common.C.getFormatSupportString(g.getTrackSupport(i))
+                "$kind ${f.sampleMimeType ?: f.codecs ?: "?"} ${f.language ?: "-"} $detail [$support${if (g.isTrackSelected(i)) ", ON" else ""}]"
+            }
+        }.joinToString("; ")
+        if (line.isEmpty() || line == lastTracksLine) return
+        lastTracksLine = line
+        LiveDiagnosticsLog.event("tracks: $line")
     }
     private var fpsAttempts = 0
     private val fpsFastRefresh: Runnable = Runnable {
@@ -1081,7 +1092,7 @@ class LivePreviewEngine(
                 // picture never, and the buffer never reached the start mark, so (1) never fired and the channel
                 // sat 12 s before mpv. Data is arriving without a picture: try the keyframes-without-IDR reader
                 // early, once per channel, as (1) would.
-                if (buffered > 0L && waitedMs >= NON_IDR_EARLY_MS && !_audioOnly.value && retryWithNonIdrKeyframes(url)) return
+                if (waitedMs >= NON_IDR_EARLY_MS && !_audioOnly.value && retryWithNonIdrKeyframes(url)) return
             }
             // (2) a pre-roll the stream can't fill.
             val targetMs = effectivePrerollSecs() * 1000L
@@ -1419,6 +1430,7 @@ class LivePreviewEngine(
         }
 
         override fun onTracksChanged(tracks: androidx.media3.common.Tracks) {
+            logTracks(tracks)
             rebuildTracks(tracks); updateStreamChips(); ensureFpsMeasurement()
         }
         override fun onCues(cueGroup: androidx.media3.common.text.CueGroup) { _cues.value = cueGroup.cues }
@@ -2021,7 +2033,6 @@ class LivePreviewEngine(
     /** Stop playback and free the decoder/connection (e.g. before mpv takes over for fullscreen). Keeps the
      *  ExoPlayer instance alive for the next preview. */
     fun stop() {
-        mainHandler.removeCallbacks(noAudioCheck)
         LiveDiagnosticsLog.event("stop() — intentional")
         tune.stoppingIntentionally = true
         currentUrl = null
@@ -3393,10 +3404,14 @@ class LivePreviewEngine(
             .setDrmSessionManagerProvider(tv.own.owntv.core.drm.InlineClearKeyDrmProvider)
     }
 
-    private fun buildHlsFactory(tsFlags: Int, chunkless: Boolean = true): HlsMediaSource.Factory =
+    private fun buildHlsFactory(tsFlags: Int, chunkless: Boolean = false): HlsMediaSource.Factory =
         HlsMediaSource.Factory(cachedHttpDataSource!!)
-            // Chunkless preparation builds the tracks from the playlist's CODECS alone; a playlist that names
-            // only the video leaves the channel without sound. Such a channel is opened from its segments.
+            // No chunkless preparation (owner 14–15.11, VS KM6). It builds the tracks from the playlist's
+            // CODECS line alone, and this provider's lines are wrong: «Viasat Kino HD» named no audio (picture
+            // without sound), «Amedia Premium HD» named its MP2 as MP3, so the device's MP3 decoder was picked
+            // and then failed on the real MP2 («no decoder», every time, then mpv). Prepared from the first
+            // segment the tracks are what the stream carries — and Viasat's first frame came sooner (813 ms
+            // against 1074 ms chunkless).
             .setAllowChunklessPreparation(chunkless)
             .setDrmSessionManagerProvider(tv.own.owntv.core.drm.InlineClearKeyDrmProvider)
             // Read per playlist load, so the setting needs no cache reset.
@@ -3419,9 +3434,7 @@ class LivePreviewEngine(
         } else cachedDefaultFactory!!
 
     private fun hlsFactoryFor(url: String): HlsMediaSource.Factory =
-        if (LiveStreamQuirks.needsFullHlsPrepare(nonIdrKey(url))) {
-            buildHlsFactory(if (LiveStreamQuirks.needsNonIdrKeyframes(nonIdrKey(url))) NON_IDR_TS_FLAGS else 0, chunkless = false)
-        } else if (LiveStreamQuirks.needsNonIdrKeyframes(nonIdrKey(url))) {
+        if (LiveStreamQuirks.needsNonIdrKeyframes(nonIdrKey(url))) {
             cachedHlsFactoryNonIdr ?: buildHlsFactory(NON_IDR_TS_FLAGS).also { cachedHlsFactoryNonIdr = it }
         } else cachedHlsCcFactory!!
 
@@ -3944,7 +3957,6 @@ class LivePreviewEngine(
         private const val FLAP_LIMIT = 12
         private const val MAX_FLAP_REOPENS = 3
         private const val MAX_CAUSE_TEXT = 1500
-        private const val NO_AUDIO_CHECK_MS = 2_500L
         private const val NON_IDR_EARLY_MS = 4_500L
         private val DECODER_CAUSE_CODES = setOf(
             PlaybackException.ERROR_CODE_DECODER_INIT_FAILED,

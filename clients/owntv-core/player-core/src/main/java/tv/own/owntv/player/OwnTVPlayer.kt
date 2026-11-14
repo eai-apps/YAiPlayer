@@ -4877,6 +4877,28 @@ class OwnTVPlayer(
             "mpv live first position after ${now - l.loadStartTime}ms " +
                 "(file loaded ${since(l.fileLoadedAt)}, video ${since(l.firstVideoAt)})${ZapTiming.pressSuffix(sincePress)}",
         )
+        logMpvTracks()
+    }
+
+    /** Owner 15.11: the channel's whole track list in the journal, as ExoPlayer's «tracks:» line. Event thread. */
+    private fun logMpvTracks() {
+        val m = mpv ?: return
+        runCatching {
+            val count = m.getPropertyInt("track-list/count") ?: 0
+            val line = (0 until count).joinToString("; ") { i ->
+                val type = m.getPropertyString("track-list/$i/type") ?: "?"
+                val codec = m.getPropertyString("track-list/$i/codec") ?: "?"
+                val lang = m.getPropertyString("track-list/$i/lang") ?: "-"
+                val extra = when (type) {
+                    "video" -> "${m.getPropertyInt("track-list/$i/demux-w") ?: 0}x${m.getPropertyInt("track-list/$i/demux-h") ?: 0}"
+                    "audio" -> "${m.getPropertyInt("track-list/$i/demux-channel-count") ?: 0}ch ${m.getPropertyInt("track-list/$i/demux-samplerate") ?: 0}Hz"
+                    else -> ""
+                }
+                val on = if (m.getPropertyBoolean("track-list/$i/selected") == true) " [ON]" else ""
+                "$type $codec $lang $extra$on"
+            }
+            if (line.isNotEmpty()) LiveDiagnosticsLog.event("mpv tracks: $line")
+        }
     }
 
     private fun updateAspect() {

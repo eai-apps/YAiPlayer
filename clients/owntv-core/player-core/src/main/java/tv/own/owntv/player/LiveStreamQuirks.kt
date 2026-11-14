@@ -132,7 +132,6 @@ object LiveStreamQuirks {
     private val tolerantDemuxStreams = urlLessonSet()
     private val prerollDefeatedStreams = urlLessonSet()
     private val nonIdrStreams = urlLessonSet()
-    private val fullPrepareHlsStreams = urlLessonSet()
     private val softwareVideoStreams = urlLessonSet()
     private val exoFailedChannels = urlLessonSet()
     private val exoFailStrikes = ConcurrentHashMap<Long, Int>()
@@ -347,10 +346,6 @@ object LiveStreamQuirks {
      */
     fun rememberNeedsNonIdrKeyframes(key: String) { nonIdrStreams += key }
 
-    /** HLS whose playlist hides its audio (owner 14.11, «Viasat Kino HD»: picture, no sound track at all). */
-    fun rememberNeedsFullHlsPrepare(key: String) { fullPrepareHlsStreams += key }
-    fun needsFullHlsPrepare(key: String): Boolean = key in fullPrepareHlsStreams
-
     fun needsNonIdrKeyframes(key: String): Boolean = key in nonIdrStreams
 
     /**
@@ -447,7 +442,7 @@ object LiveStreamQuirks {
     internal fun clearForTest() {
         hlsRedirectHosts.clear(); mixedHlsHosts.clear(); segmentRefusingHosts.clear(); singleSessionHosts.clear()
         brokenTimestampStreams.clear(); softwareArchiveHosts.clear()
-        noHlsVariantStreams.clear(); noHlsVariantMpvStreams.clear(); prerollDefeatedStreams.clear(); nonIdrStreams.clear(); fullPrepareHlsStreams.clear(); softwareVideoStreams.clear(); exoFailedChannels.clear(); exoFailStrikes.clear()
+        noHlsVariantStreams.clear(); noHlsVariantMpvStreams.clear(); prerollDefeatedStreams.clear(); nonIdrStreams.clear(); softwareVideoStreams.clear(); exoFailedChannels.clear(); exoFailStrikes.clear()
         tolerantDemuxStreams.clear()
         uaBlockingHosts.clear(); providerMessages.clear()
     }
