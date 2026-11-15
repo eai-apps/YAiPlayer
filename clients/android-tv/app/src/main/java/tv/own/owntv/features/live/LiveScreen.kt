@@ -462,20 +462,45 @@ fun LiveScreen(
     // Returning from fullscreen: scroll to and focus the channel you were watching (waits for the list to load).
     // Also used by "Startup → Live · Favorites": there's no remembered channel yet, so land on the first row
     // (not the nav panel).
-    LaunchedEffect(restoreFocus, channels.itemCount) {
+    // Owner 15.11 (beta-22): after «Продолжить» the screen is composed fresh with the list at its top, and a
+    // single focus request 60 ms in lost to the rail. Now it keeps trying for up to ~3 s: scroll the row in,
+    // focus it by its own position requester (not only selFocus, which follows the preview id), and hand
+    // a row not loaded yet to the reveal path. A miss is written to the journal, nothing else is.
+    LaunchedEffect(restoreFocus, channels.itemCount > 0) {
         if (!restoreFocus || channels.itemCount == 0) return@LaunchedEffect
         val ch = previewChannel
-        val idx = if (ch != null) channels.itemSnapshotList.indexOfFirst { it?.id == ch.id } else -1
-        if (idx >= 0) {
-            revealRow(idx)
-            delay(60)
-            runCatching { selFocus.requestFocus() }
-        } else if (ch != null) {
-            // Not among the rows loaded yet (deep in a long category): find its place and scroll there.
-            vm.revealInSelected(ch.id)
-        } else {
+        if (ch == null) {
             delay(60)
             runCatching { firstItemFocus.requestFocus() }
+            onRestored()
+            return@LaunchedEffect
+        }
+        var askedReveal = false
+        var focused = false
+        var lastIdx = -1
+        for (attempt in 0 until RESTORE_ATTEMPTS) {
+            if (vm.reveal.value != null) { focused = true; break } // the reveal path owns it now
+            val idx = channels.itemSnapshotList.indexOfFirst { it?.id == ch.id }
+            lastIdx = idx
+            if (idx >= 0) {
+                revealRow(idx)
+                withFrameNanos { }
+                val ok = runCatching { selFocus.requestFocus() }.getOrDefault(false) ||
+                    runCatching { rowFocus(idx).requestFocus() }.getOrDefault(false)
+                if (ok) focused = true
+                // Hold it for a few frames: the shell's rail focus on exit can land after the first one.
+                if (focused && attempt >= RESTORE_HOLD_ATTEMPTS) break
+            } else if (!askedReveal && attempt >= 2) {
+                // Not among the rows loaded yet (deep in a long category): find its place and scroll there.
+                askedReveal = true
+                vm.revealInSelected(ch.id)
+            }
+            delay(100)
+        }
+        if (!focused) {
+            tv.own.owntv.player.LiveDiagnosticsLog.event(
+                "focus-restore miss: channel=${ch.id} key=$selectedKey loadedIdx=$lastIdx rows=${channels.itemCount} reveal=$askedReveal",
+            )
         }
         onRestored()
     }
@@ -494,7 +519,8 @@ fun LiveScreen(
                 if (idx >= 0) {
                     revealRow(idx)
                     withFrameNanos { }
-                    if (runCatching { selFocus.requestFocus() }.getOrDefault(false)) found = true
+                    if (runCatching { selFocus.requestFocus() }.getOrDefault(false) ||
+                        runCatching { rowFocus(idx).requestFocus() }.getOrDefault(false)) found = true
                     if (found && attempt >= 8) break
                 } else {
                     runCatching { effectiveListState.scrollToItem(r.position.coerceAtMost(channels.itemCount - 1)) }
@@ -502,7 +528,10 @@ fun LiveScreen(
             }
             delay(100)
         }
-        if (!found) runCatching { firstItemFocus.requestFocus() }
+        if (!found) {
+            tv.own.owntv.player.LiveDiagnosticsLog.event("focus-reveal miss: channel=${r.id} key=${r.key} position=${r.position} rows=${channels.itemCount}")
+            runCatching { firstItemFocus.requestFocus() }
+        }
         vm.revealDone()
     }
 
@@ -1594,3 +1623,6 @@ internal fun liveEpgShiftLabel(minutes: Int): String {
         )
     }
 }
+
+private const val RESTORE_ATTEMPTS = 30
+private const val RESTORE_HOLD_ATTEMPTS = 6

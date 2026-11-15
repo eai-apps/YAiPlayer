@@ -170,6 +170,8 @@
 1	json	app/src/main/java/tv/own/owntv/features/live/LiveScreen.kt	check_epg
 2	technical	app/src/main/java/tv/own/owntv/features/live/LiveScreen.kt	epg_offset
 1	preference-key	app/src/main/java/tv/own/owntv/features/live/LiveScreen.kt	favourite
+1	log	app/src/main/java/tv/own/owntv/features/live/LiveScreen.kt	focus-restore miss: channel=${ch.id} key=$selectedKey loadedIdx=$lastIdx rows=${channels.itemCount} reveal=$askedReveal
+1	log	app/src/main/java/tv/own/owntv/features/live/LiveScreen.kt	focus-reveal miss: channel=${r.id} key=${r.key} position=${r.position} rows=${channels.itemCount}
 1	preference-key	app/src/main/java/tv/own/owntv/features/live/LiveScreen.kt	hide
 2	technical	app/src/main/java/tv/own/owntv/features/live/LiveScreen.kt	match_epg
 1	preference-key	app/src/main/java/tv/own/owntv/features/live/LiveScreen.kt	move
