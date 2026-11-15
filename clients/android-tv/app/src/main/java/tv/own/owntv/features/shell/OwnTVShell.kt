@@ -489,6 +489,14 @@ fun OwnTVShell(
             tv.own.owntv.core.settings.StartupMode.LAST_CHANNEL -> {
                 val ch = liveVm.lastWatchedLiveChannel()
                 if (ch != null && playerMode == PlayerMode.NONE) {
+                    // Owner 15.11: Back from this start (quick start, «Продолжить») lands in Live TV on the
+                    // channel's category with the cursor on it — not on Home with the list at its top.
+                    if (liveVm.isVisibleToActiveProfile(ch)) {
+                        liveVm.select(liveVm.railKeyOf(ch))
+                        liveVm.onChannelFocused(ch)
+                        onSelectSection(MainSection.LIVE_TV)
+                        restoreFocus = true
+                    }
                     zapSource = MainSection.LIVE_TV
                     // There is no caller-owned browse rail here. Let LiveViewModel build the channel's
                     // provider context instead of permanently arming a one-item list that disables CH+/CH-.
