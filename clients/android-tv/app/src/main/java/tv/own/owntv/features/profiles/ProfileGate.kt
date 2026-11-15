@@ -66,6 +66,9 @@ fun ProfileGate(onEnter: (Long) -> Unit, onAddProfile: () -> Unit, modifier: Mod
         value = accountService?.emptyLocalProfileIds(profiles.map { it.id }, guestId) ?: emptySet()
     }
     var showAccount by remember { mutableStateOf(false) }
+    val lastProfileId by org.koin.compose.koinInject<tv.own.owntv.core.settings.SettingsRepository>().activeProfileId
+        .collectAsStateWithLifecycle(initialValue = -1L)
+    val resumeProfile = profiles.firstOrNull { it.id == lastProfileId && lastProfileId >= 0 }
 
     val visibleProfiles = remember(profiles, hiddenProfileIds, guestId, accountProfileIds, emptyLocalIds) {
         profiles.filter { it.id == guestId || (it.id !in hiddenProfileIds && it.id !in accountProfileIds && it.id !in emptyLocalIds) }
@@ -86,6 +89,7 @@ fun ProfileGate(onEnter: (Long) -> Unit, onAddProfile: () -> Unit, modifier: Mod
         AccountScreen(
             profiles = profiles,
             onEnter = { p ->
+                tv.own.owntv.core.settings.ResumeRequest.consume()
                 showAccount = false
                 if (p.pinHash != null) { pinError = false; pinForEnter = p } else vm.switchTo(p) { onEnter(p.id) }
             },
@@ -119,6 +123,7 @@ fun ProfileGate(onEnter: (Long) -> Unit, onAddProfile: () -> Unit, modifier: Mod
     }
 
     fun choose(p: ProfileEntity) {
+        tv.own.owntv.core.settings.ResumeRequest.consume() // a plain pick is not «Продолжить»
         lastFocusedId = p.id
         if (p.id == guestId) {
             if (p.pinHash != null) {
@@ -172,6 +177,20 @@ fun ProfileGate(onEnter: (Long) -> Unit, onAddProfile: () -> Unit, modifier: Mod
                 }
                 if (tv.own.owntv.features.radio.RadioFeature.AVAILABLE) {
                     item { AddTile(onClick = { showRadio = true }, label = tv.own.owntv.features.radio.RadioFeature.label(), icon = OwnTVIcon.EQ) }
+                }
+                // «Продолжить» (owner 15.11): the last profile, straight back into its last channel.
+                resumeProfile?.let { p ->
+                    item {
+                        AddTile(
+                            onClick = {
+                                tv.own.owntv.core.settings.ResumeRequest.request()
+                                lastFocusedId = p.id
+                                if (p.pinHash != null) { pinError = false; pinForEnter = p } else vm.switchTo(p) { onEnter(p.id) }
+                            },
+                            label = stringResource(tv.own.owntv.core.R.string.gate_continue),
+                            icon = OwnTVIcon.PLAY,
+                        )
+                    }
                 }
             }
         }

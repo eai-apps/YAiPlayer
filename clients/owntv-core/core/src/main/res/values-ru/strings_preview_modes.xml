@@ -7,4 +7,5 @@
     <string name="channel_preview_mode_all_hint">Каждый канал, на который вы переходите, начинает играть. Больше нагрузка на приставку и провайдера.</string>
     <string name="channel_preview_value_active">Активный канал</string>
     <string name="channel_preview_value_all">Все каналы</string>
+    <string name="gate_continue">Продолжить</string>
 </resources>

@@ -7,4 +7,5 @@
     <string name="channel_preview_mode_all_hint">Each channel you move to starts playing. More load on the box and the provider.</string>
     <string name="channel_preview_value_active">Active channel</string>
     <string name="channel_preview_value_all">Every channel</string>
+    <string name="gate_continue">Continue</string>
 </resources>

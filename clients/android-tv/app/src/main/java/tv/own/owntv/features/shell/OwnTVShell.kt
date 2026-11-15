@@ -484,7 +484,8 @@ fun OwnTVShell(
     LaunchedEffect(Unit) {
         if (playerMode != PlayerMode.NONE) { onStartupSettled(); return@LaunchedEffect }
         val pid = resumeSettings.activeProfileId.first()
-        when (val startupMode = resumeSettings.effectiveStartupMode(pid).first()) {
+        val resume = tv.own.owntv.core.settings.ResumeRequest.consume()
+        when (val startupMode = if (resume) tv.own.owntv.core.settings.StartupMode.LAST_CHANNEL else resumeSettings.effectiveStartupMode(pid).first()) {
             tv.own.owntv.core.settings.StartupMode.LAST_CHANNEL -> {
                 val ch = liveVm.lastWatchedLiveChannel()
                 if (ch != null && playerMode == PlayerMode.NONE) {

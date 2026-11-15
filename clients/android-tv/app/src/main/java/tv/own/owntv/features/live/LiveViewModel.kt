@@ -1071,12 +1071,25 @@ class LiveViewModel(
             kotlinx.coroutines.withTimeoutOrNull(5_000) { railItems.first { it.isNotEmpty() } } ?: return@launch
             kotlinx.coroutines.delay(RESTORE_SETTLE_MS) // the remembered category is restored alongside
             if (_reveal.value != null || _previewChannel.value?.id != channel.id) return@launch
-            val c = ctx.first { it.profileId >= 0 }
-            val key = _selected.value
-            val position = runCatching { pagingSource(key, c, "", settings.sortLive.first()).positionOf(channel.id, { it.id }) }.getOrNull()
-                ?: return@launch
-            _reveal.value = tv.own.owntv.features.search.Reveal(key, channel.id, position)
+            revealInSelectedNow(channel.id)
         }
+    }
+
+    /**
+     * Owner 15.11: back from full screen (or into the list from the categories) the cursor went to the top
+     * of the category whenever the channel sat beyond the rows already loaded. Find its position in the
+     * category on screen and let the reveal path scroll there and focus it.
+     */
+    fun revealInSelected(channelId: Long) {
+        viewModelScope.launch { revealInSelectedNow(channelId) }
+    }
+
+    private suspend fun revealInSelectedNow(channelId: Long) {
+        val c = ctx.first { it.profileId >= 0 }
+        val key = _selected.value
+        val position = runCatching { pagingSource(key, c, "", settings.sortLive.first()).positionOf(channelId, { it.id }) }.getOrNull()
+            ?: return
+        _reveal.value = tv.own.owntv.features.search.Reveal(key, channelId, position)
     }
 
     /** The rail entry [channel] lives in: its own category, or the landing list when that category is

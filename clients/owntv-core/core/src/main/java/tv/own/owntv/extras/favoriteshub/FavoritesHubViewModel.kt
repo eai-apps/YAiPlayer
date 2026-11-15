@@ -16,6 +16,12 @@ class FavoritesHubViewModel(
     private val settings: SettingsRepository,
 ) : ViewModel() {
 
+    /**
+     * The card played last — its row (0 = «All favourites», then the category rows) and channel — so the
+     * screen puts the cursor back on it after full screen instead of on the side menu (owner 15.11).
+     */
+    var lastPlayed: Pair<Int, Long>? = null
+
     private val _state = MutableStateFlow(FavoritesHubState(isLoading = true))
     val state: StateFlow<FavoritesHubState> = _state.asStateFlow()
 

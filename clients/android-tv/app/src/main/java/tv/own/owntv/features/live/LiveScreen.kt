@@ -465,11 +465,14 @@ fun LiveScreen(
     LaunchedEffect(restoreFocus, channels.itemCount) {
         if (!restoreFocus || channels.itemCount == 0) return@LaunchedEffect
         val ch = previewChannel
-        val idx = if (ch != null) channels.itemSnapshotList.items.indexOfFirst { it.id == ch.id } else -1
+        val idx = if (ch != null) channels.itemSnapshotList.indexOfFirst { it?.id == ch.id } else -1
         if (idx >= 0) {
             revealRow(idx)
             delay(60)
             runCatching { selFocus.requestFocus() }
+        } else if (ch != null) {
+            // Not among the rows loaded yet (deep in a long category): find its place and scroll there.
+            vm.revealInSelected(ch.id)
         } else {
             delay(60)
             runCatching { firstItemFocus.requestFocus() }
@@ -537,9 +540,9 @@ fun LiveScreen(
         val targetId = if (rememberLive) perCategoryChannelIds[selectedKey] ?: previewChannel?.id else previewChannel?.id
         scope.launch {
             if (channels.itemCount > 0) {
-                val targetIdx = if (targetId != null) {
-                    channels.itemSnapshotList.items.indexOfFirst { it.id == targetId }.takeIf { it >= 0 } ?: 0
-                } else 0
+                val loadedIdx = if (targetId != null) channels.itemSnapshotList.indexOfFirst { it?.id == targetId } else -1
+                if (targetId != null && loadedIdx < 0) { vm.revealInSelected(targetId); return@launch }
+                val targetIdx = loadedIdx.takeIf { it >= 0 } ?: 0
                 revealRow(targetIdx)
                 withFrameNanos { }
                 repeat(3) {

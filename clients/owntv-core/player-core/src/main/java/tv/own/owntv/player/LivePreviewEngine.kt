@@ -3380,8 +3380,11 @@ class LivePreviewEngine(
             // (see [retryWithNonIdrKeyframes]), before that channel is handed to mpv.
             cachedDefaultFactoryNonIdr = null
             cachedHlsFactoryNonIdr = null
-            cachedDefaultFactory = buildDefaultFactory(0)
-            cachedHlsCcFactory = buildHlsFactory(0)
+            // Keyframes without IDR accepted from the first open (owner 15.11, beta-19 journal, VS KM6): 7 of 9
+            // channels sat 4–5 s «buffered, no video renderer» and opened in 0.6–0.7 s the moment this
+            // reader was tried — every channel paid that wait once per session. IPTV players set it up front.
+            cachedDefaultFactory = buildDefaultFactory(NON_IDR_TS_FLAGS)
+            cachedHlsCcFactory = buildHlsFactory(NON_IDR_TS_FLAGS)
             dataSourceForUa = ua
             dataSourceForHeaders = currentHeaders
         }
@@ -3445,6 +3448,7 @@ class LivePreviewEngine(
      * without an IDR, once per channel, before giving the channel to mpv. Returns whether it reopened.
      */
     private fun retryWithNonIdrKeyframes(url: String): Boolean {
+        if (NON_IDR_BY_DEFAULT) return false // every factory already reads them (see the cached factories)
         val key = nonIdrKey(url)
         if (LiveStreamQuirks.needsNonIdrKeyframes(key) || videoRendererReady() == true) return false
         LiveStreamQuirks.rememberNeedsNonIdrKeyframes(key)
@@ -3924,6 +3928,7 @@ class LivePreviewEngine(
         private const val DECODER_REBUILD_DELAY_MS = 500L
 
         /** DefaultTsPayloadReaderFactory.FLAG_ALLOW_NON_IDR_KEYFRAMES. */
+        private const val NON_IDR_BY_DEFAULT = true
         private const val NON_IDR_TS_FLAGS = androidx.media3.extractor.ts.DefaultTsPayloadReaderFactory.FLAG_ALLOW_NON_IDR_KEYFRAMES
         private const val STALL_MS = 12_000L        // buffering this long after playing == a dropped feed
         private const val PROGRESS_CHECK_MS = 2_500L // poll interval for the silent-freeze watchdog

@@ -93,7 +93,25 @@ fun FavoritesHubTvScreen(
         return
     }
 
+    // Back from full screen: the card that was played, not the side menu (owner 15.11).
+    val columnState = androidx.compose.foundation.lazy.rememberLazyListState()
+    val returnFocus = remember { FocusRequester() }
+    val returnTo = remember { vm.lastPlayed }
+    val hasAll = state.allFavorites.isNotEmpty()
+    LaunchedEffect(returnTo, state.allFavorites.size, state.categoryRows.size) {
+        val (row, _) = returnTo ?: return@LaunchedEffect
+        if (state.allFavorites.isEmpty() && state.categoryRows.isEmpty()) return@LaunchedEffect
+        val item = 1 + if (hasAll) row else row - 1 // the header is item 0
+        runCatching { columnState.scrollToItem(item.coerceAtLeast(0)) }
+        repeat(RETURN_FOCUS_FRAMES) {
+            androidx.compose.runtime.withFrameNanos { }
+            if (runCatching { returnFocus.requestFocus() }.getOrDefault(false)) return@LaunchedEffect
+        }
+    }
+    val play: (Int, ChannelEntity) -> Unit = { row, ch -> vm.lastPlayed = row to ch.id; onPlayChannel(ch) }
+
     LazyColumn(
+        state = columnState,
         modifier = modifier
             .fillMaxSize()
             .onFocusChanged { if (it.hasFocus) onChildFocused() }
@@ -119,20 +137,24 @@ fun FavoritesHubTvScreen(
                     title = stringResource(R.string.favorites_hub_row_all),
                     channels = state.allFavorites,
                     contentStart = contentStart,
-                    onPlayChannel = onPlayChannel,
+                    onPlayChannel = { play(0, it) },
                     onPlayCatchup = onPlayCatchup,
+                    returnChannelId = returnTo?.takeIf { it.first == 0 }?.second,
+                    returnFocus = returnFocus,
                 )
             }
         }
 
         // Category rows below
-        itemsIndexed(items = state.categoryRows) { _, row ->
+        itemsIndexed(items = state.categoryRows) { i, row ->
             FavoritesHubChannelRowTv(
                 title = row.categoryName,
                 channels = row.channels,
                 contentStart = contentStart,
-                onPlayChannel = onPlayChannel,
+                onPlayChannel = { play(i + 1, it) },
                 onPlayCatchup = onPlayCatchup,
+                returnChannelId = returnTo?.takeIf { it.first == i + 1 }?.second,
+                returnFocus = returnFocus,
             )
         }
     }
@@ -193,19 +215,25 @@ private fun FavoritesHubChannelRowTv(
     onPlayChannel: (ChannelEntity) -> Unit,
     onPlayCatchup: ((ChannelEntity, EpgProgrammeEntity) -> Unit)?,
     modifier: Modifier = Modifier,
+    returnChannelId: Long? = null,
+    returnFocus: FocusRequester? = null,
 ) {
+    val returnIndex = returnChannelId?.let { id -> channels.indexOfFirst { it.channel.id == id } }?.takeIf { it >= 0 }
+    val rowState = androidx.compose.foundation.lazy.rememberLazyListState(initialFirstVisibleItemIndex = returnIndex ?: 0)
     Column(modifier = modifier.fillMaxWidth()) {
         HomeRowHeader(title = title, small = channels.size.toString(), start = contentStart)
         Spacer(Modifier.height(10.mpx))
         LazyRow(
+            state = rowState,
             horizontalArrangement = Arrangement.spacedBy(18.mpx),
             contentPadding = PaddingValues(start = contentStart, end = 64.mpx),
             modifier = Modifier.focusRestorer().focusGroup(),
         ) {
-            itemsIndexed(channels, key = { index, item -> item.channel.id * 1000L + index }) { _, item ->
+            itemsIndexed(channels, key = { index, item -> item.channel.id * 1000L + index }) { index, item ->
                 FavoritesHubChannelCardTv(
                     item = item,
                     onClick = { onPlayChannel(item.channel) },
+                    modifier = if (index == returnIndex && returnFocus != null) Modifier.focusRequester(returnFocus) else Modifier,
                 )
             }
         }
@@ -391,3 +419,5 @@ private fun FavoritesHubEmptyTv(
         )
     }
 }
+
+private const val RETURN_FOCUS_FRAMES = 30

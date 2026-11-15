@@ -7,4 +7,5 @@
     <string name="channel_preview_mode_all_hint">Jeder angewählte Sender startet. Mehr Last für Box und Anbieter.</string>
     <string name="channel_preview_value_active">Aktiver Sender</string>
     <string name="channel_preview_value_all">Alle Sender</string>
+    <string name="gate_continue">Fortsetzen</string>
 </resources>
