@@ -480,6 +480,7 @@ fun OwnTVShell(
     // Per-profile startup action runs once when the authenticated shell first appears. With one unlocked
     // profile that is immediately; profile/PIN gates keep the shell out of composition until authorized.
     val resumeSettings = koinInject<tv.own.owntv.core.settings.SettingsRepository>()
+    val favHubVm = org.koin.androidx.compose.koinViewModel<tv.own.owntv.extras.favoriteshub.FavoritesHubViewModel>()
     val startupChannelUnavailable = androidx.compose.ui.res.stringResource(tv.own.owntv.R.string.settings_startup_channel_unavailable)
     LaunchedEffect(Unit) {
         if (playerMode != PlayerMode.NONE) { onStartupSettled(); return@LaunchedEffect }
@@ -491,7 +492,13 @@ fun OwnTVShell(
                 if (ch != null && playerMode == PlayerMode.NONE) {
                     // Owner 15.11: Back from this start (quick start, «Продолжить») lands in Live TV on the
                     // channel's category with the cursor on it — not on Home with the list at its top.
-                    if (liveVm.isVisibleToActiveProfile(ch)) {
+                    val origin = resumeSettings.lastWatchOrigin.first()
+                    val fromFavorites = origin?.startsWith("fav:") == true
+                    if (fromFavorites) {
+                        // Started from a Favorites card: Back returns to that card (owner 15.11).
+                        favHubVm.lastPlayed = (origin?.removePrefix("fav:")?.toIntOrNull() ?: 0) to ch.id
+                        onSelectSection(MainSection.FAVORITES)
+                    } else if (liveVm.isVisibleToActiveProfile(ch)) {
                         liveVm.select(liveVm.railKeyOf(ch))
                         liveVm.onChannelFocused(ch)
                         onSelectSection(MainSection.LIVE_TV)
@@ -586,6 +593,10 @@ fun OwnTVShell(
     fun openFullscreen(source: MainSection = selectedSection) {
         restoreFocus = false
         zapSource = source
+        if (source == MainSection.LIVE_TV) {
+            val origin = if (selectedSection == MainSection.FAVORITES) "fav:${favHubVm.lastPlayed?.first ?: 0}" else "live"
+            scope.launch { resumeSettings.setLastWatchOrigin(origin) }
+        }
         homeVm.stopPreview()
         // Only Live TV promotes a channel to the ExoPlayer engine. Movies/Series/Search/EPG/Downloads all
         // play on mpv — clear any stale live-on-ExoPlayer flag so the shell renders mpv, not the old channel.
@@ -637,7 +648,11 @@ fun OwnTVShell(
         epgVm.playerClosed = selectedSection == MainSection.EPG ||
             (selectedSection == MainSection.LIVE_TV && liveVm.liveView.value == tv.own.owntv.core.settings.SettingsRepository.LiveView.GUIDE)
         restoreFocus = true
-        focusRail()
+        // Over Live TV's list the screen itself puts the cursor back on the channel; sending it to the rail
+        // first only made that restore fight the rail (owner 15.11: menu felt frozen after beta-22).
+        val listRestores = selectedSection == MainSection.LIVE_TV &&
+            liveVm.liveView.value != tv.own.owntv.core.settings.SettingsRepository.LiveView.GUIDE
+        if (!listRestores) focusRail()
         tv.own.owntv.core.CorePerf.log { "perf_tv_exit_end at=${android.os.SystemClock.elapsedRealtime()}" }
         Unit
     }
@@ -1228,6 +1243,7 @@ fun OwnTVShell(
                 val liveView by liveVm.liveView.collectAsStateWithLifecycle()
                 val guidePlayChannel: (ChannelEntity, List<ChannelEntity>) -> Unit = { ch, _ ->
                     restoreFocus = false
+                    scope.launch { resumeSettings.setLastWatchOrigin("live") }
                     liveVm.watchFromGuide(ch)
                     zapSource = MainSection.LIVE_TV
                     homeVm.stopPreview()

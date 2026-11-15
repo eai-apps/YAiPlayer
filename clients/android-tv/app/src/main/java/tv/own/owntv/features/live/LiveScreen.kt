@@ -462,35 +462,35 @@ fun LiveScreen(
     // Returning from fullscreen: scroll to and focus the channel you were watching (waits for the list to load).
     // Also used by "Startup → Live · Favorites": there's no remembered channel yet, so land on the first row
     // (not the nav panel).
-    // Owner 15.11 (beta-22): after «Продолжить» the screen is composed fresh with the list at its top, and a
-    // single focus request 60 ms in lost to the rail. Now it keeps trying for up to ~3 s: scroll the row in,
-    // focus it by its own position requester (not only selFocus, which follows the preview id), and hand
-    // a row not loaded yet to the reveal path. A miss is written to the journal, nothing else is.
+    // Owner 15.11: after «Продолжить» the screen is composed fresh with the list at its top. The shell no
+    // longer moves focus to the rail when the player closes over Live TV, so ONE successful focus is enough:
+    // beta-22 kept re-asserting it (and re-scrolling) for several frames, which fought the remote and made
+    // the menu feel frozen (owner 15.11 23:58). Stops at the first success, at a category change, or ~1.5 s.
     LaunchedEffect(restoreFocus, channels.itemCount > 0) {
         if (!restoreFocus || channels.itemCount == 0) return@LaunchedEffect
         val ch = previewChannel
         if (ch == null) {
-            delay(60)
+            withFrameNanos { }
             runCatching { firstItemFocus.requestFocus() }
             onRestored()
             return@LaunchedEffect
         }
+        val startKey = selectedKey
         var askedReveal = false
         var focused = false
         var lastIdx = -1
         for (attempt in 0 until RESTORE_ATTEMPTS) {
+            if (selectedKey != startKey) { focused = true; break } // the user moved on
             if (vm.reveal.value != null) { focused = true; break } // the reveal path owns it now
             val idx = channels.itemSnapshotList.indexOfFirst { it?.id == ch.id }
             lastIdx = idx
             if (idx >= 0) {
-                revealRow(idx)
+                if (attempt == 0 || !focused) revealRow(idx)
                 withFrameNanos { }
-                val ok = runCatching { selFocus.requestFocus() }.getOrDefault(false) ||
+                focused = runCatching { selFocus.requestFocus() }.getOrDefault(false) ||
                     runCatching { rowFocus(idx).requestFocus() }.getOrDefault(false)
-                if (ok) focused = true
-                // Hold it for a few frames: the shell's rail focus on exit can land after the first one.
-                if (focused && attempt >= RESTORE_HOLD_ATTEMPTS) break
-            } else if (!askedReveal && attempt >= 2) {
+                if (focused) break
+            } else if (!askedReveal) {
                 // Not among the rows loaded yet (deep in a long category): find its place and scroll there.
                 askedReveal = true
                 vm.revealInSelected(ch.id)
@@ -501,6 +501,7 @@ fun LiveScreen(
             tv.own.owntv.player.LiveDiagnosticsLog.event(
                 "focus-restore miss: channel=${ch.id} key=$selectedKey loadedIdx=$lastIdx rows=${channels.itemCount} reveal=$askedReveal",
             )
+            runCatching { firstItemFocus.requestFocus() }
         }
         onRestored()
     }
@@ -521,7 +522,8 @@ fun LiveScreen(
                     withFrameNanos { }
                     if (runCatching { selFocus.requestFocus() }.getOrDefault(false) ||
                         runCatching { rowFocus(idx).requestFocus() }.getOrDefault(false)) found = true
-                    if (found && attempt >= 8) break
+                    // A short hold only (was 8 tries): longer, it fought the remote.
+                    if (found && attempt >= 3) break
                 } else {
                     runCatching { effectiveListState.scrollToItem(r.position.coerceAtMost(channels.itemCount - 1)) }
                 }
@@ -1624,5 +1626,4 @@ internal fun liveEpgShiftLabel(minutes: Int): String {
     }
 }
 
-private const val RESTORE_ATTEMPTS = 30
-private const val RESTORE_HOLD_ATTEMPTS = 6
+private const val RESTORE_ATTEMPTS = 15

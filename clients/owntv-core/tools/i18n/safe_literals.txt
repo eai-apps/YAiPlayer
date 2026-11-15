@@ -3784,6 +3784,7 @@
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	last_movies_category
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	last_series_category
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	last_update_check_at
+1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	last_watch_origin
 1	technical	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	light_mode
 1	technical	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	light_mode_prompt_dismissed
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	list_orders_reset

@@ -697,6 +697,9 @@
 3	technical	app/src/main/java/tv/own/owntv/features/shell/OwnTVShell.kt	\0
 1	protocol	app/src/main/java/tv/own/owntv/features/shell/OwnTVShell.kt	ass
 1	performance	app/src/main/java/tv/own/owntv/features/shell/OwnTVShell.kt	epg-preload
+2	preference-key	app/src/main/java/tv/own/owntv/features/shell/OwnTVShell.kt	fav:
+1	preference-key	app/src/main/java/tv/own/owntv/features/shell/OwnTVShell.kt	fav:${favHubVm.lastPlayed?.first ?: 0}
+2	preference-key	app/src/main/java/tv/own/owntv/features/shell/OwnTVShell.kt	live
 1	log	app/src/main/java/tv/own/owntv/features/shell/OwnTVShell.kt	perf_back_player_pressed at=${android.os.SystemClock.elapsedRealtime()}
 1	log	app/src/main/java/tv/own/owntv/features/shell/OwnTVShell.kt	perf_exit_player_begin at=${android.os.SystemClock.elapsedRealtime()}
 1	log	app/src/main/java/tv/own/owntv/features/shell/OwnTVShell.kt	perf_tv_exit_begin at=${android.os.SystemClock.elapsedRealtime()}

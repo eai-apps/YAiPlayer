@@ -2549,6 +2549,18 @@ class SettingsRepository(private val context: Context, private val localeStore: 
 
     private val LIVE_PREVIEW_ALL_KEY = booleanPreferencesKey("live_preview_all")
 
+    /**
+     * Where the last channel was started from, for «Продолжить» / quick start (owner 15.11): "live", or
+     * "fav:<row>" when it was a Favorites card — Back then returns there, not to Live TV. Device-local.
+     */
+    val lastWatchOrigin: Flow<String?> = prefsFlow { it[LAST_WATCH_ORIGIN_KEY] }
+
+    suspend fun setLastWatchOrigin(origin: String) {
+        context.dataStore.edit { it[LAST_WATCH_ORIGIN_KEY] = origin }
+    }
+
+    private val LAST_WATCH_ORIGIN_KEY = stringPreferencesKey("last_watch_origin")
+
     /** False only while a saved, enabled Live layout has intentionally hidden its preview panel. */
     val livePreviewPanelActive: Flow<Boolean> = prefsFlow { !livePreviewPanelHidden(it) }
 
