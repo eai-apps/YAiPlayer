@@ -268,6 +268,17 @@ class LiveViewModel(
     val livePreviewEnabled: StateFlow<Boolean> = settings.livePreviewEnabled
         .stateIn(viewModelScope, SharingStarted.Eagerly, true)
 
+    /** «Превью всех каналов»: each focused channel plays. Off (the default) = «Превью активного канала». */
+    val livePreviewFollowsFocus: StateFlow<Boolean> = settings.livePreviewFollowsFocus
+        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    /**
+     * The channel the preview keeps playing in «Превью активного канала»: the last one watched full screen,
+     * else the first one the preview started this visit. Moving down the list changes only the guide.
+     */
+    private val _activePreviewChannel = MutableStateFlow<ChannelEntity?>(null)
+    val activePreviewChannel: StateFlow<ChannelEntity?> = _activePreviewChannel.asStateFlow()
+
     /** List ordering for this section (Playlist order vs A–Z), persisted in DataStore. */
     val sortMode: StateFlow<SettingsRepository.SortMode> = settings.sortLive
         .stateIn(viewModelScope, SharingStarted.Eagerly, SettingsRepository.SortMode.PLAYLIST)
@@ -1002,7 +1013,12 @@ class LiveViewModel(
             val savedId = settings.lastLiveChannelId.first()
             if (savedId > 0 && _previewChannel.value == null) {
                 val pid = ctx.first { it.profileId >= 0 }.profileId
-                channelDao.getById(savedId)?.takeIf { !customize.sealsCategory(pid, it.categoryId) }?.let { if (_previewChannel.value == null) _previewChannel.value = it }
+                channelDao.getById(savedId)?.takeIf { !customize.sealsCategory(pid, it.categoryId) }?.let {
+                    if (_previewChannel.value == null) {
+                        _previewChannel.value = it
+                        revealRestored(it)
+                    }
+                }
             }
         }
     }
@@ -1044,6 +1060,24 @@ class LiveViewModel(
     }
 
     fun revealDone() { _reveal.value = null }
+
+    /**
+     * Owner 15.11: back in the app, the list opened on the remembered category but at its top — the saved
+     * channel was the preview's, while its row (deep in the list, not yet loaded) was never scrolled to.
+     * Find where it sits in the category the list opens on and let the screen scroll there and focus it.
+     */
+    private fun revealRestored(channel: ChannelEntity) {
+        viewModelScope.launch {
+            kotlinx.coroutines.withTimeoutOrNull(5_000) { railItems.first { it.isNotEmpty() } } ?: return@launch
+            kotlinx.coroutines.delay(RESTORE_SETTLE_MS) // the remembered category is restored alongside
+            if (_reveal.value != null || _previewChannel.value?.id != channel.id) return@launch
+            val c = ctx.first { it.profileId >= 0 }
+            val key = _selected.value
+            val position = runCatching { pagingSource(key, c, "", settings.sortLive.first()).positionOf(channel.id, { it.id }) }.getOrNull()
+                ?: return@launch
+            _reveal.value = tv.own.owntv.features.search.Reveal(key, channel.id, position)
+        }
+    }
 
     /** The rail entry [channel] lives in: its own category, or the landing list when that category is
      *  not in the rail — never a hidden All, which would only be moved off again a moment later. */
@@ -1091,6 +1125,7 @@ class LiveViewModel(
     fun playPreview(channel: ChannelEntity) {
         tv.own.owntv.core.CorePerf.log { "perf_preview_start channel=${channel.id} at=${android.os.SystemClock.elapsedRealtime()}" }
         if (channel.categoryId != null && channel.categoryId in hiddenCategoryIds.value) return
+        if (!livePreviewFollowsFocus.value && _activePreviewChannel.value == null) _activePreviewChannel.value = channel
         // Core keeps the preview off a promoted full-screen stream, re-mutes on a re-focus instead of
         // reloading, mints a Stalker link, and holds back on a one-session panel while mpv plays.
         live.preview(channel, muted = !livePreviewAudio.value)
@@ -1654,6 +1689,7 @@ class LiveViewModel(
         // carries a licence URL, so the external player would open it and fail immediately.
         if (externalPlayerOn.value && channel.drmConfig == null) { playExternal(channel); return }
         tuned(channel)
+        _activePreviewChannel.value = channel // what «Превью активного канала» plays when the list is back
         clearTimeshift() // normal live = not timeshifted
         _catchupActive.value = false // tuning live ends any archive playback the HUD was showing
         // Core routes it (DRM, the pin, a learned panel refusal, the playlist, the setting), arms the
@@ -2365,3 +2401,5 @@ class LiveViewModel(
 
     }
 }
+
+private const val RESTORE_SETTLE_MS = 600L

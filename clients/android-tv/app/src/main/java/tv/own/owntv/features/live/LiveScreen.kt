@@ -184,11 +184,16 @@ fun LiveScreen(
 
     // In-pane preview: play the focused channel after the focus settles (400ms; was 700). Disabled while the
     // fullscreen/mini player owns the surface (previewEnabled=false) to avoid two surfaces fighting.
-    LaunchedEffect(previewChannel?.id, effectivePreview, previewArmed) {
+    // «Превью активного канала» (default, owner 15.11): the preview keeps the active channel — the last one
+    // watched, else the first one started here — and focus moving down the list changes only the guide.
+    val previewFollowsFocus by vm.livePreviewFollowsFocus.collectAsStateWithLifecycle()
+    val activePreview by vm.activePreviewChannel.collectAsStateWithLifecycle()
+    val previewTarget = if (previewFollowsFocus) previewChannel else activePreview ?: previewChannel
+    LaunchedEffect(previewTarget?.id, effectivePreview, previewArmed) {
         // previewArmed gates the case where the last channel was restored on startup — we don't auto-preview
         // it until the user actually focuses a channel (then it plays normally).
         if (!effectivePreview || !previewArmed) return@LaunchedEffect
-        val ch = previewChannel ?: return@LaunchedEffect
+        val ch = previewTarget ?: return@LaunchedEffect
         delay(400)
         vm.playPreview(ch)
     }
@@ -906,6 +911,7 @@ fun LiveScreen(
         if (previewShown) {
             LiveStagePane(
                 channel = previewChannel,
+                videoChannel = previewTarget,
                 channelName = previewChannel?.let { ProviderTags.parse(it.name).name },
                 nowNext = nowNext,
                 previewEngine = vm.previewEngine,

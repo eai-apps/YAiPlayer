@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="channel_preview_modes_description">Ein kleines Fenster neben der Senderliste spielt den Sender. Der Leichtmodus ändert diesen Schalter nicht.</string>
+    <string name="channel_preview_mode_active">Vorschau des aktiven Senders</string>
+    <string name="channel_preview_mode_active_hint">Der zuletzt gesehene Sender läuft weiter; beim Blättern ändert sich nur das EPG. OK zeigt den gewählten Sender.</string>
+    <string name="channel_preview_mode_all">Vorschau aller Sender</string>
+    <string name="channel_preview_mode_all_hint">Jeder angewählte Sender startet. Mehr Last für Box und Anbieter.</string>
+    <string name="channel_preview_value_active">Aktiver Sender</string>
+    <string name="channel_preview_value_all">Alle Sender</string>
+</resources>

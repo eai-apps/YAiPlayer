@@ -263,22 +263,31 @@ fun MoreScreen(
                     )
                 }
                 val livePreview by settings.livePreviewEnabled.collectAsStateWithLifecycle(initialValue = true)
+                val previewAll by settings.livePreviewFollowsFocus.collectAsStateWithLifecycle(initialValue = false)
                 val lightModeNow by settings.lightModeEnabled.collectAsStateWithLifecycle(initialValue = false)
                 // Light mode overrides the preview, so the row shows what actually happens.
                 val previewShown = livePreview && !lightModeNow
                 StageGroupItem(
                     text = stringResource(tv.own.owntv.core.R.string.channel_preview),
                     icon = OwnTVIcon.PIP,
-                    value = stringResource(if (previewShown) R.string.common_on else R.string.common_off),
+                    value = when {
+                        !previewShown -> stringResource(R.string.common_off)
+                        previewAll -> stringResource(tv.own.owntv.core.R.string.channel_preview_value_all)
+                        else -> stringResource(tv.own.owntv.core.R.string.channel_preview_value_active)
+                    },
                     selected = previewShown,
                     onClick = { showPreview = true },
                 )
                 if (showPreview) {
-                    tv.own.owntv.features.shell.components.OnOffDialog(
-                        title = stringResource(tv.own.owntv.core.R.string.channel_preview),
-                        body = stringResource(tv.own.owntv.core.R.string.channel_preview_description),
-                        enabled = livePreview,
-                        onSet = { on -> scope.launch { settings.setLivePreviewEnabled(on) } },
+                    tv.own.owntv.features.shell.components.ChannelPreviewDialog(
+                        on = livePreview,
+                        followsFocus = previewAll,
+                        onSet = { on, all ->
+                            scope.launch {
+                                settings.setLivePreviewEnabled(on)
+                                settings.setLivePreviewFollowsFocus(all)
+                            }
+                        },
                         onDismiss = { showPreview = false },
                     )
                 }

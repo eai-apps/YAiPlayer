@@ -2534,6 +2534,21 @@ class SettingsRepository(private val context: Context, private val localeStore: 
         tv.own.owntv.extras.lightmode.LightModePolicy.isEffectiveLivePreview(raw, light)
     }
 
+    /**
+     * Owner 15.11: with the preview on, «Превью активного канала» (the default) keeps playing the channel
+     * last watched or first opened while the focus moves down the list — only the guide beside it follows
+     * the focus; «Превью всех каналов» (this flag) starts each focused channel as before. One stream
+     * instead of a new one per row: less load on the box and on the provider. Device-local key outside
+     * [Keys] (as the per-profile quick start), so it needs no entry in the backup lists.
+     */
+    val livePreviewFollowsFocus: Flow<Boolean> = prefsFlow { it[LIVE_PREVIEW_ALL_KEY] == true }
+
+    suspend fun setLivePreviewFollowsFocus(all: Boolean) {
+        context.dataStore.edit { it[LIVE_PREVIEW_ALL_KEY] = all }
+    }
+
+    private val LIVE_PREVIEW_ALL_KEY = booleanPreferencesKey("live_preview_all")
+
     /** False only while a saved, enabled Live layout has intentionally hidden its preview panel. */
     val livePreviewPanelActive: Flow<Boolean> = prefsFlow { !livePreviewPanelHidden(it) }
 

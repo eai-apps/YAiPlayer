@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="channel_preview_modes_description">A small window beside the channel list plays the channel. Light mode does not change this switch.</string>
+    <string name="channel_preview_mode_active">Active channel preview</string>
+    <string name="channel_preview_mode_active_hint">The last channel you watched keeps playing; moving down the list only changes the guide. Press OK to watch the selected channel.</string>
+    <string name="channel_preview_mode_all">Preview of every channel</string>
+    <string name="channel_preview_mode_all_hint">Each channel you move to starts playing. More load on the box and the provider.</string>
+    <string name="channel_preview_value_active">Active channel</string>
+    <string name="channel_preview_value_all">Every channel</string>
+</resources>

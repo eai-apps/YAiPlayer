@@ -242,6 +242,8 @@ private fun detailsLine(now: XtEpgEntry, details: EpgDetails?): String {
 @Composable
 internal fun LiveStagePane(
     channel: ChannelEntity?,
+    /** The channel in the video window; differs from [channel] (whose guide shows) in active-channel preview. */
+    videoChannel: ChannelEntity? = channel,
     channelName: String?,
     nowNext: EpgNowNext?,
     previewEngine: tv.own.owntv.player.LivePreviewEngine,
@@ -271,9 +273,9 @@ internal fun LiveStagePane(
                 .background(Color.Black),
             contentAlignment = Alignment.Center,
         ) {
-            if (channel != null) {
+            if (videoChannel != null) {
                 ChannelLogoTile(
-                    logoUrl = channel.displayLogoUrl,
+                    logoUrl = videoChannel.displayLogoUrl,
                     modifier = Modifier.size(288.mpx),
                     fill = Color.Transparent,
                 ) { OwnTVIcon(OwnTVIcon.LIVE_TV, tint = StageColors.Dim, modifier = Modifier.size(56.mpx)) }
@@ -283,7 +285,7 @@ internal fun LiveStagePane(
             // `.shade`: black 72% at the bottom, clear by 42% up — a video-sized gradient, one pass.
             Box(Modifier.fillMaxSize().background(Brush.verticalGradient(0.58f to Color.Transparent, 1f to Color.Black.copy(alpha = 0.72f))))
             Box(Modifier.fillMaxSize().drawBehind { drawInnerRing(Color.White.copy(alpha = 0.08f), 1.mpx.toPx(), videoR.toPx()) })
-            if (channel != null) {
+            if (videoChannel != null) {
                 Box(Modifier.align(Alignment.TopStart).padding(start = 24.mpx, top = 22.mpx)) { StageLiveBadge(stringResource(R.string.player_live)) }
                 if (playing && streamChips.isNotEmpty()) {
                     Row(Modifier.align(Alignment.TopEnd).padding(end = 22.mpx, top = 22.mpx), horizontalArrangement = Arrangement.spacedBy(6.mpx)) {
@@ -297,10 +299,10 @@ internal fun LiveStagePane(
                     horizontalArrangement = Arrangement.spacedBy(14.mpx),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    LivePlate(channel.displayLogoUrl, 64.mpx, 46.mpx)
+                    LivePlate(videoChannel.displayLogoUrl, 64.mpx, 46.mpx)
                     Column {
-                        channel.number?.let { Text(it.toString(), style = stageText(15, 600), color = Color(0xFFCFD8D4), maxLines = 1, overflow = TextOverflow.Ellipsis) }
-                        Text(channelName.orEmpty(), style = stageText(22, 700), color = Color.White, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        videoChannel.number?.let { Text(it.toString(), style = stageText(15, 600), color = Color(0xFFCFD8D4), maxLines = 1, overflow = TextOverflow.Ellipsis) }
+                        Text(if (videoChannel.id == channel?.id) channelName.orEmpty() else tv.own.owntv.core.live.ProviderTags.parse(videoChannel.name).name, style = stageText(22, 700), color = Color.White, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
                 }
             }

@@ -3795,6 +3795,7 @@
 1	technical	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	live_left_right_rewinds
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	live_preroll_secs
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	live_preview
+1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	live_preview_all
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	live_preview_audio
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	live_rewind_step_sec
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	live_show_all_rail

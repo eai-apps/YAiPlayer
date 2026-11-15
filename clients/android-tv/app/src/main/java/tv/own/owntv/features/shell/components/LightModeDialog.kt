@@ -55,3 +55,45 @@ fun LightModeDialog(enabled: Boolean, onSet: (Boolean) -> Unit, onDismiss: () ->
         onDismiss = onDismiss,
     )
 }
+
+/**
+ * «Превью каналов» with its three choices (owner 15.11): active channel (default) / all channels / off.
+ * [on] is the preview switch, [followsFocus] the «all channels» flag; [onSet] receives both.
+ */
+@Composable
+fun ChannelPreviewDialog(on: Boolean, followsFocus: Boolean, onSet: (on: Boolean, followsFocus: Boolean) -> Unit, onDismiss: () -> Unit) {
+    val focus = remember { FocusRequester() }
+    LaunchedEffect(Unit) {
+        kotlinx.coroutines.delay(60)
+        runCatching { focus.requestFocus() }
+    }
+    val core = tv.own.owntv.core.R.string
+    tv.own.owntv.ui.stage.StagePopup(
+        onDismiss = onDismiss,
+        title = stringResource(core.channel_preview),
+        body = stringResource(core.channel_preview_modes_description),
+        width = 720.mpx,
+    ) {
+        val active = on && !followsFocus
+        val all = on && followsFocus
+        tv.own.owntv.ui.stage.StagePopupOption(
+            title = stringResource(core.channel_preview_mode_active),
+            subtitle = stringResource(core.channel_preview_mode_active_hint),
+            onClick = { onSet(true, false); onDismiss() },
+            modifier = if (active || !on) Modifier.focusRequester(focus) else Modifier,
+            leading = { focused -> tv.own.owntv.ui.stage.StagePopupRadio(on = active, focused = focused) },
+        )
+        tv.own.owntv.ui.stage.StagePopupOption(
+            title = stringResource(core.channel_preview_mode_all),
+            subtitle = stringResource(core.channel_preview_mode_all_hint),
+            onClick = { onSet(true, true); onDismiss() },
+            modifier = if (all) Modifier.focusRequester(focus) else Modifier,
+            leading = { focused -> tv.own.owntv.ui.stage.StagePopupRadio(on = all, focused = focused) },
+        )
+        tv.own.owntv.ui.stage.StagePopupOption(
+            title = stringResource(R.string.light_mode_action_disable),
+            onClick = { onSet(false, followsFocus); onDismiss() },
+            leading = { focused -> tv.own.owntv.ui.stage.StagePopupRadio(on = !on, focused = focused) },
+        )
+    }
+}
