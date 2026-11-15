@@ -148,6 +148,12 @@ object DiagnosticLogExporter {
             appendLine(maskSensitiveText(crash))
             appendLine()
         }
+        val stalls = tv.own.owntv.core.util.MainThreadWatchdog.read(context)
+        if (!stalls.isNullOrBlank()) {
+            appendLine("--- Freezes & Memory ---")
+            appendLine(maskSensitiveText(stalls))
+            appendLine()
+        }
         val liveDiag = LiveDiagnosticsLog.snapshot()
         if (liveDiag.isNotBlank()) {
             appendLine("--- Live Diagnostics ---")

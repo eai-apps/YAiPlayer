@@ -123,6 +123,8 @@ class OwnTVApp : Application(), SingletonImageLoader.Factory, androidx.work.Conf
         // user can export from Settings, instead of being lost with the process.
         tv.own.owntv.core.util.CrashRecorder.diagnostics = { tv.own.owntv.player.LiveDiagnosticsLog.snapshot() }
         tv.own.owntv.core.util.CrashRecorder.install(this)
+        // Owner 16.11: freezes and silent closes on fast scrolling — record main-thread stalls with memory.
+        tv.own.owntv.core.util.MainThreadWatchdog.start(this) { tv.own.owntv.player.LiveDiagnosticsLog.event(it) }
         // Core learns a panel's session limit while syncing; the engine is what acts on it. Registered
         // before Koin so the very first source flow already reaches the player (see LiveSessionLimit).
         tv.own.owntv.core.player.LiveSessionLimit.report = tv.own.owntv.player.LiveStreamQuirks::rememberSessionLimit
@@ -257,6 +259,15 @@ class OwnTVApp : Application(), SingletonImageLoader.Factory, androidx.work.Conf
      */
     override fun onTrimMemory(level: Int) {
         super.onTrimMemory(level)
+        // Memory pressure is part of the freeze picture (owner 16.11): keep it, not the routine UI_HIDDEN.
+        @Suppress("DEPRECATION")
+        if (level >= TRIM_MEMORY_RUNNING_LOW && level != TRIM_MEMORY_UI_HIDDEN) {
+            runCatching {
+                val line = "memory trim level=$level; ${tv.own.owntv.core.util.MainThreadWatchdog.memory(this)}"
+                tv.own.owntv.player.LiveDiagnosticsLog.event(line)
+                tv.own.owntv.core.util.MainThreadWatchdog.keep(this, line)
+            }
+        }
         // TRIM_MEMORY_RUNNING_LOW is deprecated on API 34+ but still the only signal on TV devices
         // running older Android, so keep honouring it.
         @Suppress("DEPRECATION")

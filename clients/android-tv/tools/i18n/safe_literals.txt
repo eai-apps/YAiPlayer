@@ -35,12 +35,13 @@
 1	log	app/src/main/java/tv/own/owntv/MainActivity.kt	onNewIntent deepLinkHost=${intent.data?.host} deepLinkType=${pendingDeepLink?.javaClass?.simpleName ?: "none"}
 1	performance	app/src/main/java/tv/own/owntv/MainActivity.kt	profile-id-loaded
 1	performance	app/src/main/java/tv/own/owntv/MainActivity.kt	profiles-loaded
-1	compiler	app/src/main/java/tv/own/owntv/OwnTVApp.kt	DEPRECATION
+2	log	app/src/main/java/tv/own/owntv/OwnTVApp.kt	DEPRECATION
 1	technical	app/src/main/java/tv/own/owntv/OwnTVApp.kt	YAiPlayer-TV
 1	technical	app/src/main/java/tv/own/owntv/OwnTVApp.kt	beta
 1	technical	app/src/main/java/tv/own/owntv/OwnTVApp.kt	eai-apps/YAiPlayer
 1	file-path	app/src/main/java/tv/own/owntv/OwnTVApp.kt	image_cache
 1	performance	app/src/main/java/tv/own/owntv/OwnTVApp.kt	koin-started
+1	log	app/src/main/java/tv/own/owntv/OwnTVApp.kt	memory trim level=$level; ${tv.own.owntv.core.util.MainThreadWatchdog.memory(this)}
 3	empty	app/src/main/java/tv/own/owntv/core/i18n/LocalizedContent.kt	\0
 1	empty	app/src/main/java/tv/own/owntv/extras/categories/CategoriesVisibilityDialog.kt	\0
 1	empty	app/src/main/java/tv/own/owntv/extras/remote/PhoneRemoteSettingsScreen.kt	\0

@@ -93,6 +93,18 @@ jobs:
         with:
           name: beta-${{ matrix.name }}
           path: out/*.apk
+      # R8 mapping, to read the class/method names in a freeze or crash line from the journal.
+      - name: Keep R8 mapping
+        if: always()
+        run: |
+          m=$(ls clients/${{ matrix.app }}/app/build/outputs/mapping/*/mapping.txt 2>/dev/null | head -n1)
+          mkdir -p map && if [ -n "$m" ]; then cp "$m" map/mapping-${{ matrix.name }}-${{ github.run_number }}.txt; fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mapping-${{ matrix.name }}
+          path: map/
+          if-no-files-found: ignore
 
   publish:
     needs: build

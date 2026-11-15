@@ -6188,6 +6188,17 @@
 1	protocol	core/src/main/java/tv/own/owntv/core/util/ErrorMessages.kt	unexpected end of stream
 1	technical	core/src/main/java/tv/own/owntv/core/util/GuideTrace.kt	$key:
 1	log	core/src/main/java/tv/own/owntv/core/util/GuideTrace.kt	$key: $message
+3	log	core/src/main/java/tv/own/owntv/core/util/MainThreadWatchdog.kt	\0
+1	log	core/src/main/java/tv/own/owntv/core/util/MainThreadWatchdog.kt	$stamp $line
+1	log	core/src/main/java/tv/own/owntv/core/util/MainThreadWatchdog.kt	${it.className.substringAfterLast('.')}.${it.methodName}:${it.lineNumber}
+1	log	core/src/main/java/tv/own/owntv/core/util/MainThreadWatchdog.kt	, LOW
+1	log	core/src/main/java/tv/own/owntv/core/util/MainThreadWatchdog.kt	<
+1	log	core/src/main/java/tv/own/owntv/core/util/MainThreadWatchdog.kt	MM-dd HH:mm:ss
+1	log	core/src/main/java/tv/own/owntv/core/util/MainThreadWatchdog.kt	diagnostics
+1	log	core/src/main/java/tv/own/owntv/core/util/MainThreadWatchdog.kt	heap ${used}/${max} MB, box free ${info.availMem / MB} MB of ${info.totalMem / MB} MB${if (info.lowMemory) ", LOW" else ""}
+1	log	core/src/main/java/tv/own/owntv/core/util/MainThreadWatchdog.kt	main-thread stall ${waited}ms; ${memory(context)}; at $frames
+1	log	core/src/main/java/tv/own/owntv/core/util/MainThreadWatchdog.kt	stalls.txt
+1	log	core/src/main/java/tv/own/owntv/core/util/MainThreadWatchdog.kt	yai-watchdog
 1	log	core/src/main/java/tv/own/owntv/core/util/Perf.kt	$label @${SystemClock.elapsedRealtime() - base}ms
 1	log	core/src/main/java/tv/own/owntv/core/util/Perf.kt	OwnTVPerf
 1	log	core/src/main/java/tv/own/owntv/core/util/Perf.kt	process-begin @0ms
@@ -7817,6 +7828,7 @@
 1	regex	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	(https?://)([^:/\\s]+):([^@/\\s]+)@
 1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	*** (redacted)
 1	technical	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	**:**:**:**:**:**
+1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	--- Freezes & Memory ---
 1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	--- Last Crash ---
 1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	--- Live Diagnostics ---
 1	log	player-core/src/main/java/tv/own/owntv/player/diagnostic/DiagnosticLogExporter.kt	--- Performance ---

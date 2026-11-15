@@ -514,6 +514,8 @@ class LiveViewModel(
      */
     val timelineProgrammes: StateFlow<List<LiveProgramme>> =
         combine(_previewChannel, epgRefresh) { ch, tick -> ch to tick }
+            // Owner 16.11: without this every row the cursor crossed while scrolling fast ran a guide query.
+            .debounce(350)
             .distinctUntilChanged { a, b -> a.first?.id == b.first?.id && a.second == b.second }
             .mapLatest { (ch, _) ->
                 ch?.let { catchupProgrammes(it).map { p -> LiveProgramme(p.startMs, p.stopMs, p.title) } }.orEmpty()
