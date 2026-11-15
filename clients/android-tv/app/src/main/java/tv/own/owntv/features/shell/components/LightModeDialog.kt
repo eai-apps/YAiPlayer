@@ -67,25 +67,24 @@ fun ChannelPreviewDialog(on: Boolean, followsFocus: Boolean, onSet: (on: Boolean
         kotlinx.coroutines.delay(60)
         runCatching { focus.requestFocus() }
     }
-    val core = tv.own.owntv.core.R.string
     tv.own.owntv.ui.stage.StagePopup(
         onDismiss = onDismiss,
-        title = stringResource(core.channel_preview),
-        body = stringResource(core.channel_preview_modes_description),
+        title = stringResource(tv.own.owntv.core.R.string.channel_preview),
+        body = stringResource(tv.own.owntv.core.R.string.channel_preview_modes_description),
         width = 720.mpx,
     ) {
         val active = on && !followsFocus
         val all = on && followsFocus
         tv.own.owntv.ui.stage.StagePopupOption(
-            title = stringResource(core.channel_preview_mode_active),
-            subtitle = stringResource(core.channel_preview_mode_active_hint),
+            title = stringResource(tv.own.owntv.core.R.string.channel_preview_mode_active),
+            subtitle = stringResource(tv.own.owntv.core.R.string.channel_preview_mode_active_hint),
             onClick = { onSet(true, false); onDismiss() },
             modifier = if (active || !on) Modifier.focusRequester(focus) else Modifier,
             leading = { focused -> tv.own.owntv.ui.stage.StagePopupRadio(on = active, focused = focused) },
         )
         tv.own.owntv.ui.stage.StagePopupOption(
-            title = stringResource(core.channel_preview_mode_all),
-            subtitle = stringResource(core.channel_preview_mode_all_hint),
+            title = stringResource(tv.own.owntv.core.R.string.channel_preview_mode_all),
+            subtitle = stringResource(tv.own.owntv.core.R.string.channel_preview_mode_all_hint),
             onClick = { onSet(true, true); onDismiss() },
             modifier = if (all) Modifier.focusRequester(focus) else Modifier,
             leading = { focused -> tv.own.owntv.ui.stage.StagePopupRadio(on = all, focused = focused) },
