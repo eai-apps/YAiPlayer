@@ -3287,4 +3287,6 @@
     <string name="settings_epg_portal_extra">Additional guide for the portal</string>
     <string name="settings_epg_portal_extra_desc">Fill channels the portal leaves without a programme from the reserve guide. Off: the portal’s guide only.</string>
     <string name="settings_epg_builtin_feed_extra_desc">Extra reserve for playlists: used only when a playlist’s own guide and reserve 1 leave a channel empty. Never used for portals.</string>
+    <string name="account_route_direct">Connection to the server: direct</string>
+    <string name="account_route_relay">Connection to the server: through relay (server %1$d) ✓</string>
 </resources>

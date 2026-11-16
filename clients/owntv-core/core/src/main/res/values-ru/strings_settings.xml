@@ -1839,4 +1839,6 @@
     <string name="settings_epg_portal_extra">Дополнительное ЭПГ для портала</string>
     <string name="settings_epg_portal_extra_desc">Каналы, для которых портал не дал программу, дополнять из резервного ЭПГ. Выкл. — только ЭПГ портала.</string>
     <string name="settings_epg_builtin_feed_extra_desc">Дополнительный резерв для плейлистов: только если своё ЭПГ плейлиста и резерв 1 не дали программу каналу. Для портала не используется.</string>
+    <string name="account_route_direct">Связь с сервером: напрямую</string>
+    <string name="account_route_relay">Связь с сервером: через ретранслятор (сервер %1$d) ✓</string>
 </resources>

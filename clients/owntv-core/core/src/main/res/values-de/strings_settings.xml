@@ -1759,4 +1759,6 @@
     <string name="settings_epg_portal_extra">Zusätzlicher Programmführer für das Portal</string>
     <string name="settings_epg_portal_extra_desc">Sender ohne Programm vom Portal aus dem Reserve-Programmführer ergänzen. Aus: nur der Programmführer des Portals.</string>
     <string name="settings_epg_builtin_feed_extra_desc">Zusätzliche Reserve für Playlists: nur wenn der eigene Programmführer der Playlist und Reserve 1 einem Sender kein Programm liefern. Nie für Portale.</string>
+    <string name="account_route_direct">Verbindung zum Server: direkt</string>
+    <string name="account_route_relay">Verbindung zum Server: über Relay (Server %1$d) ✓</string>
 </resources>

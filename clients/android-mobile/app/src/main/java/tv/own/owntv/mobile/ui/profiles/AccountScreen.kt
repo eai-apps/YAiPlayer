@@ -203,6 +203,15 @@ private fun SignedIn(account: AccountService, login: String, profiles: List<Prof
     OutlinedButton(enabled = !busy, onClick = {
         run { val r = account.sync(); status = ctx.getString(R.string.account_synced, r.added, r.updated, r.removed, r.pushed) }
     }, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.account_sync)) }
+    // Owner 16.11: show when the server is reached through a relay (Cloudflare blocked).
+    val route by tv.own.owntv.core.account.ApiRoutes.active.collectAsState()
+    route?.let { r ->
+        val n = tv.own.owntv.core.account.ApiRoutes.ALL.indexOf(r)
+        Text(
+            if (r.id == "direct") stringResource(R.string.account_route_direct) else stringResource(R.string.account_route_relay, n),
+            style = stageText(13f, 500), color = palette.muted,
+        )
+    }
 
     Text(stringResource(R.string.account_confirm_tv), style = stageText(18f, 700), color = palette.text, modifier = Modifier.padding(top = 8.dp))
     Text(stringResource(R.string.account_confirm_tv_hint), style = stageText(13f, 500), color = palette.muted)

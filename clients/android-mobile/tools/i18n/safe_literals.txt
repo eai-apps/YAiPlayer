@@ -656,6 +656,7 @@
 10	empty	app/src/main/java/tv/own/owntv/mobile/ui/profiles/AccountScreen.kt	\0
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/profiles/AccountScreen.kt	ABC-123
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/profiles/AccountScreen.kt	Phone
+1	protocol	app/src/main/java/tv/own/owntv/mobile/ui/profiles/AccountScreen.kt	direct
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/profiles/AccountScreen.kt	https://
 3	technical	app/src/main/java/tv/own/owntv/mobile/ui/profiles/AccountScreen.kt	phone
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/profiles/AccountScreen.kt	‹
