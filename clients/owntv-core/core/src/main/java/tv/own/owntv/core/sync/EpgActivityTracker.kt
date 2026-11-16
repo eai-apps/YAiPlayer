@@ -19,6 +19,9 @@ class EpgActivityTracker {
         val programmes: Int = 0,
         /** 0..100 when the source can tell how far it is; null shows counts only (no made-up bar). */
         val percent: Int? = null,
+        /** Owner 16.11: the reserve guide's long step — channels matched so far of all that lacked a guide. */
+        val matched: Int = 0,
+        val matchTotal: Int = 0,
     )
 
     private val _active = MutableStateFlow<Map<Long, ActiveEpgSync>>(emptyMap())
@@ -40,6 +43,13 @@ class EpgActivityTracker {
         val pct = (fraction * 100).toInt().coerceIn(0, 99)
         if (existing.percent == pct) return
         _active.value = _active.value + (sourceId to existing.copy(percent = pct))
+    }
+
+    /** The reserve guide is matching [done] of [total] channels without a programme to its own channels. */
+    fun matching(sourceId: Long, done: Int, total: Int) {
+        val existing = _active.value[sourceId] ?: return
+        val pct = if (total > 0) (done * 100 / total).coerceIn(0, 99) else existing.percent
+        _active.value = _active.value + (sourceId to existing.copy(matched = done, matchTotal = total, percent = pct))
     }
 
     fun finished(sourceId: Long) {

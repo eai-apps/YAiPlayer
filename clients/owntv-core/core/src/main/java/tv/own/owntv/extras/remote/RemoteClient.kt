@@ -35,14 +35,32 @@ class RemoteClient(private val pins: android.content.SharedPreferences? = null) 
     }
     private val jsonMediaType = "application/json; charset=utf-8".toMediaType()
 
+    /**
+     * Owner 16.11: the phone opened its pairing screen — read the TV's certificate fingerprint and ask the TV
+     * to show a fresh code on its screen. Returns the fingerprint to pair with, or null when the TV is unreachable.
+     */
+    suspend fun requestCode(host: String, port: Int, clientName: String, deviceId: String): String? = withContext(Dispatchers.IO) {
+        val fingerprint = RemoteTls.probeFingerprint(host, port) ?: return@withContext null
+        val payload = JSONObject().apply { put("code", ""); put("name", clientName); put("deviceId", deviceId) }.toString()
+        runCatching {
+            RemoteSecurity.localAddress(host)
+            val request = Request.Builder().url("https://$host:$port/pair").post(payload.toRequestBody(jsonMediaType)).build()
+            client(host, port, fingerprint).newCall(request).execute().close()
+        }
+        fingerprint
+    }
+
     suspend fun pair(
         host: String,
         port: Int,
         code: String,
         clientName: String,
         deviceId: String,
-        fingerprint: String,
+        fingerprintIn: String,
     ): RemotePairResult = withContext(Dispatchers.IO) {
+        // An empty fingerprint: read it from the TV now (the code on its screen is what proves it).
+        val fingerprint = fingerprintIn.ifBlank { RemoteTls.probeFingerprint(host, port) }
+            ?: return@withContext RemotePairResult.Failure("unreachable")
         val payload = JSONObject().apply {
             put("code", code)
             put("name", clientName)

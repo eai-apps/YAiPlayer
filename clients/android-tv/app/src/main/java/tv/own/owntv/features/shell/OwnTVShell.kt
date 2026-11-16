@@ -2298,6 +2298,23 @@ fun OwnTVShell(
         }
         tv.own.owntv.features.update.SubscriptionExpiryHost(enabled = selectedSection != MainSection.SETTINGS && playerMode == PlayerMode.NONE)
         if (tv.own.owntv.BuildConfig.SELF_UPDATE) tv.own.owntv.features.update.VersionGateHost()
+        // A phone asked to pair (owner 16.11): its code, big, on the TV screen.
+        val remotePin by remoteTvManager.pinPrompt.collectAsStateWithLifecycle()
+        remotePin?.let { pin ->
+            LaunchedEffect(pin) { kotlinx.coroutines.delay(120_000); remoteTvManager.dismissPinPrompt() }
+            tv.own.owntv.ui.stage.StagePopup(
+                onDismiss = { remoteTvManager.dismissPinPrompt() },
+                title = stringResource(tv.own.owntv.core.R.string.remote_pair_popup_title),
+                body = stringResource(tv.own.owntv.core.R.string.remote_pair_popup_body),
+                width = 760.mpx,
+                buttons = {
+                    tv.own.owntv.ui.stage.StageButton(stringResource(tv.own.owntv.core.R.string.common_ok), onClick = { remoteTvManager.dismissPinPrompt() },
+                        height = 56.mpx, textSize = 19, tinted = true)
+                },
+            ) {
+                androidx.tv.material3.Text(pin.chunked(3).joinToString(" "), style = tv.own.owntv.ui.theme.stageText(64, 800), color = Color.White)
+            }
+        }
         tv.own.owntv.features.update.GuideOfferHost(onShowNewChannels = { id ->
             // «Посмотреть» on «Новые каналы» (owner 16.11): Live TV on that category.
             liveVm.select(tv.own.owntv.core.live.LiveKey.Custom(id))

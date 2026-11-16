@@ -107,6 +107,11 @@ class EpgSyncWorker(
             if (!inputData.getBoolean(KEY_IN_QUEUE, false)) tv.own.owntv.core.sync.BuiltinGuide.fromKoin().onPlaylistImported()
             // A playlist's own guide is in: if channels still lack a programme, offer additional source 1 (owner 13.11).
             if (!source.url.startsWith("stalker://")) runCatching { tv.own.owntv.core.epg.GuideOffer.fromKoin().afterPlaylistGuide() }
+            // A portal's own guide is in (owner 16.11): say how many channels got a programme, then offer
+            // additional source 1 (and after it source 2) for the channels still without one.
+            tv.own.owntv.core.repository.EpgRepository.stalkerSourceIdOf(source.url)?.let { portalId ->
+                runCatching { tv.own.owntv.core.epg.GuideOffer.fromKoin().afterPortalGuide(portalId) }
+            }
             // A series rule is a standing instruction about programmes that do not exist in the
             // database until the guide mentioning them is fetched — so this is the moment "record
             // every showing" becomes actual timers. Best-effort: a rule that could not be

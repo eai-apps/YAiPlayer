@@ -207,6 +207,14 @@ class EpgSourcesViewModel(
         }
     }
 
+    /** «Удалить всю загруженную телепрограмму» (owner 16.11). */
+    fun clearAllGuides(onDone: () -> Unit = {}) {
+        viewModelScope.launch {
+            kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) { epgRepository.clearAllGuides() }
+            onDone()
+        }
+    }
+
     fun observeSync(sourceId: Long): Flow<EpgSyncState> = epgSyncScheduler.observeSync(sourceId)
 
     fun cancelSync(source: EpgSource) {

@@ -500,6 +500,9 @@ private fun SourceRow(
         else if (activeSync != null) add(stringResource(R.string.settings_sources_preparing_detail))
         if (autoRefresh.mode != PlaylistAutoRefresh.OFF) add(stringResource(R.string.settings_sources_auto_refresh, playlistAutoRefreshLabel(autoRefresh)))
         if (!expiry.isNullOrBlank()) add(stringResource(R.string.settings_sources_expiry, expiry))
+        // Owner 16.11: when the channels (and films/series) were last loaded.
+        add(source.lastSyncAt?.let { stringResource(tv.own.owntv.core.R.string.last_update_at, tvWhen(it)) }
+            ?: stringResource(tv.own.owntv.core.R.string.last_update_at, stringResource(tv.own.owntv.core.R.string.last_update_never)))
     }.joinToString(sep)
     val status = when {
         isDeleting -> stringResource(R.string.settings_sources_deleting)

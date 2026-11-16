@@ -123,9 +123,18 @@ class RemoteViewModel(application: Application) : AndroidViewModel(application) 
         prefs.edit().putBoolean("hardware_volume", enabled).apply()
     }
 
+    /** The TV certificate fingerprint read when the pairing screen opened (owner 16.11: no more typing it). */
+    private var probedFingerprint: String = ""
+
     fun showPairingDialog(info: RemoteDiscoveryInfo) {
         _pairingTarget.value = info
         _pairingError.value = null
+        probedFingerprint = ""
+        // Ask the TV to show a fresh code on its screen, and learn its certificate on the way.
+        viewModelScope.launch {
+            val phoneModel = "${Build.MANUFACTURER} ${Build.MODEL}".trim().ifBlank { "Phone" }
+            probedFingerprint = client.requestCode(info.host, info.port, phoneModel, clientDeviceId).orEmpty()
+        }
     }
 
     fun dismissPairingDialog() {
@@ -133,7 +142,8 @@ class RemoteViewModel(application: Application) : AndroidViewModel(application) 
         _pairingError.value = null
     }
 
-    fun submitPairing(pin: String, fingerprint: String) {
+    fun submitPairing(pin: String, fingerprintTyped: String = "") {
+        val fingerprint = fingerprintTyped.ifBlank { probedFingerprint }
         val target = _pairingTarget.value ?: return
         viewModelScope.launch {
             _status.value = ConnectionStatus.Connecting

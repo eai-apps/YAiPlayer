@@ -40,6 +40,10 @@ interface EpgDao {
     @Query("SELECT id, epgChannelId, startMs, contentHash FROM epg_programmes WHERE sourceId = :sourceId AND epgChannelId = :epgChannelId")
     suspend fun epgHashesForChannel(sourceId: Long, epgChannelId: String): List<EpgHashProjection>
 
+    /** «Удалить всю загруженную телепрограмму» (owner 16.11). */
+    @Query("DELETE FROM epg_programmes")
+    suspend fun clearAllProgrammes()
+
     @Query("DELETE FROM epg_programmes WHERE id IN (:ids)")
     suspend fun deleteProgrammesByIds(ids: List<Long>)
 

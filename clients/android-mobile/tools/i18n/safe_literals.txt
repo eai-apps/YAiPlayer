@@ -90,11 +90,10 @@
 1	technical	app/src/main/java/tv/own/owntv/extras/remote/RemoteNotificationHelper.kt	tv.own.owntv.extras.remote.ACTION_PLAY_PAUSE
 8	empty	app/src/main/java/tv/own/owntv/extras/remote/RemoteScreen.kt	\0
 1	json	app/src/main/java/tv/own/owntv/extras/remote/RemoteScreen.kt	${tv.host}:${tv.port}
-1	technical	app/src/main/java/tv/own/owntv/extras/remote/RemoteScreen.kt	0123456789abcdef
 1	technical	app/src/main/java/tv/own/owntv/extras/remote/RemoteScreen.kt	INVALID
 1	technical	app/src/main/java/tv/own/owntv/extras/remote/RemoteScreen.kt	LOCKED
 1	technical	app/src/main/java/tv/own/owntv/extras/remote/RemoteScreen.kt	TV ($ipInput)
-1	empty	app/src/main/java/tv/own/owntv/extras/remote/RemoteViewModel.kt	\0
+4	technical	app/src/main/java/tv/own/owntv/extras/remote/RemoteViewModel.kt	\0
 1	technical	app/src/main/java/tv/own/owntv/extras/remote/RemoteViewModel.kt	${Build.MANUFACTURER} ${Build.MODEL}
 1	technical	app/src/main/java/tv/own/owntv/extras/remote/RemoteViewModel.kt	-
 1	protocol	app/src/main/java/tv/own/owntv/extras/remote/RemoteViewModel.kt	.share

@@ -1133,6 +1133,20 @@ class EpgRepository(
     }
 
     /** Drop a removed EPG source's stored programmes. */
+    /**
+     * Owner 16.11: wrong programmes stayed on channels after a fix, and there was no way to start the guide over.
+     * Every stored programme goes; every guide source counts as never loaded, so entering the profile (or
+     * «Обновить телепрограмму») loads it from scratch. Channels, favourites, matches and settings stay.
+     */
+    suspend fun clearAllGuides() = withContext(Dispatchers.IO) {
+        epgDao.clearAllProgrammes()
+        val store = org.koin.core.context.GlobalContext.get().get<tv.own.owntv.core.epg.EpgSourceStore>()
+        // Own guides count as never loaded (they load again on entry). The reserve keeps its date, so it is
+        // not fetched by itself — it is offered again, as for any channels without a programme.
+        store.getAll().filterNot { it.builtin }.forEach { runCatching { store.update(it.copy(lastSyncAt = null, lastError = null)) } }
+        futileGapFills.clear()
+    }
+
     suspend fun clear(storeId: Long) = withContext(Dispatchers.IO) {
         epgDao.clearSource(storeId)
         epgDao.clearChannelsForSource(storeId)

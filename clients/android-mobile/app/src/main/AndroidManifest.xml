@@ -55,6 +55,7 @@
 
     <application
         android:name=".OwnTVMobileApp"
+        android:largeHeap="true"
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:enableOnBackInvokedCallback="true"

@@ -53,6 +53,30 @@ class GuideOffer(
     /** A playlist's own guide finished: start over from source 1. */
     fun afterPlaylistGuide() { declined = false; evaluate(after = 0) }
 
+    /** The portal the current chain of offers is for (after its own guide, then source 1, then 2). */
+    @Volatile private var chainPortal: Long? = null
+
+    /** A portal's own guide finished: what it covered, then source 1 for the rest (owner 16.11). */
+    fun afterPortalGuide(portalId: Long) {
+        scope.launch {
+            runCatching {
+                val active = db.profileDao().resolveExistingProfileId(settings.activeProfileId.first()) ?: return@launch
+                val portal = db.sourceDao().getById(portalId) ?: return@launch
+                val (missing, total) = portalCoverage(active, portal) ?: return@launch
+                val context = org.koin.core.context.GlobalContext.get().get<android.content.Context>()
+                val text = context.getString(tv.own.owntv.core.R.string.guide_portal_done, portal.name, total - missing, total)
+                kotlinx.coroutines.withContext(Dispatchers.Main) { android.widget.Toast.makeText(context, text, android.widget.Toast.LENGTH_LONG).show() }
+                declined = false
+                if (missing > 0 && store.builtinEnabled.first()) {
+                    kotlinx.coroutines.delay(NEXT_OFFER_DELAY_MS)
+                    val feed = store.getAll().firstOrNull { it.builtin } ?: return@launch
+                    chainPortal = portalId
+                    _offer.value = Offer(feed.id, 1, missing, total, portalId, portal.name)
+                }
+            }
+        }
+    }
+
     /** Additional source [number] finished: offer the next one if channels are still missing. */
     fun afterFeed(feedId: Long, filled: Int = 0) {
         scope.launch {
@@ -66,17 +90,30 @@ class GuideOffer(
                 kotlinx.coroutines.withContext(Dispatchers.Main) { android.widget.Toast.makeText(context, text, android.widget.Toast.LENGTH_LONG).show() }
             }
             kotlinx.coroutines.delay(NEXT_OFFER_DELAY_MS)
+            // A portal's chain: the next source for the same portal (owner 16.11: source 2 offered too).
+            val portalId = chainPortal
+            if (portalId != null) {
+                runCatching {
+                    val active = db.profileDao().resolveExistingProfileId(settings.activeProfileId.first()) ?: return@launch
+                    val portal = db.sourceDao().getById(portalId) ?: return@launch
+                    val next = store.getAll().filter { it.builtin }.getOrNull(n + 1)
+                    val (missing, total) = portalCoverage(active, portal) ?: return@launch
+                    if (next == null || missing == 0 || declined) { chainPortal = null; _offer.value = null; return@launch }
+                    _offer.value = Offer(next.id, n + 2, missing, total, portalId, portal.name)
+                }
+                return@launch
+            }
             evaluate(after = n + 1)
         }
     }
 
-    fun decline() { declined = true; _offer.value = null }
+    fun decline() { declined = true; chainPortal = null; _offer.value = null }
 
     /** «Load»: source 1 directly; sources 2 and 3 are switched on first (they are off by default). */
     fun accept(o: Offer) {
         _offer.value = null
         scope.launch {
-            o.portalId?.let { settings.setPortalBuiltinEpg(it, true) }
+            o.portalId?.let { settings.setPortalBuiltinEpg(it, true); chainPortal = it }
             val guide = BuiltinGuide.fromKoin()
             val feed = guide.feeds().first().firstOrNull { it.id == o.feedId } ?: return@launch
             if (feed.number == 1) guide.refreshFeed(feed.id) else guide.setFeedEnabled(feed, true)
@@ -150,20 +187,25 @@ class GuideOffer(
         if (declined || !store.builtinEnabled.first() || portals.isEmpty()) return null
         val extra = settings.portalBuiltinEpgSources.first()
         val feed = store.getAll().firstOrNull { it.builtin } ?: return null
-        val cust = customize.observe(active, MediaType.LIVE).first()
-        val now = System.currentTimeMillis()
         for (portal in portals.filter { it.id !in extra }) {
-            val channels = db.channelDao().allForSources(listOf(portal.id), Int.MAX_VALUE)
-                .filter { CustomizeKeys.channel(it) !in cust.hiddenItems }
-            if (channels.isEmpty()) continue
-            val keys = channels.map { epgKeyOf(it, cust) }
-            val have = HashSet<String>()
-            keys.filterNotNull().distinct().chunked(500).forEach { have.addAll(db.epgDao().keysWithGuide(it, now - 3 * 3_600_000L, now + 86_400_000L)) }
-            val missing = keys.count { it == null || it !in have }
+            val (missing, total) = portalCoverage(active, portal) ?: continue
             // Most of the portal without a programme: it has no guide of its own worth the name.
-            if (missing * 2 > channels.size) return Offer(feed.id, 1, missing, channels.size, portal.id, portal.name)
+            if (missing * 2 > total) return Offer(feed.id, 1, missing, total, portal.id, portal.name)
         }
         return null
+    }
+
+    /** Channels of [portal] (not hidden) without a programme for now → (missing, total). */
+    private suspend fun portalCoverage(active: Long, portal: tv.own.owntv.core.database.entity.SourceEntity): Pair<Int, Int>? {
+        val cust = customize.observe(active, MediaType.LIVE).first()
+        val channels = db.channelDao().allForSources(listOf(portal.id), Int.MAX_VALUE)
+            .filter { CustomizeKeys.channel(it) !in cust.hiddenItems }
+        if (channels.isEmpty()) return null
+        val keys = channels.map { epgKeyOf(it, cust) }
+        val now = System.currentTimeMillis()
+        val have = HashSet<String>()
+        keys.filterNotNull().distinct().chunked(500).forEach { have.addAll(db.epgDao().keysWithGuide(it, now - 3 * 3_600_000L, now + 86_400_000L)) }
+        return keys.count { it == null || it !in have } to channels.size
     }
 
     private fun prefs() = org.koin.core.context.GlobalContext.get().get<android.content.Context>()

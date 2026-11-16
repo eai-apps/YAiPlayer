@@ -741,7 +741,7 @@ fun RemoteScreen(
     // PAIRING DIALOG
     if (pairingTarget != null) {
         var pinInput by remember { mutableStateOf("") }
-        var fingerprint by remember { mutableStateOf("") }
+        val fingerprint = ""
         AlertDialog(
             onDismissRequest = { vm.dismissPairingDialog() },
             title = {
@@ -754,7 +754,7 @@ fun RemoteScreen(
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     Text(
-                        text = stringResource(R.string.remote_enter_pin),
+                        text = stringResource(tv.own.owntv.core.R.string.remote_pair_enter_code),
                         style = stageText(13.5f, 500),
                         color = palette.muted,
                     )
@@ -765,12 +765,7 @@ fun RemoteScreen(
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                     )
-                    OutlinedTextField(
-                        value = fingerprint,
-                        onValueChange = { fingerprint = it.lowercase().filter { c -> c in "0123456789abcdef" }.take(64) },
-                        label = { Text(stringResource(R.string.remote_certificate)) },
-                        modifier = Modifier.fillMaxWidth(),
-                    )
+
                     if (pairingError != null) {
                         val errorMsg = when (pairingError) {
                             "LOCKED" -> stringResource(R.string.remote_pin_locked)
@@ -792,7 +787,7 @@ fun RemoteScreen(
                             vm.submitPairing(pinInput, fingerprint)
                         }
                     },
-                    enabled = pinInput.length == 6 && fingerprint.length == 64,
+                    enabled = pinInput.length == 6,
                 ) {
                     Text(stringResource(R.string.remote_pair_button), color = accent.accent)
                 }

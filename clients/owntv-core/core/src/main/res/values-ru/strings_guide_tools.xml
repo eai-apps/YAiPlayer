@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2026 YAiPlayer authors. Guide progress, clearing the guide, last-update lines (owner 16.11). -->
+<resources>
+    <string name="sync_epg_matched">Подобрано каналов: %1$d из %2$d</string>
+    <string name="sync_loaded_at">Загружено: %1$s</string>
+    <string name="guide_clear_all">Удалить всю загруженную телепрограмму</string>
+    <string name="guide_clear_all_body">Удаляется вся программа передач всех плейлистов, порталов и дополнительных источников; следующая загрузка заполнит гид заново. Каналы, избранное и настройки остаются.</string>
+    <string name="guide_cleared">Телепрограмма удалена. Загрузите её заново: «Обновить телепрограмму».</string>
+    <string name="last_update_at">Последнее обновление: %1$s</string>
+    <string name="last_update_never">ни разу</string>
+    <string name="guide_portal_done">«%1$s»: телепрограмма есть у %2$d из %3$d каналов.</string>
+</resources>

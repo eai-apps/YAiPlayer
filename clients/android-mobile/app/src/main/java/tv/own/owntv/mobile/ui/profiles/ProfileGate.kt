@@ -137,6 +137,7 @@ fun ProfileGate(
             .padding(start = 34.dp, end = 34.dp, top = 72.dp, bottom = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        GateVersionLine(Modifier.align(Alignment.End).padding(bottom = 18.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
             Box(
                 Modifier.size(34.dp).clip(RoundedCornerShape(8.dp)).background(Color(0xFF0B1216)),
@@ -398,3 +399,37 @@ private fun AddProfileTile(onClick: () -> Unit, label: String = stringResource(R
 
 // Debug builds (the CI test APK) show the tile so the owner can check it on his TV; release builds only after that check.
 internal val TV_OPTIMIZER_READY: Boolean = tv.own.owntv.mobile.BuildConfig.DEBUG
+
+/**
+ * Version and update state on «Кто смотрит?» (owner 16.11, as on the TV): which beta this is, whether a newer
+ * one exists, and «Обновить сейчас» right here.
+ */
+@Composable
+private fun GateVersionLine(modifier: Modifier = Modifier) {
+    val manager = runCatching { org.koin.core.context.GlobalContext.get().get<tv.own.owntv.core.update.UpdateManager>() }.getOrNull()
+    val current = tv.own.owntv.mobile.BuildConfig.VERSION_NAME
+    val state = manager?.state?.collectAsStateWithLifecycle()?.value
+    androidx.compose.runtime.LaunchedEffect(manager) {
+        if (manager?.state?.value == tv.own.owntv.core.update.UpdateManager.State.Idle) manager.check()
+    }
+    val palette = tv.own.owntv.mobile.ui.stage.LocalStagePalette.current
+    Column(modifier, horizontalAlignment = Alignment.End) {
+        Text("v$current", style = stageText(13f, 700), color = palette.text)
+        val line = when (state) {
+            tv.own.owntv.core.update.UpdateManager.State.Checking -> stringResource(tv.own.owntv.core.R.string.update_checking)
+            tv.own.owntv.core.update.UpdateManager.State.UpToDate -> stringResource(tv.own.owntv.core.R.string.update_latest, current)
+            is tv.own.owntv.core.update.UpdateManager.State.Downloading -> stringResource(tv.own.owntv.core.R.string.update_downloading, state.percent)
+            is tv.own.owntv.core.update.UpdateManager.State.Available -> stringResource(tv.own.owntv.core.R.string.update_available_version, state.info.version, current)
+            else -> null
+        }
+        line?.let { Text(it, style = stageText(11f, 500), color = palette.muted, textAlign = TextAlign.End) }
+        if (state is tv.own.owntv.core.update.UpdateManager.State.Available) {
+            tv.own.owntv.mobile.ui.stage.StageButton(
+                text = stringResource(tv.own.owntv.core.R.string.update_now),
+                onClick = { manager.downloadAndInstall() },
+                style = tv.own.owntv.mobile.ui.stage.StageButtonStyle.PRIMARY,
+                modifier = Modifier.padding(top = 6.dp),
+            )
+        }
+    }
+}

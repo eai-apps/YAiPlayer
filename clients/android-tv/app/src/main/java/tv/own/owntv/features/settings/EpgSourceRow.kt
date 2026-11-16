@@ -140,8 +140,12 @@ private fun epgSourceStatus(
                 pluralStringResource(R.plurals.settings_epg_sources_status_count_channels, count.first, count.first),
                 pluralStringResource(R.plurals.settings_epg_sources_status_count_programmes, count.second, count.second),
             )
-            if (catchupNote != null) stringResource(R.string.settings_epg_sources_status_count_with_catchup, counts, catchupNote)
+            val shown = if (catchupNote != null) stringResource(R.string.settings_epg_sources_status_count_with_catchup, counts, catchupNote)
             else counts
+            // Owner 16.11: when it was last loaded, as on the phone.
+            source.lastSyncAt?.let { at ->
+                shown + stringResource(R.string.settings_sources_details_separator) + stringResource(tv.own.owntv.core.R.string.last_update_at, tvWhen(at))
+            } ?: shown
         }
         source.lastSyncAt != null -> catchupNote?.let {
             stringResource(R.string.settings_epg_sources_status_synced_with_catchup, it)
@@ -172,3 +176,10 @@ private fun epgSourceActions(
         StageAction(OwnTVIcon.PENCIL, stringResource(R.string.common_edit), onEdit),
     ) + orderActions + StageAction(OwnTVIcon.TRASH, stringResource(R.string.common_delete), onDelete, danger = true)
 }
+
+/** Date and time for a «last update» line. */
+@Composable
+internal fun tvWhen(at: Long): String = android.text.format.DateUtils.formatDateTime(
+    androidx.compose.ui.platform.LocalContext.current, at,
+    android.text.format.DateUtils.FORMAT_SHOW_TIME or android.text.format.DateUtils.FORMAT_SHOW_DATE,
+)

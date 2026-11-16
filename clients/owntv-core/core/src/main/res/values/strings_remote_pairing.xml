@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2026 YAiPlayer authors. Remote pairing by on-screen code (owner 16.11). -->
+<resources>
+    <string name="remote_pair_popup_title">Phone remote</string>
+    <string name="remote_pair_popup_body">Enter this code on the phone:</string>
+    <string name="remote_pair_requesting">Getting the code from the TV…</string>
+    <string name="remote_pair_enter_code">Enter the 6-digit code shown on the TV screen.</string>
+</resources>

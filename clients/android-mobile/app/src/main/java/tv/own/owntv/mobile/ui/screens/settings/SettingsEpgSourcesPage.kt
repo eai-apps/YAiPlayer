@@ -86,6 +86,7 @@ fun SettingsEpgSourcesPage(
     var refreshFor by remember { mutableStateOf<EpgSource?>(null) }
     var manualDaysFor by remember { mutableStateOf<EpgSource?>(null) }
     var confirmDelete by remember { mutableStateOf<EpgSource?>(null) }
+    var confirmClearAll by remember { mutableStateOf(false) }
 
     // "‹ Settings · Sources & guide · 2 feeds", + Add EPG, the feeds, then the note on addresses.
     SettingsCrumb(pluralStringResource(R.plurals.settings_epg_feed_count, sources.size, sources.size), SettingsGroup.SOURCES)
@@ -235,7 +236,30 @@ fun SettingsEpgSourcesPage(
             }
             if (text != null) PageNote(text)
         }
+        // Owner 16.11: start the guide over — every programme goes, own guides load again on entry.
+        item(key = "clear_all") {
+            StageSettingRow(
+                title = stringResource(tv.own.owntv.core.R.string.guide_clear_all),
+                subtitle = stringResource(tv.own.owntv.core.R.string.guide_clear_all_body),
+                icon = MobileIcons.Delete,
+                onClick = { confirmClearAll = true },
+            )
+        }
         item(key = "note") { PageNote(stringResource(R.string.settings_epg_sources_addresses_note)) }
+    }
+
+    if (confirmClearAll) {
+        val ctx = androidx.compose.ui.platform.LocalContext.current
+        val cleared = stringResource(tv.own.owntv.core.R.string.guide_cleared)
+        StageConfirmSheet(
+            title = stringResource(tv.own.owntv.core.R.string.guide_clear_all),
+            text = stringResource(tv.own.owntv.core.R.string.guide_clear_all_body),
+            confirm = stringResource(R.string.common_delete),
+            confirmIcon = MobileIcons.Delete,
+            danger = true,
+            onConfirm = { vm.clearAllGuides { android.widget.Toast.makeText(ctx, cleared, android.widget.Toast.LENGTH_LONG).show() } },
+            onDismiss = { confirmClearAll = false },
+        )
     }
 
     menuSource?.let { source ->

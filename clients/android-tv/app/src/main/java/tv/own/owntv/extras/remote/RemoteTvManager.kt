@@ -17,7 +17,14 @@ class RemoteTvManager(private val context: Context) : RemoteCommandHandler, Remo
     val pairingManager = RemotePairingManager(SharedPrefsRemotePairingStore(context))
     private val discovery = RemoteDiscoveryManager(context)
 
-    private val _enabled = MutableStateFlow(prefs.getBoolean("remote_enabled", false))
+    // Owner 16.11: on by default — «Только плеер» on the phone found no TV until this was switched on by hand.
+    // Only the home network can reach it, and a phone must still enter the code the TV shows.
+    private val _enabled = MutableStateFlow(prefs.getBoolean("remote_enabled", true))
+
+    private val _pinPrompt = MutableStateFlow<String?>(null)
+    /** A code to show on the TV screen because a phone asked to pair (owner 16.11). */
+    val pinPrompt: StateFlow<String?> = _pinPrompt.asStateFlow()
+    fun dismissPinPrompt() { _pinPrompt.value = null }
     val enabled: StateFlow<Boolean> = _enabled.asStateFlow()
 
     private val _serverPort = MutableStateFlow<Int?>(null)
@@ -53,6 +60,7 @@ class RemoteTvManager(private val context: Context) : RemoteCommandHandler, Remo
         commandHandler = this,
         stateProvider = this,
         tvName = tvName,
+        onCodeRequested = { _pinPrompt.value = generateNewPin() },
     )
 
     init {

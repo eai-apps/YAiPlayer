@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2026 YAiPlayer authors. Guide progress, clearing the guide, last-update lines (owner 16.11). -->
+<resources>
+    <string name="sync_epg_matched">Channels matched: %1$d of %2$d</string>
+    <string name="sync_loaded_at">Loaded: %1$s</string>
+    <string name="guide_clear_all">Delete all loaded TV guides</string>
+    <string name="guide_clear_all_body">Every programme of every playlist, portal and additional source is removed; the next load fills the guide from scratch. Channels, favourites and settings stay.</string>
+    <string name="guide_cleared">TV guide deleted. Load it again: Update guide.</string>
+    <string name="last_update_at">Last update: %1$s</string>
+    <string name="last_update_never">never</string>
+    <string name="guide_portal_done">«%1$s»: TV guide for %2$d of %3$d channels.</string>
+</resources>

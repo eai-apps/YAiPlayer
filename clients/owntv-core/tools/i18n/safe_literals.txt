@@ -1427,6 +1427,7 @@
 1	sql	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	AND title LIKE '%' || :query || '%' ORDER BY startMs ASC LIMIT :limit
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	DELETE FROM epg_channels WHERE sourceId = :sourceId
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	DELETE FROM epg_channels WHERE sourceId = :sourceId AND epgChannelId IN (:epgChannelIds)
+1	technical	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	DELETE FROM epg_programmes
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	DELETE FROM epg_programmes WHERE epgChannelId = :epgChannelId AND sourceId IN (:sourceIds)
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	DELETE FROM epg_programmes WHERE id IN (:ids)
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/EpgDao.kt	DELETE FROM epg_programmes WHERE sourceId = :sourceId
@@ -6360,6 +6361,7 @@
 1	empty	core/src/main/java/tv/own/owntv/extras/favoriteshub/FavoritesHubGrouping.kt	\0
 2	empty	core/src/main/java/tv/own/owntv/extras/favoriteshub/FavoritesHubViewModel.kt	\0
 2	compiler	core/src/main/java/tv/own/owntv/extras/lightmode/LightModePolicy.kt	UNUSED_PARAMETER
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	\0
 4	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	$host:$port
 1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	${System.currentTimeMillis()}:${java.util.UUID.randomUUID()}
 1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	/cmd
@@ -6374,15 +6376,16 @@
 1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	X-Remote-Signature
 1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	YAiPlayer
 1	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	application/json; charset=utf-8
-1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	code
-1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	deviceId
+2	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	code
+2	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	deviceId
 1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	error
 1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	https://$host:$port$path
-1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	https://$host:$port/pair
-1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	name
+2	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	https://$host:$port/pair
+2	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	name
 1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	retryAfterSeconds
 1	json	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	token
 1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	tvName
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteClient.kt	unreachable
 1	empty	core/src/main/java/tv/own/owntv/extras/remote/RemoteDiscoveryManager.kt	\0
 1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteDiscoveryManager.kt	DEPRECATION
 1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteDiscoveryManager.kt	NSD registration failed: $errorCode
@@ -6448,8 +6451,9 @@
 1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteSecurity.kt	webm
 2	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTls.kt	AndroidKeyStore
 1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTls.kt	Certificate mismatch
-2	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTls.kt	SHA-256
-2	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTls.kt	TLSv1.2
+1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTls.kt	No certificate
+3	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTls.kt	SHA-256
+3	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTls.kt	TLSv1.2
 1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTls.kt	[a-f0-9]{64}
 1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTls.kt	yaiplayer_remote_tls_v1
 2	empty	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	\0

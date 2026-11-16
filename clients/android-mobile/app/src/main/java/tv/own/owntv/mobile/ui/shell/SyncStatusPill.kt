@@ -279,6 +279,7 @@ private fun SyncLine.text(res: android.content.res.Resources): String = when (th
     }
     is SyncLine.Epg -> {
         val parts = buildList {
+            if (sync.matchTotal > 0) add(res.getString(tv.own.owntv.core.R.string.sync_epg_matched, sync.matched, sync.matchTotal))
             if (sync.channels > 0) {
                 add(res.getQuantityString(R.plurals.sync_count_channels, sync.channels, compactCount(res, sync.channels)))
             }

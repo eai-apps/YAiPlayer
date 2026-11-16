@@ -34,6 +34,8 @@ class RemoteTvServer(
     private val stateProvider: RemoteStateProvider,
     private val tvName: String = "YAiPlayer TV",
     private val socketFactory: () -> javax.net.ServerSocketFactory = { RemoteTls.serverFactory() },
+    /** A phone asked to pair without a code: show a fresh code on the TV screen (owner 16.11). */
+    private val onCodeRequested: () -> Unit = {},
 ) {
     sealed interface ServerState {
         data object Stopped : ServerState
@@ -146,6 +148,12 @@ class RemoteTvServer(
                 method == "POST" && path == "/pair" -> {
                     val obj = runCatching { JSONObject(body) }.getOrDefault(JSONObject())
                     val code = obj.optString("code")
+                    if (code.isBlank()) {
+                        // Not an attempt (no rate-limit count): the phone opened its pairing screen.
+                        runCatching { onCodeRequested() }
+                        writeJsonResponse(out, 202, "{\"status\":\"code_shown\"}")
+                        return
+                    }
                     val clientName = obj.optString("name", "Phone")
                     val deviceId = obj.optString("deviceId", "device")
 
@@ -203,6 +211,7 @@ class RemoteTvServer(
     private fun writeJsonResponse(out: java.io.OutputStream, code: Int, json: String) {
         val statusText = when (code) {
             200 -> "OK"
+            202 -> "Accepted"
             400 -> "Bad Request"
             401 -> "Unauthorized"
             403 -> "Forbidden"

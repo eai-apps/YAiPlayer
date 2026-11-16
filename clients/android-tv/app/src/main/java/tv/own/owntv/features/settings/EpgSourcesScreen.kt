@@ -47,6 +47,7 @@ fun EpgSourcesScreen(onBack: () -> Unit, modifier: Modifier = Modifier, startOnA
     var editing by remember { mutableStateOf<EpgSource?>(null) }
     var adding by remember { mutableStateOf(startOnAdd) }
     var confirmDelete by remember { mutableStateOf<EpgSource?>(null) }
+    var confirmClearAll by remember { mutableStateOf(false) }
     val addFocus = remember { FocusRequester() }
 
     // Per-row focus restore (mirrors ManageSourcesScreen / MoviesScreen): track the row the user is
@@ -307,6 +308,29 @@ fun EpgSourcesScreen(onBack: () -> Unit, modifier: Modifier = Modifier, startOnA
             }
             if (statusText != null) StageSettingsNote(statusText, null)
         }
+        // Owner 16.11: start the guide over — every programme goes, own guides load again on entry.
+        val clearTitle = stringResource(tv.own.owntv.core.R.string.guide_clear_all)
+        StageSettingRow(
+            icon = OwnTVIcon.TRASH,
+            title = clearTitle,
+            desc = stringResource(tv.own.owntv.core.R.string.guide_clear_all_body),
+            value = SettingValue.Opens(null),
+            onClick = { confirmClearAll = true },
+        )
+    }
+
+    if (confirmClearAll) {
+        val cleared = stringResource(tv.own.owntv.core.R.string.guide_cleared)
+        val ctx = androidx.compose.ui.platform.LocalContext.current
+        ConfirmDialog(
+            title = stringResource(tv.own.owntv.core.R.string.guide_clear_all),
+            message = stringResource(tv.own.owntv.core.R.string.guide_clear_all_body),
+            onConfirm = {
+                confirmClearAll = false
+                vm.clearAllGuides { android.widget.Toast.makeText(ctx, cleared, android.widget.Toast.LENGTH_LONG).show() }
+            },
+            onDismiss = { confirmClearAll = false },
+        )
     }
 
     confirmDelete?.let { s ->

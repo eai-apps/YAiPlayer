@@ -64,7 +64,7 @@ fun GuideOfferHost(onShowNewChannels: (categoryId: String) -> Unit = {}) {
                 width = 860.mpx,
                 buttons = {
                     StageButton(
-                        if (portal) stringResource(R.string.guide_portal_offer_load) else stringResource(R.string.guide_offer_load, o.number),
+                        stringResource(R.string.guide_offer_load, o.number),
                         onClick = { offers.accept(o) }, height = 56.mpx, textSize = 19,
                         tinted = true, modifier = Modifier.focusRequester(focus),
                     )

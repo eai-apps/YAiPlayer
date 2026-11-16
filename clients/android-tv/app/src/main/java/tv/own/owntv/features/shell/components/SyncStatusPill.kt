@@ -275,6 +275,7 @@ private fun SyncLine.text(): String = when (this) {
     is SyncLine.Epg -> {
         val context = LocalContext.current
         val countParts = buildList {
+            if (sync.matchTotal > 0) add(stringResource(tv.own.owntv.core.R.string.sync_epg_matched, sync.matched, sync.matchTotal))
             if (sync.channels > 0) add(pluralStringResource(R.plurals.sync_count_channels, sync.channels, compactCount(context, sync.channels)))
             if (sync.programmes > 0) add(pluralStringResource(R.plurals.sync_count_epg, sync.programmes, compactCount(context, sync.programmes)))
             sync.percent?.let { add(stringResource(R.string.sync_percent, it)) }

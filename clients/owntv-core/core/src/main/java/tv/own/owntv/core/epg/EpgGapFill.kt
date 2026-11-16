@@ -111,10 +111,11 @@ class EpgGapFill(
             val firstBuiltin = builtins.firstOrNull()?.id
             val feeds = builtins.filter { it.id == firstBuiltin || it.url in extraOn }
                 .filter { onlyFeed == null || it.id == onlyFeed }
-            val portalIds = playlists.filter { it.type == SourceType.STALKER }.mapTo(HashSet()) { it.id }
             val attempted = HashSet<Long>()
             EpgGapPlan.visitFeeds(feeds.distinctBy { it.id }, ::missing) { source, allGaps ->
-                val gaps = if (source.id == firstBuiltin) allGaps else allGaps.filter { it.channel.sourceId !in portalIds }
+                // Owner 16.11 (replaces 12.11): a portal whose reserve guide is on may take sources 2 and 3 as well —
+                // they are offered to it one by one, like to a playlist.
+                val gaps = allGaps
                 if (gaps.isEmpty()) return@visitFeeds
                 attempted.add(source.id)
                 // Download once, keeping channel names/cache but no unrelated programme rows.
@@ -128,7 +129,15 @@ class EpgGapFill(
                         c.displayName?.split(XmltvParser.NAME_JOIN)?.map { EpgMatcher.Candidate(c.epgChannelId, it) }
                             ?: listOf(EpgMatcher.Candidate(c.epgChannelId, null))
                     })
-                    val hits = EpgMatcher.bestEpgMatchBulk(gaps.map { it.channel.matchName }, prepared)
+                    // In chunks, so the pill can say how far it is (owner 16.11: «бесконечно грузит», no numbers).
+                    val tracker = runCatching {
+                        org.koin.core.context.GlobalContext.get().get<tv.own.owntv.core.sync.EpgActivityTracker>()
+                    }.getOrNull()
+                    val hits = ArrayList<EpgMatcher.Result?>(gaps.size)
+                    gaps.chunked(MATCH_CHUNK).forEach { chunk ->
+                        hits.addAll(EpgMatcher.bestEpgMatchBulk(chunk.map { it.channel.matchName }, prepared))
+                        tracker?.matching(source.id, hits.size, gaps.size)
+                    }
                     val aliases = HashMap<String, MutableSet<String>>()
                     val windows = HashMap<String, MutableList<Pair<Long, Long>>>()
                     val newLinks = ArrayList<Pair<Missing, String>>()
@@ -164,6 +173,7 @@ class EpgGapFill(
                     }
                     val added = repository.fillFallbackCache(source.id, aliases, windows)
                     filled += added.size
+                    tracker?.progress(source.id, filled, 0)
                     for ((pid, links) in newLinks.filter { it.second in added }.groupBy { it.first.profile }) {
                         customize.update(pid, MediaType.LIVE) { current ->
                             val safe = links.filter { current.epgMatchResolver.epgIdFor(it.first.channel) == null }
@@ -207,6 +217,7 @@ class EpgGapFill(
         private val passLock = Mutex()
         private const val USER_GUIDE_FRESH_MS = 30 * 60 * 1000L
         private const val PREFS = "epg_gap_fill"
+        private const val MATCH_CHUNK = 400
         private const val PURGED_V2 = "reserve_purged_shared_ids_v2"
     }
 }

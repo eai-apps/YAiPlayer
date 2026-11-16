@@ -56,7 +56,7 @@ fun GuideOfferHost(onShowNewChannels: () -> Unit = {}) {
                     style = stageText(13.5f, 500), color = palette.dim,
                 )
                 StageButton(
-                    text = if (portal) stringResource(R.string.guide_portal_offer_load) else stringResource(R.string.guide_offer_load, o.number),
+                    text = stringResource(R.string.guide_offer_load, o.number),
                     onClick = { offers.accept(o) }, style = StageButtonStyle.PRIMARY, modifier = Modifier.fillMaxWidth(),
                 )
                 StageButton(text = stringResource(R.string.guide_offer_later), onClick = { offers.decline() }, modifier = Modifier.fillMaxWidth())

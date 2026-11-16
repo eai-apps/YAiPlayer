@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2026 YAiPlayer authors. Guide progress, clearing the guide, last-update lines (owner 16.11). -->
+<resources>
+    <string name="sync_epg_matched">Sender zugeordnet: %1$d von %2$d</string>
+    <string name="sync_loaded_at">Geladen: %1$s</string>
+    <string name="guide_clear_all">Alle geladenen TV-Programme löschen</string>
+    <string name="guide_clear_all_body">Das gesamte Programm aller Playlists, Portale und zusätzlichen Quellen wird gelöscht; das nächste Laden füllt den Guide neu. Sender, Favoriten und Einstellungen bleiben.</string>
+    <string name="guide_cleared">TV-Programm gelöscht. Neu laden: «TV-Programm aktualisieren».</string>
+    <string name="last_update_at">Letzte Aktualisierung: %1$s</string>
+    <string name="last_update_never">nie</string>
+    <string name="guide_portal_done">«%1$s»: TV-Programm für %2$d von %3$d Sendern.</string>
+</resources>
