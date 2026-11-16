@@ -1021,4 +1021,6 @@
     <string name="sports_broadcasts_none">None listed</string>
     <!-- Translators: Move window (Sports settings, and moving categories, channels, films, series and favourites on TV): the arrows choose a row, OK picks it up or puts it down, and only Save or Cancel closes the window. -->
     <string name="sports_move_instructions">▲/▼ to choose · OK to pick up or put down · Save when done</string>
+    <string name="home_row_new_channels">Recently added</string>
+    <string name="home_row_new_channels_description">Channels your provider added this week</string>
 </resources>

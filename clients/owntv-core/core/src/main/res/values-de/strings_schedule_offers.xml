@@ -8,7 +8,7 @@
     <string name="guide_portal_offer_title">Das Portal hat kein TV-Programm</string>
     <string name="guide_portal_offer_body">%1$d von %2$d Sendern des Portals «%3$s» haben kein Programm. Aus einer zusätzlichen Quelle laden?</string>
     <string name="guide_portal_offer_load">Laden</string>
-    <string name="new_channels_category">Neue Sender</string>
+    <string name="new_channels_category">Zuletzt hinzugefügt</string>
     <string name="new_channels_title">Neue Sender beim Anbieter</string>
     <string name="new_channels_show">Ansehen</string>
     <plurals name="new_channels_body">

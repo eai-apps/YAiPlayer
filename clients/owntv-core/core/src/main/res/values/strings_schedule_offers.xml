@@ -8,7 +8,7 @@
     <string name="guide_portal_offer_title">The portal has no TV guide</string>
     <string name="guide_portal_offer_body">%1$d of %2$d channels of the portal «%3$s» have no programme. Load it from an additional source?</string>
     <string name="guide_portal_offer_load">Load</string>
-    <string name="new_channels_category">New channels</string>
+    <string name="new_channels_category">Recently added</string>
     <string name="new_channels_title">New channels from your provider</string>
     <string name="new_channels_show">Show</string>
     <plurals name="new_channels_body">

@@ -7,4 +7,5 @@
 1	app/src/main/java/tv/own/owntv/extras/remote/RemoteViewModel.kt	${Build.MANUFACTURER} ${Build.MODEL}
 1	app/src/main/java/tv/own/owntv/extras/remote/RemoteViewModel.kt	Phone
 1	app/src/main/java/tv/own/owntv/mobile/ui/profiles/ProfileGate.kt	v$current
+1	app/src/main/java/tv/own/owntv/mobile/ui/screens/guide/GuideViewModel.kt	*
 1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsEpgSourcesPage.kt	clear_all

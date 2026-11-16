@@ -176,6 +176,7 @@ class OwnTVApp : Application(), SingletonImageLoader.Factory, androidx.work.Conf
                 )
                 // «Защита от детей»: adult categories a sync added since are hidden/locked again on entry.
                 koin.get<tv.own.owntv.core.parental.ParentalControl>().startAutoApply(appScope)
+                runCatching { koin.get<tv.own.owntv.core.sync.NewChannels>().startAutoEnsure(appScope) }
             }
         }
         // Background resync for stale profiles: register periodic worker once at start if enabled.

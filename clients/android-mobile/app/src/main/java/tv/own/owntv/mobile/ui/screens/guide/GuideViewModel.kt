@@ -772,7 +772,7 @@ class GuideViewModel(
             catchupChannels = channelDao.countCatchup(ctx.value.liveSourceIds),
             hasEpgSources = epgSourceStore.getAll().isNotEmpty(),
             // One row is enough to answer it, and one row is all that is read.
-            mismatchedIds = programmes > 0 && channelDao.channelsWithGuide(ids, "", 1).isEmpty(),
+            mismatchedIds = programmes > 0 && channelDao.channelsWithGuide(ids, "*", 1).isEmpty(),
         )
         _haves.value = GuideHaves(
             epgKeys = if (programmes > 0) epgDao.guideProgrammeChannelIds(Int.MAX_VALUE).mapTo(HashSet()) { it.lowercase() } else emptySet(),

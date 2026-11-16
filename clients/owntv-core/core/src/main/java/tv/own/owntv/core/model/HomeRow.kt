@@ -17,6 +17,9 @@ enum class HomeRow {
     RECENT_CHANNELS,
     FAVORITE_CHANNELS,
 
+    /** Owner 16.11: channels the provider added this week (the «Последние добавленные» category). */
+    NEW_CHANNELS,
+
     /** One rail per channel category (News, Cinema, Sport …), in the playlist's own order. */
     LIVE_CATEGORIES,
 

@@ -705,7 +705,7 @@
 1	protocol	app/src/main/java/tv/own/owntv/mobile/ui/screens/guide/GuideScreen.kt	guide
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/guide/GuideScreen.kt	onnow
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/guide/GuideScreen.kt	…
-2	empty	app/src/main/java/tv/own/owntv/mobile/ui/screens/guide/GuideViewModel.kt	\0
+1	empty	app/src/main/java/tv/own/owntv/mobile/ui/screens/guide/GuideViewModel.kt	\0
 1	log	app/src/main/java/tv/own/owntv/mobile/ui/screens/guide/GuideViewModel.kt	guide_stats programmes=$programmes guideChannels=$guideChannels
 1	log	app/src/main/java/tv/own/owntv/mobile/ui/screens/guide/GuideViewModel.kt	sources=${ids.size} cachedRows=${synchronized(rowCache) { rowCache.size }}
 1	log	app/src/main/java/tv/own/owntv/mobile/ui/screens/guide/GuideViewModel.kt	totalMs=${android.os.SystemClock.elapsedRealtime() - startedAt}

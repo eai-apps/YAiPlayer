@@ -55,6 +55,7 @@ fun livePagingSource(
             }
         }
     } else {
+        val query = tv.own.owntv.core.util.NameSearch.glob(query)
         when (key) {
             LiveKey.All -> channelDao.searchAll(query, ids)
             LiveKey.Favorites -> channelDao.searchFavorites(query, profileId, ids)

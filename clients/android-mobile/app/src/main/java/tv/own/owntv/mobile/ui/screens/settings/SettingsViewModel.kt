@@ -673,6 +673,6 @@ class SettingsViewModel(
     suspend fun searchChannels(query: String): List<ChannelEntity> {
         val ids = sources.value.filter { it.syncLive }.map { it.id }
         if (ids.isEmpty()) return emptyList()
-        return channelDao.searchList(query.trim(), ids, limit = 60)
+        return channelDao.searchList(tv.own.owntv.core.util.NameSearch.glob(query), ids, limit = 60)
     }
 }

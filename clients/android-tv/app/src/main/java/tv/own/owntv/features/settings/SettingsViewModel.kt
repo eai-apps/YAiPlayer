@@ -668,7 +668,7 @@ class SettingsViewModel(
             customizations.hiddenCategories,
             isKids,
         )
-        return channelDao.searchList(query.trim(), sourceIds, 500)
+        return channelDao.searchList(tv.own.owntv.core.util.NameSearch.glob(query), sourceIds, 500)
             .asSequence()
             .filter { tv.own.owntv.core.customize.CustomizeKeys.channel(it) !in customizations.hiddenItems }
             .filter { it.categoryId == null || it.categoryId !in hiddenCategoryIds }

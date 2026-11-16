@@ -304,7 +304,7 @@ interface CustomCategoryDao {
     @Query(
         "SELECT c.* FROM channels c " +
             "INNER JOIN custom_category_members m ON m.itemId = c.id AND m.profileId = :profileId AND m.mediaType = 'LIVE' AND m.contextKey = :contextKey " +
-            "WHERE c.sourceId IN (:sourceIds) AND c.name LIKE '%' || :query || '%' " +
+            "WHERE c.sourceId IN (:sourceIds) AND c.name GLOB :query " +
             "ORDER BY m.position, c.sortOrder, c.name",
     )
     fun searchChannels(query: String, profileId: Long, contextKey: String, sourceIds: List<Long>): PagingSource<Int, ChannelEntity>

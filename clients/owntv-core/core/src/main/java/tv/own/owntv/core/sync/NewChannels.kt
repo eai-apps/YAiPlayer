@@ -5,6 +5,9 @@ import android.content.Context
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.withLock
 import org.json.JSONObject
 import tv.own.owntv.core.customize.CustomizationStore
 import tv.own.owntv.core.customize.CustomizeKeys
@@ -65,33 +68,47 @@ class NewChannels(
         if (fresh > 0) _notice.value = (_notice.value ?: 0) + fresh
     }
 
-    /** The category of [profileId] = this week's new channels of its sources; removed when there are none. */
-    private suspend fun rebuild(profileId: Long) {
+    /**
+     * Owner 16.11: the category is always there, also with no new channels this week («пусть показывается 0»).
+     * Called for the active profile at start, so it appears before the first morning check.
+     */
+    fun startAutoEnsure(scope: kotlinx.coroutines.CoroutineScope) {
+        val settings = org.koin.core.context.GlobalContext.get().get<tv.own.owntv.core.settings.SettingsRepository>()
+        scope.launch {
+            settings.activeProfileId.distinctUntilChanged().collect { pid -> if (pid >= 0) runCatching { rebuild(pid) } }
+        }
+    }
+
+    /** The category of [profileId] = this week's new channels of its sources; kept (empty) when there are none. */
+    private val rebuildLock = kotlinx.coroutines.sync.Mutex()
+
+    private suspend fun rebuild(profileId: Long) = rebuildLock.withLock { rebuildLocked(profileId) }
+
+    private suspend fun rebuildLocked(profileId: Long) {
         val sources = db.sourceDao().sourceIdsForProfile(profileId)
         val keys = sources.flatMap { loadAdded(it).keys }.toSet()
         val ids = if (keys.isEmpty()) emptyList()
         else db.channelDao().allForSources(sources, Int.MAX_VALUE).filter { CustomizeKeys.channel(it) in keys }.map { it.id }
         val dao = db.customCategoryDao()
-        val existing = categoryId(profileId)?.takeIf { id ->
-            customize.observe(profileId, MediaType.LIVE).first().customCategories.any { it.id == id }
-        }
-        if (ids.isEmpty()) {
-            if (existing != null) {
-                dao.clearContext(profileId, MediaType.LIVE, existing)
-                customize.deleteCustomCategory(profileId, MediaType.LIVE, existing)
-            }
-            prefs.edit().remove(catKey(profileId)).apply()
-            return
-        }
-        val id = existing ?: customize.createCustomCategory(
-            profileId, MediaType.LIVE, context.getString(tv.own.owntv.core.R.string.new_channels_category),
-        ).id.also { created ->
+        val title = context.getString(tv.own.owntv.core.R.string.new_channels_category)
+        val current = customize.observe(profileId, MediaType.LIVE).first()
+        val existing = categoryId(profileId)?.takeIf { id -> current.customCategories.any { it.id == id } }
+        val id = existing ?: customize.createCustomCategory(profileId, MediaType.LIVE, title).id.also { created ->
             prefs.edit().putString(catKey(profileId), created).apply()
             // First among the categories, right under the built-in rows (owner: «рядом с Архивом»).
             runCatching {
                 customize.update(profileId, MediaType.LIVE) { c -> c.copy(categoryPositions = c.categoryPositions + (created to 0)) }
             }
         }
+        // The name follows the app (beta-30 called it «Новые каналы»), unless the user renamed it himself.
+        if (existing != null && current.customCategories.firstOrNull { it.id == id }?.name != title && id !in current.categoryNames) {
+            runCatching {
+                customize.update(profileId, MediaType.LIVE) { c ->
+                    c.copy(customCategories = c.customCategories.map { if (it.id == id) it.copy(name = title) else it })
+                }
+            }
+        }
+        if (ids.isEmpty()) { dao.clearContext(profileId, MediaType.LIVE, id); return }
         dao.replaceContext(
             profileId, MediaType.LIVE, id,
             ids.mapIndexed { i, itemId ->

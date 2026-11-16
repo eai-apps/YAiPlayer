@@ -605,4 +605,6 @@
     <string name="sports_broadcasts_find_first">Нажмите «Найти каналы», чтобы увидеть каналы из телепрограммы с этим матчем.</string>
     <string name="sports_broadcasts_none">Нет данных</string>
     <string name="sports_move_instructions">▲/▼ выбор · OK взять или положить · В конце «Сохранить»</string>
+    <string name="home_row_new_channels">Последние добавленные</string>
+    <string name="home_row_new_channels_description">Каналы, которые провайдер добавил за неделю</string>
 </resources>

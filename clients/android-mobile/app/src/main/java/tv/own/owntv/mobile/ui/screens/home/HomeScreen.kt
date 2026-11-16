@@ -416,6 +416,12 @@ fun HomeScreen(
                         onOpenChannel = onOpenChannel,
                         onMenu = { menuFor = it },
                     )
+                    HomeRow.NEW_CHANNELS -> ChannelRail(
+                        title = stringResource(tv.own.owntv.core.R.string.home_row_new_channels),
+                        channels = state.newChannels,
+                        onOpenChannel = onOpenChannel,
+                        onMenu = { menuFor = it },
+                    )
                     HomeRow.RECENT_MOVIES -> PosterRow(
                         title = stringResource(R.string.home_row_recent_movies),
                         posters = state.recentMovies.map { m ->
@@ -620,6 +626,7 @@ private fun HomeFeed.hasContent(row: HomeRow): Boolean = when (row) {
     HomeRow.CONTINUE_SERIES -> continueSeries.isNotEmpty()
     HomeRow.LIVE_CATEGORIES -> liveCategoryRails.isNotEmpty()
     HomeRow.ALL_CHANNELS -> allChannels.isNotEmpty()
+    HomeRow.NEW_CHANNELS -> newChannels.isNotEmpty()
     HomeRow.RECENT_MOVIES -> recentMovies.isNotEmpty()
     // Decided by the Sports row's own matches, in HomeScreen.
     HomeRow.LIVE_SPORTS -> false

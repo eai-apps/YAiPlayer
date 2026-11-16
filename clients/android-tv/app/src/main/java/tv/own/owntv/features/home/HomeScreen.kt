@@ -680,6 +680,20 @@ fun HomeScreen(
                                 modifier = rowModifier,
                             )
 
+                            HomeRow.NEW_CHANNELS -> HomeLiveRow(
+                                title = row.displayTitle(),
+                                mode = HomeLiveRowMode.CARDS,
+                                channels = state.newChannels,
+                                guide = state.railGuide,
+                                withGuide = true,
+                                onChannelClick = onPlayChannel,
+                                onFocus = onNonHeroFocused,
+                                firstItemFocusRequester = firstItemFocusRequester,
+                                start = contentStart,
+                                track = track,
+                                modifier = rowModifier,
+                            )
+
                             HomeRow.RECENT_MOVIES -> FavoritePosterRow(
                                 title = row.displayTitle(),
                                 items = state.recentMovies,
@@ -894,6 +908,7 @@ private fun rowHasData(row: HomeRow, state: HomeUiState, sportsCards: Int): Bool
     HomeRow.CONTINUE_SERIES -> state.continueSeries.isNotEmpty()
     HomeRow.LIVE_CATEGORIES -> state.liveCategoryRails.isNotEmpty()
     HomeRow.ALL_CHANNELS -> state.allChannels.isNotEmpty()
+    HomeRow.NEW_CHANNELS -> state.newChannels.isNotEmpty()
     HomeRow.RECENT_MOVIES -> state.recentMovies.isNotEmpty()
 }
 

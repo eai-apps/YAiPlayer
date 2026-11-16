@@ -8,7 +8,7 @@
     <string name="guide_portal_offer_title">У портала нет телепрограммы</string>
     <string name="guide_portal_offer_body">У %1$d из %2$d каналов портала «%3$s» нет телепрограммы. Загрузить её из дополнительного источника?</string>
     <string name="guide_portal_offer_load">Загрузить</string>
-    <string name="new_channels_category">Новые каналы</string>
+    <string name="new_channels_category">Последние добавленные</string>
     <string name="new_channels_title">Новые каналы у провайдера</string>
     <string name="new_channels_show">Посмотреть</string>
     <plurals name="new_channels_body">

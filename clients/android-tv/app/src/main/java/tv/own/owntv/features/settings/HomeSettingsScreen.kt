@@ -248,6 +248,7 @@ private val HomeRow.icon: OwnTVIcon get() = when (this) {
     HomeRow.CONTINUE_SERIES -> OwnTVIcon.SERIES
     HomeRow.LIVE_CATEGORIES -> OwnTVIcon.LIVE_TV
     HomeRow.ALL_CHANNELS -> OwnTVIcon.LIVE_TV
+    HomeRow.NEW_CHANNELS -> OwnTVIcon.LIVE_TV
     HomeRow.RECENT_MOVIES -> OwnTVIcon.MOVIES
 }
 

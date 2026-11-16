@@ -111,10 +111,9 @@ class SearchReader(
         val hiddenSeriesCats = hiddenCategoryIds(sources.seriesSourceIds, MediaType.SERIES, custSeries, isKids)
         return SearchResults(
             channels = if (sources.liveSourceIds.isEmpty()) emptyList() else
-                (
-                    if (fts != null) channelDao.searchListDetailedFts(fts, sources.liveSourceIds, limit)
-                    else channelDao.searchListDetailed(query, sources.liveSourceIds, limit)
-                    )
+                // Owner 16.11: channels by any part of the name, any letter case («кино» → «КиноКнига»). FTS4's
+                // tokenizer folds only Latin case and matches word starts, so channels use the GLOB search.
+                channelDao.searchListDetailed(tv.own.owntv.core.util.NameSearch.glob(query), sources.liveSourceIds, limit)
                     .filter {
                         CustomizeKeys.channel(it.channel) !in custLive.hiddenItems &&
                             (it.channel.categoryId == null || it.channel.categoryId !in hiddenLiveCats)

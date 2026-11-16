@@ -944,7 +944,7 @@ class EpgViewModel(
 
         // Respect customizations: hidden channels stay out of the guide, renames show.
         val cust = customize.observeVisible(pid, MediaType.LIVE).first()
-        val q = _query.value.trim()
+        val q = tv.own.owntv.core.util.NameSearch.glob(_query.value)
         val rawChannels = if (settings.guideShowEmpty.first()) channelDao.channelsForGuide(playlistIds, q, MAX_CHANNELS)
             else channelDao.channelsWithGuide(ids, q, MAX_CHANNELS)
         val favoriteIds = favoriteDao.observeFavoriteIds(pid, MediaType.LIVE).first().toSet()

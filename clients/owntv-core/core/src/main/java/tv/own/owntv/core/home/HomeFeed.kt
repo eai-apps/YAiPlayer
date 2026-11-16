@@ -188,6 +188,8 @@ data class HomeFeed(
     val favoriteGuide: GuideSliceState = GuideSliceState(),
     val liveCategoryRails: List<ChannelRail> = emptyList(),
     val allChannels: List<ChannelEntity> = emptyList(),
+    /** This week's new channels of the profile's playlists (see NewChannels). */
+    val newChannels: List<ChannelEntity> = emptyList(),
     /** The guide for the category rails and the "All channels" rail together: what is on now on each card. */
     val railGuide: GuideSliceState = GuideSliceState(),
     val recentMovies: List<MovieEntity> = emptyList(),
@@ -302,6 +304,17 @@ class HomeFeedReader(
                     .filterNot { isChannelHidden(it, hidden) }
                     .take(ALL_CHANNELS_ROW_LIMIT)
             }
+            val newChannelsAsync = async {
+                if (HomeRow.NEW_CHANNELS !in config.visibleOrder || liveIds.isEmpty()) emptyList()
+                else runCatching {
+                    val koin = org.koin.core.context.GlobalContext.get()
+                    val catId = koin.get<tv.own.owntv.core.sync.NewChannels>().categoryId(profileId) ?: return@runCatching emptyList<tv.own.owntv.core.database.entity.ChannelEntity>()
+                    koin.get<tv.own.owntv.core.database.OwnTVDatabase>().customCategoryDao()
+                        .snapshotChannels(profileId, catId, liveIds.toList(), alpha = false, limit = ALL_CHANNELS_ROW_LIMIT * 2)
+                        .filterNot { isChannelHidden(it, hidden) }
+                        .take(ALL_CHANNELS_ROW_LIMIT)
+                }.getOrDefault(emptyList())
+            }
             val categoryRailsAsync = async {
                 if (HomeRow.LIVE_CATEGORIES !in config.visibleOrder || liveIds.isEmpty()) emptyList()
                 else {
@@ -346,8 +359,9 @@ class HomeFeedReader(
             // One guide read for every channel the block rails draw, so their cards say what is on now.
             val categoryRails = categoryRailsAsync.await()
             val allChannelsList = allChannelsAsync.await()
+            val newChannelsList = newChannelsAsync.await()
             val railGuide = run {
-                val drawn = (categoryRails.flatMap { it.channels } + allChannelsList).distinctBy { it.id }
+                val drawn = (categoryRails.flatMap { it.channels } + allChannelsList + newChannelsList).distinctBy { it.id }
                 if (!withGuide || drawn.isEmpty()) GuideSliceState() else liveGuide(profileId, liveIds, drawn)
             }
 
@@ -370,6 +384,7 @@ class HomeFeedReader(
                 favoriteGuide = favoriteGuideAsync.await().let { it.copy(channels = it.channels.map { ch -> names.of(ch) }) },
                 liveCategoryRails = categoryRails.map { r -> r.copy(channels = r.channels.map { names.of(it) }) },
                 allChannels = allChannelsList.map { names.of(it) },
+                newChannels = newChannelsList.map { names.of(it) },
                 railGuide = railGuide,
                 recentMovies = recentMoviesAsync.await().map { names.of(it) },
                 onAirItems = onAirItemsAsync.await().map { it.copy(channel = names.of(it.channel)) },

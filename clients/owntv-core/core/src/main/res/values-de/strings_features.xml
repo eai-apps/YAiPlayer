@@ -557,4 +557,6 @@
     <string name="sports_broadcasts_find_first">Mit „Sender suchen“ siehst du die Sender in deinem Programm, die dieses Spiel zeigen.</string>
     <string name="sports_broadcasts_none">Keine angegeben</string>
     <string name="sports_move_instructions">▲/▼ zum Auswählen · OK zum Aufnehmen oder Ablegen · Zum Schluss Speichern</string>
+    <string name="home_row_new_channels">Zuletzt hinzugefügt</string>
+    <string name="home_row_new_channels_description">Sender, die Ihr Anbieter diese Woche hinzugefügt hat</string>
 </resources>
