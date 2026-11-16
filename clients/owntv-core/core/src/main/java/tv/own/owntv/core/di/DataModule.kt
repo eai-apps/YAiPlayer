@@ -76,6 +76,8 @@ val dataModule = module {
                 }
                 chain.proceed(out)
             }
+            // Owner 16.11: our services through our own relays when Cloudflare / TMDB images are blocked (Russia).
+            .addInterceptor(tv.own.owntv.core.account.ApiRoutes.Fallback)
             .build()
     }
     // The playback engines' client: same proxy/DNS/UA/protocol configuration as the singleton above,

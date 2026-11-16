@@ -267,7 +267,6 @@
 1	technical	app/src/main/java/tv/own/owntv/features/profiles/AccountScreen.kt	$pass2Label: ${if (password2.isEmpty()) "—" else "•".repeat(password2.length)}
 1	technical	app/src/main/java/tv/own/owntv/features/profiles/AccountScreen.kt	$passLabel: ${if (password.isEmpty()) "—" else "•".repeat(password.length)}
 1	technical	app/src/main/java/tv/own/owntv/features/profiles/AccountScreen.kt	TV
-1	protocol	app/src/main/java/tv/own/owntv/features/profiles/AccountScreen.kt	direct
 2	technical	app/src/main/java/tv/own/owntv/features/profiles/AccountScreen.kt	https://
 1	technical	app/src/main/java/tv/own/owntv/features/profiles/AccountScreen.kt	ok
 2	technical	app/src/main/java/tv/own/owntv/features/profiles/AccountScreen.kt	tv

@@ -25,35 +25,26 @@ class AccountApi(
     private val json = "application/json".toMediaType()
 
     suspend fun call(method: String, path: String, body: JSONObject? = null, token: String? = null): Any? = withContext(Dispatchers.IO) {
-        // Direct first, then the relays (owner 16.11: Cloudflare is blocked for some users in Russia). Only a
-        // network failure moves on to the next route — an answer from the server, even an error, is final.
-        val routes = if (base == AccountConfig.API_BASE) ApiRoutes.order() else listOf(ApiRoutes.Route("custom", base))
-        var lastNetwork: java.io.IOException? = null
-        for (route in routes) {
-            val rb = Request.Builder().url(route.base.trimEnd('/') + path).header("X-YAi-Client", clientTag)
-            if (token != null) rb.header("Authorization", "Bearer $token")
-            val payload = body?.toString()?.toRequestBody(json) ?: if (method == "GET" || method == "DELETE") null else "{}".toRequestBody(json)
-            rb.method(method, payload)
-            val res = try { ApiRoutes.client(http, route).newCall(rb.build()).execute() } catch (e: java.io.IOException) {
-                lastNetwork = e
-                continue
-            }
-            ApiRoutes.worked(route)
-            return@withContext res.use { r ->
-                val text = r.body.string()
-                val parsed: Any? = when {
-                    text.isBlank() -> null
-                    text.trimStart().startsWith("[") -> JSONArray(text)
-                    else -> runCatching { JSONObject(text) }.getOrNull()
-                }
-                if (!r.isSuccessful) {
-                    val err = (parsed as? JSONObject)?.optJSONObject("error")
-                    throw AccountApiException(r.code, err?.optString("code")?.ifBlank { null } ?: "server_error", err?.optString("message"))
-                }
-                parsed
-            }
+        val rb = Request.Builder().url(base.trimEnd('/') + path).header("X-YAi-Client", clientTag)
+        if (token != null) rb.header("Authorization", "Bearer $token")
+        val payload = body?.toString()?.toRequestBody(json) ?: if (method == "GET" || method == "DELETE") null else "{}".toRequestBody(json)
+        rb.method(method, payload)
+        val res = try { http.newCall(rb.build()).execute() } catch (e: java.io.IOException) {
+            throw AccountApiException(0, "network", e.message)
         }
-        throw AccountApiException(0, "network", lastNetwork?.message)
+        res.use { r ->
+            val text = r.body.string()
+            val parsed: Any? = when {
+                text.isBlank() -> null
+                text.trimStart().startsWith("[") -> JSONArray(text)
+                else -> runCatching { JSONObject(text) }.getOrNull()
+            }
+            if (!r.isSuccessful) {
+                val err = (parsed as? JSONObject)?.optJSONObject("error")
+                throw AccountApiException(r.code, err?.optString("code")?.ifBlank { null } ?: "server_error", err?.optString("message"))
+            }
+            parsed
+        }
     }
 
     suspend fun obj(method: String, path: String, body: JSONObject? = null, token: String? = null): JSONObject =

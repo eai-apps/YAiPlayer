@@ -243,11 +243,10 @@ private fun SignedInTv(account: AccountService, login: String, profiles: List<Pr
     Text(stringResource(R.string.account_sign_out_text), style = stageText(18, 500), color = StageColors.Muted)
     status?.let { Text(it, style = stageText(22, 600), color = StageColors.Body) }
     // Owner 16.11: show when the server is reached through a relay (Cloudflare blocked).
-    val route by tv.own.owntv.core.account.ApiRoutes.active.collectAsState()
-    route?.let { r ->
-        val n = tv.own.owntv.core.account.ApiRoutes.ALL.indexOf(r)
+    val route by tv.own.owntv.core.account.ApiRoutes.apiRoute.collectAsState()
+    route?.let { n ->
         Text(
-            if (r.id == "direct") stringResource(R.string.account_route_direct) else stringResource(R.string.account_route_relay, n),
+            if (n == 0) stringResource(R.string.account_route_direct) else stringResource(R.string.account_route_relay, n),
             style = stageText(18, 500), color = StageColors.Muted,
         )
     }

@@ -3,74 +3,108 @@ package tv.own.owntv.core.account
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.Protocol
+import okhttp3.Response
+import java.io.IOException
 import java.net.Proxy
 import java.security.MessageDigest
 import java.security.cert.CertificateException
 import java.security.cert.X509Certificate
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
 
 /**
- * Owner 16.11: in Russia `*.workers.dev` (Cloudflare) is often blocked, and a tester's sync never connected.
- * The account/sync API is reached directly first; when that fails on the network level, through relays on
- * our own servers (each a plain proxy to the same Cloudflare worker — one database, nothing duplicated).
+ * Owner 16.11: in Russia Cloudflare (`*.workers.dev`, our own domains on it) and image.tmdb.org are often
+ * blocked — a tester's sync never connected. Our servers run relays (Caddy, see G:\evvant\Projects\SSH\SERVERS.md):
+ * each forwards a path prefix to one of these services, so the database and the services stay where they are.
  *
- * A relay has no domain: it answers on its IP with its own certificate, and the app trusts exactly that
- * certificate (its SHA-256 below), so nobody in between can stand in for it.
+ * [Fallback] sits on the app's shared OkHttp client: a call to one of [HOSTS] that fails on the network goes out
+ * again through the relays, one after another; the host then goes through the relay that worked for 30 minutes
+ * before direct is tried again. A relay has no domain: the app trusts exactly its certificate ([Relay.certSha256]).
  */
 object ApiRoutes {
-    data class Route(val id: String, val base: String, val certSha256: String? = null)
+    data class Relay(val number: Int, val id: String, val base: String, val certSha256: String)
 
-    /** In the order tried. Add a server here after it is set up (see G:\evvant\Projects\SSH\SERVERS.md). */
-    val ALL = listOf(
-        Route("direct", AccountConfig.API_BASE),
-        Route("operator", "https://194.26.203.2:8443", "1311c85f3584b8627cf6434355338982486a5cf59cee06c8ebe0a5d243fdefe9"),
+    /** In the order tried. Add a server after it is set up (number = «сервер N» on screen). */
+    val RELAYS = listOf(
+        Relay(1, "operator", "https://194.26.203.2:8443", "1311c85f3584b8627cf6434355338982486a5cf59cee06c8ebe0a5d243fdefe9"),
     )
 
-    /** What the last successful call went through — the screen shows it («Напрямую» / «Ретранслятор: оператор ✓»). */
-    private val _active = MutableStateFlow<Route?>(null)
-    val active: StateFlow<Route?> = _active
+    /** Service host → the relay's path prefix for it (the relay's Caddyfile has the same list). */
+    val HOSTS = mapOf(
+        "yaiplayer-api.yai-media-player.workers.dev" to "",
+        "tmdb.owntv.me" to "/tmdb",
+        "owntv-tmdb-meta.xiannero.workers.dev" to "/tmdb-legacy",
+        "my-owntv-opensub.xiannero.workers.dev" to "/opensub",
+        "image.tmdb.org" to "/tmdb-img",
+    )
 
-    @Volatile private var preferred: Route = ALL.first()
-    @Volatile private var preferredSince = 0L
+    private val API_HOST = HOSTS.keys.first()
 
-    /** The order for the next call: the route that worked last first; direct is tried again every 30 minutes. */
-    fun order(): List<Route> {
-        val p = preferred
-        if (p.id != "direct" && System.currentTimeMillis() - preferredSince > RETRY_DIRECT_MS) return ALL
-        return listOf(p) + ALL.filter { it != p }
-    }
+    /** How the account/sync server was reached last: null = not yet, 0 = direct, N = relay «сервер N». */
+    private val _apiRoute = MutableStateFlow<Int?>(null)
+    val apiRoute: StateFlow<Int?> = _apiRoute
 
-    fun worked(route: Route) {
-        if (preferred != route) { preferred = route; preferredSince = System.currentTimeMillis() }
-        _active.value = route
-    }
+    /** Host → (relay that worked, since when). */
+    private val viaRelay = ConcurrentHashMap<String, Pair<Relay, Long>>()
 
-    private val clients = HashMap<String, OkHttpClient>()
+    private val clients = ConcurrentHashMap<String, OkHttpClient>()
 
-    @Synchronized
-    fun client(base: OkHttpClient, route: Route): OkHttpClient {
-        val sha = route.certSha256 ?: return base
-        return clients.getOrPut(route.id) {
-            val trust = object : X509TrustManager {
-                override fun getAcceptedIssuers(): Array<X509Certificate> = emptyArray()
-                override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) { throw CertificateException() }
-                override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {
-                    val got = chain.firstOrNull()?.encoded?.let { MessageDigest.getInstance("SHA-256").digest(it) }
-                        ?.joinToString("") { b -> "%02x".format(b) }
-                    if (got != sha) throw CertificateException("relay certificate mismatch")
-                }
+    private fun relayClient(r: Relay): OkHttpClient = clients.getOrPut(r.id) {
+        val trust = object : X509TrustManager {
+            override fun getAcceptedIssuers(): Array<X509Certificate> = emptyArray()
+            override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) { throw CertificateException() }
+            override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {
+                val got = chain.firstOrNull()?.encoded?.let { MessageDigest.getInstance("SHA-256").digest(it) }
+                    ?.joinToString("") { b -> "%02x".format(b) }
+                if (got != r.certSha256) throw CertificateException("relay certificate mismatch")
             }
-            val ssl = SSLContext.getInstance("TLS").apply { init(null, arrayOf<TrustManager>(trust), null) }
-            base.newBuilder()
-                .sslSocketFactory(ssl.socketFactory, trust)
-                .hostnameVerifier { _, _ -> true } // identity = the pinned certificate above, not a name
-                .proxy(Proxy.NO_PROXY)
-                .connectTimeout(8, TimeUnit.SECONDS)
-                .build()
+        }
+        val ssl = SSLContext.getInstance("TLS").apply { init(null, arrayOf<TrustManager>(trust), null) }
+        // A plain client: never through this interceptor again, never through the user's proxy.
+        OkHttpClient.Builder()
+            .sslSocketFactory(ssl.socketFactory, trust)
+            .hostnameVerifier { _, _ -> true } // identity = the pinned certificate, not a name
+            .proxy(Proxy.NO_PROXY)
+            .protocols(listOf(Protocol.HTTP_1_1))
+            .connectTimeout(8, TimeUnit.SECONDS).readTimeout(30, TimeUnit.SECONDS)
+            .build()
+    }
+
+    private fun throughRelay(request: okhttp3.Request, r: Relay, prefix: String): Response {
+        val u = request.url
+        val target = r.base.trimEnd('/') + prefix + u.encodedPath + (u.encodedQuery?.let { "?$it" } ?: "")
+        return relayClient(r).newCall(request.newBuilder().url(target).build()).execute()
+    }
+
+    private fun note(host: String, route: Int) { if (host == API_HOST) _apiRoute.value = route }
+
+    object Fallback : Interceptor {
+        override fun intercept(chain: Interceptor.Chain): Response {
+            val request = chain.request()
+            val host = request.url.host
+            val prefix = HOSTS[host] ?: return chain.proceed(request)
+            val now = System.currentTimeMillis()
+            viaRelay[host]?.let { (r, since) ->
+                if (now - since < RETRY_DIRECT_MS) {
+                    try { return throughRelay(request, r, prefix).also { note(host, r.number) } } catch (_: IOException) { viaRelay.remove(host) }
+                } else viaRelay.remove(host)
+            }
+            val directError = try {
+                return chain.proceed(request).also { note(host, 0) }
+            } catch (e: IOException) { e }
+            if (chain.call().isCanceled()) throw directError
+            for (r in RELAYS) {
+                try {
+                    return throughRelay(request, r, prefix).also { viaRelay[host] = r to now; note(host, r.number) }
+                } catch (_: IOException) { /* next relay */ }
+            }
+            throw directError
         }
     }
 

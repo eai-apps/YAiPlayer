@@ -4,7 +4,6 @@
 # Entries go as literals are translated or classified; the file may only ever shrink.
 # Format: <count>\t<relative path>\t<content with \t/\n escaped>
 
-1	core/src/main/java/tv/own/owntv/core/account/AccountApi.kt	custom
 1	core/src/main/java/tv/own/owntv/core/account/AccountCrypto.kt	[\\s-]
 1	core/src/main/java/tv/own/owntv/core/account/AccountErrors.kt	too_many_attempts
 1	core/src/main/java/tv/own/owntv/core/account/AccountErrors.kt	unauthorized
@@ -73,14 +72,24 @@
 1	core/src/main/java/tv/own/owntv/core/account/AccountStore.kt	yai_account_data_key_v1
 1	core/src/main/java/tv/own/owntv/core/account/AccountStore.kt	yai_account_v1
 2	core/src/main/java/tv/own/owntv/core/account/AccountStore.kt	{}
+2	core/src/main/java/tv/own/owntv/core/account/ApiRoutes.kt	\0
 1	core/src/main/java/tv/own/owntv/core/account/ApiRoutes.kt	%02x
+1	core/src/main/java/tv/own/owntv/core/account/ApiRoutes.kt	/opensub
+1	core/src/main/java/tv/own/owntv/core/account/ApiRoutes.kt	/tmdb
+1	core/src/main/java/tv/own/owntv/core/account/ApiRoutes.kt	/tmdb-img
+1	core/src/main/java/tv/own/owntv/core/account/ApiRoutes.kt	/tmdb-legacy
 1	core/src/main/java/tv/own/owntv/core/account/ApiRoutes.kt	1311c85f3584b8627cf6434355338982486a5cf59cee06c8ebe0a5d243fdefe9
+1	core/src/main/java/tv/own/owntv/core/account/ApiRoutes.kt	?$it
 1	core/src/main/java/tv/own/owntv/core/account/ApiRoutes.kt	SHA-256
 1	core/src/main/java/tv/own/owntv/core/account/ApiRoutes.kt	TLS
-2	core/src/main/java/tv/own/owntv/core/account/ApiRoutes.kt	direct
 1	core/src/main/java/tv/own/owntv/core/account/ApiRoutes.kt	https://194.26.203.2:8443
+1	core/src/main/java/tv/own/owntv/core/account/ApiRoutes.kt	image.tmdb.org
+1	core/src/main/java/tv/own/owntv/core/account/ApiRoutes.kt	my-owntv-opensub.xiannero.workers.dev
 1	core/src/main/java/tv/own/owntv/core/account/ApiRoutes.kt	operator
+1	core/src/main/java/tv/own/owntv/core/account/ApiRoutes.kt	owntv-tmdb-meta.xiannero.workers.dev
 1	core/src/main/java/tv/own/owntv/core/account/ApiRoutes.kt	relay certificate mismatch
+1	core/src/main/java/tv/own/owntv/core/account/ApiRoutes.kt	tmdb.owntv.me
+1	core/src/main/java/tv/own/owntv/core/account/ApiRoutes.kt	yaiplayer-api.yai-media-player.workers.dev
 2	core/src/main/java/tv/own/owntv/core/account/SourceRecords.kt	\0
 1	core/src/main/java/tv/own/owntv/core/account/SourceRecords.kt	
 2	core/src/main/java/tv/own/owntv/core/account/SourceRecords.kt	deviceId
