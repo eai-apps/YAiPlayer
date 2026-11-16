@@ -129,6 +129,8 @@ data class PlaylistRefresh(
         private const val SEPARATOR = ':'
 
         val OFF = PlaylistRefresh(PlaylistAutoRefresh.OFF)
+        /** Owner 16.11: a new playlist / portal refreshes itself fully every 72 hours unless the user changes it. */
+        val NEW_SOURCE_DEFAULT = PlaylistRefresh(PlaylistAutoRefresh.MANUAL, 3)
 
         /**
          * Reads a stored value, translating the retired fixed entries into the day counts that mean the

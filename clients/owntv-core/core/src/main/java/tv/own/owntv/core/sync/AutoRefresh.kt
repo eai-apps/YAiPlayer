@@ -93,10 +93,14 @@ class AutoRefresh(
         val all = epgSourceStore.getAll()
         // The built-in guide is a chain: its first feed asks for the next, so only the first is due here.
         val firstBuiltinId = all.firstOrNull { it.builtin }?.id
+        // Owner 16.11: a playlist/portal refreshed on its own timer (new sources: every 72 h) takes its own guide
+        // with it — «полное обновление портала: каналы и ЭПГ оператора».
+        val dueGuideUrls = playlists.filter { it.active && it.due }.flatMap { it.guideUrls }.map { it.trim().lowercase() }.toSet()
         val feeds = all.filter { !it.builtin || it.id == firstBuiltinId }.map { src ->
             val mode = epgModes[src.id] ?: EpgRefresh.OFF
             val due = shouldRefreshEpg(mode, src.lastSyncAt, nowMs, includeStartup) ||
-                (staleCatchUp && WeeklySchedule.isGuideDue(src.lastSyncAt, nowMs))
+                (staleCatchUp && WeeklySchedule.isGuideDue(src.lastSyncAt, nowMs)) ||
+                (!src.builtin && src.url.trim().lowercase() in dueGuideUrls)
             GuideFeedInfo(src.id, src.url, src.builtin, due, if (due) epgDao.countForSources(listOf(src.id)) else 0)
         }
         val jobs = RefreshQueuePlanner.plan(playlists, feeds)

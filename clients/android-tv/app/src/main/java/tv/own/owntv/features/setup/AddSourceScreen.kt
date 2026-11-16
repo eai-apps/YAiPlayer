@@ -109,7 +109,7 @@ fun AddSourceScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     initial: SourceEntity? = null,
-    initialAutoRefresh: PlaylistRefresh = PlaylistRefresh.OFF,
+    initialAutoRefresh: PlaylistRefresh = PlaylistRefresh.NEW_SOURCE_DEFAULT,
     initialIsDefault: Boolean = false,
     showDefaultToggle: Boolean = true,
     // Editing only: opens the same playlist's page in a browser on another device. Its submission comes
@@ -445,10 +445,7 @@ fun AddSourceScreen(
     // editing, retrying a failed add, or applying explicit choices from a remote Stalker payload.
     LaunchedEffect(kind, initial, hasRemoteStalkerScopes) {
         if (initial != null || kind != SourceKind.STALKER || hasRemoteStalkerScopes) return@LaunchedEffect
-        if (syncLive == SyncScopeChoice.Now && syncMovies == SyncScopeChoice.Now && syncSeries == SyncScopeChoice.Now) {
-            syncMovies = SyncScopeChoice.Later
-            syncSeries = SyncScopeChoice.Later
-        }
+        // Owner 16.11: films and series load at once too — a full package should show everything right away.
     }
 
     val showContentToggles = kind == SourceKind.XTREAM || kind == SourceKind.STALKER

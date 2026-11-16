@@ -156,9 +156,9 @@ fun AddSourceForm(
                 ?: tv.own.owntv.core.repository.splitGuideUrls(initial?.epgUrl)
         )
     }
-    var refreshMode by rememberSaveable { mutableStateOf(initial?.autoRefresh?.mode ?: PlaylistAutoRefresh.OFF) }
+    var refreshMode by rememberSaveable { mutableStateOf(initial?.autoRefresh?.mode ?: PlaylistRefresh.NEW_SOURCE_DEFAULT.mode) }
     var manualDays by rememberSaveable {
-        mutableStateOf((initial?.autoRefresh ?: PlaylistRefresh()).manualDays.toString())
+        mutableStateOf((initial?.autoRefresh ?: PlaylistRefresh.NEW_SOURCE_DEFAULT).manualDays.toString())
     }
     // Stalker has no bulk catalogue endpoint, so its films and series are fetched later by default.
     var syncLive by rememberSaveable { mutableStateOf(initial?.live ?: SyncScopeChoice.Now) }
@@ -244,10 +244,7 @@ fun AddSourceForm(
                     selected = kind.ordinal,
                     onSelect = { index ->
                         kind = SourceKind.entries[index]
-                        if (kind == SourceKind.STALKER) {
-                            syncMovies = SyncScopeChoice.Later
-                            syncSeries = SyncScopeChoice.Later
-                        }
+                        // Owner 16.11: a portal loads films and series at once too (full package from the start).
                     },
                     fill = true,
                     modifier = Modifier.fillMaxWidth().padding(start = 6.dp, end = 6.dp, bottom = 10.dp),
