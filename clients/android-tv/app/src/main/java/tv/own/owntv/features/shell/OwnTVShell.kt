@@ -27,6 +27,8 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -1175,7 +1177,35 @@ fun OwnTVShell(
             },
     ) {
       // Browse UI — hidden while the player is fullscreen (stays visible behind the docked mini-player).
-      if (playerMode != PlayerMode.FULLSCREEN) {
+      // Owner 16.11: it used to be torn down for full screen and rebuilt on Back, which took 3–5 s of black
+      // screen on the VS KM6 (the whole Live TV list, rail and stage composed from nothing). It now stays
+      // composed but is neither measured nor drawn, its Back handlers are parked on an idle dispatcher and
+      // the preview panes drop their video view; Back shows it again at once, scrolled where it was.
+      val browseHidden = playerMode == PlayerMode.FULLSCREEN
+      val realBackOwner = androidx.activity.compose.LocalOnBackPressedDispatcherOwner.current
+      val shellLifecycle = androidx.lifecycle.compose.LocalLifecycleOwner.current
+      val idleBackOwner = remember(shellLifecycle) {
+          object : androidx.activity.OnBackPressedDispatcherOwner {
+              private val idle = androidx.activity.OnBackPressedDispatcher()
+              override val onBackPressedDispatcher: androidx.activity.OnBackPressedDispatcher get() = idle
+              override val lifecycle: androidx.lifecycle.Lifecycle get() = shellLifecycle.lifecycle
+          }
+      }
+      androidx.compose.runtime.CompositionLocalProvider(
+          LocalBrowseHidden provides browseHidden,
+          androidx.activity.compose.LocalOnBackPressedDispatcherOwner provides (if (browseHidden) idleBackOwner else realBackOwner ?: idleBackOwner),
+      ) {
+      Box(
+          Modifier.fillMaxSize().then(
+              if (browseHidden) {
+                  Modifier
+                      .layout { _, c -> layout(c.maxWidth, c.maxHeight) {} }
+                      // The D-pad on the player must never wander into the hidden screen.
+                      .focusProperties { onEnter = { cancelFocusChange() } }
+                      .focusGroup()
+              } else Modifier,
+          ),
+      ) {
         Column(
             modifier = Modifier.fillMaxSize()
                 // One group with a restorer: leaving for the mini player and coming back lands on the
@@ -1610,9 +1640,10 @@ fun OwnTVShell(
         // video and glass mode skip it entirely. Global Animations Off also freezes the slow pulse.
         SolidAmbientBackdrop(
             glowEnabled = ambientGlowEnabled,
-            pulseEnabled = ambientGlowPulse && shellAnimationLevel != tv.own.owntv.core.theme.AnimationLevel.OFF,
+            pulseEnabled = !browseHidden && ambientGlowPulse && shellAnimationLevel != tv.own.owntv.core.theme.AnimationLevel.OFF,
             modifier = Modifier.fillMaxSize(),
         )
+      }
       }
 
       // Compact background-sync pill (top middle, in the header strip — at the bottom it covered card titles,
@@ -2334,3 +2365,6 @@ private fun railDetail(section: MainSection, d: RailDetails): String? = when (se
 private const val RAIL_KEY_WINDOW_MS = 400L
 
 private const val MPV_SURFACE_HOLD_MS = 600L
+
+/** True while the browse UI is kept composed but hidden under the full-screen player (owner 16.11). */
+val LocalBrowseHidden = androidx.compose.runtime.compositionLocalOf { false }

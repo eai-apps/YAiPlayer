@@ -280,7 +280,7 @@ internal fun LiveStagePane(
                     fill = Color.Transparent,
                 ) { OwnTVIcon(OwnTVIcon.LIVE_TV, tint = StageColors.Dim, modifier = Modifier.size(56.mpx)) }
             }
-            if (playing) tv.own.owntv.player.ExoPreviewSurface(
+            if (playing && !tv.own.owntv.features.shell.LocalBrowseHidden.current) tv.own.owntv.player.ExoPreviewSurface(
             engine = previewEngine, modifier = Modifier.fillMaxSize(),
             // Owner 16.11: on this Android 10 box every SurfaceView taken off screen forces a garbage
             // collection on the main thread (~0.9 s, SurfaceView.releaseSurfaces). The pane comes and goes

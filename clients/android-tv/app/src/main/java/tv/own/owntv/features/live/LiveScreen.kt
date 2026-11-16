@@ -33,6 +33,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -131,11 +133,15 @@ fun LiveScreen(
     val showChannelNumbers by vm.showChannelNumbers.collectAsStateWithLifecycle()
     val externalPlayerOn by vm.externalPlayerOn.collectAsStateWithLifecycle()
     val catchupPlayer by vm.catchupPlayer.collectAsStateWithLifecycle()
-    val previewChannel by vm.previewChannel.collectAsStateWithLifecycle()
-    val previewCategoryName by vm.previewCategoryName.collectAsStateWithLifecycle()
+    // Owner 16.11 (speed): the channel under the cursor and the list's scroll offset change on every key
+    // press and every scrolled pixel. Read at this level they recomposed the WHOLE Live TV screen each time;
+    // they are now read only inside lambdas, effects (snapshotFlow) and the small scopes that show them.
+    val previewChannelState = vm.previewChannel.collectAsStateWithLifecycle()
+    val previewChannel by previewChannelState
     val previewArmed by vm.previewArmed.collectAsStateWithLifecycle()
     val previewBlockedSingleSession by vm.previewBlockedSingleSession.collectAsStateWithLifecycle()
-    val nowNext by vm.nowNext.collectAsStateWithLifecycle()
+    val nowNextState = vm.nowNext.collectAsStateWithLifecycle()
+    val nowNext by nowNextState
     val searchQuery by vm.searchQuery.collectAsStateWithLifecycle()
     /** The search field's keyboard is open — ◀ then moves the text cursor, not to Categories. */
     var searchEditing by remember { mutableStateOf(false) }
@@ -188,14 +194,20 @@ fun LiveScreen(
     // watched, else the first one started here — and focus moving down the list changes only the guide.
     val previewFollowsFocus by vm.livePreviewFollowsFocus.collectAsStateWithLifecycle()
     val activePreview by vm.activePreviewChannel.collectAsStateWithLifecycle()
-    val previewTarget = if (previewFollowsFocus) previewChannel else activePreview ?: previewChannel
-    LaunchedEffect(previewTarget?.id, effectivePreview, previewArmed) {
+    val previewTargetState = remember {
+        androidx.compose.runtime.derivedStateOf { if (previewFollowsFocus) previewChannel else activePreview ?: previewChannel }
+    }
+    LaunchedEffect(effectivePreview, previewArmed) {
         // previewArmed gates the case where the last channel was restored on startup — we don't auto-preview
         // it until the user actually focuses a channel (then it plays normally).
         if (!effectivePreview || !previewArmed) return@LaunchedEffect
-        val ch = previewTarget ?: return@LaunchedEffect
-        delay(400)
-        vm.playPreview(ch)
+        androidx.compose.runtime.snapshotFlow { previewTargetState.value }
+            .distinctUntilChanged { a, b -> a?.id == b?.id }
+            .collectLatest { ch ->
+                if (ch == null) return@collectLatest
+                delay(400)
+                vm.playPreview(ch)
+            }
     }
 
     val listState = androidx.compose.foundation.lazy.rememberLazyListState()
@@ -224,22 +236,27 @@ fun LiveScreen(
     LaunchedEffect(selectedKey, rememberLive) {
         if (!rememberLive) runCatching { listState.scrollToItem(0) }
     }
-    val firstVisibleIndex = effectiveListState.firstVisibleItemIndex
-    val firstVisibleOffset = effectiveListState.firstVisibleItemScrollOffset
-    val currentFocusId = previewChannel?.id
-
-    LaunchedEffect(firstVisibleIndex, firstVisibleOffset, currentFocusId, channels.itemCount) {
+    LaunchedEffect(effectiveListState, channels) {
+      androidx.compose.runtime.snapshotFlow {
+          listOf(
+              effectiveListState.firstVisibleItemIndex.toLong(),
+              effectiveListState.firstVisibleItemScrollOffset.toLong(),
+              previewChannel?.id ?: -1L,
+              channels.itemCount.toLong(),
+          )
+      }.collectLatest {
         kotlinx.coroutines.delay(400)
         val info = effectiveListState.layoutInfo.visibleItemsInfo
-        if (info.isEmpty() || channels.itemCount <= 0) return@LaunchedEffect
+        if (info.isEmpty() || channels.itemCount <= 0) return@collectLatest
         val window = tv.own.owntv.extras.epg.VisibleEpgPrefetcher.visibleWindow(
             visibleIndices = info.map { it.index },
             totalCount = channels.itemCount,
             buffer = 3,
         )
-        if (window.isEmpty()) return@LaunchedEffect
+        if (window.isEmpty()) return@collectLatest
         val windowChannels = window.mapNotNull { channels.peek(it) }
         vm.prefetchVisibleChannels(windowChannels)
+      }
     }
     val catListState = androidx.compose.foundation.lazy.rememberLazyListState()
     val categoryQuery by vm.categoryQuery.collectAsStateWithLifecycle()
@@ -943,11 +960,12 @@ fun LiveScreen(
         // The preview sits outside the dimmed list side: a video surface under a translucent layer goes
         // black, and the show keeps playing while the categories are open.
         if (previewShown) {
+            StagePaneScope(previewChannelState, previewTargetState, nowNextState) { pc, target, nn ->
             LiveStagePane(
-                channel = previewChannel,
-                videoChannel = previewTarget,
-                channelName = previewChannel?.let { ProviderTags.parse(it.name).name },
-                nowNext = nowNext,
+                channel = pc,
+                videoChannel = target,
+                channelName = remember(pc?.name) { pc?.let { ProviderTags.parse(it.name).name } },
+                nowNext = nn,
                 previewEngine = vm.previewEngine,
                 showVideo = effectivePreview,
                 singleSessionBlocked = previewBlockedSingleSession,
@@ -961,6 +979,7 @@ fun LiveScreen(
                     .fillMaxHeight()
                     .padding(bottom = 100.mpx),
             )
+            }
         }
 
         if (categoriesOpen) {
@@ -1627,3 +1646,17 @@ internal fun liveEpgShiftLabel(minutes: Int): String {
 }
 
 private const val RESTORE_ATTEMPTS = 15
+
+/**
+ * Reads the per-keypress values in a scope of their own, so moving the cursor recomposes the stage pane and
+ * not the whole Live TV screen around it (owner 16.11: fast scrolling froze the box).
+ */
+@Composable
+private fun StagePaneScope(
+    channel: androidx.compose.runtime.State<ChannelEntity?>,
+    target: androidx.compose.runtime.State<ChannelEntity?>,
+    nowNext: androidx.compose.runtime.State<tv.own.owntv.core.live.EpgNowNext?>,
+    content: @Composable (ChannelEntity?, ChannelEntity?, tv.own.owntv.core.live.EpgNowNext?) -> Unit,
+) {
+    content(channel.value, target.value, nowNext.value)
+}

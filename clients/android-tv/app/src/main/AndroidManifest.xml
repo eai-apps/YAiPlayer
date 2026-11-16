@@ -61,6 +61,7 @@
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/owntv_icon_eggshell"
         android:label="${appLabel}"
+        android:largeHeap="true"
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/owntv_icon_eggshell"
         android:supportsRtl="true"
