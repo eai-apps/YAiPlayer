@@ -36,6 +36,10 @@ object SourceRecords {
                 s.mac?.let { secret.put("mac", it.uppercase()) }
                 s.stalkerSerialNumber?.let { secret.put("serial", it) }
                 s.stalkerDeviceId?.let { secret.put("deviceId", it) }
+                // Owner 16.11: without these a portal that needs them was refused on the second device until
+                // «Заполнить по MAC» was pressed there again.
+                s.stalkerDeviceId2?.let { secret.put("deviceId2", it) }
+                s.stalkerSignature?.let { secret.put("signature", it) }
                 s.username?.let { secret.put("username", it) }
                 s.password?.let { secret.put("password", it) }
             }
@@ -45,7 +49,7 @@ object SourceRecords {
 
     /** Fields that, when changed on either side, mean the record has to travel. */
     fun fingerprint(s: SourceEntity): String =
-        listOf(s.type.name, s.name, s.url, s.username, s.password, s.mac, s.stalkerSerialNumber, s.stalkerDeviceId, s.epgUrl)
+        listOf(s.type.name, s.name, s.url, s.username, s.password, s.mac, s.stalkerSerialNumber, s.stalkerDeviceId, s.stalkerDeviceId2, s.stalkerSignature, s.epgUrl)
             .joinToString("\u0001") { it ?: "" }.hashCode().toString(16)
 
     /** A new local row, or [base] updated with what came from the account. Null when the record cannot be used here. */
@@ -71,6 +75,9 @@ object SourceRecords {
             mac = if (type == SourceType.STALKER && secret != null) opt(s, "mac")?.uppercase() else start.mac,
             stalkerSerialNumber = if (secret != null) opt(s, "serial") else start.stalkerSerialNumber,
             stalkerDeviceId = if (secret != null) opt(s, "deviceId") else start.stalkerDeviceId,
+            // An older record without them keeps what this device has rather than clearing it.
+            stalkerDeviceId2 = if (secret != null) opt(s, "deviceId2") ?: start.stalkerDeviceId2 else start.stalkerDeviceId2,
+            stalkerSignature = if (secret != null) opt(s, "signature") ?: start.stalkerSignature else start.stalkerSignature,
         )
     }
 }

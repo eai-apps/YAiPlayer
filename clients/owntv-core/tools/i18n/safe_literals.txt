@@ -112,6 +112,8 @@
 3	json	core/src/main/java/tv/own/owntv/core/account/AccountService.kt	rev
 4	json	core/src/main/java/tv/own/owntv/core/account/AccountService.kt	source
 1	technical	core/src/main/java/tv/own/owntv/core/account/AccountService.kt	|
+2	json	core/src/main/java/tv/own/owntv/core/account/SourceRecords.kt	deviceId2
+2	json	core/src/main/java/tv/own/owntv/core/account/SourceRecords.kt	signature
 3	technical	core/src/main/java/tv/own/owntv/core/backup/BackupContainer.kt	..
 2	technical	core/src/main/java/tv/own/owntv/core/backup/BackupContainer.kt	Corrupt backup header
 2	technical	core/src/main/java/tv/own/owntv/core/backup/BackupContainer.kt	Not an OwnTV backup file
@@ -2931,6 +2933,9 @@
 1	protocol	core/src/main/java/tv/own/owntv/core/network/StreamHeaders.kt	transfer-encoding
 1	protocol	core/src/main/java/tv/own/owntv/core/network/StreamHeaders.kt	user-agent
 1	protocol	core/src/main/java/tv/own/owntv/core/network/StreamHeaders.kt	x-forwarded-for
+1	preference-key	core/src/main/java/tv/own/owntv/core/parental/ParentalControl.kt	1111
+1	preference-key	core/src/main/java/tv/own/owntv/core/parental/ParentalControl.kt	mode_${profileId}_$sourceId
+1	preference-key	core/src/main/java/tv/own/owntv/core/parental/ParentalControl.kt	parental_control
 4	empty	core/src/main/java/tv/own/owntv/core/parser/EpgText.kt	\0
 1	regex	core/src/main/java/tv/own/owntv/core/parser/EpgText.kt	(\\\\r\\\\n|\\\\n|\\\\r)+
 1	regex	core/src/main/java/tv/own/owntv/core/parser/EpgText.kt	[ \\t]{2,}

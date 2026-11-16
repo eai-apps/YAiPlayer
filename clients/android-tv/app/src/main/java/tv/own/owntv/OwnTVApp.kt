@@ -172,6 +172,8 @@ class OwnTVApp : Application(), SingletonImageLoader.Factory, androidx.work.Conf
                 koin.get<tv.own.owntv.core.sync.QuickActionsSync>().startGuideOnEnter(
                     appScope, koin.get<tv.own.owntv.core.settings.SettingsRepository>().activeProfileId, sourceDao::observeForProfile,
                 )
+                // «Защита от детей»: adult categories a sync added since are hidden/locked again on entry.
+                koin.get<tv.own.owntv.core.parental.ParentalControl>().startAutoApply(appScope)
             }
         }
         // Background resync for stale profiles: register periodic worker once at start if enabled.

@@ -41,6 +41,8 @@ class AccountService(
     private val catalog: CatalogSyncScheduler,
     private val favorites: AccountFavorites,
     private val favoriteDao: tv.own.owntv.core.database.dao.FavoriteDao,
+    /** For the new sources' defaults (channel icons from the guide on, as when added by hand). */
+    private val settings: tv.own.owntv.core.settings.SettingsRepository? = null,
 ) {
     val session = store.session
     private val mutex = Mutex()
@@ -292,6 +294,9 @@ class AccountService(
                 val e = SourceRecords.toEntity(data, secret) ?: continue
                 val newId = sourceDao.insert(e)
                 sourceDao.link(ProfileSourceCrossRef(profileId = lid, sourceId = newId))
+                // Owner 16.11: a portal arriving from the account had «Иконки из телегида» off, unlike one
+                // added by hand on this device. Same default now.
+                runCatching { settings?.setGuideLogos(newId, true) }
                 val saved = e.copy(id = newId)
                 links[id] = AccountStore.SourceLink(newId, rev, SourceRecords.fingerprint(saved), sid)
                 runCatching { catalog.enqueueSync(newId, reason = "account") }

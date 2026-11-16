@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2026 YAiPlayer authors. «Защита от детей» (owner 16.11). -->
+<resources>
+    <string name="parental_title">Kinderschutz</string>
+    <string name="parental_description">Erwachsenen-Kategorien (18+, XXX, «Erwachsene»…) jeder Playlist und jedes Portals: anzeigen, ausblenden oder nur mit PIN öffnen.</string>
+    <string name="parental_enter_pin">PIN eingeben</string>
+    <string name="parental_enter_pin_default">PIN eingeben (Standard 1111)</string>
+    <string name="parental_wrong_pin">Falsche PIN</string>
+    <string name="parental_new_pin">Neue PIN (mindestens 4 Ziffern)</string>
+    <string name="parental_pin_too_short">Die PIN braucht mindestens 4 Ziffern</string>
+    <string name="parental_pin_changed">PIN geändert</string>
+    <string name="parental_change_pin">PIN ändern</string>
+    <string name="parental_no_sources">Dieses Profil hat keine Playlists oder Portale</string>
+    <string name="parental_source_body">Was mit den Erwachsenen-Kategorien dieser Quelle geschehen soll.</string>
+    <string name="parental_mode_show">Anzeigen</string>
+    <string name="parental_mode_show_hint">Erwachsenen-Kategorien sind für alle sichtbar</string>
+    <string name="parental_mode_hide">Ausblenden</string>
+    <string name="parental_mode_hide_hint">Erwachsenen-Kategorien verschwinden aus allen Listen</string>
+    <string name="parental_mode_lock">PIN</string>
+    <string name="parental_mode_lock_hint">Erwachsenen-Kategorien öffnen sich nur mit PIN</string>
+    <plurals name="parental_adult_count">
+        <item quantity="one">%d Erwachsenen-Kategorie</item>
+        <item quantity="other">%d Erwachsenen-Kategorien</item>
+    </plurals>
+</resources>

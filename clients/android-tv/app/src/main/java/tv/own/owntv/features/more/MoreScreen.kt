@@ -306,6 +306,15 @@ fun MoreScreen(
                         onDismiss = { showLightMode = false },
                     )
                 }
+                // «Защита от детей» (owner 16.11): just before «Категории».
+                var showParental by remember { mutableStateOf(false) }
+                StageGroupItem(
+                    text = stringResource(tv.own.owntv.core.R.string.parental_title),
+                    icon = OwnTVIcon.LOCK,
+                    selected = false,
+                    onClick = { showParental = true },
+                )
+                if (showParental) ParentalControlDialog(onDismiss = { showParental = false })
                 StageGroupItem(
                     text = stringResource(R.string.quick_categories),
                     icon = OwnTVIcon.FOLDER,

@@ -26,6 +26,8 @@ enum class SettingsLeaf(
     BROWSING(SettingsGroup.LAYOUT, "browsing", R.string.settings_browsing_lists),
     CONTENT_MENUS(SettingsGroup.LAYOUT, "menus", R.string.settings_content_menus_title),
 
+    // «Защита от детей» (owner 16.11): just before the categories (Customize).
+    PARENTAL(SettingsGroup.CONTENT, "parental", tv.own.owntv.core.R.string.parental_title),
     CUSTOMIZE(SettingsGroup.CONTENT, "customize", R.string.settings_customize_short_mobile),
     METADATA(SettingsGroup.CONTENT, "metadata", R.string.settings_metadata),
     OPEN_SUBTITLES(SettingsGroup.CONTENT, "opensubtitles", R.string.settings_open_subtitles),

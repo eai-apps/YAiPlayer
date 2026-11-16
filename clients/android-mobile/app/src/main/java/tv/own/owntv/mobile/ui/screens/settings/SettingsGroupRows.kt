@@ -535,6 +535,11 @@ private fun contentSections(vm: SettingsViewModel): List<SettingSection> {
             null,
             listOf(
                 pageItem(
+                    "tab_PARENTAL", MobileIcons.Lock, stringResource(tv.own.owntv.core.R.string.parental_title),
+                    stringResource(tv.own.owntv.core.R.string.parental_description), null,
+                    SettingsLeaf.PARENTAL.route,
+                ),
+                pageItem(
                     "tab_CUSTOMIZE", MobileIcons.Edit, stringResource(R.string.settings_customize), stringResource(R.string.settings_line_customize),
                     if (hidden > 0) pluralStringResource(R.plurals.settings_customize_hidden_count, hidden, hidden) else null,
                     SettingsLeaf.CUSTOMIZE.route,

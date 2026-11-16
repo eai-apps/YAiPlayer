@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2026 YAiPlayer authors. «Защита от детей» (owner 16.11). -->
+<resources>
+    <string name="parental_title">Защита от детей</string>
+    <string name="parental_description">Категории для взрослых (18+, XXX, «Для взрослых»…) каждого плейлиста и портала: показывать, скрыть или открывать только по PIN.</string>
+    <string name="parental_enter_pin">Введите PIN</string>
+    <string name="parental_enter_pin_default">Введите PIN (по умолчанию 1111)</string>
+    <string name="parental_wrong_pin">Неверный PIN</string>
+    <string name="parental_new_pin">Новый PIN (не меньше 4 цифр)</string>
+    <string name="parental_pin_too_short">В PIN нужно не меньше 4 цифр</string>
+    <string name="parental_pin_changed">PIN изменён</string>
+    <string name="parental_change_pin">Сменить PIN</string>
+    <string name="parental_no_sources">В этом профиле нет плейлистов и порталов</string>
+    <string name="parental_source_body">Что делать с категориями для взрослых этого источника.</string>
+    <string name="parental_mode_show">Показывать</string>
+    <string name="parental_mode_show_hint">Категории для взрослых видны всем</string>
+    <string name="parental_mode_hide">Скрыть</string>
+    <string name="parental_mode_hide_hint">Категории для взрослых пропадают из всех списков</string>
+    <string name="parental_mode_lock">По PIN</string>
+    <string name="parental_mode_lock_hint">Категории для взрослых открываются только после PIN</string>
+    <plurals name="parental_adult_count">
+        <item quantity="one">%d категория для взрослых</item>
+        <item quantity="few">%d категории для взрослых</item>
+        <item quantity="many">%d категорий для взрослых</item>
+        <item quantity="other">%d категории для взрослых</item>
+    </plurals>
+</resources>

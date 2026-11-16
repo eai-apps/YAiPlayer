@@ -27,6 +27,7 @@ fun SettingsLeafPage(leaf: SettingsLeaf, onSetup: (SetupEntry) -> Unit) {
         SettingsLeaf.HOME -> SettingsHomePage()
         SettingsLeaf.BROWSING -> SettingsBrowsingPage()
         SettingsLeaf.CONTENT_MENUS -> SettingsMenusPage()
+        SettingsLeaf.PARENTAL -> SettingsParentalPage()
         SettingsLeaf.CUSTOMIZE -> SettingsCustomizePage()
         SettingsLeaf.METADATA -> SettingsMetadataPage()
         SettingsLeaf.OPEN_SUBTITLES -> SettingsOpenSubtitlesPage()

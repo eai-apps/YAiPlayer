@@ -426,6 +426,7 @@ val dataModule = module {
         tv.own.owntv.core.account.AccountService(
             api = get(), store = get(), profileDao = get(), sourceDao = get(), sources = get(), profiles = get(), catalog = get(),
             favorites = tv.own.owntv.core.account.AccountFavorites(androidContext(), get(), get()), favoriteDao = get(),
+            settings = get(),
         )
     }
     single { EpgSyncScheduler(androidContext()) }
@@ -441,6 +442,7 @@ val dataModule = module {
         )
     }
     single { tv.own.owntv.core.sync.QuickActionsSync(get(), get(), get(), get(), get(), get()) }
+    single { tv.own.owntv.core.parental.ParentalControl(androidContext(), get(), get(), get(), get()) }
     single { tv.own.owntv.core.sync.ChannelGuideCheck(androidContext(), get(), get(), get(), get(), get(), get(), get()) }
     // settings, sourceDao, channelDao, catalogSyncScheduler, importFinalizer
     single { tv.own.owntv.core.sync.M3uVodResort(get(), get(), get(), get(), get()) }
