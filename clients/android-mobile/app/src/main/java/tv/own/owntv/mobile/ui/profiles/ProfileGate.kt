@@ -160,14 +160,26 @@ fun ProfileGate(
         )
         // The guest ("no registration, no profile") is a tile of its own until its profile exists.
         val guestMissing = visibleProfiles.none { it.id == guestId }
-        val tiles: List<Any> = (if (accountService != null) listOf("account") else emptyList()) + visibleProfiles + (if (accountService == null) listOf("add") else emptyList()) + (if (guestMissing) listOf("guest") else emptyList()) + (if (TV_OPTIMIZER_READY) listOf("tv_optimizer") else emptyList()) +
+        // «Продолжить» (owner 16.11, as on the TV): the last profile straight to its last channel.
+        val resumeProfile = profiles.firstOrNull { it.id == activeProfileId }
+        val tiles: List<Any> = (if (resumeProfile != null) listOf("continue") else emptyList()) +
+            (if (accountService != null) listOf("account") else emptyList()) + visibleProfiles + (if (accountService == null) listOf("add") else emptyList()) + (if (guestMissing) listOf("guest") else emptyList()) + (if (TV_OPTIMIZER_READY) listOf("tv_optimizer") else emptyList()) +
             (if (tv.own.owntv.extras.radio.RadioFeature.AVAILABLE) listOf("radio") else emptyList()) + listOf("remote")
         tiles.chunked(2).forEach { pair ->
             Row(Modifier.fillMaxWidth().padding(bottom = 26.dp), horizontalArrangement = Arrangement.spacedBy(20.dp)) {
                 pair.forEach { tile ->
                     val profile = tile as? ProfileEntity
                     Box(Modifier.weight(1f), contentAlignment = Alignment.TopCenter) {
-                        if (tile == "account") {
+                        if (tile == "continue" && resumeProfile != null) {
+                            AddProfileTile(
+                                onClick = {
+                                    tv.own.owntv.core.settings.ResumeRequest.request()
+                                    if (resumeProfile.pinHash == null) enter(resumeProfile) else pinFor = resumeProfile
+                                },
+                                label = stringResource(tv.own.owntv.core.R.string.gate_continue),
+                                icon = MobileIcons.PlayArrow,
+                            )
+                        } else if (tile == "account") {
                             AddProfileTile(
                                 onClick = { showAccount = true },
                                 label = accountSession?.login ?: stringResource(tv.own.owntv.core.R.string.account_tile_sign_in),
@@ -303,7 +315,7 @@ fun ProfileGate(
             onSubmit = { pin ->
                 vm.verifyPin(locked, pin).also { if (it) { pinFor = null; enter(locked) } }
             },
-            onDismiss = { pinFor = null },
+            onDismiss = { pinFor = null; tv.own.owntv.core.settings.ResumeRequest.consume() },
         )
     }
     if (addProfile) {

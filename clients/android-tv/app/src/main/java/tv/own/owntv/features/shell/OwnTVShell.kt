@@ -1715,11 +1715,24 @@ fun OwnTVShell(
             // "Promote Preview": a Live channel playing on ExoPlayer renders the ExoPlayer surface — in BOTH
             // full-screen AND the docked mini-player (same call site = the surface persists across dock/
             // expand, so playback never blips). Everything else (mpv) renders mpv's surface.
+            // Owner 16.11: a Live channel opened full screen used to get mpv's SurfaceView for the ~0.2 s until
+            // the tune chose ExoPlayer, and taking that view away again cost a ~0.9 s main-thread freeze on
+            // the Android 10 box (SurfaceView.releaseSurfaces runs a GC). With the active-channel preview the
+            // opened channel is rarely the one previewing, so this hit nearly every open. Live waits briefly
+            // for the engine before building mpv's surface; mpv's load simply waits for it.
+            val mpvHold = remember(playerMode == PlayerMode.NONE, zapSource) {
+                androidx.compose.runtime.mutableStateOf(zapSource == MainSection.LIVE_TV)
+            }
+            LaunchedEffect(playerMode == PlayerMode.NONE, zapSource) {
+                if (mpvHold.value) { kotlinx.coroutines.delay(MPV_SURFACE_HOLD_MS); mpvHold.value = false }
+            }
             if (liveOnExo) {
                 tv.own.owntv.player.ExoPreviewSurface(
                     engine = liveVm.previewEngine, modifier = Modifier.fillMaxSize(),
                     keepAwake = true, autoFrameRate = isFull && !inPip && autoFrameRateLive,
                 )
+            } else if (mpvHold.value) {
+                Box(Modifier.fillMaxSize().background(Color.Black))
             } else {
                 MpvVideoSurface(
                     player = player, modifier = Modifier.fillMaxSize(),
@@ -2319,3 +2332,5 @@ private fun railDetail(section: MainSection, d: RailDetails): String? = when (se
 
 /** How recently ◀ / ▶ or [focusRail] must have happened for a rail visit to open the rail. */
 private const val RAIL_KEY_WINDOW_MS = 400L
+
+private const val MPV_SURFACE_HOLD_MS = 600L

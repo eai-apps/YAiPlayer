@@ -84,14 +84,16 @@ class ShellViewModel(
      */
     suspend fun resolveStartup(): StartupTarget {
         val ctx = activeProfileSources(settings, sourceDao).first { it.profileId >= 0L }
-        return when (val mode = settings.effectiveStartupMode(ctx.profileId).first()) {
+        // «Продолжить» on «Кто смотрит?» (owner 16.11, as on the TV): the last channel, whatever the setting.
+        val resume = tv.own.owntv.core.settings.ResumeRequest.consume()
+        return when (val mode = if (resume) StartupMode.LAST_CHANNEL else settings.effectiveStartupMode(ctx.profileId).first()) {
             StartupMode.HOME -> StartupTarget.Home
             StartupMode.FAVORITES -> StartupTarget.Favorites
             StartupMode.LAST_CHANNEL, StartupMode.LAST_CHANNEL_GUIDE, StartupMode.LAST_CHANNEL_LIVE -> {
                 val channel = channelDao.recentlyWatched(ctx.profileId, 1).first().firstOrNull()
                 when {
                     channel == null || !isVisible(channel, ctx.profileId, ctx.sources.map { it.id }.toSet()) -> StartupTarget.Home
-                    mode == StartupMode.LAST_CHANNEL -> StartupTarget.Channel(channel.id)
+                    mode == StartupMode.LAST_CHANNEL -> StartupTarget.Channel(channel.id, inLive = channel)
                     else -> StartupTarget.ChannelIn(channel, guide = mode == StartupMode.LAST_CHANNEL_GUIDE)
                 }
             }
@@ -123,7 +125,8 @@ class ShellViewModel(
 sealed interface StartupTarget {
     data object Home : StartupTarget
     data object Favorites : StartupTarget
-    data class Channel(val id: Long) : StartupTarget
+    /** Plays full screen. With [inLive], Live TV is opened on that channel underneath, so Back lands there. */
+    data class Channel(val id: Long, val inLive: ChannelEntity? = null) : StartupTarget
 
     /** The TV Guide ([guide]) or Live TV, on [channel]'s category with the channel in the preview. */
     data class ChannelIn(val channel: ChannelEntity, val guide: Boolean) : StartupTarget

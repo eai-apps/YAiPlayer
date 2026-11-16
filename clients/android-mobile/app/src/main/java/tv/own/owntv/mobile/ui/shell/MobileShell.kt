@@ -325,6 +325,11 @@ fun MobileShell(
             }
             // Start on a channel: it plays full screen, as on the television.
             is StartupTarget.Channel -> {
+                // Owner 16.11: Back from the resumed channel goes to Live TV on that channel, not to Home.
+                target.inLive?.let {
+                    startupLive.requestChannel(StartupTarget.ChannelIn(it, guide = false))
+                    navController.navigateToTab(MobileDestination.LIVE)
+                }
                 tuner.tune(target.id)
                 navController.navigate(PLAYER_ROUTE)
             }

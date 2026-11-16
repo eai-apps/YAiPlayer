@@ -280,7 +280,14 @@ internal fun LiveStagePane(
                     fill = Color.Transparent,
                 ) { OwnTVIcon(OwnTVIcon.LIVE_TV, tint = StageColors.Dim, modifier = Modifier.size(56.mpx)) }
             }
-            if (playing) tv.own.owntv.player.ExoPreviewSurface(engine = previewEngine, modifier = Modifier.fillMaxSize())
+            if (playing) tv.own.owntv.player.ExoPreviewSurface(
+            engine = previewEngine, modifier = Modifier.fillMaxSize(),
+            // Owner 16.11: on this Android 10 box every SurfaceView taken off screen forces a garbage
+            // collection on the main thread (~0.9 s, SurfaceView.releaseSurfaces). The pane comes and goes
+            // on every channel opened and closed; a TextureView leaves without that. Full screen keeps the
+            // SurfaceView (hardware video plane).
+            useTextureView = true,
+        )
             if (loading) OwnTVSpinner(sizeDp = 28)
             // `.shade`: black 72% at the bottom, clear by 42% up — a video-sized gradient, one pass.
             Box(Modifier.fillMaxSize().background(Brush.verticalGradient(0.58f to Color.Transparent, 1f to Color.Black.copy(alpha = 0.72f))))
