@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -1730,10 +1731,16 @@ fun OwnTVShell(
           }
       }
 
-      if (multiview == null && (playerMode == PlayerMode.FULLSCREEN || playerMode == PlayerMode.MINI)) {
+      // Owner 16.11: Back from a Live channel sometimes showed 1–4 s of black. Taking the full-screen
+      // SurfaceView off screen runs a forced GC on this Android 10 box (SurfaceView.releaseSurfaces). For a
+      // Live channel on ExoPlayer the player box now stays composed after Back, parked off screen with
+      // only its video view inside — the surface lives on, nothing is released, and the next channel
+      // opened full screen reuses it.
+      val exoParked = playerMode == PlayerMode.NONE && liveOnExo && multiview == null
+      if (multiview == null && (playerMode == PlayerMode.FULLSCREEN || playerMode == PlayerMode.MINI || exoParked)) {
         val isFull = playerMode == PlayerMode.FULLSCREEN
         Box(
-            modifier = (if (isFull || inPip) {
+            modifier = if (exoParked) Modifier.offset(x = (-8000).dp).size(2.dp) else (if (isFull || inPip) {
                 Modifier.fillMaxSize().background(Color.Black)
             } else {
                 // Dynamic docked size/position: a screen-width fraction at the chosen corner/edge, so it
@@ -1743,6 +1750,16 @@ fun OwnTVShell(
                     .clip(RoundedCornerShape(14.dp)).background(Color.Black)
             }).then(pipSource),
         ) {
+          // One call site for the Live video view in every state (full screen, mini, parked), so the same
+          // SurfaceView lives through all of them.
+          if (liveOnExo) {
+              tv.own.owntv.player.ExoPreviewSurface(
+                  engine = liveVm.previewEngine, modifier = Modifier.fillMaxSize(),
+                  keepAwake = !exoParked, autoFrameRate = !exoParked && isFull && !inPip && autoFrameRateLive,
+                  claimKey = playerMode,
+              )
+          }
+          if (!exoParked) {
             // "Promote Preview": a Live channel playing on ExoPlayer renders the ExoPlayer surface — in BOTH
             // full-screen AND the docked mini-player (same call site = the surface persists across dock/
             // expand, so playback never blips). Everything else (mpv) renders mpv's surface.
@@ -1758,10 +1775,7 @@ fun OwnTVShell(
                 if (mpvHold.value) { kotlinx.coroutines.delay(MPV_SURFACE_HOLD_MS); mpvHold.value = false }
             }
             if (liveOnExo) {
-                tv.own.owntv.player.ExoPreviewSurface(
-                    engine = liveVm.previewEngine, modifier = Modifier.fillMaxSize(),
-                    keepAwake = true, autoFrameRate = isFull && !inPip && autoFrameRateLive,
-                )
+                // Drawn above, at the shared call site.
             } else if (mpvHold.value) {
                 Box(Modifier.fillMaxSize().background(Color.Black))
             } else {
@@ -2150,6 +2164,7 @@ fun OwnTVShell(
                     modifier = Modifier.fillMaxSize().onFocusChanged { miniHasFocus = it.hasFocus },
                 )
             }
+          }
         }
       }
 

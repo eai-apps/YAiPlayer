@@ -10,6 +10,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
@@ -175,7 +176,17 @@ fun ExoPreviewSurface(
      * quarter-screen tile and a bad one for full screen — hence a parameter rather than a change.
      */
     useTextureView: Boolean = false,
+    /**
+     * Owner 16.11: the full-screen Live view is now kept alive (parked off screen) after Back instead of
+     * being destroyed. While parked, the preview pane takes the engine; when [claimKey] changes (the
+     * player opens again) this view hands its still-valid surface back to the engine.
+     */
+    claimKey: Any? = null,
 ) {
+    val ownSurface = remember { arrayOfNulls<Surface>(1) }
+    LaunchedEffect(engine, claimKey) {
+        ownSurface[0]?.takeIf { it.isValid }?.let { engine.setSurface(it) }
+    }
     // Only the full-screen live player passes autoFrameRate = true — the in-pane preview must never
     // reconfigure the display while the user is just scrolling the channel list.
     val fps by engine.videoFps.collectAsStateWithLifecycle()
@@ -226,9 +237,15 @@ fun ExoPreviewSurface(
                     factory = { ctx ->
                         SurfaceView(ctx).apply {
                             holder.addCallback(object : SurfaceHolder.Callback {
-                                override fun surfaceCreated(holder: SurfaceHolder) = engine.setSurface(holder.surface)
+                                override fun surfaceCreated(holder: SurfaceHolder) {
+                                    ownSurface[0] = holder.surface
+                                    engine.setSurface(holder.surface)
+                                }
                                 override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {}
-                                override fun surfaceDestroyed(holder: SurfaceHolder) = engine.detachSurface(holder.surface)
+                                override fun surfaceDestroyed(holder: SurfaceHolder) {
+                                    ownSurface[0] = null
+                                    engine.detachSurface(holder.surface)
+                                }
                             })
                         }
                     },

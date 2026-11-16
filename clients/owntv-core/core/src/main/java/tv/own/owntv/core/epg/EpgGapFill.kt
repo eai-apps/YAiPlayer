@@ -34,6 +34,7 @@ class EpgGapFill(
     suspend fun run(stalkerOnly: Boolean = false, onlyFeed: Long? = null): Int = passLock.withLock {
         withContext(Dispatchers.IO) {
             if (!store.builtinEnabled.first()) return@withContext 0
+            purgeMixedReserveOnce()
             val started = SystemClock.elapsedRealtime()
             // Only the profile in use (owner 12.11): a profile nobody opened is not filled, and a profile with no
             // playlist or portal downloads nothing at all — it used to fetch every feed for the other profiles'
@@ -131,14 +132,35 @@ class EpgGapFill(
                     val aliases = HashMap<String, MutableSet<String>>()
                     val windows = HashMap<String, MutableList<Pair<Long, Long>>>()
                     val newLinks = ArrayList<Pair<Missing, String>>()
+                    // Owner 16.11: the provider gives dozens of different channels («Кинозал | …», «Мужское кино»,
+                    // «Легенда»…) ONE shared guide id. Each was matched to its own reserve channel by name, but all
+                    // the programmes were written under that one shared id — so every one of those channels showed
+                    // a minute-by-minute mix of many channels (an adult film among them). A shared id now never
+                    // receives a name match: such a channel is linked to its own reserve channel instead, and a
+                    // target that would still collect more than one reserve channel is dropped.
+                    val sharedKeys = gaps.filter { it.key != null && it.key !in ids }
+                        .groupBy { it.key }
+                        .filterValues { g -> g.map { it.channel.matchName }.distinct().size > 1 }
+                        .keys
+                    val picked = ArrayList<Triple<Missing, String, String>>() // gap, reserve id, stored under
                     for ((gap, hit) in gaps.zip(hits)) {
-                        val id = gap.key?.takeIf { it in ids }
-                            ?: hit?.takeIf { it.score >= EpgMatcher.AUTO_THRESHOLD }?.epgChannelId
-                            ?: continue
-                        val target = gap.key ?: id
+                        val key = gap.key
+                        if (key != null && key in ids) { picked.add(Triple(gap, key, key)); continue }
+                        val id = hit?.takeIf { it.score >= EpgMatcher.AUTO_THRESHOLD }?.epgChannelId ?: continue
+                        val target = if (key != null && key !in sharedKeys) key else id
+                        picked.add(Triple(gap, id, target))
+                    }
+                    val sources = HashMap<String, MutableSet<String>>()
+                    picked.forEach { (_, id, target) -> sources.getOrPut(target) { HashSet() }.add(id) }
+                    val ambiguous = sources.filterValues { it.size > 1 }.keys
+                    if (ambiguous.isNotEmpty()) {
+                        runCatching { db.epgDao().deleteProgrammesForChannels(source.id, ambiguous.toList()) }
+                    }
+                    for ((gap, id, target) in picked) {
+                        if (target in ambiguous) continue
                         aliases.getOrPut(id) { HashSet() }.add(target)
                         windows.getOrPut(target) { ArrayList() }.add(gap.from to gap.to)
-                        if (gap.key == null) newLinks.add(gap to id)
+                        if (gap.key == null || gap.key in sharedKeys) newLinks.add(gap to id)
                     }
                     val added = repository.fillFallbackCache(source.id, aliases, windows)
                     filled += added.size
@@ -157,6 +179,19 @@ class EpgGapFill(
         }
     }
 
+    /**
+     * The reserve guide written before 16.11 could hold several channels' programmes mixed under one shared
+     * id, and such a channel then counted as «has a guide» and was never filled again. Once, its rows are
+     * cleared; this very pass fills them again, now correctly. The playlist's own guide is not touched.
+     */
+    private suspend fun purgeMixedReserveOnce() {
+        val prefs = org.koin.core.context.GlobalContext.get().get<android.content.Context>()
+            .getSharedPreferences(PREFS, android.content.Context.MODE_PRIVATE)
+        if (prefs.getBoolean(PURGED_V2, false)) return
+        store.getAll().filter { it.builtin }.forEach { runCatching { db.epgDao().clearSource(it.id) } }
+        prefs.edit().putBoolean(PURGED_V2, true).apply()
+    }
+
     private suspend fun attempt(source: EpgSource, block: suspend () -> Unit) {
         try {
             block()
@@ -171,6 +206,8 @@ class EpgGapFill(
     companion object {
         private val passLock = Mutex()
         private const val USER_GUIDE_FRESH_MS = 30 * 60 * 1000L
+        private const val PREFS = "epg_gap_fill"
+        private const val PURGED_V2 = "reserve_purged_shared_ids_v2"
     }
 }
 
