@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.launch
 import tv.own.owntv.core.CorePerf
 import tv.own.owntv.core.database.BulkInsertHelper
 import tv.own.owntv.core.customize.CustomizationStore
@@ -1145,6 +1146,17 @@ class EpgRepository(
         // not fetched by itself — it is offered again, as for any channels without a programme.
         store.getAll().filterNot { it.builtin }.forEach { runCatching { store.update(it.copy(lastSyncAt = null, lastError = null)) } }
         futileGapFills.clear()
+    }
+
+    /** Same as [clearAllGuides], started from a menu that closes at once; a toast says when it is done. */
+    fun clearAllGuidesInBackground(context: android.content.Context) {
+        val app = context.applicationContext
+        kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + Dispatchers.IO).launch {
+            runCatching { clearAllGuides() }
+            withContext(Dispatchers.Main) {
+                android.widget.Toast.makeText(app, app.getString(tv.own.owntv.core.R.string.guide_cleared), android.widget.Toast.LENGTH_LONG).show()
+            }
+        }
     }
 
     suspend fun clear(storeId: Long) = withContext(Dispatchers.IO) {

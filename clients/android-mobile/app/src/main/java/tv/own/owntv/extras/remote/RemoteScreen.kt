@@ -753,10 +753,17 @@ fun RemoteScreen(
             },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    val codeShown by vm.codeShown.collectAsStateWithLifecycle()
                     Text(
-                        text = stringResource(tv.own.owntv.core.R.string.remote_pair_enter_code),
+                        text = stringResource(
+                            when (codeShown) {
+                                null -> tv.own.owntv.core.R.string.remote_pair_requesting
+                                true -> tv.own.owntv.core.R.string.remote_pair_enter_code
+                                false -> tv.own.owntv.core.R.string.remote_pair_no_answer
+                            },
+                        ),
                         style = stageText(13.5f, 500),
-                        color = palette.muted,
+                        color = if (codeShown == false) palette.danger else palette.muted,
                     )
                     OutlinedTextField(
                         value = pinInput,

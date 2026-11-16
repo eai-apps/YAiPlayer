@@ -124,7 +124,17 @@ class BuiltinGuide(
     /** Refresh one feed on its own, without starting the others. */
     suspend fun refreshFeed(id: Long) {
         fixUrls()
-        scheduler.enqueueSync(id, "manual_feed")
+        val number = store.getAll().filter { it.builtin }.indexOfFirst { it.id == id } + 1
+        tv.own.owntv.core.util.GuideTrace.add("reserve: source $number requested")
+        // Owner 16.11: «нажал — и ничего не происходит». Say at once that it started.
+        runCatching {
+            val context = org.koin.core.context.GlobalContext.get().get<android.content.Context>()
+            kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                android.widget.Toast.makeText(context, context.getString(tv.own.owntv.core.R.string.guide_reserve_started, number), android.widget.Toast.LENGTH_SHORT).show()
+            }
+        }
+        // REPLACE, not KEEP: a request queued behind an old, stuck one must still run now.
+        scheduler.enqueueSync(id, "manual_feed", policy = androidx.work.ExistingWorkPolicy.REPLACE)
     }
 
     /** Older installs carry the first three addresses; point them at the current list, keeping their order. */

@@ -151,7 +151,9 @@ fun SyncStatusPill(
         val q = queue
         if (q != null) add(SyncLine.Queue(q.current, q.total, syncs.firstOrNull())) else syncs.filterIsInstance<SyncLine.Catalog>().forEach { add(it) }
         activeTrending.values.sortedBy { it.sourceId }.forEach { add(SyncLine.Trending(it)) }
-        if (q == null) syncs.filterIsInstance<SyncLine.Epg>().forEach { add(it) }
+        // Owner 16.11: a guide being loaded is always its own line, also while the queue runs — its
+        // matching counts and percent were hidden behind «Обновление 1 из 2».
+        syncs.filterIsInstance<SyncLine.Epg>().forEach { add(it) }
         if (sportsRebuild is RebuildState.Running) add(SyncLine.Sports)
         }
     }

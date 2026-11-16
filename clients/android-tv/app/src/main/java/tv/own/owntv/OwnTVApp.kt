@@ -125,6 +125,8 @@ class OwnTVApp : Application(), SingletonImageLoader.Factory, androidx.work.Conf
         tv.own.owntv.core.util.CrashRecorder.install(this)
         // Owner 16.11: freezes and silent closes on fast scrolling — record main-thread stalls with memory.
         tv.own.owntv.core.util.MainThreadWatchdog.start(this) { tv.own.owntv.player.LiveDiagnosticsLog.event(it) }
+        // The phone remote («Только плеер») answers from app start, not only once the main screen opened (owner 16.11).
+        runCatching { tv.own.owntv.extras.remote.RemoteTvManager.get(this) }
         // Core learns a panel's session limit while syncing; the engine is what acts on it. Registered
         // before Koin so the very first source flow already reaches the player (see LiveSessionLimit).
         tv.own.owntv.core.player.LiveSessionLimit.report = tv.own.owntv.player.LiveStreamQuirks::rememberSessionLimit

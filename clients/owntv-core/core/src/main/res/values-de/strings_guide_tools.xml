@@ -9,4 +9,5 @@
     <string name="last_update_at">Letzte Aktualisierung: %1$s</string>
     <string name="last_update_never">nie</string>
     <string name="guide_portal_done">«%1$s»: TV-Programm für %2$d von %3$d Sendern.</string>
+    <string name="guide_reserve_started">TV-Programm aus zusätzlicher Quelle %1$d wird geladen…</string>
 </resources>

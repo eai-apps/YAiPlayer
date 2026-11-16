@@ -5,4 +5,5 @@
     <string name="remote_pair_popup_body">Enter this code on the phone:</string>
     <string name="remote_pair_requesting">Getting the code from the TV…</string>
     <string name="remote_pair_enter_code">Enter the 6-digit code shown on the TV screen.</string>
+    <string name="remote_pair_no_answer">The TV did not answer. Open YAiPlayer on the TV, make sure both are on the same Wi-Fi, and try again.</string>
 </resources>

@@ -67,7 +67,10 @@ class EpgGapFill(
                         else -> onlyFeed != null || ownGuideMissing(src)
                     }
                 }
-            if (playlists.isEmpty()) return@withContext 0
+            if (playlists.isEmpty()) {
+                tv.own.owntv.core.util.GuideTrace.add("reserve: nothing to fill (no playlist without a guide, no portal with the reserve on)")
+                return@withContext 0
+            }
             val profileIds = listOf(active)
             // Playlist URLs are registered before the pass is enqueued. Preserve the user's order.
             if (!stalkerOnly) {
@@ -116,12 +119,21 @@ class EpgGapFill(
                 // Owner 16.11 (replaces 12.11): a portal whose reserve guide is on may take sources 2 and 3 as well —
                 // they are offered to it one by one, like to a playlist.
                 val gaps = allGaps
-                if (gaps.isEmpty()) return@visitFeeds
+                if (gaps.isEmpty()) {
+                    tv.own.owntv.core.util.GuideTrace.add("reserve: every channel already has a programme")
+                    return@visitFeeds
+                }
                 attempted.add(source.id)
+                val tracker = runCatching {
+                    org.koin.core.context.GlobalContext.get().get<tv.own.owntv.core.sync.EpgActivityTracker>()
+                }.getOrNull()
+                tv.own.owntv.core.util.GuideTrace.add("reserve: ${gaps.size} channels without a programme — downloading")
                 // Download once, keeping channel names/cache but no unrelated programme rows.
                 attempt(source) {
                     try {
-                        repository.refreshUrl(source.id, source.url, source.userAgent, programmeIds = emptySet())
+                        repository.refreshUrl(source.id, source.url, source.userAgent, programmeIds = emptySet(),
+                            onProgress = { ch, prog -> tracker?.progress(source.id, ch, prog) },
+                            onFraction = { tracker?.fraction(source.id, it) })
                     } catch (_: EpgRepository.NoProgrammesInWindowException) { /* metadata/cache still usable */ }
                     val candidates = db.epgDao().fallbackChannels(source.id)
                     val ids = candidates.mapTo(HashSet()) { it.epgChannelId }
@@ -130,9 +142,7 @@ class EpgGapFill(
                             ?: listOf(EpgMatcher.Candidate(c.epgChannelId, null))
                     })
                     // In chunks, so the pill can say how far it is (owner 16.11: «бесконечно грузит», no numbers).
-                    val tracker = runCatching {
-                        org.koin.core.context.GlobalContext.get().get<tv.own.owntv.core.sync.EpgActivityTracker>()
-                    }.getOrNull()
+                    tracker?.matching(source.id, 0, gaps.size)
                     val hits = ArrayList<EpgMatcher.Result?>(gaps.size)
                     gaps.chunked(MATCH_CHUNK).forEach { chunk ->
                         hits.addAll(EpgMatcher.bestEpgMatchBulk(chunk.map { it.channel.matchName }, prepared))
@@ -174,6 +184,7 @@ class EpgGapFill(
                     val added = repository.fillFallbackCache(source.id, aliases, windows)
                     filled += added.size
                     tracker?.progress(source.id, filled, 0)
+                    tv.own.owntv.core.util.GuideTrace.add("reserve: matched ${picked.size} of ${gaps.size}, programme written for ${added.size}")
                     for ((pid, links) in newLinks.filter { it.second in added }.groupBy { it.first.profile }) {
                         customize.update(pid, MediaType.LIVE) { current ->
                             val safe = links.filter { current.epgMatchResolver.epgIdFor(it.first.channel) == null }

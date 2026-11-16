@@ -9,4 +9,5 @@
     <string name="last_update_at">Последнее обновление: %1$s</string>
     <string name="last_update_never">ни разу</string>
     <string name="guide_portal_done">«%1$s»: телепрограмма есть у %2$d из %3$d каналов.</string>
+    <string name="guide_reserve_started">Загрузка телепрограммы из дополнительного источника %1$d…</string>
 </resources>

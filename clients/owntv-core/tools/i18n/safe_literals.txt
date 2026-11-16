@@ -2158,6 +2158,10 @@
 1	log	core/src/main/java/tv/own/owntv/core/epg/EpgGapFill.kt	EpgGapFill
 1	preference-key	core/src/main/java/tv/own/owntv/core/epg/EpgGapFill.kt	epg_gap_fill
 1	performance	core/src/main/java/tv/own/owntv/core/epg/EpgGapFill.kt	epg_gap_pass atMs=${SystemClock.elapsedRealtime()} stalker=$stalkerOnly filled=$filled ms=${SystemClock.elapsedRealtime() - started}
+1	log	core/src/main/java/tv/own/owntv/core/epg/EpgGapFill.kt	reserve: ${gaps.size} channels without a programme — downloading
+1	log	core/src/main/java/tv/own/owntv/core/epg/EpgGapFill.kt	reserve: every channel already has a programme
+1	log	core/src/main/java/tv/own/owntv/core/epg/EpgGapFill.kt	reserve: matched ${picked.size} of ${gaps.size}, programme written for ${added.size}
+1	log	core/src/main/java/tv/own/owntv/core/epg/EpgGapFill.kt	reserve: nothing to fill (no playlist without a guide, no portal with the reserve on)
 1	preference-key	core/src/main/java/tv/own/owntv/core/epg/EpgGapFill.kt	reserve_purged_shared_ids_v2
 1	log	core/src/main/java/tv/own/owntv/core/epg/EpgGapFill.kt	sourceId=${source.id} failed: ${e.javaClass.simpleName}
 1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgLogoStore.kt	5 канал
@@ -5366,6 +5370,7 @@
 1	technical	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	https://iptvx.one/EPG_LITE
 1	technical	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	manual_builtin
 1	technical	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	manual_feed
+1	log	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	reserve: source $number requested
 1	log	core/src/main/java/tv/own/owntv/core/sync/CatalogPriority.kt	CatalogPriority
 1	log	core/src/main/java/tv/own/owntv/core/sync/CatalogPriority.kt	pagesLeft=${row.lastPage - row.nextPage + 1}
 1	log	core/src/main/java/tv/own/owntv/core/sync/CatalogPriority.kt	priority category sourceId=${row.sourceId} type=${row.mediaType} cat=${row.categoryRemoteId}

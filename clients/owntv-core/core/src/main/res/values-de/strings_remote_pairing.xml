@@ -5,4 +5,5 @@
     <string name="remote_pair_popup_body">Diesen Code am Handy eingeben:</string>
     <string name="remote_pair_requesting">Code wird vom Fernseher geholt…</string>
     <string name="remote_pair_enter_code">Geben Sie den 6-stelligen Code vom Fernsehbildschirm ein.</string>
+    <string name="remote_pair_no_answer">Der Fernseher antwortet nicht. Öffnen Sie YAiPlayer auf dem Fernseher, prüfen Sie dasselbe WLAN und versuchen Sie es erneut.</string>
 </resources>

@@ -8,7 +8,7 @@ import java.util.ArrayDeque
  * Never holds URLs, tokens or credentials — callers pass counts and route names only.
  */
 object GuideTrace {
-    private const val MAX = 24
+    private const val MAX = 60
     private val lines = ArrayDeque<String>()
     private val lock = Any()
 

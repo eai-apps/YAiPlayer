@@ -33,6 +33,27 @@ fun PortalResyncDialog(
     val running by control.running.collectAsStateWithLifecycle(initialValue = null)
     // «Только телепрограмму» opens a second list: which guide (owner 13.11).
     var guideMenu by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
+    var confirmClear by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
+    if (confirmClear) {
+        val ctx = androidx.compose.ui.platform.LocalContext.current
+        val epgRepo: tv.own.owntv.core.repository.EpgRepository = org.koin.compose.koinInject()
+        val cFocus = remember { FocusRequester() }
+        LaunchedEffect(Unit) { kotlinx.coroutines.delay(60); runCatching { cFocus.requestFocus() } }
+        StagePopup(
+            onDismiss = { confirmClear = false },
+            title = stringResource(tv.own.owntv.core.R.string.guide_clear_all),
+            body = stringResource(tv.own.owntv.core.R.string.guide_clear_all_body),
+            buttons = { StageButton(stringResource(R.string.common_cancel), onClick = { confirmClear = false }, height = 56.mpx, textSize = 19) },
+        ) {
+            StagePopupOption(
+                title = stringResource(tv.own.owntv.core.R.string.guide_clear_all),
+                onClick = { epgRepo.clearAllGuidesInBackground(ctx); confirmClear = false; onDismiss() },
+                modifier = Modifier.focusRequester(cFocus),
+                leading = { StagePopupIcon(OwnTVIcon.TRASH) },
+            )
+        }
+        return
+    }
     if (guideMenu) {
         val gFocus = remember { FocusRequester() }
         LaunchedEffect(Unit) { kotlinx.coroutines.delay(60); runCatching { gFocus.requestFocus() } }
@@ -92,11 +113,13 @@ fun PortalResyncDialog(
                 PortalResyncOption.EPG_ONLY -> OwnTVIcon.EPG
                 PortalResyncOption.CHANNELS_AND_EPG -> OwnTVIcon.REFRESH
                 PortalResyncOption.VOD_ONLY -> OwnTVIcon.MOVIES
+                PortalResyncOption.CLEAR_GUIDE -> OwnTVIcon.TRASH
             }
             StagePopupOption(
                 title = stringResource(option.labelRes),
                 onClick = {
                     if (option == PortalResyncOption.EPG_ONLY) { guideMenu = true; return@StagePopupOption }
+                    if (option == PortalResyncOption.CLEAR_GUIDE) { confirmClear = true; return@StagePopupOption }
                     onSelectOption(option)
                     onDismiss()
                 },

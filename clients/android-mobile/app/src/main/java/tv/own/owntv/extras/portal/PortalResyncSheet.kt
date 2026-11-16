@@ -22,6 +22,21 @@ fun PortalResyncSheet(
     val title = stringResource(R.string.portal_resync_submenu_title)
     val subtitle = source?.name ?: stringResource(R.string.content_all_playlists)
 
+    var confirmClear by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
+    if (confirmClear) {
+        val ctx = androidx.compose.ui.platform.LocalContext.current
+        val epgRepo: tv.own.owntv.core.repository.EpgRepository = org.koin.compose.koinInject()
+        tv.own.owntv.mobile.ui.screens.settings.StageConfirmSheet(
+            title = stringResource(tv.own.owntv.core.R.string.guide_clear_all),
+            text = stringResource(tv.own.owntv.core.R.string.guide_clear_all_body),
+            confirm = stringResource(R.string.common_delete),
+            confirmIcon = MobileIcons.Delete,
+            danger = true,
+            onConfirm = { epgRepo.clearAllGuidesInBackground(ctx); confirmClear = false; onDismiss() },
+            onDismiss = { confirmClear = false },
+        )
+        return
+    }
     var guideMenu by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
     if (guideMenu) {
         val gTitle = stringResource(tv.own.owntv.core.R.string.guide_choice_title)
@@ -58,12 +73,14 @@ fun PortalResyncSheet(
                 PortalResyncOption.EPG_ONLY -> MobileIcons.Guide
                 PortalResyncOption.CHANNELS_AND_EPG -> MobileIcons.Refresh
                 PortalResyncOption.VOD_ONLY -> MobileIcons.Movie
+                PortalResyncOption.CLEAR_GUIDE -> MobileIcons.Delete
             }
             StageMenuItem(
                 label = stringResource(option.labelRes),
                 onClick = {
                     // «Только телепрограмму» → which guide (owner 13.11)
                     if (option == PortalResyncOption.EPG_ONLY) { guideMenu = true; return@StageMenuItem }
+                    if (option == PortalResyncOption.CLEAR_GUIDE) { confirmClear = true; return@StageMenuItem }
                     onSelectOption(option)
                     onDismiss()
                 },

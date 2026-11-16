@@ -9,4 +9,5 @@
     <string name="last_update_at">Last update: %1$s</string>
     <string name="last_update_never">never</string>
     <string name="guide_portal_done">«%1$s»: TV guide for %2$d of %3$d channels.</string>
+    <string name="guide_reserve_started">Loading the TV guide from additional source %1$d…</string>
 </resources>

@@ -108,6 +108,7 @@ fun PlaylistSheet(
                             tv.own.owntv.extras.portal.PortalResyncOption.EPG_ONLY -> quickActionsSync.refreshEpg(source)
                             tv.own.owntv.extras.portal.PortalResyncOption.CHANNELS_AND_EPG -> quickActionsSync.refreshChannelsAndEpg(source)
                             tv.own.owntv.extras.portal.PortalResyncOption.VOD_ONLY -> quickActionsSync.refreshVod(source)
+                            tv.own.owntv.extras.portal.PortalResyncOption.CLEAR_GUIDE -> Unit // handled inside the menu
                         }
                     }
                 }

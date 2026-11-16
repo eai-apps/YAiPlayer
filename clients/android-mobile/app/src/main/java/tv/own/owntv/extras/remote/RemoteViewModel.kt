@@ -126,6 +126,10 @@ class RemoteViewModel(application: Application) : AndroidViewModel(application) 
     /** The TV certificate fingerprint read when the pairing screen opened (owner 16.11: no more typing it). */
     private var probedFingerprint: String = ""
 
+    /** The pairing screen's line: asking the TV for its code (null), the code is on the TV (true), no answer (false). */
+    private val _codeShown = kotlinx.coroutines.flow.MutableStateFlow<Boolean?>(null)
+    val codeShown: kotlinx.coroutines.flow.StateFlow<Boolean?> = _codeShown
+
     fun showPairingDialog(info: RemoteDiscoveryInfo) {
         _pairingTarget.value = info
         _pairingError.value = null
@@ -133,7 +137,9 @@ class RemoteViewModel(application: Application) : AndroidViewModel(application) 
         // Ask the TV to show a fresh code on its screen, and learn its certificate on the way.
         viewModelScope.launch {
             val phoneModel = "${Build.MANUFACTURER} ${Build.MODEL}".trim().ifBlank { "Phone" }
+            _codeShown.value = null
             probedFingerprint = client.requestCode(info.host, info.port, phoneModel, clientDeviceId).orEmpty()
+            _codeShown.value = probedFingerprint.isNotBlank()
         }
     }
 

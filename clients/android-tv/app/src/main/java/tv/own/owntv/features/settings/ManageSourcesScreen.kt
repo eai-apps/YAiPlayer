@@ -401,6 +401,7 @@ fun ManageSourcesScreen(
                             tv.own.owntv.extras.portal.PortalResyncOption.EPG_ONLY -> quickActionsSync.refreshEpg(src)
                             tv.own.owntv.extras.portal.PortalResyncOption.CHANNELS_AND_EPG -> quickActionsSync.refreshChannelsAndEpg(src)
                             tv.own.owntv.extras.portal.PortalResyncOption.VOD_ONLY -> quickActionsSync.refreshVod(src)
+                            tv.own.owntv.extras.portal.PortalResyncOption.CLEAR_GUIDE -> Unit // handled inside the menu
                         }
                     }
                 },

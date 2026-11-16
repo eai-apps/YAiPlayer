@@ -540,6 +540,8 @@ open class MainActivity : ComponentActivity() {
                             else -> Unit
                         }
                         } // end foreground Box (above the background layer)
+                        // The phone-remote code, over everything — the gate included (owner 16.11: no code appeared).
+                        tv.own.owntv.extras.remote.RemotePinHost()
                         tv.own.owntv.extras.screensaver.ScreensaverOverlay()
                         tv.own.owntv.ui.BrandIntro(enabled = animationLevel != tv.own.owntv.core.theme.AnimationLevel.OFF)
                     }

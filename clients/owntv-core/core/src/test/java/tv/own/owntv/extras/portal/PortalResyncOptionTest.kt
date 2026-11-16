@@ -21,7 +21,7 @@ class PortalResyncOptionTest {
             syncSeries = true,
         )
         val options = PortalResyncOption.availableFor(source)
-        assertEquals(4, options.size)
+        assertEquals(5, options.size)
         assertFalse(options.contains(PortalResyncOption.VOD_ONLY))
         assertTrue(options.contains(PortalResyncOption.ALL))
         assertTrue(options.contains(PortalResyncOption.CHANNELS_ONLY))
@@ -40,7 +40,7 @@ class PortalResyncOptionTest {
             syncSeries = false,
         )
         val options = PortalResyncOption.availableFor(source)
-        assertEquals(5, options.size)
+        assertEquals(6, options.size)
         assertTrue(options.contains(PortalResyncOption.VOD_ONLY))
     }
 
@@ -55,7 +55,7 @@ class PortalResyncOptionTest {
             syncSeries = true,
         )
         val options = PortalResyncOption.availableFor(source)
-        assertEquals(5, options.size)
+        assertEquals(6, options.size)
         assertTrue(options.contains(PortalResyncOption.VOD_ONLY))
     }
 
@@ -70,7 +70,7 @@ class PortalResyncOptionTest {
             syncSeries = false,
         )
         val options = PortalResyncOption.availableFor(source)
-        assertEquals(4, options.size)
+        assertEquals(5, options.size)
         assertFalse(options.contains(PortalResyncOption.VOD_ONLY))
     }
 
