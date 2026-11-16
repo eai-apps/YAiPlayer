@@ -6,4 +6,5 @@
     <string name="remote_pair_requesting">Получаем код с телевизора…</string>
     <string name="remote_pair_enter_code">Введите 6 цифр кода, который появился на экране телевизора.</string>
     <string name="remote_pair_no_answer">Телевизор не ответил. Откройте YAiPlayer на приставке, проверьте, что телефон и приставка в одной сети Wi-Fi, и попробуйте ещё раз.</string>
+    <string name="remote_pair_code_in_settings">Эта версия YAiPlayer на ТВ сама код не показывает (скорее всего, это обычное приложение рядом с бетой). Выберите в списке «Beta · …» или откройте на ТВ Настройки → Пульт с телефона — код там.</string>
 </resources>

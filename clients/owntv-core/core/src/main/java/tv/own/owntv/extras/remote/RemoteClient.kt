@@ -39,15 +39,20 @@ class RemoteClient(private val pins: android.content.SharedPreferences? = null) 
      * Owner 16.11: the phone opened its pairing screen — read the TV's certificate fingerprint and ask the TV
      * to show a fresh code on its screen. Returns the fingerprint to pair with, or null when the TV is unreachable.
      */
-    suspend fun requestCode(host: String, port: Int, clientName: String, deviceId: String): String? = withContext(Dispatchers.IO) {
+    /** What asking the TV for its code gave: its certificate, and whether the TV said the code is on screen. */
+    data class CodeRequest(val fingerprint: String, val shownOnTv: Boolean)
+
+    suspend fun requestCode(host: String, port: Int, clientName: String, deviceId: String): CodeRequest? = withContext(Dispatchers.IO) {
         val fingerprint = RemoteTls.probeFingerprint(host, port) ?: return@withContext null
         val payload = JSONObject().apply { put("code", ""); put("name", clientName); put("deviceId", deviceId) }.toString()
-        runCatching {
+        // 202 = the TV put a fresh code on its screen. Anything else: an older YAiPlayer (the normal app next to
+        // the beta) that shows its code only in its own settings.
+        val shown = runCatching {
             RemoteSecurity.localAddress(host)
             val request = Request.Builder().url("https://$host:$port/pair").post(payload.toRequestBody(jsonMediaType)).build()
-            client(host, port, fingerprint).newCall(request).execute().close()
-        }
-        fingerprint
+            client(host, port, fingerprint).newCall(request).execute().use { it.code == 202 }
+        }.getOrDefault(false)
+        CodeRequest(fingerprint, shown)
     }
 
     suspend fun pair(

@@ -5,6 +5,7 @@
 # Format: <count>\t<relative path>\t<content with \t/\n escaped>
 
 1	app/src/main/java/tv/own/owntv/extras/remote/RemoteViewModel.kt	${Build.MANUFACTURER} ${Build.MODEL}
+1	app/src/main/java/tv/own/owntv/extras/remote/RemoteViewModel.kt	Beta
 1	app/src/main/java/tv/own/owntv/extras/remote/RemoteViewModel.kt	Phone
 1	app/src/main/java/tv/own/owntv/mobile/ui/profiles/ProfileGate.kt	v$current
 1	app/src/main/java/tv/own/owntv/mobile/ui/screens/guide/GuideViewModel.kt	*

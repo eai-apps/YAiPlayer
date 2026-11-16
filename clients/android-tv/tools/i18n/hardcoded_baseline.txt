@@ -5,6 +5,7 @@
 # Format: <count>\t<relative path>\t<content with \t/\n escaped>
 
 1	app/src/main/java/tv/own/owntv/extras/remote/RemotePinHost.kt	\0
+1	app/src/main/java/tv/own/owntv/extras/remote/RemoteTvManager.kt	Beta · $box
 1	app/src/main/java/tv/own/owntv/extras/remote/RemoteTvManager.kt	remote: a phone asked for a pairing code — shown on screen
 1	app/src/main/java/tv/own/owntv/features/customize/BulkRenameDialogs.kt	\0
 1	app/src/main/java/tv/own/owntv/features/customize/BulkRenameDialogs.kt	ADD

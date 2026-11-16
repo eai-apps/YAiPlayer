@@ -84,6 +84,12 @@ fun PortalResyncDialog(
                     leading = { StagePopupIcon(OwnTVIcon.EPG) },
                 )
             }
+            // Owner 16.11: «удалить всю загруженную программу» belongs here, under the guide choices.
+            StagePopupOption(
+                title = stringResource(tv.own.owntv.core.R.string.guide_clear_all),
+                onClick = { guideMenu = false; confirmClear = true },
+                leading = { StagePopupIcon(OwnTVIcon.TRASH) },
+            )
         }
         return
     }

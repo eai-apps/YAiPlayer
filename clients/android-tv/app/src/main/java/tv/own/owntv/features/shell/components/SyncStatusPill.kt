@@ -147,9 +147,12 @@ fun SyncStatusPill(modifier: Modifier = Modifier) {
             activeEpg.values.sortedBy { it.sourceId }.map { SyncLine.Epg(it) }
         // The start-up queue runs its refreshes one by one: one summary line («2 of 4») with the current one.
         val q = queue
-        if (q != null) add(SyncLine.Queue(q.current, q.total, syncs.firstOrNull())) else syncs.filterIsInstance<SyncLine.Catalog>().forEach { add(it) }
+        val queueLine = q?.let { SyncLine.Queue(it.current, it.total, syncs.firstOrNull()) }
+        if (queueLine != null) add(queueLine) else syncs.filterIsInstance<SyncLine.Catalog>().forEach { add(it) }
+        // Owner 16.11: a guide download (the reserve sources above all) always gets its own line with the
+        // percent and «Подобрано каналов X из Y» — it used to vanish while the start-up queue was running.
+        syncs.filterIsInstance<SyncLine.Epg>().filter { it != queueLine?.inner }.forEach { add(it) }
         activeTrending.values.sortedBy { it.sourceId }.forEach { add(SyncLine.Trending(it)) }
-        if (q == null) syncs.filterIsInstance<SyncLine.Epg>().forEach { add(it) }
         if (sportsRebuild is tv.own.owntv.core.sports.RebuildState.Running) add(SyncLine.Sports)
     }
     val shown = rows.take(MAX_ROWS)
@@ -282,7 +285,13 @@ private fun SyncLine.text(): String = when (this) {
         }
         val countsText = countParts.joinToString(stringResource(R.string.sync_counts_separator))
         // The hidden built-in feeds are never named; they all read as the built-in guide.
-        val shown = if (sync.sourceName.startsWith(tv.own.owntv.core.sync.BuiltinGuide.NAME)) stringResource(R.string.settings_epg_builtin) else sync.sourceName
+        val feedNo = sync.sourceName.takeIf { it.startsWith(tv.own.owntv.core.sync.BuiltinGuide.NAME) }?.substringAfterLast(' ')?.toIntOrNull()
+        // Owner 16.11: say which additional source is loading («Дополнительный источник 1»).
+        val shown = when {
+            feedNo != null -> stringResource(tv.own.owntv.core.R.string.guide_choice_feed, feedNo)
+            sync.sourceName.startsWith(tv.own.owntv.core.sync.BuiltinGuide.NAME) -> stringResource(R.string.settings_epg_builtin)
+            else -> sync.sourceName
+        }
         if (countsText.isBlank()) stringResource(R.string.sync_status_epg, shown)
         else stringResource(R.string.sync_status_epg_with_counts, shown, countsText)
     }
@@ -415,7 +424,8 @@ private fun trendingCompletedDetailLine(completed: TrendingActivityTracker.Compl
 
 
 /** One line while syncs run; the rest is summarised as "+N" so the pill never covers the content. */
-private const val MAX_ROWS = 1
+// Two lines (owner 16.11): the start-up queue or a catalog sync, and the guide download beside it.
+private const val MAX_ROWS = 2
 
 /** Megabytes to one decimal, formatted for the locale. */
 private fun recordingSizeMb(bytes: Long): String =

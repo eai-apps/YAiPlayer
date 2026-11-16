@@ -61,6 +61,11 @@ fun PortalResyncSheet(
                     icon = MobileIcons.Guide,
                 )
             }
+            StageMenuItem(
+                label = stringResource(tv.own.owntv.core.R.string.guide_clear_all),
+                onClick = { guideMenu = false; confirmClear = true },
+                icon = MobileIcons.Delete,
+            )
         }
         return
     }

@@ -52,8 +52,13 @@ class RemoteTvManager(private val context: Context) : RemoteCommandHandler, Remo
     var favoritesSupplier: (() -> List<RemoteFavoriteItem>)? = null
     var logsSupplier: (() -> String)? = null
 
+    // Owner 16.11: the beta is installed NEXT TO the normal app, and both answered on the network under the
+    // same box name — the phone paired with the normal app, which shows no code on screen. Each says which it is.
     private val tvName: String
-        get() = "${Build.MANUFACTURER} ${Build.MODEL}".trim().ifBlank { "YAiPlayer TV" }
+        get() {
+            val box = "${Build.MANUFACTURER} ${Build.MODEL}".trim().ifBlank { "TV" }
+            return if (tv.own.owntv.BuildConfig.BETA) "Beta · $box" else box
+        }
 
     private val server = RemoteTvServer(
         pairingManager = pairingManager,

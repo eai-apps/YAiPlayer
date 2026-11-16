@@ -47,7 +47,7 @@
 1	empty	app/src/main/java/tv/own/owntv/extras/remote/PhoneRemoteSettingsScreen.kt	\0
 2	technical	app/src/main/java/tv/own/owntv/extras/remote/PhoneRemoteSettingsScreen.kt	-
 1	technical	app/src/main/java/tv/own/owntv/extras/remote/RemoteTvManager.kt	${Build.MANUFACTURER} ${Build.MODEL}
-1	technical	app/src/main/java/tv/own/owntv/extras/remote/RemoteTvManager.kt	YAiPlayer TV
+1	protocol	app/src/main/java/tv/own/owntv/extras/remote/RemoteTvManager.kt	TV
 1	log	app/src/main/java/tv/own/owntv/extras/remote/RemoteTvManager.kt	YAiPlayer log: no report
 2	preference-key	app/src/main/java/tv/own/owntv/extras/remote/RemoteTvManager.kt	remote_enabled
 1	preference-key	app/src/main/java/tv/own/owntv/extras/remote/RemoteTvManager.kt	remote_tv_prefs

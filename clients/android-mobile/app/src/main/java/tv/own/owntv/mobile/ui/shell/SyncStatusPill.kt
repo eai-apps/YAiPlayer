@@ -149,11 +149,12 @@ fun SyncStatusPill(
             activeEpg.values.sortedBy { it.sourceId }.map { SyncLine.Epg(it) }
         // The start-up queue runs its refreshes one by one: one summary line («2 of 4») with the current one.
         val q = queue
-        if (q != null) add(SyncLine.Queue(q.current, q.total, syncs.firstOrNull())) else syncs.filterIsInstance<SyncLine.Catalog>().forEach { add(it) }
+        val queueLine = q?.let { SyncLine.Queue(it.current, it.total, syncs.firstOrNull()) }
+        if (queueLine != null) add(queueLine) else syncs.filterIsInstance<SyncLine.Catalog>().forEach { add(it) }
+        // Owner 16.11: a guide being loaded is always its own line, right after the queue/catalog line (and in
+        // the two shown) — its matching counts and percent were hidden behind «Обновление 1 из 2» and «+1».
+        syncs.filterIsInstance<SyncLine.Epg>().filter { it != queueLine?.inner }.forEach { add(it) }
         activeTrending.values.sortedBy { it.sourceId }.forEach { add(SyncLine.Trending(it)) }
-        // Owner 16.11: a guide being loaded is always its own line, also while the queue runs — its
-        // matching counts and percent were hidden behind «Обновление 1 из 2».
-        syncs.filterIsInstance<SyncLine.Epg>().forEach { add(it) }
         if (sportsRebuild is RebuildState.Running) add(SyncLine.Sports)
         }
     }
@@ -292,7 +293,12 @@ private fun SyncLine.text(res: android.content.res.Resources): String = when (th
         }
         val text = parts.joinToString(res.getString(R.string.sync_counts_separator))
         // The hidden built-in feeds are never named; they all read as the built-in guide.
-        val shown = if (sync.sourceName.startsWith(tv.own.owntv.core.sync.BuiltinGuide.NAME)) res.getString(R.string.settings_epg_builtin) else sync.sourceName
+        val feedNo = sync.sourceName.takeIf { it.startsWith(tv.own.owntv.core.sync.BuiltinGuide.NAME) }?.substringAfterLast(' ')?.toIntOrNull()
+        val shown = when {
+            feedNo != null -> res.getString(tv.own.owntv.core.R.string.guide_choice_feed, feedNo)
+            sync.sourceName.startsWith(tv.own.owntv.core.sync.BuiltinGuide.NAME) -> res.getString(R.string.settings_epg_builtin)
+            else -> sync.sourceName
+        }
         if (text.isBlank()) res.getString(R.string.sync_status_epg, shown)
         else res.getString(R.string.sync_status_epg_with_counts, shown, text)
     }
@@ -412,7 +418,7 @@ private fun trendingCompletedLine(
 private const val COMPLETED_MS = 5_000L
 
 /** Beyond this many concurrent syncs the pill summarises the rest rather than covering the screen. */
-private const val MAX_ROWS = 1
+private const val MAX_ROWS = 2
 
 private val PillShape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp)
 

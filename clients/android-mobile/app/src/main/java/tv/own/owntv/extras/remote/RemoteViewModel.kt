@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -65,7 +66,10 @@ class RemoteViewModel(application: Application) : AndroidViewModel(application) 
     private val client = RemoteClient(application.getSharedPreferences("remote_certificate_pins", Context.MODE_PRIVATE))
     private val discoveryManager = RemoteDiscoveryManager(application)
 
+    // Owner 16.11: the TV beta answers as «Beta · <box>» next to the normal app. The beta phone app lists the
+    // beta TV first, the normal phone app the normal TV — so the first entry is the app that shows the code.
     val discoveredTvs: StateFlow<List<RemoteDiscoveryInfo>> = discoveryManager.discover()
+        .map { list -> list.sortedBy { (it.name.startsWith("Beta ") != tv.own.owntv.mobile.BuildConfig.BETA) } }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
     private val _savedTvs = MutableStateFlow<List<RemoteSavedTv>>(loadSavedTvs())
@@ -129,6 +133,9 @@ class RemoteViewModel(application: Application) : AndroidViewModel(application) 
     /** The pairing screen's line: asking the TV for its code (null), the code is on the TV (true), no answer (false). */
     private val _codeShown = kotlinx.coroutines.flow.MutableStateFlow<Boolean?>(null)
     val codeShown: kotlinx.coroutines.flow.StateFlow<Boolean?> = _codeShown
+    /** The TV answered but put no code on its screen (an older app): the code is in its settings. */
+    private val _codeElsewhere = kotlinx.coroutines.flow.MutableStateFlow(false)
+    val codeElsewhere: kotlinx.coroutines.flow.StateFlow<Boolean> = _codeElsewhere
 
     fun showPairingDialog(info: RemoteDiscoveryInfo) {
         _pairingTarget.value = info
@@ -138,8 +145,10 @@ class RemoteViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch {
             val phoneModel = "${Build.MANUFACTURER} ${Build.MODEL}".trim().ifBlank { "Phone" }
             _codeShown.value = null
-            probedFingerprint = client.requestCode(info.host, info.port, phoneModel, clientDeviceId).orEmpty()
-            _codeShown.value = probedFingerprint.isNotBlank()
+            val answer = client.requestCode(info.host, info.port, phoneModel, clientDeviceId)
+            probedFingerprint = answer?.fingerprint.orEmpty()
+            _codeElsewhere.value = answer != null && !answer.shownOnTv
+            _codeShown.value = answer != null
         }
     }
 
