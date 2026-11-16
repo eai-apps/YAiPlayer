@@ -13,7 +13,14 @@ object RemoteSecurity {
         require(host.matches(Regex("[0-9.]+")))
         return InetAddress.getByName(host).also { require(isLocal(it)) }
     }
-    fun isLocal(address: InetAddress): Boolean = address is java.net.Inet4Address && address.isSiteLocalAddress
+    fun isLocal(address: InetAddress): Boolean {
+        // A server listening on every address can see a home-network phone as an IPv4-mapped IPv6 address.
+        val b = (address as? java.net.Inet6Address)?.address
+        val v4 = if (b != null && b.size == 16 && (0 until 10).all { b[it] == 0.toByte() } && b[10] == 0xff.toByte() && b[11] == 0xff.toByte()) {
+            InetAddress.getByAddress(b.copyOfRange(12, 16))
+        } else address
+        return v4 is java.net.Inet4Address && v4.isSiteLocalAddress
+    }
     fun signature(token: String, method: String, path: String, nonce: String, body: String): String {
         val mac = Mac.getInstance("HmacSHA256")
         mac.init(SecretKeySpec(hash(token).toByteArray(), "HmacSHA256"))

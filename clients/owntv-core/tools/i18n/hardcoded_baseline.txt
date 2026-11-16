@@ -287,6 +287,10 @@
 2	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	m3u8
 1	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	ts
 1	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	user_output_formats
+1	core/src/main/java/tv/own/owntv/core/repository/SeriesRepository.kt	<url>
+1	core/src/main/java/tv/own/owntv/core/repository/SeriesRepository.kt	https?://\\S+
+1	core/src/main/java/tv/own/owntv/core/repository/SeriesRepository.kt	series: episodes FAILED ${e.javaClass.simpleName} «${series.name.take(40)}» ${e.message?.replace(Regex("https?://\\S+"), "<url>")?.take(100)}
+1	core/src/main/java/tv/own/owntv/core/repository/SeriesRepository.kt	series: portal returned NO episodes «${series.name.take(40)}» remote=$remoteId cached=$cachedCount
 1	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	auto_frame_rate_reset_416
 1	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	dns_doh_url
 1	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	dns_enabled
@@ -331,12 +335,28 @@
 1	core/src/main/java/tv/own/owntv/core/storage/MediaTarget.kt	cannot open $uri for reading
 1	core/src/main/java/tv/own/owntv/core/subtitles/OpenSubtitlesClient.kt	$method ${pathAndQuery.substringBefore('?')} via $base -> ${e.javaClass.simpleName}: ${e.message}
 1	core/src/main/java/tv/own/owntv/core/subtitles/OpenSubtitlesClient.kt	$method ${pathAndQuery.substringBefore('?')} via $base -> HTTP ${resp.code}
+1	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	$label categories=${cats.size} fresh=$freshSource
+1	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	$label done items=${total[0]} pageFailures=${pageFailures.get()} ms=${SystemClock.elapsedRealtime() - elapsedStart}
+1	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	$phase FAILED ${e.javaClass.simpleName}: ${e.message?.take(120)}
+1	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	${cats.size} categories
+1	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	<url>
+1	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	HH:mm:ss
+1	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	https?://\\S+
+1	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	none (shows inside films)
+1	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	series categories error ${e.javaClass.simpleName}: ${e.message?.take(100)}
+1	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	series section: ${if (none) "none (shows inside films)" else "${cats.size} categories"}
+1	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	sync start live=${contentTypes.live} movies=${contentTypes.movies} series=${contentTypes.series} fresh=${s.lastSyncAt == null}
+1	core/src/main/java/tv/own/owntv/core/sync/StalkerSyncer.kt	vod ${java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.ROOT).format(java.util.Date())}:
 1	core/src/main/java/tv/own/owntv/core/sync/work/TrendingRefreshWorker.kt	Playlist
 1	core/src/main/java/tv/own/owntv/core/util/CrashRecorder.kt	${Build.MANUFACTURER} ${Build.MODEL} · Android ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})
 1	core/src/main/java/tv/own/owntv/core/util/CrashRecorder.kt	--- live diagnostics leading up to the crash ---
 2	core/src/main/java/tv/own/owntv/core/util/NameSearch.kt	*
 1	core/src/main/java/tv/own/owntv/core/util/NameSearch.kt	[еЕёЁ]
 1	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	Accepted
+1	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	remote: a phone's request failed ${it.javaClass.simpleName}: ${it.message?.take(100)}
+1	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	remote: listening on all addresses, port ${socket.localPort} (first local address ${address.hostAddress})
+1	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	remote: refused a connection from outside the home network
+1	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	remote: server socket failed ${it.javaClass.simpleName}: ${it.message}
 1	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	{"status":"code_shown"}
 1	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	body="$failureText"
 1	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	decoder rebuild failed: ${it.message}

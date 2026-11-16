@@ -396,7 +396,7 @@ fun HomeScreen(
         trendingItem?.let { TrendingBackdrop(it, folded = inRows, modifier = Modifier.align(Alignment.TopEnd)) }
         posterItem?.let { TrendingBackdrop(it, folded = true, modifier = Modifier.align(Alignment.TopEnd)) }
         if (!fullBleed && posterItem == null) {
-            tv.own.owntv.ui.YaiBadge(Modifier.align(Alignment.TopStart).padding(start = contentStart, top = 30.mpx), scale = 1.1f)
+            tv.own.owntv.ui.YaiBadge(Modifier.align(Alignment.TopStart).padding(start = contentStart, top = 30.mpx), scale = 1.1f, extra = tv.own.owntv.ui.rememberProfileSourceLabel())
         }
         CompositionLocalProvider(LocalBringIntoViewSpec provides homeBringIntoViewSpec) {
             LazyColumn(

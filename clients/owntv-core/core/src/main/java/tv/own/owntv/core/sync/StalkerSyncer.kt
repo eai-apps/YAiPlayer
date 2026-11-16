@@ -71,6 +71,7 @@ internal class StalkerSyncer(
         // the learned limit regardless of how many are in flight. Live shares it too — it used to page
         // through a fixed six-wide window that learned nothing, which on a strict panel is precisely
         // the burst that earns a 403, and live is the phase everybody syncs.
+        vodTrace("sync start live=${contentTypes.live} movies=${contentTypes.movies} series=${contentTypes.series} fresh=${s.lastSyncAt == null}")
         withLearnedCeiling(s) { budget ->
             if (contentTypes.live) syncLive(s, progress, stats, creds, budget)
             val showsInFilms = contentTypes.series && showsInFilmCatalogue(s, creds) == true
@@ -109,12 +110,14 @@ internal class StalkerSyncer(
         } catch (c: CancellationException) {
             throw c
         } catch (e: IOException) {
+            vodTrace("series categories error ${e.javaClass.simpleName}: ${e.message?.take(100)}")
             if (isTransientPortalError(e)) return null
             Log.i(TAG, "SERIES no series section sourceId=${s.id} (${e.message}) — shows come from the film catalogue")
             return true
         }
         val none = cats.none { it.id.isNotBlank() && it.id != "*" }
         if (none) Log.i(TAG, "SERIES no series categories sourceId=${s.id} — shows come from the film catalogue")
+        vodTrace("series section: ${if (none) "none (shows inside films)" else "${cats.size} categories"}")
         return none
     }
 
@@ -587,6 +590,7 @@ internal class StalkerSyncer(
         val cats = auth.withAuthRetry(creds) { fetchCategories(it) }
             .filter { it.id.isNotBlank() && it.id != "*" }
         Log.i(TAG, "$label categories sourceId=${s.id} count=${cats.size}")
+        vodTrace("$label categories=${cats.size} fresh=$freshSource")
         // A category holding only shows leaves Movies after each whole split walk and is registered
         // again by the next one. It is not new to the user — its shows are under Series — so it is
         // neither counted nor hidden as a new category.
@@ -892,6 +896,7 @@ internal class StalkerSyncer(
         progress.update(phase, total[0])
         stats.processedCounts[countsKey] = total[0]
         Log.i(TAG, "$label phase end sourceId=${s.id} unique=${total[0]} ms=${SystemClock.elapsedRealtime() - elapsedStart}")
+        vodTrace("$label done items=${total[0]} pageFailures=${pageFailures.get()} ms=${SystemClock.elapsedRealtime() - elapsedStart}")
     }
 
     /** One remaining page fetch for the worker pool: which category/page, and the page's first sort key. */
@@ -1182,6 +1187,11 @@ internal class StalkerSyncer(
         )
     }
 
+    /** Owner 16.11: films/series 0 on a portal with a full package — what the portal answered, for «Экспорт журнала». */
+    private fun vodTrace(msg: String) = tv.own.owntv.core.util.GuideTrace.add(
+        "vod ${java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.ROOT).format(java.util.Date())}: " + msg.replace(Regex("https?://\\S+"), "<url>"),
+    )
+
     private suspend inline fun guardStep(phase: String, stats: SyncStatsCollector, block: suspend () -> Unit) {
         val start = System.currentTimeMillis()
         try {
@@ -1190,6 +1200,7 @@ internal class StalkerSyncer(
             throw c
         } catch (e: Exception) {
             Log.w(TAG, "$phase import failed — keeping the rest of the import", e)
+            vodTrace("$phase FAILED ${e.javaClass.simpleName}: ${e.message?.take(120)}")
             stats.phaseErrors[phase] = e.message ?: "unknown"
         } finally {
             stats.phaseTiming[phase] = System.currentTimeMillis() - start

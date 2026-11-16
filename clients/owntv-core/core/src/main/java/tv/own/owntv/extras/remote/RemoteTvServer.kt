@@ -36,6 +36,8 @@ class RemoteTvServer(
     private val socketFactory: () -> javax.net.ServerSocketFactory = { RemoteTls.serverFactory() },
     /** A phone asked to pair without a code: show a fresh code on the TV screen (owner 16.11). */
     private val onCodeRequested: () -> Unit = {},
+    /** One line for the TV's journal: where the server listens, and why a phone's connection failed. */
+    private val onEvent: (String) -> Unit = {},
 ) {
     sealed interface ServerState {
         data object Stopped : ServerState
@@ -52,7 +54,9 @@ class RemoteTvServer(
     private val activeSockets = java.util.concurrent.ConcurrentHashMap.newKeySet<Socket>()
     private val slots = java.util.concurrent.Semaphore(8)
 
-    val host: String? get() = serverSocket?.inetAddress?.hostAddress
+    @Volatile private var localAddress: java.net.InetAddress? = null
+    /** The home-network address phones reach this TV at (the socket itself listens on all of them). */
+    val host: String? get() = if (serverSocket != null) localAddress?.hostAddress else null
     val isRunning: Boolean get() = _state.value is ServerState.Running
     val port: Int? get() = (_state.value as? ServerState.Running)?.port
 
@@ -62,8 +66,15 @@ class RemoteTvServer(
         val address = Collections.list(NetworkInterface.getNetworkInterfaces()).asSequence()
             .filter { it.isUp && !it.isLoopback }
             .flatMap { Collections.list(it.inetAddresses).asSequence() }.firstOrNull { RemoteSecurity.isLocal(it) } ?: return null
-        val socket = runCatching { socketFactory().createServerSocket(preferredPort, 8, address) }.getOrNull() ?: return null
+        // Owner 16.11: the phone found the TV at its Wi-Fi address and port, yet «the TV did not answer». The
+        // server listened on the FIRST local address of the box, which need not be the one the phone reaches
+        // (another interface, IPv6). It now listens on every address; only home-network clients are served.
+        val socket = runCatching { socketFactory().createServerSocket(preferredPort, 8) }
+            .onFailure { onEvent("remote: server socket failed ${it.javaClass.simpleName}: ${it.message}") }
+            .getOrNull() ?: return null
+        onEvent("remote: listening on all addresses, port ${socket.localPort} (first local address ${address.hostAddress})")
         serverSocket = socket
+        localAddress = address
         val localPort = socket.localPort
         _state.value = ServerState.Running(localPort)
 
@@ -71,10 +82,17 @@ class RemoteTvServer(
             try {
                 while (!socket.isClosed) {
                     val client = runCatching { socket.accept() }.getOrNull() ?: break
-                    if (!RemoteSecurity.isLocal(client.inetAddress) || !slots.tryAcquire()) { client.close(); continue }
+                    if (!RemoteSecurity.isLocal(client.inetAddress) || !slots.tryAcquire()) {
+                        onEvent("remote: refused a connection from outside the home network")
+                        client.close(); continue
+                    }
                     activeSockets.add(client)
                     launch {
-                        try { runCatching { handleClient(client) } } finally { activeSockets.remove(client); slots.release() }
+                        try {
+                            runCatching { handleClient(client) }.onFailure {
+                                if (it !is java.net.SocketTimeoutException) onEvent("remote: a phone's request failed ${it.javaClass.simpleName}: ${it.message?.take(100)}")
+                            }
+                        } finally { activeSockets.remove(client); slots.release() }
                     }
                 }
             } finally {

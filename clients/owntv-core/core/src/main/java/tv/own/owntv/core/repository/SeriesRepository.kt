@@ -123,6 +123,7 @@ class SeriesRepository(
             throw e
         } catch (e: Exception) {
             android.util.Log.w(TAG, "${source.type} episode load failed seriesId=${series.id}", e)
+            tv.own.owntv.core.util.GuideTrace.add("series: episodes FAILED ${e.javaClass.simpleName} «${series.name.take(40)}» ${e.message?.replace(Regex("https?://\\S+"), "<url>")?.take(100)}")
             tv.own.owntv.core.PerfJournal.add(
                 listOf("episodes failed", series.id, System.currentTimeMillis() - t0, e.javaClass.simpleName, e.message?.take(80)).joinToString(" "),
             )
@@ -137,7 +138,10 @@ class SeriesRepository(
         tv.own.owntv.core.PerfJournal.add(
             listOf("episodes done", series.id, fetched?.size, withSiblings?.size, System.currentTimeMillis() - t0).joinToString(" "),
         )
-        if (withSiblings.isNullOrEmpty()) return@withContext stored
+        if (withSiblings.isNullOrEmpty()) {
+            tv.own.owntv.core.util.GuideTrace.add("series: portal returned NO episodes «${series.name.take(40)}» remote=$remoteId cached=$cachedCount")
+            return@withContext stored
+        }
         // Not every season record answered: show what came, but leave the show unstamped so the next open
         // reads the missing seasons instead of keeping one season for the whole cache lifetime.
         applyEpisodes(series.id, withSiblings, markSynced = complete)

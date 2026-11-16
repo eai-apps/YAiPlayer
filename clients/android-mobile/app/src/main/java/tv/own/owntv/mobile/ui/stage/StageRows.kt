@@ -372,6 +372,14 @@ fun StageTextRow(
     trailing: @Composable androidx.compose.foundation.layout.RowScope.() -> Unit = {},
 ) {
     var editing by remember { mutableStateOf(false) }
+    // Owner 16.11: tapping «Пароль» low in the add-portal form flashed the sheet and closed it, 20–30 times in a
+    // row. The keyboard shrinks the list, this row leaves the visible part, the list drops it — and the sheet it
+    // owns with it. While the sheet is open the row stays pinned, so the list keeps it.
+    val pinnable = androidx.compose.ui.layout.LocalPinnableContainer.current
+    androidx.compose.runtime.DisposableEffect(editing, pinnable) {
+        val handle = if (editing) pinnable?.pin() else null
+        onDispose { handle?.release() }
+    }
     val palette = LocalStagePalette.current
     StageSettingRow(
         title = label,

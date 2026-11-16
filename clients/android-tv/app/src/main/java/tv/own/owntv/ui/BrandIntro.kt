@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -121,7 +122,7 @@ fun YaiLogoMark(size: androidx.compose.ui.unit.Dp, modifier: Modifier = Modifier
 
 /** Top-left badge of the home screen: the logo, the name and "our player" under it. */
 @Composable
-fun YaiBadge(modifier: Modifier = Modifier, scale: Float = 1f) {
+fun YaiBadge(modifier: Modifier = Modifier, scale: Float = 1f, extra: String? = null) {
     androidx.compose.foundation.layout.Row(modifier, verticalAlignment = Alignment.CenterVertically) {
         YaiLogoMark((36 * scale).dp)
         androidx.compose.foundation.layout.Spacer(Modifier.width((10 * scale).dp))
@@ -133,6 +134,27 @@ fun YaiBadge(modifier: Modifier = Modifier, scale: Float = 1f) {
                 },
                 style = TextStyle(color = Color(0xFF22D3EE), fontSize = (12 * scale).sp, fontWeight = FontWeight.Medium),
             )
+            // Owner 16.11: which profile and which playlist / portal is on, at a glance («sly · stalker3»).
+            if (!extra.isNullOrBlank()) {
+                BasicText(extra, style = TextStyle(color = Color(0xCCFFFFFF), fontSize = (12 * scale).sp, fontWeight = FontWeight.Medium), maxLines = 1)
+            }
         }
     }
+}
+
+/** «Profile · playlist» of what is active now, for [YaiBadge]. */
+@Composable
+fun rememberProfileSourceLabel(): String? {
+    val settings: tv.own.owntv.core.settings.SettingsRepository = org.koin.compose.koinInject()
+    val db: tv.own.owntv.core.database.OwnTVDatabase = org.koin.compose.koinInject()
+    val pid by settings.activeProfileId.collectAsState(initial = -1L)
+    val sid by settings.defaultSourceId.collectAsState(initial = -1L)
+    val label = androidx.compose.runtime.produceState<String?>(null, pid, sid) {
+        value = runCatching {
+            val profile = if (pid > 0) db.profileDao().getById(pid)?.name else null
+            val source = if (sid > 0) db.sourceDao().getById(sid)?.name else null
+            listOfNotNull(profile, source).joinToString(" · ").ifBlank { null }
+        }.getOrNull()
+    }
+    return label.value
 }

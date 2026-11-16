@@ -159,6 +159,12 @@ class BuiltinGuide(
     companion object {
         const val NAME = "Built-in guide"
 
+        /** «Built-in guide 2» as the screen says it («Дополнительный источник 2»); any other name as it is. */
+        fun displayName(context: android.content.Context, name: String): String {
+            val n = name.takeIf { it.startsWith(NAME) }?.removePrefix(NAME)?.trim()?.toIntOrNull() ?: return name
+            return context.getString(tv.own.owntv.core.R.string.guide_choice_feed, n)
+        }
+
         /** For screens whose view model cannot take it as a constructor argument. */
         fun fromKoin(): BuiltinGuide = org.koin.core.context.GlobalContext.get().let { BuiltinGuide(it.get(), it.get(), it.get()) }
 

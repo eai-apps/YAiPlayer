@@ -77,6 +77,7 @@ class RemoteTvManager(private val context: Context) : RemoteCommandHandler, Remo
             _pinPrompt.value = pin
             runCatching { tv.own.owntv.player.LiveDiagnosticsLog.event("remote: a phone asked for a pairing code — shown on screen") }
         },
+        onEvent = { line -> runCatching { tv.own.owntv.player.LiveDiagnosticsLog.event(line) } },
     )
 
     init {

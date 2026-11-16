@@ -98,7 +98,7 @@ fun PortalResyncDialog(
         onDismiss = onDismiss,
         title = stringResource(R.string.portal_resync_submenu_title),
         // Owner 12.11: say at once when an update is already running, and which step it is on.
-        body = running?.let { stringResource(R.string.sync_already_running, it.step, it.total, it.name) }
+        body = running?.let { stringResource(R.string.sync_already_running, it.step, it.total, tv.own.owntv.core.sync.BuiltinGuide.displayName(androidx.compose.ui.platform.LocalContext.current, it.name)) }
             ?: source?.name ?: stringResource(R.string.content_all_playlists),
         buttons = {
             StageButton(stringResource(R.string.common_cancel), onClick = onDismiss, height = 56.mpx, textSize = 19)
