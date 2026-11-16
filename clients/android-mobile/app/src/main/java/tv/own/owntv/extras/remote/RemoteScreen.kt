@@ -767,6 +767,11 @@ fun RemoteScreen(
                         style = stageText(13.5f, 500),
                         color = if (codeShown == false) palette.danger else palette.muted,
                     )
+                    // Owner 16.11: which address did not answer — compare with the TV's Settings → Phone remote.
+                    if (codeShown == false) {
+                        val target by vm.pairingTarget.collectAsStateWithLifecycle()
+                        target?.let { Text("${it.name} · ${it.host}:${it.port}", style = stageText(12f, 500), color = palette.muted) }
+                    }
                     OutlinedTextField(
                         value = pinInput,
                         onValueChange = { if (it.length <= 6 && it.all { c -> c.isDigit() }) pinInput = it },

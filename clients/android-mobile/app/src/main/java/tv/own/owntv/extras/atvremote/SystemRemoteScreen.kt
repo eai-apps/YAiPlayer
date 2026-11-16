@@ -89,7 +89,9 @@ import tv.own.owntv.mobile.ui.stage.stageAccent
 import tv.own.owntv.mobile.ui.stage.stageText
 
 /** Package of the YAiPlayer TV app, launched from the remote's app row. */
-private val YAIPLAYER_TV_PACKAGE = if (tv.own.owntv.mobile.BuildConfig.BETA) "com.yai.iptv.player.tv.beta" else "com.yai.iptv.player.tv"
+// Owner 16.11: market://launch?id=… opened a chooser (RuStore / launcher) on the box. The TV app answers its own
+// scheme (manifest «launchScheme»), the beta its own, so the button opens exactly the matching app.
+private val YAIPLAYER_TV_PACKAGE = if (tv.own.owntv.mobile.BuildConfig.BETA) "yaiplayer-beta://open" else "yaiplayer://open"
 
 /**
  * App shortcuts on the remote: our own round letter badges (no foreign logos), launched by link or package name.

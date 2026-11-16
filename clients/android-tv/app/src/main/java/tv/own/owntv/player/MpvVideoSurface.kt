@@ -182,9 +182,17 @@ fun ExoPreviewSurface(
      * player opens again) this view hands its still-valid surface back to the engine.
      */
     claimKey: Any? = null,
+    /**
+     * Owner 16.11 (black screen with sound for 5–7 s after Back): false while parked. The claim used to run on
+     * EVERY [claimKey] change, Back included — the parked, off-screen view then took the picture away from the
+     * preview pane, which stayed black (sound on) until the preview restarted.
+     */
+    claim: Boolean = true,
 ) {
     val ownSurface = remember { arrayOfNulls<Surface>(1) }
-    LaunchedEffect(engine, claimKey) {
+    val claimNow = androidx.compose.runtime.rememberUpdatedState(claim)
+    LaunchedEffect(engine, claimKey, claim) {
+        if (!claim) return@LaunchedEffect
         ownSurface[0]?.takeIf { it.isValid }?.let { engine.setSurface(it) }
     }
     // Only the full-screen live player passes autoFrameRate = true — the in-pane preview must never
@@ -239,7 +247,7 @@ fun ExoPreviewSurface(
                             holder.addCallback(object : SurfaceHolder.Callback {
                                 override fun surfaceCreated(holder: SurfaceHolder) {
                                     ownSurface[0] = holder.surface
-                                    engine.setSurface(holder.surface)
+                                    if (claimNow.value) engine.setSurface(holder.surface)
                                 }
                                 override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {}
                                 override fun surfaceDestroyed(holder: SurfaceHolder) {

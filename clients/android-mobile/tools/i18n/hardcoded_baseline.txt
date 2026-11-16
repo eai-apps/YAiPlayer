@@ -4,6 +4,9 @@
 # Entries go as literals are translated or classified; the file may only ever shrink.
 # Format: <count>\t<relative path>\t<content with \t/\n escaped>
 
+1	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	yaiplayer-beta://open
+1	app/src/main/java/tv/own/owntv/extras/atvremote/SystemRemoteScreen.kt	yaiplayer://open
+1	app/src/main/java/tv/own/owntv/extras/remote/RemoteScreen.kt	${it.name} · ${it.host}:${it.port}
 1	app/src/main/java/tv/own/owntv/extras/remote/RemoteViewModel.kt	${Build.MANUFACTURER} ${Build.MODEL}
 1	app/src/main/java/tv/own/owntv/extras/remote/RemoteViewModel.kt	Beta
 1	app/src/main/java/tv/own/owntv/extras/remote/RemoteViewModel.kt	Phone

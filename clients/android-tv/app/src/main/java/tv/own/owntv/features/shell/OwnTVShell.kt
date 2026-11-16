@@ -1756,7 +1756,7 @@ fun OwnTVShell(
               tv.own.owntv.player.ExoPreviewSurface(
                   engine = liveVm.previewEngine, modifier = Modifier.fillMaxSize(),
                   keepAwake = !exoParked, autoFrameRate = !exoParked && isFull && !inPip && autoFrameRateLive,
-                  claimKey = playerMode,
+                  claimKey = playerMode, claim = !exoParked,
               )
           }
           if (!exoParked) {

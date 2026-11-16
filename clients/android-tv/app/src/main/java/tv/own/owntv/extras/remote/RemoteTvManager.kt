@@ -19,7 +19,13 @@ class RemoteTvManager(private val context: Context) : RemoteCommandHandler, Remo
 
     // Owner 16.11: on by default — «Только плеер» on the phone found no TV until this was switched on by hand.
     // Only the home network can reach it, and a phone must still enter the code the TV shows.
-    private val _enabled = MutableStateFlow(prefs.getBoolean("remote_enabled", true))
+    // Older versions stored «off» as the default; turn it on once (owner 16.11: «Только плеер» never connected).
+    private val _enabled = MutableStateFlow(
+        if (!prefs.getBoolean("remote_enabled_migrated_v2", false)) {
+            prefs.edit().putBoolean("remote_enabled", true).putBoolean("remote_enabled_migrated_v2", true).apply()
+            true
+        } else prefs.getBoolean("remote_enabled", true),
+    )
 
     private val _pinPrompt = MutableStateFlow<String?>(null)
     /** A code to show on the TV screen because a phone asked to pair (owner 16.11). */
@@ -110,6 +116,8 @@ class RemoteTvManager(private val context: Context) : RemoteCommandHandler, Remo
     private fun startServer() {
         val port = server.start(0)
         _serverPort.value = port
+        // In the journal, so a «TV not found» on the phone can be checked against what the TV really did.
+        runCatching { tv.own.owntv.player.LiveDiagnosticsLog.event(if (port != null) "remote: server on port $port as «$tvName»" else "remote: server FAILED to start") }
         if (port != null) {
             discovery.advertise(tvName, port)
         }

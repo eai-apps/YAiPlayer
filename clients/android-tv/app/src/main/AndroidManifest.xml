@@ -131,6 +131,14 @@
                     android:host="open"
                     android:scheme="owntv" />
             </intent-filter>
+            <!-- Owner 16.11: the phone remote's «YAiPlayer» button. Each build has its own scheme, so it opens this
+                 app directly instead of a chooser (market://launch went to RuStore / the launcher). -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:host="open" android:scheme="${launchScheme}" />
+            </intent-filter>
         </activity>
 
         <activity
@@ -160,6 +168,14 @@
                 <data
                     android:host="open"
                     android:scheme="owntv" />
+            </intent-filter>
+            <!-- Owner 16.11: the phone remote's «YAiPlayer» button. Each build has its own scheme, so it opens this
+                 app directly instead of a chooser (market://launch went to RuStore / the launcher). -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:host="open" android:scheme="${launchScheme}" />
             </intent-filter>
         </activity>
 
@@ -191,6 +207,14 @@
                     android:host="open"
                     android:scheme="owntv" />
             </intent-filter>
+            <!-- Owner 16.11: the phone remote's «YAiPlayer» button. Each build has its own scheme, so it opens this
+                 app directly instead of a chooser (market://launch went to RuStore / the launcher). -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:host="open" android:scheme="${launchScheme}" />
+            </intent-filter>
         </activity>
 
         <activity
@@ -220,6 +244,14 @@
                 <data
                     android:host="open"
                     android:scheme="owntv" />
+            </intent-filter>
+            <!-- Owner 16.11: the phone remote's «YAiPlayer» button. Each build has its own scheme, so it opens this
+                 app directly instead of a chooser (market://launch went to RuStore / the launcher). -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:host="open" android:scheme="${launchScheme}" />
             </intent-filter>
         </activity>
 
@@ -251,6 +283,14 @@
                     android:host="open"
                     android:scheme="owntv" />
             </intent-filter>
+            <!-- Owner 16.11: the phone remote's «YAiPlayer» button. Each build has its own scheme, so it opens this
+                 app directly instead of a chooser (market://launch went to RuStore / the launcher). -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:host="open" android:scheme="${launchScheme}" />
+            </intent-filter>
         </activity>
 
         <activity
@@ -280,6 +320,14 @@
                 <data
                     android:host="open"
                     android:scheme="owntv" />
+            </intent-filter>
+            <!-- Owner 16.11: the phone remote's «YAiPlayer» button. Each build has its own scheme, so it opens this
+                 app directly instead of a chooser (market://launch went to RuStore / the launcher). -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:host="open" android:scheme="${launchScheme}" />
             </intent-filter>
         </activity>
 
@@ -311,6 +359,14 @@
                     android:host="open"
                     android:scheme="owntv" />
             </intent-filter>
+            <!-- Owner 16.11: the phone remote's «YAiPlayer» button. Each build has its own scheme, so it opens this
+                 app directly instead of a chooser (market://launch went to RuStore / the launcher). -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:host="open" android:scheme="${launchScheme}" />
+            </intent-filter>
         </activity>
 
         <activity
@@ -340,6 +396,14 @@
                 <data
                     android:host="open"
                     android:scheme="owntv" />
+            </intent-filter>
+            <!-- Owner 16.11: the phone remote's «YAiPlayer» button. Each build has its own scheme, so it opens this
+                 app directly instead of a chooser (market://launch went to RuStore / the launcher). -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:host="open" android:scheme="${launchScheme}" />
             </intent-filter>
         </activity>
 
@@ -371,6 +435,14 @@
                 <data
                     android:host="open"
                     android:scheme="owntv" />
+            </intent-filter>
+            <!-- Owner 16.11: the phone remote's «YAiPlayer» button. Each build has its own scheme, so it opens this
+                 app directly instead of a chooser (market://launch went to RuStore / the launcher). -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:host="open" android:scheme="${launchScheme}" />
             </intent-filter>
         </activity>
 

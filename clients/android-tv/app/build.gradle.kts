@@ -56,6 +56,7 @@ android {
         buildConfigField("boolean", "SELF_UPDATE", (!playStore).toString())
         buildConfigField("boolean", "BETA", beta.toString())
         manifestPlaceholders["appLabel"] = if (beta) "YAiPlayer Beta" else "@string/app_name"
+        manifestPlaceholders["launchScheme"] = if (beta) "yaiplayer-beta" else "yaiplayer"
         buildConfigField("boolean", "RADIO", (!playStore).toString())
         // The radio's background service (RadioPlaybackService) exists only in the build with the radio.
         // TV: the radio never plays in the background (owner 12.11), so its background service stays off.
