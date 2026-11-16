@@ -435,7 +435,7 @@ fun MobileShell(
     }
     tv.own.owntv.mobile.ui.screens.settings.SubscriptionExpiryHost(enabled = !fullscreen && !updateSheetOpen)
     if (tv.own.owntv.mobile.BuildConfig.SELF_UPDATE) tv.own.owntv.mobile.ui.screens.settings.VersionGateHost()
-    tv.own.owntv.mobile.ui.screens.settings.GuideOfferHost()
+    tv.own.owntv.mobile.ui.screens.settings.GuideOfferHost(onShowNewChannels = { navController.navigateToTab(MobileDestination.LIVE) })
 
     val lightScope = androidx.compose.runtime.rememberCoroutineScope()
     val lightModePromptDismissed by settings.lightModePromptDismissed.collectAsStateWithLifecycle(initialValue = null)

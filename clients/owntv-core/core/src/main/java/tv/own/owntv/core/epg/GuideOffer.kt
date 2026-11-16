@@ -31,8 +31,19 @@ class GuideOffer(
     private val customize: CustomizationStore,
     private val settings: SettingsRepository,
 ) {
-    /** What the chooser shows: [number] of the source to load (1..3), channels [missing] of [total]. */
-    data class Offer(val feedId: Long, val number: Int, val missing: Int, val total: Int)
+    /**
+     * What the chooser shows: [number] of the source to load (1..3), channels [missing] of [total]. With
+     * [portalId] it is a Stalker portal without a guide of its own (owner 16.11): accepting switches on the
+     * reserve guide for that portal.
+     */
+    data class Offer(
+        val feedId: Long, val number: Int, val missing: Int, val total: Int,
+        val portalId: Long? = null, val portalName: String? = null,
+    )
+
+    private val _weekly = MutableStateFlow(false)
+    /** Monday/Tuesday morning: this week's guide is not in yet — «Загрузить новый телегид?» (owner 16.11). */
+    val weekly: StateFlow<Boolean> = _weekly
 
     private val _offer = MutableStateFlow<Offer?>(null)
     val offer: StateFlow<Offer?> = _offer
@@ -65,11 +76,98 @@ class GuideOffer(
     fun accept(o: Offer) {
         _offer.value = null
         scope.launch {
+            o.portalId?.let { settings.setPortalBuiltinEpg(it, true) }
             val guide = BuiltinGuide.fromKoin()
             val feed = guide.feeds().first().firstOrNull { it.id == o.feedId } ?: return@launch
             if (feed.number == 1) guide.refreshFeed(feed.id) else guide.setFeedEnabled(feed, true)
         }
     }
+
+    /**
+     * On entering a profile (after it settles): the weekly offer on Monday/Tuesday morning, and — when a
+     * portal of the profile has no programme for most of its channels and its reserve guide is off — the
+     * offer to load the reserve for it.
+     */
+    fun onProfileEntered() {
+        scope.launch {
+            runCatching {
+                val active = db.profileDao().resolveExistingProfileId(settings.activeProfileId.first()) ?: return@launch
+                val own = db.sourceDao().sourceIdsForProfile(active).toSet()
+                val sources = db.sourceDao().getAllOnce().filter { it.id in own && it.lastSyncAt != null }
+                if (sources.isEmpty()) return@launch
+                val guides = store.getAll()
+                val repo = org.koin.core.context.GlobalContext.get().get<tv.own.owntv.core.repository.EpgRepository>()
+                val ownGuides = sources.flatMap { src ->
+                    val urls = repo.guideUrls(src).toSet() +
+                        (if (src.type == SourceType.STALKER) setOf(tv.own.owntv.core.repository.EpgRepository.stalkerGuideUrl(src.id)) else emptySet())
+                    guides.filter { !it.builtin && it.url in urls }
+                }
+                val lastGuide = (ownGuides + guides.filter { it.builtin }).mapNotNull { it.lastSyncAt }.maxOrNull()
+                val today = java.text.SimpleDateFormat("yyyyMMdd", java.util.Locale.US).format(java.util.Date())
+                if (tv.own.owntv.core.sync.WeeklySchedule.isGuideOfferTime(lastGuide, System.currentTimeMillis()) &&
+                    prefs().getString(WEEKLY_DECLINED, null) != today
+                ) {
+                    _weekly.value = true
+                    return@launch
+                }
+                portalOffer(active, sources.filter { it.type == SourceType.STALKER })?.let { _offer.value = it }
+            }
+        }
+    }
+
+    /** «От провайдера»: every guide the profile's playlists and portals name. */
+    fun weeklyFromProvider() {
+        _weekly.value = false
+        scope.launch {
+            runCatching {
+                val active = db.profileDao().resolveExistingProfileId(settings.activeProfileId.first()) ?: return@launch
+                val own = db.sourceDao().sourceIdsForProfile(active).toSet()
+                val quick = org.koin.core.context.GlobalContext.get().get<tv.own.owntv.core.sync.QuickActionsSync>()
+                db.sourceDao().getAllOnce().filter { it.id in own }.forEach { quick.refreshEpg(it) }
+            }
+        }
+    }
+
+    /** «Из наших источников»: the reserve sources that are on. */
+    fun weeklyFromReserve() {
+        _weekly.value = false
+        scope.launch {
+            runCatching {
+                val guide = BuiltinGuide.fromKoin()
+                guide.feeds().first().filter { it.enabled }.forEach { guide.refreshFeed(it.id) }
+            }
+        }
+    }
+
+    /** «Не сейчас»: not again today. */
+    fun weeklyLater() {
+        _weekly.value = false
+        val today = java.text.SimpleDateFormat("yyyyMMdd", java.util.Locale.US).format(java.util.Date())
+        prefs().edit().putString(WEEKLY_DECLINED, today).apply()
+    }
+
+    private suspend fun portalOffer(active: Long, portals: List<tv.own.owntv.core.database.entity.SourceEntity>): Offer? {
+        if (declined || !store.builtinEnabled.first() || portals.isEmpty()) return null
+        val extra = settings.portalBuiltinEpgSources.first()
+        val feed = store.getAll().firstOrNull { it.builtin } ?: return null
+        val cust = customize.observe(active, MediaType.LIVE).first()
+        val now = System.currentTimeMillis()
+        for (portal in portals.filter { it.id !in extra }) {
+            val channels = db.channelDao().allForSources(listOf(portal.id), Int.MAX_VALUE)
+                .filter { CustomizeKeys.channel(it) !in cust.hiddenItems }
+            if (channels.isEmpty()) continue
+            val keys = channels.map { epgKeyOf(it, cust) }
+            val have = HashSet<String>()
+            keys.filterNotNull().distinct().chunked(500).forEach { have.addAll(db.epgDao().keysWithGuide(it, now - 3 * 3_600_000L, now + 86_400_000L)) }
+            val missing = keys.count { it == null || it !in have }
+            // Most of the portal without a programme: it has no guide of its own worth the name.
+            if (missing * 2 > channels.size) return Offer(feed.id, 1, missing, channels.size, portal.id, portal.name)
+        }
+        return null
+    }
+
+    private fun prefs() = org.koin.core.context.GlobalContext.get().get<android.content.Context>()
+        .getSharedPreferences("guide_offer", android.content.Context.MODE_PRIVATE)
 
     private fun evaluate(after: Int) {
         scope.launch {
@@ -103,6 +201,7 @@ class GuideOffer(
 
     companion object {
         private const val NEXT_OFFER_DELAY_MS = 4_000L
+        private const val WEEKLY_DECLINED = "weekly_declined_day"
         fun fromKoin(): GuideOffer = org.koin.core.context.GlobalContext.get().get()
     }
 }

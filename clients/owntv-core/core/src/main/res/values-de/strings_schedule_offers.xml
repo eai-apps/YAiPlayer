@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2026 YAiPlayer authors. Weekly guide offer, portal guide offer, new channels (owner 16.11). -->
+<resources>
+    <string name="guide_weekly_title">Neues TV-Programm für die Woche</string>
+    <string name="guide_weekly_body">Anbieter stellen das Programm der neuen Woche meist am Montag bereit. Jetzt laden? Der Player lädt es selbst am Montag um 18:00.</string>
+    <string name="guide_weekly_provider">Vom Anbieter</string>
+    <string name="guide_weekly_reserve">Aus unseren Quellen</string>
+    <string name="guide_portal_offer_title">Das Portal hat kein TV-Programm</string>
+    <string name="guide_portal_offer_body">%1$d von %2$d Sendern des Portals «%3$s» haben kein Programm. Aus einer zusätzlichen Quelle laden?</string>
+    <string name="guide_portal_offer_load">Laden</string>
+    <string name="new_channels_category">Neue Sender</string>
+    <string name="new_channels_title">Neue Sender beim Anbieter</string>
+    <string name="new_channels_show">Ansehen</string>
+    <plurals name="new_channels_body">
+        <item quantity="one">Ihr Anbieter hat %d neuen Sender hinzugefügt. Er steht eine Woche in der Kategorie «Neue Sender» im Live-TV.</item>
+        <item quantity="other">Ihr Anbieter hat %d neue Sender hinzugefügt. Sie stehen eine Woche in der Kategorie «Neue Sender» im Live-TV.</item>
+    </plurals>
+</resources>

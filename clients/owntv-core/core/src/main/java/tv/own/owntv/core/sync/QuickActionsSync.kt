@@ -77,7 +77,7 @@ class QuickActionsSync(
 
     /**
      * Owner 13.11: entering a profile (or an account) loads the guide the playlist itself names, when it has none
-     * yet or it is older than [GUIDE_STALE_MS]. Only the playlist's own guide: the additional sources stay manual.
+     * yet (16.11: no longer when merely old — see WeeklySchedule). Only the playlist's own guide: the additional sources stay manual.
      * Asked once per guide while a profile stays active; a source that arrives later (an account's playlist after
      * its first load) is picked up when the profile's list changes.
      */
@@ -99,18 +99,19 @@ class QuickActionsSync(
                 .debounce(GUIDE_ON_ENTER_DELAY_MS)
                 .collect { sources ->
                     runCatching {
-                        val now = System.currentTimeMillis()
                         // A playlist not loaded yet runs its guide with its first load; it is looked at again once loaded.
                         sources.filter { it.lastSyncAt != null }.forEach { source ->
                             val own = selectedGuideSources(source).filter { !it.builtin }
                             own.forEach { src ->
-                                val fresh = src.lastSyncAt?.let { now - it < GUIDE_STALE_MS } == true
-                                if (!fresh && asked.add(src.id)) {
+                                // Owner 16.11: a guide loads by itself only once a week (Monday 18:00); on entry
+                                // only one never loaded yet. Monday/Tuesday mornings offer the new one instead.
+                                if (src.lastSyncAt == null && src.lastError == null && asked.add(src.id)) {
                                     val base = epgDao.countForSources(listOf(src.id))
                                     epgSyncScheduler.enqueueSync(src.id, "profile_enter", base, ExistingWorkPolicy.KEEP)
                                 }
                             }
                         }
+                        runCatching { tv.own.owntv.core.epg.GuideOffer.fromKoin().onProfileEntered() }
                     }.onFailure { android.util.Log.w(TAG, "guide on enter failed", it) }
                 }
         }
@@ -128,7 +129,6 @@ class QuickActionsSync(
 
     private companion object {
         const val TAG = "QuickActionsSync"
-        const val GUIDE_STALE_MS = 12 * 60 * 60 * 1000L
         /** After the profile settles (and after a new account playlist's own first load has begun). */
         const val GUIDE_ON_ENTER_DELAY_MS = 8_000L
     }

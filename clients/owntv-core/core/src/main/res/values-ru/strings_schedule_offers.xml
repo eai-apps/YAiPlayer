@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2026 YAiPlayer authors. Weekly guide offer, portal guide offer, new channels (owner 16.11). -->
+<resources>
+    <string name="guide_weekly_title">Новая телепрограмма на неделю</string>
+    <string name="guide_weekly_body">Провайдеры обычно выкладывают программу на новую неделю в понедельник. Загрузить её сейчас? Сам плеер загрузит её в понедельник в 18:00.</string>
+    <string name="guide_weekly_provider">От провайдера</string>
+    <string name="guide_weekly_reserve">Из наших источников</string>
+    <string name="guide_portal_offer_title">У портала нет телепрограммы</string>
+    <string name="guide_portal_offer_body">У %1$d из %2$d каналов портала «%3$s» нет телепрограммы. Загрузить её из дополнительного источника?</string>
+    <string name="guide_portal_offer_load">Загрузить</string>
+    <string name="new_channels_category">Новые каналы</string>
+    <string name="new_channels_title">Новые каналы у провайдера</string>
+    <string name="new_channels_show">Посмотреть</string>
+    <plurals name="new_channels_body">
+        <item quantity="one">Провайдер добавил %d новый канал. Он лежит в категории «Новые каналы» в «Прямом эфире» неделю.</item>
+        <item quantity="few">Провайдер добавил %d новых канала. Они лежат в категории «Новые каналы» в «Прямом эфире» неделю.</item>
+        <item quantity="many">Провайдер добавил %d новых каналов. Они лежат в категории «Новые каналы» в «Прямом эфире» неделю.</item>
+        <item quantity="other">Провайдер добавил %d новых канала. Они лежат в категории «Новые каналы» в «Прямом эфире» неделю.</item>
+    </plurals>
+</resources>

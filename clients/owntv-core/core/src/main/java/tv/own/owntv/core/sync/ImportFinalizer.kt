@@ -39,6 +39,8 @@ class ImportFinalizer(
         val counts = contentCounts(source.id)
         if (includeGuide) registerPortalGuide(source, refreshGuide)
         runCatching { adultProtection?.applyIfRequested(source.id) }
+        // «Новые каналы» (owner 16.11): what the provider added since the last read, kept for a week.
+        runCatching { NewChannels.fromKoin().afterSync(db.sourceDao().getById(source.id) ?: source) }
         if (includeGuide) {
             val repository = org.koin.core.context.GlobalContext.get().get<tv.own.owntv.core.repository.EpgRepository>()
             val syncedSource = db.sourceDao().getById(source.id) ?: source

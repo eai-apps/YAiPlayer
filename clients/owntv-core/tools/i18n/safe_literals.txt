@@ -2351,6 +2351,9 @@
 1	log	core/src/main/java/tv/own/owntv/core/epg/GuideCandidates.kt	namedLimitHit=${named.size >= limit} programmeLimitHit=${withProgrammes.size >= limit}
 1	log	core/src/main/java/tv/own/owntv/core/epg/GuideCandidates.kt	queryMs=${queriedAt - startedAt} totalMs=${SystemClock.elapsedRealtime() - startedAt}
 1	log	core/src/main/java/tv/own/owntv/core/epg/GuideCandidates.kt	rankMs=${SystemClock.elapsedRealtime() - startedAt}
+1	preference-key	core/src/main/java/tv/own/owntv/core/epg/GuideOffer.kt	guide_offer
+1	preference-key	core/src/main/java/tv/own/owntv/core/epg/GuideOffer.kt	weekly_declined_day
+2	preference-key	core/src/main/java/tv/own/owntv/core/epg/GuideOffer.kt	yyyyMMdd
 1	technical	core/src/main/java/tv/own/owntv/core/gate/VersionGate.kt	UTC
 1	technical	core/src/main/java/tv/own/owntv/core/gate/VersionGate.kt	block_at
 1	technical	core/src/main/java/tv/own/owntv/core/gate/VersionGate.kt	enforce
@@ -5429,6 +5432,11 @@
 1	log	core/src/main/java/tv/own/owntv/core/sync/M3uVodResort.kt	M3uVodResort
 1	log	core/src/main/java/tv/own/owntv/core/sync/M3uVodResort.kt	m3uVodResort check failed
 1	log	core/src/main/java/tv/own/owntv/core/sync/M3uVodResort.kt	m3uVodResort sourceId=${source.id} — video files in Live TV, re-syncing
+1	preference-key	core/src/main/java/tv/own/owntv/core/sync/NewChannels.kt	\0
+2	preference-key	core/src/main/java/tv/own/owntv/core/sync/NewChannels.kt	added_$sourceId
+1	preference-key	core/src/main/java/tv/own/owntv/core/sync/NewChannels.kt	cat_$profileId
+1	preference-key	core/src/main/java/tv/own/owntv/core/sync/NewChannels.kt	known_${source.id}.txt
+2	preference-key	core/src/main/java/tv/own/owntv/core/sync/NewChannels.kt	new_channels
 1	preference-key	core/src/main/java/tv/own/owntv/core/sync/PortalCeilingStore.kt	ceiling_$sourceId
 1	preference-key	core/src/main/java/tv/own/owntv/core/sync/PortalCeilingStore.kt	clean_runs_$sourceId
 1	preference-key	core/src/main/java/tv/own/owntv/core/sync/PortalCeilingStore.kt	owntv_portal_ceiling

@@ -2298,7 +2298,11 @@ fun OwnTVShell(
         }
         tv.own.owntv.features.update.SubscriptionExpiryHost(enabled = selectedSection != MainSection.SETTINGS && playerMode == PlayerMode.NONE)
         if (tv.own.owntv.BuildConfig.SELF_UPDATE) tv.own.owntv.features.update.VersionGateHost()
-        tv.own.owntv.features.update.GuideOfferHost()
+        tv.own.owntv.features.update.GuideOfferHost(onShowNewChannels = { id ->
+            // «Посмотреть» on «Новые каналы» (owner 16.11): Live TV on that category.
+            liveVm.select(tv.own.owntv.core.live.LiveKey.Custom(id))
+            onSelectSection(MainSection.LIVE_TV)
+        })
 
         val lightModePromptDismissed by settingsRepo.lightModePromptDismissed.collectAsStateWithLifecycle(initialValue = null)
         val lightModeOn by settingsRepo.lightModeEnabled.collectAsStateWithLifecycle(initialValue = false)

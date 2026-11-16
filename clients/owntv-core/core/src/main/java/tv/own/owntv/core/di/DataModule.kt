@@ -442,6 +442,7 @@ val dataModule = module {
         )
     }
     single { tv.own.owntv.core.sync.QuickActionsSync(get(), get(), get(), get(), get(), get()) }
+    single { tv.own.owntv.core.sync.NewChannels(androidContext(), get(), get()) }
     single { tv.own.owntv.core.parental.ParentalControl(androidContext(), get(), get(), get(), get()) }
     single { tv.own.owntv.core.sync.ChannelGuideCheck(androidContext(), get(), get(), get(), get(), get(), get(), get()) }
     // settings, sourceDao, channelDao, catalogSyncScheduler, importFinalizer
