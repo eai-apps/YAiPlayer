@@ -33,6 +33,8 @@ object ApiRoutes {
     /** In the order tried. Add a server after it is set up (number = «сервер N» on screen). */
     val RELAYS = listOf(
         Relay(1, "operator", "https://194.26.203.2:8443", "1311c85f3584b8627cf6434355338982486a5cf59cee06c8ebe0a5d243fdefe9"),
+        Relay(2, "dutch", "https://130.49.185.16:8443", "771205b3c5f3f4ac42964970916926e5c20cff0c5d3fd2c44922351205213e40"),
+        Relay(3, "moldova", "https://143.246.223.135:9443", "19c36be67ba4ee96d079c21987cff457668face6db5e803aee7c24376d5fa3b9"),
     )
 
     /** Service host → the relay's path prefix for it (the relay's Caddyfile has the same list). */
