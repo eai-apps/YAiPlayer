@@ -6,6 +6,14 @@ on:
         description: "Файл из docs/announcements"
         required: true
         default: "chat.html"
+      rich:
+        description: "Rich-версия из docs/announcements (пусто = обычный пост)"
+        required: false
+        default: ""
+      image:
+        description: "Картинка сверху (путь в репозитории, пусто = без картинки)"
+        required: false
+        default: ""
 permissions:
   contents: read
 jobs:
@@ -17,4 +25,10 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: python3 telegram-release/post_release.py --announce-file "docs/announcements/${{ inputs.file }}"
+          RICH: ${{ inputs.rich }}
+          IMAGE: ${{ inputs.image }}
+        run: |
+          args=(--announce-file "docs/announcements/${{ inputs.file }}")
+          [ -n "$RICH" ] && args+=(--rich-file "docs/announcements/$RICH")
+          [ -n "$IMAGE" ] && args+=(--image "$IMAGE")
+          python3 telegram-release/post_release.py "${args[@]}"

@@ -1,10 +1,8 @@
 name: Daily digest to Telegram
 # One post a day at 09:00 Berlin about everything released since 09:00 the day before (no post if nothing was). GitHub cron is UTC only, so it is
 # queued at 06:15 and 07:15 UTC (one of them is 08:15 Berlin, winter or summer), waits until 09:00 sharp, and the other is skipped.
+# Owner 17.11: the 9:00 digest is switched off (the big 4.0 post replaced it); run by hand if ever needed.
 on:
-  schedule:
-    - cron: "15 6 * * *"
-    - cron: "15 7 * * *"
   workflow_dispatch:
     inputs:
       day:

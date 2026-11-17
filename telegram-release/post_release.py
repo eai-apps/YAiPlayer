@@ -411,7 +411,7 @@ def main(argv: list[str] | None = None) -> int:
         if args.rich_file:
             with open(args.rich_file, "r", encoding="utf-8") as f:
                 rich_html = f.read().strip()
-            digest_buttons = [[{"text": "📥 Скачать", "url": BOT_URL}, {"text": "💬 Написать в чат", "url": CHAT_URL}]]
+            digest_buttons = [[{"text": "📥 Скачать плеер можно тут", "url": BOT_URL}], [{"text": "💬 Написать в чат", "url": CHAT_URL}]]
             return 0 if send_digest(bot_token, chat_id, rich_html, text, args.image or None, digest_buttons) else 1
         row = ([{"text": "🔔 Подписаться", "url": f"https://t.me/{chat_id[1:]}"}] if chat_id.startswith("@") else []) + [
             {"text": "💬 Обсуждение", "url": CHAT_URL}
