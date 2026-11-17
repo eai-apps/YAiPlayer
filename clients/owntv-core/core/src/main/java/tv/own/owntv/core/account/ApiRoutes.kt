@@ -4,6 +4,8 @@ package tv.own.owntv.core.account
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import okhttp3.Interceptor
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.OkHttpClient
 import okhttp3.Protocol
 import okhttp3.Response
@@ -44,6 +46,10 @@ object ApiRoutes {
         "owntv-tmdb-meta.xiannero.workers.dev" to "/tmdb-legacy",
         "my-owntv-opensub.xiannero.workers.dev" to "/opensub",
         "image.tmdb.org" to "/tmdb-img",
+        // Owner 17.11: the radio (YAiPlay Radio) did not load in Russia without VPN — Cloudflare blocked.
+        "yaiplay-radio.pages.dev" to "/radio-site",
+        "yaiplay-radio-api.yai-media-player.workers.dev" to "/radio-api",
+        "de1.api.radio-browser.info" to "/radio-rb",
     )
 
     private val API_HOST = HOSTS.keys.first()
@@ -111,4 +117,25 @@ object ApiRoutes {
     }
 
     private const val RETRY_DIRECT_MS = 30 * 60_000L
+
+    /** Answer of [http]: status code and body text. */
+    class HttpAnswer(val code: Int, val body: String)
+
+    private val plain: OkHttpClient by lazy {
+        OkHttpClient.Builder().addInterceptor(Fallback)
+            .connectTimeout(8, TimeUnit.SECONDS).readTimeout(15, TimeUnit.SECONDS).build()
+    }
+
+    /**
+     * A small text request that falls back to our relays for the hosts in [HOSTS] — for code without its own
+     * OkHttp client (the radio). [jsonBody] = POST/PUT body as application/json. Throws IOException on network failure.
+     */
+    @JvmStatic
+    fun http(url: String, method: String = "GET", headers: Map<String, String> = emptyMap(), jsonBody: String? = null): HttpAnswer {
+        val b = okhttp3.Request.Builder().url(url)
+        headers.forEach { (k, v) -> b.header(k, v) }
+        val body = jsonBody?.toRequestBody("application/json; charset=utf-8".toMediaType())
+        b.method(method, body ?: if (method == "GET" || method == "HEAD") null else ByteArray(0).toRequestBody(null))
+        plain.newCall(b.build()).execute().use { r -> return HttpAnswer(r.code, r.body.string()) }
+    }
 }
