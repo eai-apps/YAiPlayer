@@ -2,8 +2,6 @@
 package tv.own.owntv.radio
 
 import android.content.Context
-import java.net.HttpURLConnection
-import java.net.URL
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,17 +20,11 @@ class RadioRepository(context: Context) {
     private val _favorites = MutableStateFlow(loadFavorites())
     val favorites: StateFlow<List<RadioStation>> = _favorites.asStateFlow()
 
+    /** Through [tv.own.owntv.core.account.ApiRoutes.http]: if Cloudflare / the mirror is blocked (Russia without VPN), our relays are tried. */
     private fun get(url: String): String {
-        val c = URL(url).openConnection() as HttpURLConnection
-        c.connectTimeout = 8_000
-        c.readTimeout = 12_000
-        c.setRequestProperty("User-Agent", "YAiPlayer-Radio")
-        try {
-            if (c.responseCode !in 200..299) throw java.io.IOException("HTTP ${c.responseCode}")
-            return c.inputStream.bufferedReader().use { it.readText() }
-        } finally {
-            c.disconnect()
-        }
+        val a = tv.own.owntv.core.account.ApiRoutes.http(url, headers = mapOf("User-Agent" to "YAiPlayer-Radio"))
+        if (a.code !in 200..299) throw java.io.IOException("HTTP ${a.code}")
+        return a.body
     }
 
     /** Tries the mirrors in turn; the first that answers wins. */
@@ -96,25 +88,11 @@ class RadioRepository(context: Context) {
     private class HttpFailure(val status: Int) : java.io.IOException("HTTP $status")
 
     private fun call(path: String, method: String, body: JSONObject?, token: String?): JSONObject {
-        val c = URL(RadioSync.API + path).openConnection() as HttpURLConnection
-        c.connectTimeout = 8_000
-        c.readTimeout = 15_000
-        c.requestMethod = method
-        c.setRequestProperty("Accept", "application/json")
-        token?.let { c.setRequestProperty("Authorization", "Bearer $it") }
-        try {
-            if (body != null) {
-                c.doOutput = true
-                c.setRequestProperty("Content-Type", "application/json")
-                c.outputStream.use { it.write(body.toString().toByteArray(Charsets.UTF_8)) }
-            }
-            val code = c.responseCode
-            if (code !in 200..299) throw HttpFailure(code)
-            val text = c.inputStream.bufferedReader().use { it.readText() }
-            return if (text.isBlank()) JSONObject() else JSONObject(text)
-        } finally {
-            c.disconnect()
-        }
+        // Through our relays when Cloudflare is blocked (owner 17.11).
+        val h = buildMap { put("Accept", "application/json"); token?.let { put("Authorization", "Bearer $it") } }
+        val a = tv.own.owntv.core.account.ApiRoutes.http(RadioSync.API + path, method, h, body?.toString())
+        if (a.code !in 200..299) throw HttpFailure(a.code)
+        return if (a.body.isBlank()) JSONObject() else JSONObject(a.body)
     }
 
     /** Signs in (or creates the account), then merges this device's favourites with the account's. Null = success. */
