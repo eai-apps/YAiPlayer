@@ -74,6 +74,15 @@ fun ProfileGate(onEnter: (Long) -> Unit, onAddProfile: () -> Unit, modifier: Mod
         profiles.filter { it.id == guestId || (it.id !in hiddenProfileIds && it.id !in accountProfileIds && it.id !in emptyLocalIds) }
     }
 
+    // Owner 17.11 (v4.0.2): with the account on, profiles made on THIS device (before 4.0 or without an account)
+    // are no longer on «Кто смотрит?» — they open from Guest: Guest → «Гость» + those profiles to pick from.
+    val grouped = accountService != null
+    val localProfiles = if (grouped) visibleProfiles.filter { it.id != guestId } else emptyList()
+    val mainProfiles = if (grouped) visibleProfiles.filter { it.id == guestId } else visibleProfiles
+    var guestGroupOpen by remember { mutableStateOf(false) }
+    LaunchedEffect(localProfiles.isEmpty()) { if (localProfiles.isEmpty()) guestGroupOpen = false }
+    androidx.activity.compose.BackHandler(enabled = guestGroupOpen) { guestGroupOpen = false }
+
     var menuProfile by remember { mutableStateOf<ProfileEntity?>(null) }
     var deleteConfirmProfile by remember { mutableStateOf<ProfileEntity?>(null) }
     var pinForEnter by remember { mutableStateOf<ProfileEntity?>(null) }
@@ -103,20 +112,20 @@ fun ProfileGate(onEnter: (Long) -> Unit, onAddProfile: () -> Unit, modifier: Mod
     var lastFocusedId by remember { mutableStateOf<Long?>(null) }
     var returnFocusTrigger by remember { mutableIntStateOf(0) }
 
-    LaunchedEffect(visibleProfiles.isEmpty()) {
-        if (visibleProfiles.isEmpty()) { kotlinx.coroutines.delay(50); runCatching { addFocus.requestFocus() } }
+    LaunchedEffect(mainProfiles.isEmpty()) {
+        if (mainProfiles.isEmpty()) { kotlinx.coroutines.delay(50); runCatching { addFocus.requestFocus() } }
     }
-    LaunchedEffect(visibleProfiles.isNotEmpty()) {
-        if (visibleProfiles.isNotEmpty()) {
-            val target = lastFocusedId?.let { profileFocus[it] } ?: profileFocus.getOrPut(visibleProfiles.first().id) { FocusRequester() }
+    LaunchedEffect(mainProfiles.isNotEmpty()) {
+        if (mainProfiles.isNotEmpty()) {
+            val target = lastFocusedId?.let { profileFocus[it] } ?: profileFocus.getOrPut(mainProfiles.first().id) { FocusRequester() }
             runCatching { target.requestFocus() }
         }
     }
 
     LaunchedEffect(returnFocusTrigger) {
         if (returnFocusTrigger > 0) {
-            val target = lastFocusedId?.takeIf { id -> visibleProfiles.any { it.id == id } }?.let { profileFocus[it] }
-                ?: visibleProfiles.firstOrNull()?.let { profileFocus[it.id] }
+            val target = lastFocusedId?.takeIf { id -> mainProfiles.any { it.id == id } }?.let { profileFocus[it] }
+                ?: mainProfiles.firstOrNull()?.let { profileFocus[it.id] }
                 ?: addFocus
             runCatching { target.requestFocus() }
         }
@@ -125,7 +134,9 @@ fun ProfileGate(onEnter: (Long) -> Unit, onAddProfile: () -> Unit, modifier: Mod
     fun choose(p: ProfileEntity) {
         tv.own.owntv.core.settings.ResumeRequest.consume() // a plain pick is not «Продолжить»
         lastFocusedId = p.id
-        if (p.id == guestId) {
+        if (p.id == guestId && !guestGroupOpen && localProfiles.isNotEmpty()) {
+            guestGroupOpen = true
+        } else if (p.id == guestId) {
             if (p.pinHash != null) {
                 pinError = false
                 pinForEnter = p
@@ -144,9 +155,44 @@ fun ProfileGate(onEnter: (Long) -> Unit, onAddProfile: () -> Unit, modifier: Mod
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             tv.own.owntv.ui.components.BrandLockup(markSize = 48)
             Spacer(Modifier.height(24.dp))
-            Text(stringResource(R.string.profiles_gate_title), style = tv.own.owntv.ui.theme.stageText(54, 700), color = StageColors.Text)
+            Text(
+                if (guestGroupOpen) guestName else stringResource(R.string.profiles_gate_title),
+                style = tv.own.owntv.ui.theme.stageText(54, 700), color = StageColors.Text,
+            )
             Spacer(Modifier.height(36.dp))
-            LazyRow(
+            if (guestGroupOpen) {
+                // Guest's own tile first, then the profiles made on this device; Back returns to «Кто смотрит?».
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(28.dp),
+                    modifier = Modifier.focusGroup().padding(horizontal = 48.dp),
+                ) {
+                    val guest = visibleProfiles.firstOrNull { it.id == guestId }
+                    if (guest != null) {
+                        item(key = guest.id) {
+                            ProfileTile(
+                                profile = guest,
+                                isGuest = true,
+                                modifier = Modifier.focusRequester(profileFocus.getOrPut(guest.id) { FocusRequester() }),
+                                onClick = { choose(guest) },
+                            )
+                        }
+                    } else {
+                        item { AddTile(onClick = { vm.enterGuest(guestName, onEnter) }, label = guestName, icon = OwnTVIcon.PERSON) }
+                    }
+                    items(localProfiles, key = { it.id }) { p ->
+                        ProfileTile(
+                            profile = p,
+                            modifier = Modifier.focusRequester(profileFocus.getOrPut(p.id) { FocusRequester() }),
+                            onClick = { choose(p) },
+                        )
+                    }
+                }
+                LaunchedEffect(Unit) {
+                    kotlinx.coroutines.delay(50)
+                    val first = visibleProfiles.firstOrNull { it.id == guestId } ?: localProfiles.firstOrNull()
+                    first?.let { runCatching { profileFocus[it.id]?.requestFocus() } }
+                }
+            } else LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(28.dp),
                 modifier = Modifier.focusGroup().padding(horizontal = 48.dp),
             ) {
@@ -160,7 +206,7 @@ fun ProfileGate(onEnter: (Long) -> Unit, onAddProfile: () -> Unit, modifier: Mod
                         )
                     }
                 }
-                items(visibleProfiles, key = { it.id }) { p ->
+                items(mainProfiles, key = { it.id }) { p ->
                     val requester = profileFocus.getOrPut(p.id) { FocusRequester() }
                     ProfileTile(
                         profile = p,
@@ -173,7 +219,13 @@ fun ProfileGate(onEnter: (Long) -> Unit, onAddProfile: () -> Unit, modifier: Mod
                 if (accountService == null) item { AddTile(onClick = onAddProfile, modifier = Modifier.focusRequester(addFocus)) }
                 // "No registration, no profile": shown until the guest profile exists (then it is a tile above).
                 if (visibleProfiles.none { it.id == guestId }) {
-                    item { AddTile(onClick = { vm.enterGuest(guestName, onEnter) }, label = guestName, icon = OwnTVIcon.PERSON) }
+                    item {
+                        AddTile(
+                            onClick = { if (localProfiles.isNotEmpty()) guestGroupOpen = true else vm.enterGuest(guestName, onEnter) },
+                            label = guestName,
+                            icon = OwnTVIcon.PERSON,
+                        )
+                    }
                 }
                 if (tv.own.owntv.features.radio.RadioFeature.AVAILABLE) {
                     item { AddTile(onClick = { showRadio = true }, label = tv.own.owntv.features.radio.RadioFeature.label(), icon = OwnTVIcon.EQ) }

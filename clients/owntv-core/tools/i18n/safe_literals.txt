@@ -3221,6 +3221,7 @@
 1	mime	core/src/main/java/tv/own/owntv/core/player/ExternalPlayerLauncher.kt	video/mp2t
 2	mime	core/src/main/java/tv/own/owntv/core/player/ExternalPlayerLauncher.kt	video/mp4
 1	technical	core/src/main/java/tv/own/owntv/core/player/FfmpegAudioSetting.kt	ffmpeg_audio
+1	preference-key	core/src/main/java/tv/own/owntv/core/player/FfmpegAudioSetting.kt	ffmpeg_audio_on_v4
 1	technical	core/src/main/java/tv/own/owntv/core/player/FfmpegAudioSetting.kt	owntv_audio_engine
 1	technical	core/src/main/java/tv/own/owntv/core/player/ForceMpvStore.kt	EXO
 1	technical	core/src/main/java/tv/own/owntv/core/player/ForceMpvStore.kt	LIVE
@@ -3369,15 +3370,6 @@
 1	technical	core/src/main/java/tv/own/owntv/core/player/VodEngineStore.kt	moved_to_db_v44
 1	preference-key	core/src/main/java/tv/own/owntv/core/player/VodEngineStore.kt	mpv_urls
 1	technical	core/src/main/java/tv/own/owntv/core/player/VodEngineStore.kt	owntv_vod_engine
-1	log	core/src/main/java/tv/own/owntv/core/profile/LegacyProfilesToGuest.kt	${legacy.size} pre-4.0 local profile(s) moved into Guest ($guestId)
-1	log	core/src/main/java/tv/own/owntv/core/profile/LegacyProfilesToGuest.kt	LegacyProfiles
-1	sql	core/src/main/java/tv/own/owntv/core/profile/LegacyProfilesToGuest.kt	UPDATE OR IGNORE $table SET profileId = ? WHERE profileId = ?
-1	sql	core/src/main/java/tv/own/owntv/core/profile/LegacyProfilesToGuest.kt	favorites
-1	preference-key	core/src/main/java/tv/own/owntv/core/profile/LegacyProfilesToGuest.kt	legacy_profiles_to_guest_v1
-1	sql	core/src/main/java/tv/own/owntv/core/profile/LegacyProfilesToGuest.kt	playback_progress
-1	sql	core/src/main/java/tv/own/owntv/core/profile/LegacyProfilesToGuest.kt	profile_source
-1	sql	core/src/main/java/tv/own/owntv/core/profile/LegacyProfilesToGuest.kt	watch_history
-1	preference-key	core/src/main/java/tv/own/owntv/core/profile/LegacyProfilesToGuest.kt	yai_migrations
 1	log	core/src/main/java/tv/own/owntv/core/profile/ProfileAvatarStore.kt	ProfileAvatar
 1	technical	core/src/main/java/tv/own/owntv/core/profile/ProfileAvatarStore.kt	avatars
 1	log	core/src/main/java/tv/own/owntv/core/profile/ProfileAvatarStore.kt	empty image

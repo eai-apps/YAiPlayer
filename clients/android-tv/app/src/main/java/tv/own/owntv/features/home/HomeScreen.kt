@@ -750,7 +750,9 @@ fun HomeScreen(
             LibraryLoadingBanner(
                 libraryLoadingTitles,
                 trendingOn = HomeRow.TRENDING in orderedRows,
-                modifier = Modifier.align(Alignment.TopStart).padding(start = contentStart, top = 40.mpx),
+                // Owner 17.11: at the top-left it was drawn over the YAiPlayer badge («буква на букву»);
+                // now on the right, clear of the badge and the profile name.
+                modifier = Modifier.align(Alignment.TopEnd).padding(end = 56.mpx, top = 96.mpx).widthIn(max = 720.mpx),
             )
         }
     }
@@ -1716,7 +1718,7 @@ private fun AllRowsHiddenState(
 @Composable
 private fun LibraryLoadingBanner(titles: Int, trendingOn: Boolean, modifier: Modifier = Modifier) {
     val count = java.text.NumberFormat.getIntegerInstance(LocalConfiguration.current.locales[0]).format(titles)
-    Column(modifier, verticalArrangement = Arrangement.spacedBy(4.mpx)) {
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(4.mpx), horizontalAlignment = Alignment.End) {
         Text(
             pluralStringResource(R.plurals.home_library_loading, titles, count),
             style = stageText(18, 600), color = StageColors.Text, maxLines = 1, overflow = TextOverflow.Ellipsis,

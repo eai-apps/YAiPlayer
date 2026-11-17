@@ -418,7 +418,6 @@ val dataModule = module {
     // editing, switching and deleting a profile, shared by both apps' profile gates.
     single { tv.own.owntv.core.profile.ProfileAvatarStore(androidContext()) }
     single { tv.own.owntv.core.profile.ProfileManager(get(), get(), get(), get(), get(), get()) }
-    single { tv.own.owntv.core.profile.LegacyProfilesToGuest(androidContext(), get(), get(), get(), get()) }
     // context, okHttpClient — in-app updates from GitHub Releases
     single { UpdateManager(androidContext(), get(), get()) }
     single { CatalogSyncScheduler(androidContext()) }

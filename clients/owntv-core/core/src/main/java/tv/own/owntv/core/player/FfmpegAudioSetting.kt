@@ -18,6 +18,7 @@ object FfmpegAudioSetting {
 
     private const val PREFS_NAME = "owntv_audio_engine"
     private const val KEY_FFMPEG_AUDIO = "ffmpeg_audio"
+    private const val KEY_RESET_V4 = "ffmpeg_audio_on_v4"
     /** Also for installs that never touched the switch: they had no MP2 sound, not a choice. */
     private const val DEFAULT_ON = true
 
@@ -28,7 +29,21 @@ object FfmpegAudioSetting {
 
     /** Called by each app in `Application.onCreate`, before Koin starts and before any player exists. */
     fun load(context: Context) {
+        resetOnceForV4(context)
         active = saved(context)
+    }
+
+    /**
+     * v4.0.2 (owner 17.11): on the same VS KM6 the beta played every channel in ExoPlayer in ~1 s, while the
+     * release (updated from 3.x) showed MP2 sound as NO_UNSUPPORTED_SUBTYPE — FFmpeg audio was off in that
+     * install's saved preferences (left from before it became the default) — so each channel showed a picture
+     * for a second, went dark and fell back to mpv. The beta-20 speed reference needs it ON: switch it on
+     * once for every install; a later choice in Settings still sticks.
+     */
+    private fun resetOnceForV4(context: Context) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        if (prefs.getBoolean(KEY_RESET_V4, false)) return
+        prefs.edit().putBoolean(KEY_FFMPEG_AUDIO, true).putBoolean(KEY_RESET_V4, true).commit()
     }
 
     /** The saved choice — what the next start of the app will use. */

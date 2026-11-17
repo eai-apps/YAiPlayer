@@ -165,8 +165,6 @@ class OwnTVApp : Application(), SingletonImageLoader.Factory, androidx.work.Conf
             kotlinx.coroutines.delay(SPORTS_START_DELAY_MS)
             runCatching { GlobalContext.get().get<tv.own.owntv.core.sports.SportsRepository>().appStarted() }
         }
-        // v4.0.1 (owner 17.11): profiles made on this device before 4.0 are folded into Guest, once.
-        appScope.launch { runCatching { GlobalContext.get().get<tv.own.owntv.core.profile.LegacyProfilesToGuest>().runOnce() } }
         // Main account (owner 13.11): changes go up and the account comes down by themselves.
         if (tv.own.owntv.core.account.AccountConfig.ENABLED) {
             runCatching { GlobalContext.get().get<tv.own.owntv.core.account.AccountService>().startAuto(appScope) }
