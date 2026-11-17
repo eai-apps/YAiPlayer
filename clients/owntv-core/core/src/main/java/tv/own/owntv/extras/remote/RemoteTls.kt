@@ -35,9 +35,28 @@ object RemoteTls {
         return store
     }
     fun fingerprint(): String = RemoteSecurity.hex(MessageDigest.getInstance("SHA-256").digest(store().getCertificate(ALIAS).encoded))
+    /**
+     * Owner 17.11 (beta-43): with the v2 key the phone still got «TLS: SSLHandshakeException Connection closed by
+     * peer» — the TV hung up during the handshake. A KeyManagerFactory fed the AndroidKeyStore may hand the TLS
+     * stack no usable key (it reads entries with a password object the keystore does not take), and the server
+     * then has no certificate to offer and closes. The TV now gives TLS its key and certificate directly.
+     */
     fun serverFactory(): SSLServerSocketFactory {
-        val managers = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm()).apply { init(store(), null) }
-        return SSLContext.getInstance("TLSv1.2").apply { init(managers.keyManagers, null, null) }.serverSocketFactory
+        val ks = store()
+        val key = ks.getKey(ALIAS, null) as java.security.PrivateKey
+        val chain = arrayOf(ks.getCertificate(ALIAS) as X509Certificate)
+        val manager = object : X509ExtendedKeyManager() {
+            override fun getClientAliases(keyType: String?, issuers: Array<out java.security.Principal>?): Array<String>? = null
+            override fun chooseClientAlias(keyType: Array<out String>?, issuers: Array<out java.security.Principal>?, socket: java.net.Socket?): String? = null
+            override fun getServerAliases(keyType: String?, issuers: Array<out java.security.Principal>?): Array<String> = arrayOf(ALIAS)
+            override fun chooseServerAlias(keyType: String?, issuers: Array<out java.security.Principal>?, socket: java.net.Socket?): String? =
+                if (keyType == null || keyType.startsWith("EC")) ALIAS else null
+            override fun chooseEngineServerAlias(keyType: String?, issuers: Array<out java.security.Principal>?, engine: SSLEngine?): String? =
+                if (keyType == null || keyType.startsWith("EC")) ALIAS else null
+            override fun getCertificateChain(alias: String?): Array<X509Certificate>? = if (alias == ALIAS) chain else null
+            override fun getPrivateKey(alias: String?): java.security.PrivateKey? = if (alias == ALIAS) key else null
+        }
+        return SSLContext.getInstance("TLSv1.2").apply { init(arrayOf<KeyManager>(manager), null, null) }.serverSocketFactory
     }
     /**
      * Owner 16.11: pairing asked the user to type the TV certificate's 64-character fingerprint. The phone

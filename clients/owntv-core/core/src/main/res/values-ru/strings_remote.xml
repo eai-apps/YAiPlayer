@@ -64,4 +64,5 @@
     <string name="remote_link">Публичная ссылка на видео без паролей и параметров</string>
     <string name="remote_play">Воспроизвести</string>
     <string name="remote_pause">Пауза</string>
+    <string name="remote_last_event">Последнее событие пульта</string>
 </resources>

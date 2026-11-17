@@ -6455,10 +6455,14 @@
 1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteSecurity.kt	webm
 2	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTls.kt	AndroidKeyStore
 1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTls.kt	Certificate mismatch
+2	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteTls.kt	EC
 1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTls.kt	No certificate
 3	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTls.kt	SHA-256
+1	log	core/src/main/java/tv/own/owntv/extras/remote/RemoteTls.kt	TLS: ${it.javaClass.simpleName} ${it.message.orEmpty()}
 3	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTls.kt	TLSv1.2
 1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTls.kt	[a-f0-9]{64}
+1	log	core/src/main/java/tv/own/owntv/extras/remote/RemoteTls.kt	connect: ${it.javaClass.simpleName} ${it.message.orEmpty()}
+1	preference-key	core/src/main/java/tv/own/owntv/extras/remote/RemoteTls.kt	yaiplayer_remote_tls_v2
 2	empty	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	\0
 1	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	/cmd
 1	protocol	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	/favorites
@@ -6491,6 +6495,7 @@
 1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	name
 1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	ok
 1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	rate_limited
+1	log	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	remote: a phone connected from ${client.inetAddress.hostAddress}
 1	technical	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	retryAfterSeconds
 3	json	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	status
 1	json	core/src/main/java/tv/own/owntv/extras/remote/RemoteTvServer.kt	token
@@ -7912,6 +7917,3 @@
 1	protocol	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	text/plain
 3	protocol	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	text/plain; charset=utf-8
 1	protocol	player-core/src/main/java/tv/own/owntv/player/diagnostic/LogExportServer.kt	token
-1	preference-key	core/src/main/java/tv/own/owntv/extras/remote/RemoteTls.kt	yaiplayer_remote_tls_v2
-1	log	core/src/main/java/tv/own/owntv/extras/remote/RemoteTls.kt	TLS: ${it.javaClass.simpleName} ${it.message.orEmpty()}
-1	log	core/src/main/java/tv/own/owntv/extras/remote/RemoteTls.kt	connect: ${it.javaClass.simpleName} ${it.message.orEmpty()}

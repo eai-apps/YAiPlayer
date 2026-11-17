@@ -86,11 +86,13 @@ class RemoteTvServer(
                         onEvent("remote: refused a connection from outside the home network")
                         client.close(); continue
                     }
+                    onEvent("remote: a phone connected from ${client.inetAddress.hostAddress}")
                     activeSockets.add(client)
                     launch {
                         try {
                             runCatching { handleClient(client) }.onFailure {
-                                if (it !is java.net.SocketTimeoutException) onEvent("remote: a phone's request failed ${it.javaClass.simpleName}: ${it.message?.take(100)}")
+                                // Timeouts too: a handshake that stalls is exactly what we need to see (owner 17.11).
+                                onEvent("remote: a phone's request failed ${it.javaClass.simpleName}: ${it.message?.take(160)}${it.cause?.let { c -> " / ${c.javaClass.simpleName}: ${c.message?.take(100)}" }.orEmpty()}")
                             }
                         } finally { activeSockets.remove(client); slots.release() }
                     }

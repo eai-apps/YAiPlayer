@@ -77,8 +77,15 @@ class RemoteTvManager(private val context: Context) : RemoteCommandHandler, Remo
             _pinPrompt.value = pin
             runCatching { tv.own.owntv.player.LiveDiagnosticsLog.event("remote: a phone asked for a pairing code — shown on screen") }
         },
-        onEvent = { line -> runCatching { tv.own.owntv.player.LiveDiagnosticsLog.event(line) } },
+        onEvent = { line ->
+            _lastEvent.value = line
+            runCatching { tv.own.owntv.player.LiveDiagnosticsLog.event(line) }
+        },
     )
+
+    /** Owner 17.11: the last thing the phone remote did, shown in Settings → Phone remote — a photo is enough. */
+    private val _lastEvent = kotlinx.coroutines.flow.MutableStateFlow<String?>(null)
+    val lastEvent: kotlinx.coroutines.flow.StateFlow<String?> = _lastEvent
 
     init {
         if (_enabled.value) {
@@ -118,7 +125,9 @@ class RemoteTvManager(private val context: Context) : RemoteCommandHandler, Remo
         val port = server.start(0)
         _serverPort.value = port
         // In the journal, so a «TV not found» on the phone can be checked against what the TV really did.
-        runCatching { tv.own.owntv.player.LiveDiagnosticsLog.event(if (port != null) "remote: server on port $port as «$tvName»" else "remote: server FAILED to start") }
+        val started = if (port != null) "remote: server on port $port as «$tvName»" else "remote: server FAILED to start"
+        if (port == null || _lastEvent.value == null) _lastEvent.value = started
+        runCatching { tv.own.owntv.player.LiveDiagnosticsLog.event(started) }
         if (port != null) {
             discovery.advertise(tvName, port)
         }

@@ -44,7 +44,7 @@
 1	log	app/src/main/java/tv/own/owntv/OwnTVApp.kt	memory trim level=$level; ${tv.own.owntv.core.util.MainThreadWatchdog.memory(this)}
 3	empty	app/src/main/java/tv/own/owntv/core/i18n/LocalizedContent.kt	\0
 1	empty	app/src/main/java/tv/own/owntv/extras/categories/CategoriesVisibilityDialog.kt	\0
-1	empty	app/src/main/java/tv/own/owntv/extras/remote/PhoneRemoteSettingsScreen.kt	\0
+3	empty	app/src/main/java/tv/own/owntv/extras/remote/PhoneRemoteSettingsScreen.kt	\0
 2	technical	app/src/main/java/tv/own/owntv/extras/remote/PhoneRemoteSettingsScreen.kt	-
 1	technical	app/src/main/java/tv/own/owntv/extras/remote/RemoteTvManager.kt	${Build.MANUFACTURER} ${Build.MODEL}
 1	protocol	app/src/main/java/tv/own/owntv/extras/remote/RemoteTvManager.kt	TV

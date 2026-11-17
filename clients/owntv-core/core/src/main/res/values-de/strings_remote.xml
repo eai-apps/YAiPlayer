@@ -64,4 +64,5 @@
     <string name="remote_link">Öffentlicher Videolink ohne Zugangsdaten oder Parameter</string>
     <string name="remote_play">Wiedergabe</string>
     <string name="remote_pause">Pause</string>
+    <string name="remote_last_event">Letztes Fernbedienungsereignis</string>
 </resources>

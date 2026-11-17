@@ -64,4 +64,5 @@
     <string name="remote_link">Public video link without credentials or query parameters</string>
     <string name="remote_play">Play</string>
     <string name="remote_pause">Pause</string>
+    <string name="remote_last_event">Last remote event</string>
 </resources>

@@ -94,6 +94,20 @@ fun PhoneRemoteSettingsScreen(onBack: () -> Unit, modifier: Modifier = Modifier)
                 help = settingHelp(null, portText, portDesc, portValue, pinnable = false),
             )
 
+            // Owner 17.11: what the remote did last («a phone connected…», «…failed SSLHandshakeException: …»).
+            val lastEvent by manager.lastEvent.collectAsStateWithLifecycle()
+            lastEvent?.let { line ->
+                val lastTitle = stringResource(tv.own.owntv.core.R.string.remote_last_event)
+                StageSettingRow(
+                    icon = OwnTVIcon.WARNING,
+                    title = lastTitle,
+                    desc = line,
+                    value = SettingValue.Action(""),
+                    onClick = {},
+                    help = settingHelp(null, lastTitle, line, SettingValue.Action(""), pinnable = false),
+                )
+            }
+
             val certTitle = stringResource(tv.own.owntv.core.R.string.remote_certificate)
             val certValue = SettingValue.Action(remember { RemoteTls.fingerprint() })
             StageSettingRow(
