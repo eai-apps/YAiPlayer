@@ -33,10 +33,11 @@ jobs:
         with:
           fetch-depth: 0
           fetch-tags: true
-      - name: Compute version (3.0.N, N counts releases of the 3.0 line)
+      - name: Compute version (4.0.N, N counts releases of the 4.0 line; the first is 4.0.0)
         run: |
-          n=$(( $(git tag --list 'v3.0.*' | wc -l) + 1 ))
-          echo "VN=3.0.$n" >> "$GITHUB_ENV"
+          # Owner 17.11: the release out of the account/beta work starts the 4.0 line.
+          n=$(git tag --list 'v4.0.*' | wc -l)
+          echo "VN=4.0.$n" >> "$GITHUB_ENV"
       - uses: actions/setup-java@v4
         id: jdk17
         if: matrix.app == 'android-mobile'
@@ -99,10 +100,11 @@ jobs:
         with:
           fetch-depth: 0
           fetch-tags: true
-      - name: Compute version (3.0.N, N counts releases of the 3.0 line)
+      - name: Compute version (4.0.N, N counts releases of the 4.0 line; the first is 4.0.0)
         run: |
-          n=$(( $(git tag --list 'v3.0.*' | wc -l) + 1 ))
-          echo "VN=3.0.$n" >> "$GITHUB_ENV"
+          # Owner 17.11: the release out of the account/beta work starts the 4.0 line.
+          n=$(git tag --list 'v4.0.*' | wc -l)
+          echo "VN=4.0.$n" >> "$GITHUB_ENV"
       - uses: actions/download-artifact@v4
         with:
           path: dist
@@ -113,7 +115,7 @@ jobs:
           notes="$(grep -v '^<!--' docs/WHATS_NEW.md | sed '/^[[:space:]]*$/d' || true)"
           # Never repeat what the previous release already announced: a stale bullet left in the file
           # (reset commit not landed yet, or a merge that brought it back) is dropped here.
-          prev="$(git tag --list 'v[23].*' --sort=-v:refname | head -n 1 || true)"
+          prev="$(git tag --list 'v[234].*' --sort=-v:refname | head -n 1 || true)"
           if [ -n "$prev" ]; then
             git show "$prev:docs/WHATS_NEW.md" 2>/dev/null | grep -v '^<!--' | sed '/^[[:space:]]*$/d' > prev_notes.txt || true
             notes="$(printf '%s\n' "$notes" | grep -vxFf prev_notes.txt || true)"
