@@ -7,6 +7,9 @@ const REPO = "eai-apps/YAiPlayer";
 const DL = (f) => `https://github.com/${REPO}/releases/latest/download/${f}`;
 // Owner 17.11: the beta too — a separate app installed NEXT TO the normal one (own icon «Beta»), always the newest test build.
 const DL_BETA = (f) => `https://github.com/${REPO}/releases/download/beta/${f}`;
+// Owner 17.11: our radio YAiPlay Radio — site and Android APK (no RuStore yet).
+const RADIO_SITE = "https://yaiplay-radio.pages.dev/";
+const RADIO_APK = "https://github.com/eai-apps/YAiPlay-Radio/releases/download/android-latest/YAiRadio.apk";
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 const tme = (u) => `https://t.me/${u.replace("@", "")}`;
 const isAdmin = (env, id) => String(id) === String(env.ADMIN_ID);
@@ -148,12 +151,14 @@ async function onCheck(env, q) {
   if (res.every(Boolean)) {
     await ack(env, q);
     await bump(env, "stat:downloads");
-    return show(env, q, "✅ Спасибо! Вот последняя версия:\n\n🧪 Бета — тестовая версия с самыми новыми функциями. Ставится рядом с обычной (отдельный значок «Beta»), обычную удалять не нужно. Может работать с ошибками.", {
+    return show(env, q, "✅ Спасибо! Вот последняя версия:\n\n🧪 Бета — тестовая версия с самыми новыми функциями. Ставится рядом с обычной (отдельный значок «Beta»), обычную удалять не нужно. Может работать с ошибками.\n\n🎧 YAiPlay Radio — наше радио со всего мира: слушайте на сайте или скачайте приложение для Android.", {
       inline_keyboard: [
         [{ text: "📺 Скачать для ТВ", url: DL("YAiPlayer-TV.apk") }],
         [{ text: "📱 Скачать для телефона", url: DL("YAiPlayer-Mobile.apk") }],
         [{ text: "🧪 Бета для ТВ", url: DL_BETA("YAiPlayer-TV-beta.apk") }],
         [{ text: "🧪 Бета для телефона", url: DL_BETA("YAiPlayer-Mobile-beta.apk") }],
+        [{ text: "🎧 Радио — слушать на сайте", url: RADIO_SITE }],
+        [{ text: "📻 Радио для Android", url: RADIO_APK }],
         [{ text: "⬅️ Меню", callback_data: "n:root" }],
       ],
     });

@@ -3,18 +3,19 @@ name: Daily posts to Telegram
 #   10:07 — радио «А вы знали?» (план из 14 возможностей, eai-apps/YAiPlay-Radio scripts/telegram-post.mjs)
 #   12:07 — плеер «А вы знали?» (docs/tips/player-tips.json, общий постер brand/tip-poster-1280x720.png)
 #   14:07 — радио: станция дня
+#   17:07 — большой пост про радио-приложение, раз в 4 дня (telegram-release/post_radio.py)
 #   19:07 — радио: веб-камера дня
 # Что уже вышло (номера фишек, станции, камеры) хранится в ветке bot-state — НЕ в main, чтобы не запускать сборки.
 # Остановить: Actions → Daily posts to Telegram → «…» → Disable workflow.
 on:
   schedule:
-    - cron: "7 8,9,10,11,12,13,17,18 * * *"
+    - cron: "7 8,9,10,11,12,13,15,16,17,18 * * *"
   workflow_dispatch:
     inputs:
       mode:
         description: "Что опубликовать сейчас (auto — по часам)"
         type: choice
-        options: [auto, radio-feature, player-tip, radio-day, radio-webcam]
+        options: [auto, radio-feature, player-tip, radio-day, radio-showcase, radio-webcam]
         default: auto
       send:
         description: "Отправить в канал (выключено — только черновик в журнале)"
@@ -36,7 +37,7 @@ jobs:
           mode="${{ inputs.mode }}"
           if [ -z "$mode" ] || [ "$mode" = "auto" ]; then
             h=$(TZ=Europe/Berlin date +%H)
-            case "$h" in 10) mode=radio-feature;; 12) mode=player-tip;; 14) mode=radio-day;; 19) mode=radio-webcam;; *) mode=none;; esac
+            case "$h" in 10) mode=radio-feature;; 12) mode=player-tip;; 14) mode=radio-day;; 17) [ $(( $(date -u +%s) / 86400 % 4 )) -eq 0 ] && mode=radio-showcase || mode=none;; 19) mode=radio-webcam;; *) mode=none;; esac
           fi
           send=true
           [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.send }}" != "true" ] && send=false
@@ -49,21 +50,21 @@ jobs:
         run: |
           git clone -q --depth 1 -b bot-state "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" state 2>/dev/null || { mkdir -p state; cd state; git init -q -b bot-state; }
       - name: Radio repository
-        if: startsWith(steps.m.outputs.mode, 'radio-')
+        if: startsWith(steps.m.outputs.mode, 'radio-') && steps.m.outputs.mode != 'radio-showcase'
         run: git clone -q --depth 1 https://github.com/eai-apps/YAiPlay-Radio.git radio
       - uses: actions/setup-node@v4
-        if: startsWith(steps.m.outputs.mode, 'radio-')
+        if: startsWith(steps.m.outputs.mode, 'radio-') && steps.m.outputs.mode != 'radio-showcase'
         with:
           node-version: 22
       - name: Picture tools
-        if: startsWith(steps.m.outputs.mode, 'radio-')
+        if: startsWith(steps.m.outputs.mode, 'radio-') && steps.m.outputs.mode != 'radio-showcase'
         working-directory: radio
         run: |
           npm install --no-save --no-package-lock sharp@0.34.4 puppeteer-core@23 qrcode@1 >/dev/null
           out=$(npx -y @puppeteer/browsers install chrome-headless-shell@stable --path "$HOME/.chs" | tail -1)
           echo "CHROME_PATH=${out#* }" >> "$GITHUB_ENV"
       - name: Radio post
-        if: startsWith(steps.m.outputs.mode, 'radio-')
+        if: startsWith(steps.m.outputs.mode, 'radio-') && steps.m.outputs.mode != 'radio-showcase'
         working-directory: radio
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -76,6 +77,13 @@ jobs:
           m="${{ steps.m.outputs.mode }}"
           case "$m" in radio-feature) a=feature;; radio-day) a=day;; radio-webcam) a=webcam;; esac
           node scripts/telegram-post.mjs "$a"
+      - name: Radio app showcase (every 4 days)
+        if: steps.m.outputs.mode == 'radio-showcase'
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          if [ "${{ steps.m.outputs.send }}" = "true" ]; then python3 telegram-release/post_radio.py; else python3 telegram-release/post_radio.py --dry-run; fi
       - name: Player tip
         if: steps.m.outputs.mode == 'player-tip'
         env:
