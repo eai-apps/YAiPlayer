@@ -1,0 +1,98 @@
+name: Daily posts to Telegram
+# Ежедневные посты в канал (слово владельца 17.11: «да»). Время по Берлину, летом и зимой одинаково:
+#   10:07 — радио «А вы знали?» (план из 14 возможностей, eai-apps/YAiPlay-Radio scripts/telegram-post.mjs)
+#   12:07 — плеер «А вы знали?» (docs/tips/player-tips.json, общий постер brand/tip-poster-1280x720.png)
+#   14:07 — радио: станция дня
+#   19:07 — радио: веб-камера дня
+# Что уже вышло (номера фишек, станции, камеры) хранится в ветке bot-state — НЕ в main, чтобы не запускать сборки.
+# Остановить: Actions → Daily posts to Telegram → «…» → Disable workflow.
+on:
+  schedule:
+    - cron: "7 8,9,10,11,12,13,17,18 * * *"
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Что опубликовать сейчас (auto — по часам)"
+        type: choice
+        options: [auto, radio-feature, player-tip, radio-day, radio-webcam]
+        default: auto
+      send:
+        description: "Отправить в канал (выключено — только черновик в журнале)"
+        type: boolean
+        default: false
+permissions:
+  contents: write
+concurrency:
+  group: daily-posts
+  cancel-in-progress: false
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: What to post
+        id: m
+        run: |
+          mode="${{ inputs.mode }}"
+          if [ -z "$mode" ] || [ "$mode" = "auto" ]; then
+            h=$(TZ=Europe/Berlin date +%H)
+            case "$h" in 10) mode=radio-feature;; 12) mode=player-tip;; 14) mode=radio-day;; 19) mode=radio-webcam;; *) mode=none;; esac
+          fi
+          send=true
+          [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.send }}" != "true" ] && send=false
+          echo "mode=$mode" >> "$GITHUB_OUTPUT"; echo "send=$send" >> "$GITHUB_OUTPUT"
+          echo "Режим: $mode, отправка: $send"
+      - uses: actions/checkout@v4
+        if: steps.m.outputs.mode != 'none'
+      - name: Saved state (bot-state branch)
+        if: steps.m.outputs.mode != 'none'
+        run: |
+          git clone -q --depth 1 -b bot-state "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" state 2>/dev/null || { mkdir -p state; cd state; git init -q -b bot-state; }
+      - name: Radio repository
+        if: startsWith(steps.m.outputs.mode, 'radio-')
+        run: git clone -q --depth 1 https://github.com/eai-apps/YAiPlay-Radio.git radio
+      - uses: actions/setup-node@v4
+        if: startsWith(steps.m.outputs.mode, 'radio-')
+        with:
+          node-version: 22
+      - name: Picture tools
+        if: startsWith(steps.m.outputs.mode, 'radio-')
+        working-directory: radio
+        run: |
+          npm install --no-save --no-package-lock sharp@0.34.4 puppeteer-core@23 qrcode@1 >/dev/null
+          out=$(npx -y @puppeteer/browsers install chrome-headless-shell@stable --path "$HOME/.chs" | tail -1)
+          echo "CHROME_PATH=${out#* }" >> "$GITHUB_ENV"
+      - name: Radio post
+        if: startsWith(steps.m.outputs.mode, 'radio-')
+        working-directory: radio
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHANNEL: ${{ secrets.TELEGRAM_CHAT_ID }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          DRY_RUN: ${{ steps.m.outputs.send == 'true' && 'false' || 'true' }}
+          STATE_FILE: ${{ github.workspace }}/state/radio-telegram-state.json
+        run: |
+          echo "Gemini: $([ -n "$GEMINI_API_KEY" ] && echo есть || echo нет — тексты станции и камеры по шаблону)"
+          m="${{ steps.m.outputs.mode }}"
+          case "$m" in radio-feature) a=feature;; radio-day) a=day;; radio-webcam) a=webcam;; esac
+          node scripts/telegram-post.mjs "$a"
+      - name: Player tip
+        if: steps.m.outputs.mode == 'player-tip'
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          if [ "${{ steps.m.outputs.send }}" = "true" ]; then
+            python3 telegram-release/post_player_tip.py --state state/player-tips.json
+          else
+            python3 telegram-release/post_player_tip.py --state state/player-tips.json --dry-run
+          fi
+      - name: Save state
+        if: steps.m.outputs.mode != 'none' && steps.m.outputs.send == 'true'
+        working-directory: state
+        run: |
+          git config user.name "yaiplayer-bot"; git config user.email "yaiplayer-bot@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet && exit 0
+          git commit -qm "state: ${{ steps.m.outputs.mode }} $(date -u +%F)"
+          git push -q "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" HEAD:bot-state
