@@ -15,13 +15,19 @@ import java.net.Proxy
 import java.util.concurrent.TimeUnit
 
 object RemoteTls {
-    private const val ALIAS = "yaiplayer_remote_tls_v1"
+    /**
+     * Owner 17.11: the phone saw both TVs (name, address, port) yet «the TV did not answer» — every TLS handshake
+     * failed. The TLS stack signs the handshake with NONEwithECDSA (it hashes first and hands the key the digest);
+     * the v1 key allowed SHA-256/512 only, so the keystore refused to sign and the connection broke. Keys cannot
+     * change their rules, so a new v2 key is made with DIGEST_NONE allowed. (Phones were never paired to v1.)
+     */
+    private const val ALIAS = "yaiplayer_remote_tls_v2"
     @Synchronized private fun store(): KeyStore {
         val store = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
         if (!store.containsAlias(ALIAS)) {
             KeyPairGenerator.getInstance(KeyProperties.KEY_ALGORITHM_EC, "AndroidKeyStore").apply {
                 initialize(KeyGenParameterSpec.Builder(ALIAS, KeyProperties.PURPOSE_SIGN or KeyProperties.PURPOSE_VERIFY)
-                    .setDigests(KeyProperties.DIGEST_SHA256, KeyProperties.DIGEST_SHA512)
+                    .setDigests(KeyProperties.DIGEST_NONE, KeyProperties.DIGEST_SHA256, KeyProperties.DIGEST_SHA512)
                     .setCertificateNotBefore(Date(0))
                     .setCertificateNotAfter(Date(4102444800000L)).build())
             }.generateKeyPair()
@@ -38,7 +44,12 @@ object RemoteTls {
      * now reads it from the TV itself, once, when pairing — the 6-digit code shown on the TV screen is what
      * proves it is the right TV; after that the fingerprint is pinned as before.
      */
+    /** Why the last probe failed («TLS: …», «connect: …»), shown on the phone under the TV's address. */
+    @Volatile var lastProbeError: String? = null
+        private set
+
     fun probeFingerprint(host: String, port: Int): String? = runCatching {
+        lastProbeError = null
         var seen: String? = null
         val trust = object : X509TrustManager {
             override fun getAcceptedIssuers(): Array<X509Certificate> = emptyArray()
@@ -50,9 +61,11 @@ object RemoteTls {
         }
         val ssl = SSLContext.getInstance("TLSv1.2").apply { init(null, arrayOf<TrustManager>(trust), null) }
         (ssl.socketFactory.createSocket() as javax.net.ssl.SSLSocket).use { socket ->
-            socket.connect(java.net.InetSocketAddress(host, port), 4_000)
+            runCatching { socket.connect(java.net.InetSocketAddress(host, port), 4_000) }
+                .onFailure { lastProbeError = "connect: ${it.javaClass.simpleName} ${it.message.orEmpty()}".take(140); throw it }
             socket.soTimeout = 4_000
-            socket.startHandshake()
+            runCatching { socket.startHandshake() }
+                .onFailure { lastProbeError = "TLS: ${it.javaClass.simpleName} ${it.message.orEmpty()}".take(140); throw it }
         }
         seen
     }.getOrNull()

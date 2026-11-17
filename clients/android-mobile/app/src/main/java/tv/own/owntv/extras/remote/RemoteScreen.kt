@@ -771,6 +771,10 @@ fun RemoteScreen(
                     if (codeShown == false) {
                         val target by vm.pairingTarget.collectAsStateWithLifecycle()
                         target?.let { Text("${it.name} · ${it.host}:${it.port}", style = stageText(12f, 500), color = palette.muted) }
+                        // Owner 17.11: the reason itself, so a screenshot is enough to see what broke.
+                        tv.own.owntv.extras.remote.RemoteTls.lastProbeError?.let {
+                            Text(it, style = stageText(11f, 500), color = palette.muted)
+                        }
                     }
                     OutlinedTextField(
                         value = pinInput,
