@@ -51,6 +51,9 @@ class AccountService(
     val unlocked get() = store.dataKey != null
     fun accountProfileIds(): Set<Long> = store.profileLinks.values.toSet()
 
+    /** A playlist / portal that came from the account (not added by hand on this device). */
+    fun isAccountSource(localId: Long): Boolean = store.sourceLinks.values.any { it.localId == localId }
+
     /**
      * Local profiles (not the account's, not [guestId]) with no source at all: leftovers such as an empty
      * «Профиль» from an earlier first run. With the account on they are not shown on the chooser (owner 13.11);
@@ -299,14 +302,18 @@ class AccountService(
                 runCatching { settings?.setGuideLogos(newId, true) }
                 val saved = e.copy(id = newId)
                 links[id] = AccountStore.SourceLink(newId, rev, SourceRecords.fingerprint(saved), sid)
-                runCatching { catalog.enqueueSync(newId, reason = "account") }
+                // Owner 17.11: signing in on a new box loaded channels AND guides for every profile of the
+                // account at once (Play + stalker 1/2/3) — minutes of load for one profile in use. Only the
+                // profile that is open now loads; the others load the first time they are entered
+                // (QuickActionsSync.startGuideOnEnter picks up never-synced sources).
+                if (lid == activeProfileNow()) runCatching { catalog.enqueueSync(newId, reason = "account") }
                 added++
             } else if (link.rev != rev) {
                 val e = SourceRecords.toEntity(data, secret, base = local) ?: continue
                 if (SourceRecords.fingerprint(e) != SourceRecords.fingerprint(local)) {
                     sourceDao.update(e)
                     val addressChanged = e.url != local.url || e.username != local.username || e.password != local.password || e.mac != local.mac
-                    if (addressChanged) runCatching { catalog.enqueueSync(e.id, reason = "account") }
+                    if (addressChanged && lid == activeProfileNow()) runCatching { catalog.enqueueSync(e.id, reason = "account") }
                     updated++
                 }
                 links[id] = AccountStore.SourceLink(local.id, rev, SourceRecords.fingerprint(e), sid)
@@ -315,6 +322,8 @@ class AccountService(
         store.sourceLinks = links
         return Triple(added, updated, removed)
     }
+
+    private suspend fun activeProfileNow(): Long? = runCatching { settings?.activeProfileIdNow() }.getOrNull()
 
     /** «Видит плейлисты главного профиля»: link the main profile's sources to that profile on this device. */
     private suspend fun applySharing(server: JSONArray) {

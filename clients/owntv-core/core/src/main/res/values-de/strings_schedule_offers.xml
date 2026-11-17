@@ -12,7 +12,7 @@
     <string name="new_channels_title">Neue Sender beim Anbieter</string>
     <string name="new_channels_show">Ansehen</string>
     <plurals name="new_channels_body">
-        <item quantity="one">Ihr Anbieter hat %d neuen Sender hinzugefügt. Er steht eine Woche in der Kategorie «Neue Sender» im Live-TV.</item>
-        <item quantity="other">Ihr Anbieter hat %d neue Sender hinzugefügt. Sie stehen eine Woche in der Kategorie «Neue Sender» im Live-TV.</item>
+        <item quantity="one">Ihr Anbieter hat %d neuen Sender hinzugefügt. Er steht 7 Tage in der Kategorie «Zuletzt hinzugefügt» im Live-TV.</item>
+        <item quantity="other">Ihr Anbieter hat %d neue Sender hinzugefügt. Sie stehen 7 Tage in der Kategorie «Zuletzt hinzugefügt» im Live-TV.</item>
     </plurals>
 </resources>

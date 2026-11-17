@@ -397,8 +397,8 @@ private fun DisplaySizeStep(onNext: () -> Unit, onBack: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(stringResource(R.string.settings_panel_width_preview).uppercase(), style = stageText(13, 800, androidx.compose.ui.unit.TextUnit(0.13f, androidx.compose.ui.unit.TextUnitType.Em)), color = StageColors.Dim)
-            Text(stringResource(R.string.home_row_now_trending), style = stageText(21, 700), color = StageColors.Text, modifier = Modifier.weight(1f))
-            Text(stringResource(R.string.common_on), style = stageText(18, 700), color = stageAccent.accent)
+            // Owner 17.11: the sample used to read «Сейчас в тренде · Вкл.» and looked like a switch.
+            Text(stringResource(R.string.home_row_favorite_channels), style = stageText(21, 700), color = StageColors.Text, modifier = Modifier.weight(1f))
         }
     }
 

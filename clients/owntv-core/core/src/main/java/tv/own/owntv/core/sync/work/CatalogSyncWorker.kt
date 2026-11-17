@@ -35,7 +35,10 @@ class CatalogSyncWorker(
     private val epgSyncScheduler: EpgSyncScheduler,
 ) : CoroutineWorker(context, params) {
 
-    override suspend fun doWork(): Result {
+    // Owner 17.11: one load at a time for the whole app (see SyncGate).
+    override suspend fun doWork(): Result = tv.own.owntv.core.sync.SyncGate.heavy { doWorkGated() }
+
+    private suspend fun doWorkGated(): Result {
         val sourceId = inputData.getLong(KEY_SOURCE_ID, -1L)
         val reason = inputData.getString(KEY_REASON) ?: "unknown"
         val baseItemCount = inputData.getInt(KEY_BASE_ITEM_COUNT, 0)

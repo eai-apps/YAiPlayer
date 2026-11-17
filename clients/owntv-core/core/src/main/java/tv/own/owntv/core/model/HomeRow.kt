@@ -62,7 +62,8 @@ enum class HeroKind {
 @Immutable
 data class HomeConfig(
     val order: List<HomeRow> = HomeRow.entries.toList(),
-    val hidden: Set<HomeRow> = setOf(HomeRow.RECENT_CHANNELS),
+    // Owner 17.11: «Сейчас в тренде» is off until turned on in Settings → Home screen.
+    val hidden: Set<HomeRow> = setOf(HomeRow.RECENT_CHANNELS, HomeRow.TRENDING),
     val heroIncludeLive: Boolean = true,
     val heroIncludeMovies: Boolean = true,
     val heroIncludeSeries: Boolean = true,

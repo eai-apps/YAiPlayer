@@ -160,8 +160,7 @@ fun DisplaySizeStep(onNext: () -> Unit, onBack: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(stringResource(R.string.settings_panel_width_preview).uppercase(), style = stageText(10.5f, 800, letterSpacing = androidx.compose.ui.unit.TextUnit(0.12f, androidx.compose.ui.unit.TextUnitType.Em)), color = palette.dim)
-            Text(stringResource(R.string.home_row_now_trending), style = stageText(13f, 700), color = palette.text, modifier = Modifier.weight(1f), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
-            Text(stringResource(R.string.common_on), style = stageText(12f, 700), color = stageAccent.accent)
+            Text(stringResource(R.string.home_row_favorite_channels), style = stageText(13f, 700), color = palette.text, modifier = Modifier.weight(1f), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
         }
     }
 

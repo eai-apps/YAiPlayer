@@ -10,4 +10,9 @@
     <string name="subscription_days_left">%1$d d.</string>
     <string name="subscription_days_zero">0 d.</string>
     <string name="subscription_days_unlimited">∞</string>
+    <plurals name="subscription_days_left_long">
+        <item quantity="one">%1$d day left</item>
+        <item quantity="other">%1$d days left</item>
+    </plurals>
+    <string name="subscription_last_day">Last day of subscription</string>
 </resources>

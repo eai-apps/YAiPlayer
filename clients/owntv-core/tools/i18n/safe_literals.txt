@@ -5449,7 +5449,7 @@
 1	log	core/src/main/java/tv/own/owntv/core/sync/QuickActionsSync.kt	guide on enter failed
 1	technical	core/src/main/java/tv/own/owntv/core/sync/QuickActionsSync.kt	manual_builtin
 2	technical	core/src/main/java/tv/own/owntv/core/sync/QuickActionsSync.kt	manual_resync
-1	json	core/src/main/java/tv/own/owntv/core/sync/QuickActionsSync.kt	profile_enter
+2	json	core/src/main/java/tv/own/owntv/core/sync/QuickActionsSync.kt	profile_enter
 1	log	core/src/main/java/tv/own/owntv/core/sync/QuickActionsSync.kt	quick sync failed sourceId=${source.id} action=$action
 1	technical	core/src/main/java/tv/own/owntv/core/sync/RefreshQueue.kt	c
 1	technical	core/src/main/java/tv/own/owntv/core/sync/RefreshQueue.kt	g

@@ -12,7 +12,7 @@
     <string name="new_channels_title">New channels from your provider</string>
     <string name="new_channels_show">Show</string>
     <plurals name="new_channels_body">
-        <item quantity="one">Your provider added %d new channel. It is in the «New channels» category of Live TV for a week.</item>
-        <item quantity="other">Your provider added %d new channels. They are in the «New channels» category of Live TV for a week.</item>
+        <item quantity="one">Your provider added %d new channel. It stays in the «Recently added» category of Live TV for 7 days.</item>
+        <item quantity="other">Your provider added %d new channels. They stay in the «Recently added» category of Live TV for 7 days.</item>
     </plurals>
 </resources>

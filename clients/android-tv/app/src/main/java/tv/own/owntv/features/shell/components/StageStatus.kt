@@ -1,6 +1,7 @@
 package tv.own.owntv.features.shell.components
 
 import android.text.format.DateFormat
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -132,10 +133,11 @@ fun StageSubscriptionBadge(
 ) {
     if (badge is SubscriptionBadgeState.Unknown) return
     val text = when (badge) {
+        // Owner 17.11: a readable countdown («Осталось 23 дня»), not just «23 дн.».
         is SubscriptionBadgeState.Days -> if (badge.days == 0) {
-            stringResource(R.string.subscription_days_zero)
+            stringResource(R.string.subscription_last_day)
         } else {
-            stringResource(R.string.subscription_days_left, badge.days)
+            androidx.compose.ui.res.pluralStringResource(R.plurals.subscription_days_left_long, badge.days, badge.days)
         }
         is SubscriptionBadgeState.Unlimited -> stringResource(R.string.subscription_days_unlimited)
         is SubscriptionBadgeState.Unknown -> return
@@ -147,16 +149,24 @@ fun StageSubscriptionBadge(
         modifier = modifier
             .height(50.mpx)
             .stageGlass(r)
-            .padding(horizontal = 16.mpx)
+            .padding(horizontal = 20.mpx)
             .focusProperties { canFocus = false },
         contentAlignment = Alignment.Center,
     ) {
-        Text(
-            text = text,
-            style = stageText(18, 700),
-            color = if (isWarning) a.accent else StageColors.Text,
-            maxLines = 1,
-        )
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.mpx)) {
+            // A small dot in the badge's own colour: green while there is time, accent near the end.
+            Box(
+                Modifier
+                    .size(10.mpx)
+                    .background(if (isWarning) a.accent else Color(0xFF34D399), androidx.compose.foundation.shape.CircleShape),
+            )
+            Text(
+                text = text,
+                style = stageText(18, 700),
+                color = if (isWarning) a.accent else StageColors.Text,
+                maxLines = 1,
+            )
+        }
     }
 }
 

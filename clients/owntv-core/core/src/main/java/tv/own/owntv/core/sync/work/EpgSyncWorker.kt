@@ -41,7 +41,10 @@ class EpgSyncWorker(
             localeStore = localeStore,
         )
 
-    override suspend fun doWork(): Result {
+    // Owner 17.11: one load at a time for the whole app (see SyncGate).
+    override suspend fun doWork(): Result = tv.own.owntv.core.sync.SyncGate.heavy { doWorkGated() }
+
+    private suspend fun doWorkGated(): Result {
         val sourceId = inputData.getLong(KEY_SOURCE_ID, Long.MIN_VALUE)
         val reason = inputData.getString(KEY_REASON) ?: "unknown"
         if (sourceId == Long.MIN_VALUE) return Result.failure()

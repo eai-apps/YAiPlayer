@@ -99,6 +99,16 @@ class QuickActionsSync(
                 .debounce(GUIDE_ON_ENTER_DELAY_MS)
                 .collect { sources ->
                     runCatching {
+                        // Owner 17.11: a playlist / portal that arrived from the account for another profile
+                        // was not loaded then — it loads now, on the first entry into its profile.
+                        // Only account ones: a playlist added by hand is already loading through its own flow.
+                        val account = org.koin.core.context.GlobalContext.getOrNull()
+                            ?.getOrNull<tv.own.owntv.core.account.AccountService>()
+                        sources.filter { it.lastSyncAt == null && account?.isAccountSource(it.id) == true }.forEach { source ->
+                            if (asked.add(-source.id - 1)) {
+                                catalogSyncScheduler.enqueueSync(source.id, reason = "profile_enter", policy = ExistingWorkPolicy.KEEP)
+                            }
+                        }
                         // A playlist not loaded yet runs its guide with its first load; it is looked at again once loaded.
                         sources.filter { it.lastSyncAt != null }.forEach { source ->
                             val own = selectedGuideSources(source).filter { !it.builtin }

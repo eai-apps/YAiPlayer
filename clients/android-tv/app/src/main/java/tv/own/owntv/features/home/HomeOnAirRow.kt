@@ -43,7 +43,6 @@ import tv.own.owntv.core.database.entity.ChannelEntity
 import tv.own.owntv.core.database.entity.EpgProgrammeEntity
 import tv.own.owntv.core.home.OnAirGenre
 import tv.own.owntv.core.home.OnAirItem
-import tv.own.owntv.player.formatTime
 import tv.own.owntv.ui.components.OwnTVIcon
 import tv.own.owntv.ui.stage.StageButton
 import tv.own.owntv.ui.stage.StageFocus
@@ -197,7 +196,12 @@ internal fun OnAirCard(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    stringResource(R.string.on_air_ends_at, formatTime(item.programme.stopMs)),
+                    // Owner 17.11: showed «до498586:00:00» — formatTime is a duration (HH:MM:SS), not a clock time.
+                    stringResource(
+                        R.string.on_air_ends_at,
+                        android.text.format.DateFormat.getTimeFormat(androidx.compose.ui.platform.LocalContext.current)
+                            .format(java.util.Date(item.programme.stopMs)),
+                    ),
                     style = stageText(13, 500),
                     color = StageColors.Dim,
                 )

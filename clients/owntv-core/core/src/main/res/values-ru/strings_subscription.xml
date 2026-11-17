@@ -12,4 +12,11 @@
     <string name="subscription_days_left">%1$d дн.</string>
     <string name="subscription_days_zero">0 дн.</string>
     <string name="subscription_days_unlimited">∞</string>
+    <plurals name="subscription_days_left_long">
+        <item quantity="one">Осталось %1$d день</item>
+        <item quantity="few">Осталось %1$d дня</item>
+        <item quantity="many">Осталось %1$d дней</item>
+        <item quantity="other">Осталось %1$d дня</item>
+    </plurals>
+    <string name="subscription_last_day">Последний день подписки</string>
 </resources>

@@ -134,10 +134,25 @@ fun YaiBadge(modifier: Modifier = Modifier, scale: Float = 1f, extra: String? = 
                 },
                 style = TextStyle(color = Color(0xFF22D3EE), fontSize = (12 * scale).sp, fontWeight = FontWeight.Medium),
             )
-            // Owner 16.11: which profile and which playlist / portal is on, at a glance («sly · stalker3»).
-            if (!extra.isNullOrBlank()) {
-                BasicText(extra, style = TextStyle(color = Color(0xCCFFFFFF), fontSize = (12 * scale).sp, fontWeight = FontWeight.Medium), maxLines = 1)
-            }
+        }
+        // Owner 16.11: which profile and which playlist / portal is on, at a glance («sly · stalker3»).
+        // Owner 17.11: not under the version (it ran into «Продолжить просмотр») but to the right of
+        // the badge, larger, in a warm yellow-to-orange «fire» gradient, like a sub-profile title.
+        if (!extra.isNullOrBlank()) {
+            androidx.compose.foundation.layout.Spacer(Modifier.width((22 * scale).dp))
+            BasicText(
+                extra,
+                style = TextStyle(
+                    brush = androidx.compose.ui.graphics.Brush.linearGradient(
+                        listOf(Color(0xFFFFE259), Color(0xFFFFA751), Color(0xFFFF6A3D)),
+                    ),
+                    fontSize = (24 * scale).sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    shadow = androidx.compose.ui.graphics.Shadow(Color(0x99FF6A00), blurRadius = 14f),
+                ),
+                maxLines = 1,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+            )
         }
     }
 }
