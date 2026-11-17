@@ -97,6 +97,7 @@ fun ManageSourcesScreen(
     var editRemote by remember { mutableStateOf(false) }
     var confirmDelete by remember { mutableStateOf<SourceEntity?>(null) }
     var resyncChoice by remember { mutableStateOf<SourceEntity?>(null) }
+    var clearGuideFor by remember { mutableStateOf<Long?>(null) }
     var epgShiftSource by remember { mutableStateOf<SourceEntity?>(null) }
     var nameCleanup by remember { mutableStateOf<SourceEntity?>(null) }
     // Set while the "this will stop playback and take a while" confirmation is on screen.
@@ -372,6 +373,7 @@ fun ManageSourcesScreen(
                         onToggleGuideLogos = { vm.setGuideLogos(source, source.id !in guideLogoSources) },
                         onCancelSync = { contextId = source.id; contextIndex = index; vm.cancelResync(source) },
                         onEpgShift = { contextId = source.id; contextIndex = index; epgShiftSource = source },
+                        onClearGuide = { contextId = source.id; contextIndex = index; clearGuideFor = source.id; resyncChoice = source },
                         onDelete = { contextId = source.id; contextIndex = index; confirmDelete = source },
                     )
                 }
@@ -405,7 +407,8 @@ fun ManageSourcesScreen(
                         }
                     }
                 },
-                onDismiss = { resyncChoice = null },
+                onDismiss = { resyncChoice = null; clearGuideFor = null },
+                startOnClear = clearGuideFor == src.id,
             )
         }
 
@@ -480,6 +483,7 @@ private fun SourceRow(
     onToggleGuideLogos: () -> Unit,
     onCancelSync: () -> Unit,
     onEpgShift: () -> Unit,
+    onClearGuide: () -> Unit,
     onDelete: () -> Unit,
 ) {
     val activeSync = syncState as? CatalogSyncState.Syncing
@@ -532,6 +536,8 @@ private fun SourceRow(
         ),
         StageAction(OwnTVIcon.SPARKLE, stringResource(R.string.settings_sources_clean_names), onCleanNames),
         StageAction(OwnTVIcon.EPG, stringResource(R.string.epg_time_shift_title), onEpgShift),
+        // v4.0.1 (owner 17.11): «Удалить телепрограмму» right here, not only inside «Повторная синхронизация».
+        StageAction(OwnTVIcon.TRASH, stringResource(tv.own.owntv.core.R.string.guide_clear_all), onClearGuide),
         StageAction(
             OwnTVIcon.SPARKLE,
             stringResource(R.string.settings_sources_guide_logos) + ": " + stringResource(if (guideLogos) R.string.common_on else R.string.common_off),

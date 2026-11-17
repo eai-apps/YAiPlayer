@@ -82,6 +82,12 @@ class SourceRepository(
         sourceDao.link(ProfileSourceCrossRef(profileId = profileId, sourceId = id))
         val created = source.copy(id = id)
         runCatching { settingsBackup?.onSourceConnected(created) }
+        // v4.0.1 (owner 17.11): «Иконки из телегида» is ON for a new playlist / portal (switch off by hand),
+        // the same as for one that comes from the account.
+        runCatching {
+            org.koin.core.context.GlobalContext.getOrNull()?.getOrNull<tv.own.owntv.core.settings.SettingsRepository>()
+                ?.setGuideLogos(id, true)
+        }
         return created
     }
 

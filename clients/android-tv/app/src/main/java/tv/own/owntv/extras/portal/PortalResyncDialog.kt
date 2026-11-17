@@ -25,6 +25,8 @@ fun PortalResyncDialog(
     source: SourceEntity?,
     onSelectOption: (PortalResyncOption) -> Unit,
     onDismiss: () -> Unit,
+    /** v4.0.1: opened from the playlist's own «Удалить телепрограмму» action — straight to the confirmation. */
+    startOnClear: Boolean = false,
 ) {
     val focus = remember { FocusRequester() }
     LaunchedEffect(Unit) { kotlinx.coroutines.delay(60); runCatching { focus.requestFocus() } }
@@ -33,7 +35,7 @@ fun PortalResyncDialog(
     val running by control.running.collectAsStateWithLifecycle(initialValue = null)
     // «Только телепрограмму» opens a second list: which guide (owner 13.11).
     var guideMenu by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
-    var confirmClear by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
+    var confirmClear by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(startOnClear) }
     if (confirmClear) {
         val ctx = androidx.compose.ui.platform.LocalContext.current
         val epgRepo: tv.own.owntv.core.repository.EpgRepository = org.koin.compose.koinInject()

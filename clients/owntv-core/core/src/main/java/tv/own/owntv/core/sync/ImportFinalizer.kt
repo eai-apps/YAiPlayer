@@ -12,7 +12,6 @@ import tv.own.owntv.core.database.dao.ChannelDao
 import tv.own.owntv.core.database.dao.MovieDao
 import tv.own.owntv.core.database.dao.SeriesDao
 import tv.own.owntv.core.database.entity.SourceEntity
-import kotlinx.coroutines.flow.firstOrNull
 
 /** Per-type counts after a playlist import, for the success breakdown. */
 data class SyncCounts(val channels: Int, val movies: Int, val series: Int, val epg: Int = 0)
@@ -49,12 +48,14 @@ class ImportFinalizer(
             if (urls.isEmpty() && source.type != tv.own.owntv.core.model.SourceType.STALKER) {
                 runCatching { tv.own.owntv.core.epg.GuideOffer.fromKoin().afterPlaylistGuide() }
             }
+            // v4.0.1 (owner 17.11): the playlist's OWN guide (url-tvg / x-tvg-url / Xtream xmltv.php) loads first,
+            // always. Before, with the built-in guide switched on (the default) it was never queued, so a new
+            // playlist got only part of its programme. The built-in guide is offered after it (EpgSyncWorker →
+            // GuideOffer.afterPlaylistGuide) and has the lowest priority, so it never overwrites the provider's.
             urls.forEach { url ->
                 val guide = epgSourceStore.ensure(source.name, url, source.userAgent)
-                if (epgSourceStore.builtinEnabled.firstOrNull() != true) {
-                    org.koin.core.context.GlobalContext.get().get<tv.own.owntv.core.sync.work.EpgSyncScheduler>()
-                        .enqueueSync(guide.id, "playlist", policy = androidx.work.ExistingWorkPolicy.KEEP)
-                }
+                org.koin.core.context.GlobalContext.get().get<tv.own.owntv.core.sync.work.EpgSyncScheduler>()
+                    .enqueueSync(guide.id, "playlist", policy = androidx.work.ExistingWorkPolicy.KEEP)
             }
             builtinGuide?.onPlaylistImported()
         }

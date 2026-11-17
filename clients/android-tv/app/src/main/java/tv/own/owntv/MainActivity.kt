@@ -301,6 +301,19 @@ open class MainActivity : ComponentActivity() {
             val visibleSections by viewModel.visibleSections.collectAsStateWithLifecycle()
             val activeProfileId by viewModel.activeProfileId.collectAsStateWithLifecycle()
             val isOnline by viewModel.isOnline.collectAsStateWithLifecycle()
+            // v4.0.1 (owner 17.11): after signing in on a friend's box the previous profile's channel kept
+            // playing behind the new, empty profile. Whatever changes the profile (sign-in, the chooser, the
+            // account, the 4.0 move into Guest), what was playing belongs to the old one: stop and forget it.
+            val lastProfileForPlayback = androidx.compose.runtime.remember { longArrayOf(Long.MIN_VALUE) }
+            androidx.compose.runtime.LaunchedEffect(activeProfileId) {
+                val current = activeProfileId ?: return@LaunchedEffect // not read yet: keep what was known
+                val previous = lastProfileForPlayback[0]
+                lastProfileForPlayback[0] = current
+                // Only a real profile → another profile; the first value after start is not a change.
+                if (previous >= 0 && previous != current) {
+                    runCatching { tv.own.owntv.features.profiles.stopPlaybackForProfileGate(shellViewModel, engines) }
+                }
+            }
 
             val profilesVm: ProfilesViewModel = koinViewModel()
             val profileState by profilesVm.profileState.collectAsStateWithLifecycle()
