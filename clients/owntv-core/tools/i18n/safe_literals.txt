@@ -3256,7 +3256,7 @@
 1	technical	core/src/main/java/tv/own/owntv/core/player/PlayerBudget.kt	48MiB
 2	technical	core/src/main/java/tv/own/owntv/core/player/PlayerBudget.kt	60
 1	technical	core/src/main/java/tv/own/owntv/core/player/PlayerBudget.kt	64MiB
-1	empty	core/src/main/java/tv/own/owntv/core/player/TrackLanguages.kt	\0
+2	empty	core/src/main/java/tv/own/owntv/core/player/TrackLanguages.kt	\0
 1	technical	core/src/main/java/tv/own/owntv/core/player/TrackLanguages.kt	ara
 1	technical	core/src/main/java/tv/own/owntv/core/player/TrackLanguages.kt	ben
 1	technical	core/src/main/java/tv/own/owntv/core/player/TrackLanguages.kt	bos
@@ -7047,7 +7047,7 @@
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	tunneled playback requested, active=${player?.isTunnelingEnabled == true}
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	type${v.first}
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	type=${response.header("Content-Type").orEmpty()}
-2	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	und
+3	locale	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	und
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	uri=${HttpClient.redactUrl(loadEventInfo.uri.toString())}
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	url=${HttpClient.redactUrl(finalUrl)}$via$body
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	url=${HttpClient.redactUrl(request.url.toString())}
@@ -7106,6 +7106,7 @@
 1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	perf_live_stop at=${android.os.SystemClock.elapsedRealtime()}
 1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	perf_live_stop_begin at=${android.os.SystemClock.elapsedRealtime()}
 1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	perf_live_stop_engines_queued at=${android.os.SystemClock.elapsedRealtime()}
+1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	preferred audio language not on ExoPlayer (HLS keeps one track per codec) -> mpv '${ch.name}'
 1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	stalker reconnect re-resolve failed '${channel.name}'
 1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	stalker resolve failed
 1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	starting mpv for '${channel.name}' — reason=$reason

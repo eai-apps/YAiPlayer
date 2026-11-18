@@ -50,6 +50,8 @@ interface LiveEngines {
     val exoContentBroken: Boolean get() = false
     /** Whether mpv holds a stream (full-screen live, a film, a catch-up). */
     val mpvHasStream: Boolean
+    /** ExoPlayer's HLS stream lacks the preferred audio language that mpv can reach (see [LivePreviewEngine.preferredAudioMissing]). */
+    val exoPreferredAudioMissing: kotlinx.coroutines.flow.Flow<Boolean> get() = kotlinx.coroutines.flow.emptyFlow()
 
     fun exoPlay(url: String, muted: Boolean, request: LiveRequest)
     fun exoSetMuted(muted: Boolean)
@@ -110,6 +112,7 @@ class EnginePair(private val exo: LivePreviewEngine, private val mpv: OwnTVPlaye
     override val exoStillReconnecting: Boolean get() = exo.stillReconnecting
     override val exoContentBroken: Boolean get() = exo.contentBroken
     override val mpvHasStream: Boolean get() = mpv.hasActiveStream
+    override val exoPreferredAudioMissing: kotlinx.coroutines.flow.Flow<Boolean> get() = exo.preferredAudioMissing
 
     override fun exoPlay(url: String, muted: Boolean, request: LiveRequest) = exo.play(url, muted, request)
 

@@ -212,6 +212,15 @@ class LivePreviewEngine(
     private val _zoomMode = MutableStateFlow(ZoomMode.FIT)
     override val zoomMode: StateFlow<ZoomMode> = _zoomMode.asStateFlow()
     private val _audioCount = MutableStateFlow(0)
+
+    /**
+     * True when the stream is HLS, its audio tracks carry languages and none is the preferred one (or the
+     * app's language, see [tv.own.owntv.core.player.TrackLanguages.audioForExo]). Media3's HLS extractor
+     * keeps only ONE muxed audio track per codec (TsExtractor MODE_HLS keys tracks by stream type), so a
+     * second MP2 track — often the Russian one — never reaches ExoPlayer, while mpv sees it (owner 18.11).
+     */
+    private val _preferredAudioMissing = MutableStateFlow(false)
+    val preferredAudioMissing: StateFlow<Boolean> = _preferredAudioMissing.asStateFlow()
     override val audioCount: StateFlow<Int> = _audioCount.asStateFlow()
     private val _subCount = MutableStateFlow(0)
     override val subCount: StateFlow<Int> = _subCount.asStateFlow()
@@ -388,7 +397,7 @@ class LivePreviewEngine(
         val p = player ?: return
         runCatching {
             p.trackSelectionParameters = p.trackSelectionParameters.buildUpon()
-                .setPreferredAudioLanguage(tv.own.owntv.core.player.TrackLanguages.forEngine(prefAudioLang).takeIf { it.isNotBlank() })
+                .setPreferredAudioLanguage(tv.own.owntv.core.player.TrackLanguages.audioForExo(prefAudioLang).takeIf { it.isNotBlank() })
                 .setPreferredTextLanguage(prefSubLang.takeIf { it.isNotBlank() })
                 .build()
         }
@@ -2046,7 +2055,7 @@ class LivePreviewEngine(
         mainHandler.removeCallbacks(healthyReset)
         cancelPrepareOnSurface()
         frameCounter.set(0); tune.lastFrameCount = 0; tune.everRendered = false; tune.lastProgressPos = -1L; tune.frozenChecks = 0
-        tune.audioTrackList = emptyList(); tune.audioSelections = emptyList(); _audioCount.value = 0
+        tune.audioTrackList = emptyList(); tune.audioSelections = emptyList(); _audioCount.value = 0; _preferredAudioMissing.value = false
         tune.textTrackList = emptyList(); tune.textSelections = emptyList(); _subCount.value = 0
         _subtitleOn.value = false; _cues.value = emptyList(); _audioUnsupported.value = false
         _noVideoDetected.value = false; tune.noVideoTriggered = false; tune.readySinceMs = 0L
@@ -3119,6 +3128,12 @@ class LivePreviewEngine(
         updateAudioOnlyClassification()
         applyMute()
         tune.audioTrackList = audio; tune.audioSelections = aSel; _audioCount.value = audio.size
+        _preferredAudioMissing.value = run {
+            val want = tv.own.owntv.core.player.TrackLanguages.audioForExo(prefAudioLang)
+            val wantIso3 = langIso3(want)
+            isHlsStream && wantIso3 != null && audio.isNotEmpty() && audio.any { it.lang != null } &&
+                audio.none { langIso3(it.lang) == wantIso3 }
+        }
         tune.textTrackList = text; tune.textSelections = tSel; _subCount.value = text.size
         applyRememberedTracks()
         if (tv.own.owntv.core.CoreBuildInfo.debug) {
@@ -4140,4 +4155,11 @@ enum class StreamRoute(
 
     /** The extractor path: raw MPEG-TS and everything else without a manifest. */
     PROGRESSIVE("progressive", StreamFormatLabels.MPEG_TS),
+}
+
+/** "ru", "rus", "russian"-style tags to one ISO 639-2 code; null when unknown or blank. */
+internal fun langIso3(tag: String?): String? {
+    val t = tag?.trim()?.lowercase(java.util.Locale.ROOT)?.substringBefore('-')?.substringBefore('_')
+    if (t.isNullOrBlank() || t == "und") return null
+    return runCatching { java.util.Locale.forLanguageTag(t).isO3Language }.getOrNull()?.takeIf { it.isNotBlank() } ?: t
 }

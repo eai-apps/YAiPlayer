@@ -1218,7 +1218,7 @@ class OwnTVPlayer(
         // "no preference", which is exactly what a cleared setting means.
         playbackSettings.field { it.preferredAudioLang }.onEach { lang ->
             prefAudioLang = lang
-            if (initialized) mpvAsync { setPropertyString("alang", mpvLanguageList(TrackLanguages.forEngine(lang))) }
+            if (initialized) mpvAsync { setPropertyString("alang", mpvLanguageList(TrackLanguages.audioForExo(lang))) }
         }.launchIn(scope)
         playbackSettings.field { it.preferredSubLang }.onEach { lang ->
             prefSubLang = lang
@@ -2664,7 +2664,7 @@ class OwnTVPlayer(
             setOptionString("audio-delay", audioDelaySec.toString())
             // On mpv, night mode and volume levelling as FFmpeg filters (AudioDynamics.mpvFilter).
             setOptionString("af", mpvAudioFilter)
-            mpvLanguageList(TrackLanguages.forEngine(prefAudioLang)).takeIf { it.isNotBlank() }?.let { setOptionString("alang", it) }
+            mpvLanguageList(TrackLanguages.audioForExo(prefAudioLang)).takeIf { it.isNotBlank() }?.let { setOptionString("alang", it) }
             if (prefSubLang.isNotBlank()) setOptionString("slang", mpvLanguageList(prefSubLang))
             setOptionString("subs-with-matching-audio", if (prefSubLang.isBlank()) "no" else "yes")
             // HDR passthrough: signal the source colorspace (incl. HDR10/HLG) to the display surface.

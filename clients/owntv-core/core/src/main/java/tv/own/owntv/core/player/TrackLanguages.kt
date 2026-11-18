@@ -44,6 +44,17 @@ object TrackLanguages {
     /** What an engine is given: [ORIGINAL] is not a language, so the engine gets no preference. */
     fun forEngine(pref: String): String = if (pref == ORIGINAL) "" else pref
 
+    /**
+     * Audio language for ExoPlayer. Owner 18.11: many channels started on the English track although a
+     * Russian one was there (mpv already picked it), so with NO preference set the app's own language is
+     * preferred — Russian for a Russian interface. [ORIGINAL] still means "no preference".
+     */
+    fun audioForExo(pref: String): String = when {
+        pref == ORIGINAL -> ""
+        pref.isNotBlank() -> pref
+        else -> runCatching { Locale.getDefault().isO3Language }.getOrNull().orEmpty()
+    }
+
     /** A TMDB `original_language` (ISO 639-1, "ko") as the 639-2 code tracks carry ("kor"); null if unknown. */
     fun fromIso6391(code: String?): String? {
         if (code.isNullOrBlank()) return null

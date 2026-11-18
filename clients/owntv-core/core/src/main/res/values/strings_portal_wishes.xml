@@ -12,4 +12,6 @@
     <string name="portal_details_duration">Duration</string>
     <string name="portal_details_director">Director</string>
     <string name="portal_details_cast">Cast</string>
+    <string name="content_search_vod_hint">title, genre, year, country, director, actor</string>
+    <string name="content_detail_label_value">%1$s: %2$s</string>
 </resources>

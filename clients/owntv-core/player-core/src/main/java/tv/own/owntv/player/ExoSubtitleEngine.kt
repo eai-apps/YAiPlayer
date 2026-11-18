@@ -713,7 +713,7 @@ class ExoSubtitleEngine(
             // (alang/slang), so an image-subtitle handoff or an ExoPlayer-preferred VOD silently ignored
             // them. An explicit subtitle pick still wins: applyPendingSubtitle sets an override.
             parameters = buildUponParameters()
-                .setPreferredAudioLanguage(prefAudioLang.takeIf { it.isNotBlank() })
+                .setPreferredAudioLanguage(tv.own.owntv.core.player.TrackLanguages.audioForExo(prefAudioLang).takeIf { it.isNotBlank() })
                 .setPreferredTextLanguage(prefSubLang.takeIf { it.isNotBlank() })
                 // Re-pick passthrough vs decode when the audio output changes mid-film (soundbar wakes).
                 // Part of the FFmpeg audio path: with that setting off, the audio decoder stays as first picked.
@@ -949,7 +949,7 @@ class ExoSubtitleEngine(
         val p = player ?: return
         runCatching {
             p.trackSelectionParameters = p.trackSelectionParameters.buildUpon()
-                .setPreferredAudioLanguage(prefAudioLang.takeIf { it.isNotBlank() })
+                .setPreferredAudioLanguage(tv.own.owntv.core.player.TrackLanguages.audioForExo(prefAudioLang).takeIf { it.isNotBlank() })
                 .setPreferredTextLanguage(prefSubLang.takeIf { it.isNotBlank() })
                 .build()
         }

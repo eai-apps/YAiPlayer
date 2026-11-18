@@ -243,6 +243,7 @@
 1	log	app/src/main/java/tv/own/owntv/features/movies/MovieViewModel.kt	saveProgressNow progress save failed movieId=${m.id} profile=$pid
 1	log	app/src/main/java/tv/own/owntv/features/movies/MovieViewModel.kt	stalker VOD reconnect resolve failed movieId=${movie.id}
 2	log	app/src/main/java/tv/own/owntv/features/movies/MovieViewModel.kt	stalker resolve failed movieId=${movie.id}
+2	technical	app/src/main/java/tv/own/owntv/features/movies/MoviesScreen.kt	,
 2	technical	app/src/main/java/tv/own/owntv/features/movies/MoviesScreen.kt	delete_subtitles
 1	preference-key	app/src/main/java/tv/own/owntv/features/movies/MoviesScreen.kt	download
 1	preference-key	app/src/main/java/tv/own/owntv/features/movies/MoviesScreen.kt	favourite
@@ -304,7 +305,7 @@
 1	technical	app/src/main/java/tv/own/owntv/features/search/VoiceSearch.kt	\0
 1	regex	app/src/main/java/tv/own/owntv/features/search/VoiceSearch.kt	\\s+
 1	empty	app/src/main/java/tv/own/owntv/features/series/SeriesScreen.kt	\0
-1	technical	app/src/main/java/tv/own/owntv/features/series/SeriesScreen.kt	,
+2	technical	app/src/main/java/tv/own/owntv/features/series/SeriesScreen.kt	,
 2	preference-key	app/src/main/java/tv/own/owntv/features/series/SeriesScreen.kt	delete_subtitles
 4	preference-key	app/src/main/java/tv/own/owntv/features/series/SeriesScreen.kt	download
 2	preference-key	app/src/main/java/tv/own/owntv/features/series/SeriesScreen.kt	favourite
@@ -851,6 +852,7 @@
 2	technical	app/src/main/java/tv/own/owntv/features/shell/components/VodStage.kt	·
 1	technical	app/src/main/java/tv/own/owntv/features/shell/components/VodStage.kt	· $count
 2	technical	app/src/main/java/tv/own/owntv/features/shell/components/VodStage.kt	•
+1	technical	app/src/main/java/tv/own/owntv/features/shell/components/VodStage.kt	●
 4	technical	app/src/main/java/tv/own/owntv/features/shell/components/VodStage.kt	★
 1	technical	app/src/main/java/tv/own/owntv/features/shell/components/WeatherConditionIcon.kt	clearNight
 1	technical	app/src/main/java/tv/own/owntv/features/shell/components/WeatherConditionIcon.kt	cloudy

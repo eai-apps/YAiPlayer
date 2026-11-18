@@ -12,4 +12,6 @@
     <string name="portal_details_duration">Длительность</string>
     <string name="portal_details_director">Режиссёр</string>
     <string name="portal_details_cast">В ролях</string>
+    <string name="content_search_vod_hint">название, жанр, год, страна, режиссёр, актёр</string>
+    <string name="content_detail_label_value">%1$s: %2$s</string>
 </resources>

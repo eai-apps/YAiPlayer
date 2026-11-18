@@ -119,6 +119,11 @@ internal data class VodTitleInfo(
     val tags: List<String>,
     val plot: String?,
     val cast: List<CastMember>,
+    // The portal's own details (operator layout, 18.11): shown in [VodInfoPanel] when present.
+    val originalTitle: String? = null,
+    val country: String? = null,
+    val director: String? = null,
+    val actorsText: String? = null,
 )
 
 /** A rating as the design writes it: one decimal, in the user's number format ("8.4", "8,4"). */
@@ -637,6 +642,77 @@ internal class VodStepper(private val scope: CoroutineScope, private val state: 
             withFrameNanos { }
             runCatching { focus(i).requestFocus() }
             target = null
+        }
+    }
+}
+
+/** The dot between «year ● genres ● length» in the operator's panel. */
+private const val META_DOT = "  \u25CF  "
+
+/**
+ * The operator's layout for the films' hero and the series page (owner 18.11, his mock-ups): one dark-blue
+ * panel — on the left the title, the original title, «year ● genres ● length», then Country / Director / Cast;
+ * on the right the full description in italics. [posterUrl] adds the cover at the far left (series page).
+ * Lines without data are left out, never shown empty.
+ */
+@Composable
+internal fun VodInfoPanel(
+    title: String,
+    originalTitle: String?,
+    metaParts: List<String>,
+    country: String?,
+    director: String?,
+    actors: String?,
+    plot: String?,
+    posterUrl: String? = null,
+    modifier: Modifier = Modifier,
+) {
+    val italic = androidx.compose.ui.text.font.FontStyle.Italic
+    val text = Color(0xFFF1F4F8)
+    val soft = Color(0xFFD8DEE8)
+    Row(
+        modifier
+            .clip(RoundedCornerShape(10.mpx))
+            .background(Color(0xE60B2D52))
+            .padding(horizontal = 24.mpx, vertical = 18.mpx),
+        horizontalArrangement = Arrangement.spacedBy(28.mpx),
+    ) {
+        if (!posterUrl.isNullOrBlank()) {
+            AsyncImage(
+                model = posterUrl, contentDescription = null, contentScale = ContentScale.Crop,
+                modifier = Modifier.width(150.mpx).aspectRatio(2f / 3f).clip(RoundedCornerShape(6.mpx)),
+            )
+        }
+        Column(Modifier.weight(0.52f)) {
+            Text(
+                HeadlineTitle.of(title), style = stageText(32, 800), color = text,
+                maxLines = 2, overflow = TextOverflow.Ellipsis,
+            )
+            originalTitle?.takeIf { it.isNotBlank() && it.trim() != title.trim() }?.let {
+                Text(it, style = stageText(24, 400).copy(fontStyle = italic), color = text, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 2.mpx))
+            }
+            if (metaParts.isNotEmpty()) {
+                Text(
+                    metaParts.joinToString(META_DOT), style = stageText(18, 500).copy(fontStyle = italic), color = soft,
+                    maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 12.mpx, bottom = 10.mpx),
+                )
+            }
+            listOfNotNull(
+                country?.takeIf { it.isNotBlank() }?.let { stringResource(R.string.portal_details_country) to it },
+                director?.takeIf { it.isNotBlank() }?.let { stringResource(R.string.portal_details_director) to it },
+                actors?.takeIf { it.isNotBlank() }?.let { stringResource(R.string.portal_details_cast) to it },
+            ).forEach { (label, value) ->
+                Text(
+                    stringResource(R.string.content_detail_label_value, label, value), style = stageText(18, 400).copy(fontStyle = italic), color = soft,
+                    maxLines = 3, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 3.mpx),
+                )
+            }
+        }
+        plot?.takeIf { it.isNotBlank() }?.let {
+            Text(
+                it, style = stageText(19, 400).copy(fontStyle = italic, lineHeight = (19f * 1.35f).mpxSp, textAlign = TextAlign.End),
+                color = soft, maxLines = 9, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(0.48f),
+            )
         }
     }
 }
