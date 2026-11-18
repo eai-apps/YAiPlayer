@@ -9,6 +9,7 @@ const DL = (f) => `https://github.com/${REPO}/releases/latest/download/${f}`;
 const DL_BETA = (f) => `https://github.com/${REPO}/releases/download/beta/${f}`;
 // Owner 17.11: our radio YAiPlay Radio — site and Android APK (no RuStore yet).
 const RADIO_SITE = "https://yaiplay-radio.pages.dev/";
+const RADIO_RU_MIRROR = "https://yaiplay-radio.duckdns.org:8444/"; // owner 18.11: mirror without Cloudflare
 const RADIO_APK = "https://github.com/eai-apps/YAiPlay-Radio/releases/download/android-latest/YAiRadio.apk";
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 const tme = (u) => `https://t.me/${u.replace("@", "")}`;
@@ -151,7 +152,7 @@ async function onCheck(env, q) {
   if (res.every(Boolean)) {
     await ack(env, q);
     await bump(env, "stat:downloads");
-    return show(env, q, "✅ Спасибо! Вот последняя версия:\n\n🧪 Бета — тестовая версия с самыми новыми функциями. Ставится рядом с обычной (отдельный значок «Beta»), обычную удалять не нужно. Может работать с ошибками.\n\n🎧 YAiPlay Radio — наше радио со всего мира: слушайте на сайте или скачайте приложение для Android.", {
+    return show(env, q, "✅ Спасибо! Вот последняя версия:\n\n🧪 Бета — тестовая версия с самыми новыми функциями. Ставится рядом с обычной (отдельный значок «Beta»), обычную удалять не нужно. Может работать с ошибками.\n\n🎧 YAiPlay Radio — наше радио со всего мира: слушайте на сайте или скачайте приложение для Android.\n🇷🇺 Не открывается в России? Зеркало: https://yaiplay-radio.duckdns.org:8444/", {
       inline_keyboard: [
         [{ text: "📺 Скачать для ТВ", url: DL("YAiPlayer-TV.apk") }],
         [{ text: "📱 Скачать для телефона", url: DL("YAiPlayer-Mobile.apk") }],
@@ -159,6 +160,7 @@ async function onCheck(env, q) {
         [{ text: "🧪 Бета для телефона", url: DL_BETA("YAiPlayer-Mobile-beta.apk") }],
         [{ text: "🎧 Радио — слушать на сайте", url: RADIO_SITE }],
         [{ text: "📻 Радио для Android", url: RADIO_APK }],
+        [{ text: "🇷🇺 Радио: зеркало для России", url: RADIO_RU_MIRROR }],
         [{ text: "⬅️ Меню", callback_data: "n:root" }],
       ],
     });
