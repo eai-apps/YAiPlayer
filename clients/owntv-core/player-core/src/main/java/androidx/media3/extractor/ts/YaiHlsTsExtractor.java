@@ -56,7 +56,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * YAiPlayer copy of Media3 1.11.1 {@code TsExtractor} (Apache License 2.0, Copyright The Android Open Source
@@ -203,7 +202,7 @@ public final class YaiHlsTsExtractor implements Extractor {
   private final TsDurationReader durationReader;
 
   // Accessed only by the loading thread.
-  private @MonotonicNonNull TsBinarySearchSeeker tsBinarySearchSeeker;
+  @Nullable private TsBinarySearchSeeker tsBinarySearchSeeker;
   private ExtractorOutput output;
   private int remainingPmts;
   private boolean tracksEnded;
