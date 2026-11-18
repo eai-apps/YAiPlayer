@@ -342,6 +342,9 @@ class UpdateManager(
     private class InstallException(cause: Throwable) : IOException(cause)
 
     companion object {
+        /** "4.0.3" -> "v4.0.3"; a beta name ("beta-50") stays as it is — the strings carry no "v" of their own. */
+        fun shown(version: String): String = if (version.firstOrNull()?.isDigit() == true) "v$version" else version
+
         private const val TAG = "UpdateManager"
         private const val SESSION_ENTRY = "owntv-update"
         private const val INSTALL_STATUS_ACTION = "tv.own.owntv.UPDATE_INSTALL_STATUS"

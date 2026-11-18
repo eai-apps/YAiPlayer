@@ -83,7 +83,7 @@ fun UpdateStatusToast(onDone: () -> Unit, onViewChangelog: () -> Unit, modifier:
                 Text(stringResource(R.string.update_available), style = stageText(21, 800), color = StageColors.Text)
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    stringResource(R.string.update_ready, s.info.version, manager.currentVersion),
+                    stringResource(R.string.update_ready, tv.own.owntv.core.update.UpdateManager.shown(s.info.version), tv.own.owntv.core.update.UpdateManager.shown(manager.currentVersion)),
                     style = stageText(17, 500), color = StageColors.Muted,
                 )
                 Spacer(Modifier.height(12.dp))

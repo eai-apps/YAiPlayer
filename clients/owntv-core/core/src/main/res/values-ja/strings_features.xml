@@ -106,7 +106,7 @@
     <string name="update_downloading">更新をダウンロードしています… <xliff:g id="percent">%1$d</xliff:g>%%</string>
     <string name="update_available">更新があります</string>
     <string name="update_latest">最新バージョン（v<xliff:g id="version">%1$s</xliff:g>）を使用しています。</string>
-    <string name="update_available_version">バージョン<xliff:g id="available">%1$s</xliff:g>を利用できます（現在のバージョン：v<xliff:g id="current">%2$s</xliff:g>）。</string>
+    <string name="update_available_version">バージョン<xliff:g id="available">%1$s</xliff:g>を利用できます（現在のバージョン：<xliff:g id="current">%2$s</xliff:g>）。</string>
     <string name="update_installer">ダウンロードが完了すると、システムインストーラーが開きます。</string>
     <string name="update_later">後で</string>
     <string name="update_now">今すぐ更新</string>
@@ -122,7 +122,7 @@
     <string name="update_not_enough_space">更新用の空き容量が足りません。約 <xliff:g id="size">%1$s</xliff:g> を空けてからもう一度お試しください。</string>
     <string name="update_damaged_download">更新のダウンロードが完了しませんでした。接続を確認してもう一度お試しください。</string>
     <string name="update_install_rejected">システムインストーラーが更新を拒否しました: <xliff:g id="reason">%1$s</xliff:g></string>
-    <string name="update_ready">YAiPlayer v<xliff:g id="available">%1$s</xliff:g>のインストール準備ができました（現在のバージョン：v<xliff:g id="current">%2$s</xliff:g>）。</string>
+    <string name="update_ready">YAiPlayer <xliff:g id="available">%1$s</xliff:g>のインストール準備ができました（現在のバージョン：<xliff:g id="current">%2$s</xliff:g>）。</string>
     <string name="recovery_title">YAiPlayerはデータベースを開けませんでした</string>
     <string name="recovery_data_safe_full">プロフィール、プレイリスト、お気に入り、視聴履歴は削除されていません — これはデータベースのアップグレード失敗によるもので、データはこのデバイスに残っています。\n\n修正できるよう、この問題を報告し、以下のメッセージを添えてください。</string>
     <string name="recovery_retry">再試行</string>

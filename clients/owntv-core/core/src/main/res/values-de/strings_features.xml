@@ -120,7 +120,7 @@
     <string name="update_downloading">Update wird heruntergeladen… <xliff:g id="percent">%1$d</xliff:g>%%</string>
     <string name="update_available">Update verfügbar</string>
     <string name="update_latest">Du verwendest die neueste Version (v<xliff:g id="version">%1$s</xliff:g>).</string>
-    <string name="update_available_version">Version <xliff:g id="available">%1$s</xliff:g> ist verfügbar (du verwendest v<xliff:g id="current">%2$s</xliff:g>).</string>
+    <string name="update_available_version">Version <xliff:g id="available">%1$s</xliff:g> ist verfügbar (du verwendest <xliff:g id="current">%2$s</xliff:g>).</string>
     <string name="update_installer">Das Installationsprogramm des Systems wird geöffnet, sobald der Download abgeschlossen ist.</string>
     <string name="update_later">Später</string>
     <string name="update_now">Jetzt aktualisieren</string>
@@ -138,7 +138,7 @@
     <string name="update_not_enough_space">Nicht genügend freier Speicher für das Update. Gib etwa <xliff:g id="size">%1$s</xliff:g> frei und versuche es erneut.</string>
     <string name="update_damaged_download">Das Update wurde nicht vollständig heruntergeladen. Prüfe deine Verbindung und versuche es erneut.</string>
     <string name="update_install_rejected">Das Installationsprogramm des Systems hat das Update abgelehnt: <xliff:g id="reason">%1$s</xliff:g></string>
-    <string name="update_ready">YAiPlayer v<xliff:g id="available">%1$s</xliff:g> ist bereit (du verwendest v<xliff:g id="current">%2$s</xliff:g>).</string>
+    <string name="update_ready">YAiPlayer <xliff:g id="available">%1$s</xliff:g> ist bereit (du verwendest <xliff:g id="current">%2$s</xliff:g>).</string>
     <string name="recovery_title">YAiPlayer konnte seine Datenbank nicht öffnen</string>
     <string name="recovery_data_safe_full">Ihre Profile, Wiedergabelisten, Favoriten und Ihr Wiedergabeverlauf wurden NICHT gelöscht — das Upgrade der Datenbank ist fehlgeschlagen, und die Daten befinden sich weiterhin auf diesem Gerät.\n\nBitte melden Sie dies, damit der Fehler behoben werden kann, und fügen Sie die nachstehende Meldung bei.</string>
     <string name="recovery_retry">Erneut versuchen</string>

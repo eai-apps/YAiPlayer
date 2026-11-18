@@ -283,7 +283,7 @@
     <!-- Translators: Status text when the app is already on the latest version. "version" is the current version string. -->
     <string name="update_latest">You\'re on the latest version (v<xliff:g id="version">%1$s</xliff:g>).</string>
     <!-- Translators: Version comparison display. "available" is the new version, "current" is the installed version. -->
-    <string name="update_available_version">Version <xliff:g id="available">%1$s</xliff:g> is available (you have v<xliff:g id="current">%2$s</xliff:g>).</string>
+    <string name="update_available_version">Version <xliff:g id="available">%1$s</xliff:g> is available (you have <xliff:g id="current">%2$s</xliff:g>).</string>
     <!-- Translators: Informational text in the update dialog after download completes. -->
     <string name="update_installer">The system installer opens when the download finishes.</string>
     <!-- Translators: Button in the update dialog to postpone the update. -->
@@ -317,7 +317,7 @@
     <!-- Translators: Error when the system installer refuses the update. "reason" is the installer's own message, which is usually in English. -->
     <string name="update_install_rejected">The system installer refused the update: <xliff:g id="reason">%1$s</xliff:g></string>
     <!-- Translators: Status text when an update has been downloaded and is ready to install. "available" is the new version, "current" is the installed version. -->
-    <string name="update_ready">YAiPlayer v<xliff:g id="available">%1$s</xliff:g> is ready (you have v<xliff:g id="current">%2$s</xliff:g>).</string>
+    <string name="update_ready">YAiPlayer <xliff:g id="available">%1$s</xliff:g> is ready (you have <xliff:g id="current">%2$s</xliff:g>).</string>
 
     <!-- Translators: Dialog title for the database recovery screen. "YAiPlayer" is a brand name. -->
     <string name="recovery_title">YAiPlayer could not open its database</string>

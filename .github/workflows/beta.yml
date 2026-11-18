@@ -17,6 +17,7 @@ on:
       - 'clients/android-mobile/**'
       - 'clients/owntv-core/**'
       - '.github/workflows/beta.yml'
+      - 'docs/BETA_NOTES.md'
   workflow_dispatch:
 
 permissions:
@@ -110,6 +111,10 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: docs/BETA_NOTES.md
+          sparse-checkout-cone-mode: false
       - uses: actions/download-artifact@v4
         with:
           path: dist
@@ -120,10 +125,8 @@ jobs:
           REPO: ${{ github.repository }}
         run: |
           ls -l dist
-          notes="Бета для проверки на устройстве: ветка ${{ github.ref_name }}, сборка ${{ github.run_number }}, коммит ${GITHUB_SHA::7}, $(date -u '+%d.%m.%Y %H:%M') UTC.
-          Ставится РЯДОМ с обычным приложением (своё имя «YAiPlayer Beta»).
-          Телефон: https://github.com/$REPO/releases/download/beta/YAiPlayer-Mobile-beta.apk
-          ТВ: https://github.com/$REPO/releases/download/beta/YAiPlayer-TV-beta.apk"
+          # Owner 18.11: only "beta-N" and what was added/improved — no branch, commit or links.
+          notes="$(printf 'Бета beta-%s\n\n' "${{ github.run_number }}"; cat docs/BETA_NOTES.md)"
           if ! gh release view beta --repo "$REPO" >/dev/null 2>&1; then
             gh release create beta --repo "$REPO" --prerelease --target "$GITHUB_SHA" --title "beta-${{ github.run_number }}" --notes "$notes" dist/*.apk
           else

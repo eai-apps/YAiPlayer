@@ -6162,6 +6162,7 @@
 1	log	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	update installed
 2	file-path	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	updates
 1	technical	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	v
+1	technical	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	v$version
 1	log	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	wrong package ${info.packageName}
 2	technical	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	x86_64
 1	technical	core/src/main/java/tv/own/owntv/core/util/BackgroundWork.kt	owntv-refresh-${n.incrementAndGet()}

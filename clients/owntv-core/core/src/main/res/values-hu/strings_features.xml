@@ -112,7 +112,7 @@
     <string name="update_downloading">Frissítés letöltése… <xliff:g id="percent">%1$d</xliff:g>%%</string>
     <string name="update_available">Elérhető frissítés</string>
     <string name="update_latest">A legújabb verziót használod (v<xliff:g id="version">%1$s</xliff:g>).</string>
-    <string name="update_available_version">A(z) <xliff:g id="available">%1$s</xliff:g> verzió elérhető (jelenleg a v<xliff:g id="current">%2$s</xliff:g> fut).</string>
+    <string name="update_available_version">A(z) <xliff:g id="available">%1$s</xliff:g> verzió elérhető (jelenleg a <xliff:g id="current">%2$s</xliff:g> fut).</string>
     <string name="update_installer">A rendszer telepítője megnyílik, amint a letöltés befejeződik.</string>
     <string name="update_later">Később</string>
     <string name="update_now">Frissítés most</string>
@@ -128,7 +128,7 @@
     <string name="update_not_enough_space">Nincs elég szabad hely a frissítéshez. Szabadíts fel körülbelül <xliff:g id="size">%1$s</xliff:g> helyet, és próbáld újra.</string>
     <string name="update_damaged_download">A frissítés nem töltődött le teljesen. Ellenőrizd a kapcsolatot, és próbáld újra.</string>
     <string name="update_install_rejected">A rendszer telepítője elutasította a frissítést: <xliff:g id="reason">%1$s</xliff:g></string>
-    <string name="update_ready">Az YAiPlayer v<xliff:g id="available">%1$s</xliff:g> készen áll (jelenleg a v<xliff:g id="current">%2$s</xliff:g> fut).</string>
+    <string name="update_ready">Az YAiPlayer <xliff:g id="available">%1$s</xliff:g> készen áll (jelenleg a <xliff:g id="current">%2$s</xliff:g> fut).</string>
     <string name="recovery_title">Az YAiPlayer nem tudta megnyitni az adatbázisát</string>
     <string name="recovery_data_safe_full">A profiljaid, lejátszási listáid, kedvenceid és előzményeid NEM törlődtek — az adatbázis frissítése hiúsult meg, az adatok továbbra is ezen az eszközön vannak.\n\nKérjük, jelentsd ezt, hogy javíthassuk a hibát, és csatold az alábbi üzenetet.</string>
     <string name="recovery_retry">Újra</string>

@@ -118,7 +118,7 @@
     <string name="update_downloading">Téléchargement de la mise à jour… <xliff:g id="percent">%1$d</xliff:g>%%</string>
     <string name="update_available">Mise à jour disponible</string>
     <string name="update_latest">Vous utilisez la dernière version (v<xliff:g id="version">%1$s</xliff:g>).</string>
-    <string name="update_available_version">La version <xliff:g id="available">%1$s</xliff:g> est disponible (vous utilisez la v<xliff:g id="current">%2$s</xliff:g>).</string>
+    <string name="update_available_version">La version <xliff:g id="available">%1$s</xliff:g> est disponible (vous utilisez la <xliff:g id="current">%2$s</xliff:g>).</string>
     <string name="update_installer">Le programme d’installation du système s’ouvre lorsque le téléchargement est terminé.</string>
     <string name="update_later">Plus tard</string>
     <string name="update_now">Mettre à jour maintenant</string>
@@ -134,7 +134,7 @@
     <string name="update_not_enough_space">Espace de stockage insuffisant pour la mise à jour. Libérez environ <xliff:g id="size">%1$s</xliff:g>, puis réessayez.</string>
     <string name="update_damaged_download">La mise à jour n’a pas été téléchargée entièrement. Vérifiez votre connexion, puis réessayez.</string>
     <string name="update_install_rejected">Le programme d’installation du système a refusé la mise à jour : <xliff:g id="reason">%1$s</xliff:g></string>
-    <string name="update_ready">YAiPlayer v<xliff:g id="available">%1$s</xliff:g> est prêt (vous utilisez la v<xliff:g id="current">%2$s</xliff:g>).</string>
+    <string name="update_ready">YAiPlayer <xliff:g id="available">%1$s</xliff:g> est prêt (vous utilisez la <xliff:g id="current">%2$s</xliff:g>).</string>
     <string name="recovery_title">YAiPlayer n’a pas pu ouvrir sa base de données</string>
     <string name="recovery_data_safe_full">Vos profils, vos listes de lecture, vos favoris et votre historique N’ONT PAS été supprimés — il s’agit de l’échec d’une mise à niveau de la base de données et les données se trouvent toujours sur cet appareil.\n\nVeuillez signaler ce problème afin qu’il puisse être corrigé et incluez le message ci-dessous.</string>
     <string name="recovery_retry">Réessayer</string>

@@ -95,8 +95,8 @@ fun UpdateSheet(onDismiss: () -> Unit, checkOnOpen: Boolean = false) {
                     Text(
                         text = stringResource(
                             R.string.update_available_version,
-                            s.info.version,
-                            manager.currentVersion,
+                            UpdateManager.shown(s.info.version),
+                            UpdateManager.shown(manager.currentVersion),
                         ),
                         style = tv.own.owntv.mobile.ui.stage.stageText(13.5f, 500),
                         color = tv.own.owntv.mobile.ui.stage.LocalStagePalette.current.text,
