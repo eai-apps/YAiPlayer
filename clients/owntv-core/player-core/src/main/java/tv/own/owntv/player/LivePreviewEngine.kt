@@ -17,7 +17,6 @@ import tv.own.owntv.core.player.SurroundMode
 import tv.own.owntv.core.settings.LiveBuffer
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.Renderer
-import androidx.media3.exoplayer.hls.DefaultHlsExtractorFactory
 import androidx.media3.exoplayer.hls.HlsMediaSource
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.exoplayer.source.MediaSource
@@ -213,14 +212,6 @@ class LivePreviewEngine(
     override val zoomMode: StateFlow<ZoomMode> = _zoomMode.asStateFlow()
     private val _audioCount = MutableStateFlow(0)
 
-    /**
-     * True when the stream is HLS, its audio tracks carry languages and none is the preferred one (or the
-     * app's language, see [tv.own.owntv.core.player.TrackLanguages.audioForExo]). Media3's HLS extractor
-     * keeps only ONE muxed audio track per codec (TsExtractor MODE_HLS keys tracks by stream type), so a
-     * second MP2 track — often the Russian one — never reaches ExoPlayer, while mpv sees it (owner 18.11).
-     */
-    private val _preferredAudioMissing = MutableStateFlow(false)
-    val preferredAudioMissing: StateFlow<Boolean> = _preferredAudioMissing.asStateFlow()
     override val audioCount: StateFlow<Int> = _audioCount.asStateFlow()
     private val _subCount = MutableStateFlow(0)
     override val subCount: StateFlow<Int> = _subCount.asStateFlow()
@@ -394,6 +385,11 @@ class LivePreviewEngine(
      * tune. Media3 normalises ISO 639-2 codes itself, so "eng" here matches a track tagged `en`.
      */
     private fun applyLanguagePrefs() {
+        // Media3's HLS reader keeps one muxed audio track per codec, so the Russian MP2 stream next to another
+        // MP2 stream never reached ExoPlayer (owner 18.11). YaiHlsTsExtractor keeps the PID tagged with this
+        // language instead; set before the player exists so the very first chunk already uses it.
+        androidx.media3.extractor.ts.YaiHlsTsExtractor.preferredAudioLanguage =
+            langIso3(tv.own.owntv.core.player.TrackLanguages.audioForExo(prefAudioLang))
         val p = player ?: return
         runCatching {
             p.trackSelectionParameters = p.trackSelectionParameters.buildUpon()
@@ -2055,7 +2051,7 @@ class LivePreviewEngine(
         mainHandler.removeCallbacks(healthyReset)
         cancelPrepareOnSurface()
         frameCounter.set(0); tune.lastFrameCount = 0; tune.everRendered = false; tune.lastProgressPos = -1L; tune.frozenChecks = 0
-        tune.audioTrackList = emptyList(); tune.audioSelections = emptyList(); _audioCount.value = 0; _preferredAudioMissing.value = false
+        tune.audioTrackList = emptyList(); tune.audioSelections = emptyList(); _audioCount.value = 0
         tune.textTrackList = emptyList(); tune.textSelections = emptyList(); _subCount.value = 0
         _subtitleOn.value = false; _cues.value = emptyList(); _audioUnsupported.value = false
         _noVideoDetected.value = false; tune.noVideoTriggered = false; tune.readySinceMs = 0L
@@ -3128,12 +3124,6 @@ class LivePreviewEngine(
         updateAudioOnlyClassification()
         applyMute()
         tune.audioTrackList = audio; tune.audioSelections = aSel; _audioCount.value = audio.size
-        _preferredAudioMissing.value = run {
-            val want = tv.own.owntv.core.player.TrackLanguages.audioForExo(prefAudioLang)
-            val wantIso3 = langIso3(want)
-            isHlsStream && wantIso3 != null && audio.isNotEmpty() && audio.any { it.lang != null } &&
-                audio.none { langIso3(it.lang) == wantIso3 }
-        }
         tune.textTrackList = text; tune.textSelections = tSel; _subCount.value = text.size
         applyRememberedTracks()
         if (tv.own.owntv.core.CoreBuildInfo.debug) {
@@ -3436,7 +3426,7 @@ class LivePreviewEngine(
             .setDrmSessionManagerProvider(tv.own.owntv.core.drm.InlineClearKeyDrmProvider)
             // Read per playlist load, so the setting needs no cache reset.
             .setPlaylistParserFactory(SdrVariants.ParserFactory { preferSdr })
-            .setExtractorFactory(DefaultHlsExtractorFactory(tsFlags, true))
+            .setExtractorFactory(androidx.media3.exoplayer.hls.YaiHlsExtractorFactory(tsFlags, true))
             // Media3 defaults this to zero, which it documents as an *infinite* timeout: a rendition
             // whose chunk can't be timestamp-aligned with the primary one parks its loading thread in
             // an unbounded wait(), so that track never produces a sample and the player sits in

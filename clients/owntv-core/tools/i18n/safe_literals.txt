@@ -3236,6 +3236,7 @@
 1	technical	core/src/main/java/tv/own/owntv/core/player/ForceMpvStore.kt	LIVE
 1	technical	core/src/main/java/tv/own/owntv/core/player/ForceMpvStore.kt	MPV
 1	preference-key	core/src/main/java/tv/own/owntv/core/player/ForceMpvStore.kt	exo_urls
+1	preference-key	core/src/main/java/tv/own/owntv/core/player/ForceMpvStore.kt	live_pins_reset_b49
 1	technical	core/src/main/java/tv/own/owntv/core/player/ForceMpvStore.kt	moved_to_db_v44
 1	technical	core/src/main/java/tv/own/owntv/core/player/ForceMpvStore.kt	owntv_force_mpv
 1	preference-key	core/src/main/java/tv/own/owntv/core/player/ForceMpvStore.kt	urls
@@ -7106,7 +7107,6 @@
 1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	perf_live_stop at=${android.os.SystemClock.elapsedRealtime()}
 1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	perf_live_stop_begin at=${android.os.SystemClock.elapsedRealtime()}
 1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	perf_live_stop_engines_queued at=${android.os.SystemClock.elapsedRealtime()}
-1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	preferred audio language not on ExoPlayer (HLS keeps one track per codec) -> mpv '${ch.name}'
 1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	stalker reconnect re-resolve failed '${channel.name}'
 1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	stalker resolve failed
 1	log	player-core/src/main/java/tv/own/owntv/player/LiveTuneController.kt	starting mpv for '${channel.name}' — reason=$reason

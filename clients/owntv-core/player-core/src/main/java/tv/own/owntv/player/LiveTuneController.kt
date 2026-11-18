@@ -97,8 +97,6 @@ class LiveTuneController(
     )
 
     private val _liveOnExo = MutableStateFlow(false)
-    /** The channel already moved to mpv for its audio language this session — never twice. */
-    private var audioSwitchedFor: Long? = null
 
     /**
      * Whether live is on ExoPlayer right now — false is mpv. The *actual* engine rather than the pin:
@@ -125,19 +123,6 @@ class LiveTuneController(
     val localTimeshift: StateFlow<LocalTimeshift?> = _localTimeshift.asStateFlow()
 
     init {
-        // Owner 18.11: the Russian track of many channels exists only for mpv (ExoPlayer's HLS reader keeps one
-        // audio per codec). Full-screen on ExoPlayer and the preferred language is not there → the same as the
-        // user pressing the engine button once: switch to mpv and pin it for this channel.
-        scope.launch {
-            engines.exoPreferredAudioMissing.collect { missing ->
-                val ch = current
-                if (missing && ch != null && _liveOnExo.value && ch.drmConfig == null && ch.id != audioSwitchedFor) {
-                    audioSwitchedFor = ch.id
-                    engineLog("preferred audio language not on ExoPlayer (HLS keeps one track per codec) -> mpv '${ch.name}'")
-                    toggleEngine()
-                }
-            }
-        }
         host.timeshift?.let { manager ->
             scope.launch {
                 manager.gaveUp.collect { (token, why) -> if (ts?.token == token) onTimeshiftLost(why) }

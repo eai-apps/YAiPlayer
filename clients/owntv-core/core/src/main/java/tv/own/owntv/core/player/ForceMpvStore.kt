@@ -53,11 +53,22 @@ class ForceMpvStore(
         },
     )
 
+    // beta-49 (owner 18.11): beta-48 moved channels to mpv on its own when ExoPlayer lacked the Russian track and
+    // pinned them there, so they kept starting slowly. ExoPlayer now gets the Russian track itself
+    // (YaiHlsTsExtractor), so every live pin is cleared once and channels start on ExoPlayer again.
+    private val resetKey = androidx.datastore.preferences.core.booleanPreferencesKey("live_pins_reset_b49")
+    private val resetOnce = CopyOnce(
+        isDone = { context.forceMpvStore.data.first()[resetKey] == true },
+        markDone = { context.forceMpvStore.edit { it[resetKey] = true } },
+        copy = { dao.clearLivePins() },
+    )
+
     val urls: Flow<Set<String>> = pinned(MPV)
     val exoUrls: Flow<Set<String>> = pinned(EXO)
 
     private fun pinned(pin: String): Flow<Set<String>> = flow {
         copy.ensure()
+        resetOnce.ensure()
         emitAll(dao.observePinned(pin, live = true).map { it.toSet() })
     }
 
@@ -65,12 +76,14 @@ class ForceMpvStore(
      *  channel can never be pinned both ways. */
     suspend fun pin(url: String, onMpv: Boolean) {
         copy.ensure()
+        resetOnce.ensure()
         dao.setEnginePin(url, sourceIdOfPinKey(url), LIVE, if (onMpv) MPV else EXO)
     }
 
     /** Drop any pin for [url] in either direction, so the channel follows the global setting again. */
     suspend fun forget(url: String) {
         copy.ensure()
+        resetOnce.ensure()
         dao.setEnginePin(url, sourceIdOfPinKey(url), LIVE, null)
     }
 
@@ -78,6 +91,7 @@ class ForceMpvStore(
      *  films' and episodes' pins ([VodEngineStore]) are kept. */
     suspend fun clearAll() {
         copy.ensure()
+        resetOnce.ensure()
         dao.clearLivePins()
     }
 
@@ -97,6 +111,7 @@ class ForceMpvStore(
      *  preserving which engine it was pinned to. */
     suspend fun migrateKey(legacyUrl: String, stableKey: String) {
         copy.ensure()
+        resetOnce.ensure()
         dao.migrateKey(legacyUrl, stableKey, sourceIdOfPinKey(stableKey))
     }
 
