@@ -1,5 +1,7 @@
 {
-  "stations": [],
+  "stations": [
+    "ex-record-guetta"
+  ],
   "news": [],
   "releases": [],
   "askIndex": 0,
