@@ -10,5 +10,10 @@
     "globe"
   ],
   "featStyle": 1,
-  "featCta": 1
+  "featCta": 1,
+  "cams": [
+    "1793876473"
+  ],
+  "camIndex": 15,
+  "camCat": 1
 }
