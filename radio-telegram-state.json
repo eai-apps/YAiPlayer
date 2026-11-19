@@ -5,12 +5,13 @@
   "news": [],
   "releases": [],
   "askIndex": 0,
-  "featIndex": 1,
+  "featIndex": 2,
   "featRecent": [
-    "globe"
+    "globe",
+    "webcams"
   ],
-  "featStyle": 1,
-  "featCta": 1,
+  "featStyle": 2,
+  "featCta": 2,
   "cams": [
     "1793876473"
   ],
