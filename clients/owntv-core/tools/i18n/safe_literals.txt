@@ -6169,9 +6169,10 @@
 1	log	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	update installed
 2	file-path	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	updates
 1	technical	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	v
-1	technical	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	v$version
+1	technical	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	v$v
 1	log	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	wrong package ${info.packageName}
 2	technical	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	x86_64
+1	technical	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	·
 1	technical	core/src/main/java/tv/own/owntv/core/util/BackgroundWork.kt	owntv-refresh-${n.incrementAndGet()}
 1	technical	core/src/main/java/tv/own/owntv/core/util/CrashRecorder.kt	Crashed $stamp on thread "${thread.name}"
 1	technical	core/src/main/java/tv/own/owntv/core/util/CrashRecorder.kt	OwnTV ${CoreBuildInfo.versionName} (${CoreBuildInfo.versionCode})

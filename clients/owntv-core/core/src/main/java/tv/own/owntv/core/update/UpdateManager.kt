@@ -349,8 +349,11 @@ class UpdateManager(
 
     companion object {
         /** "4.0.3" -> "v4.0.3"; a beta ("6.01", or the old "beta-50") stays as it is — the strings carry no "v". */
-        fun shown(version: String): String =
-            if (version.firstOrNull()?.isDigit() == true && CoreBuildInfo.releaseTag == null) "v$version" else version
+        fun shown(version: String): String {
+            // A beta's release title is «6.02 · 61»: the part after «·» is only for betas older than 6.01.
+            val v = version.substringBefore(" ·").trim()
+            return if (v.firstOrNull()?.isDigit() == true && CoreBuildInfo.releaseTag == null) "v$v" else v
+        }
 
         private const val TAG = "UpdateManager"
         private const val SESSION_ENTRY = "owntv-update"
