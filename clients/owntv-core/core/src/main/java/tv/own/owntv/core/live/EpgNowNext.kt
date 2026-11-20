@@ -16,4 +16,7 @@ data class EpgNowNext(
     /** The airing programme's XMLTV details (categories, year, rating, length) — stored guide only;
      *  null on the short-EPG path, which carries none. */
     val nowDetails: tv.own.owntv.core.parser.EpgDetails? = null,
+    /** Owner 20.11: when the stored guide of this channel ends (latest stop), so the pane can say
+     *  «телепрограмма ещё на N дн.». Null on the short-EPG path. */
+    val guideUntilMs: Long? = null,
 )

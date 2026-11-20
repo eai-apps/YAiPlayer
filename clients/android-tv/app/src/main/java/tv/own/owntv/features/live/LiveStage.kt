@@ -343,6 +343,11 @@ internal fun LiveStagePane(
                     StageProgress(progressOf(now), Modifier.weight(1f))
                     Text(timeLeftText(minutesLeft(now)), style = stageText(17, 400).copy(fontFeatureSettings = Tabular), color = StageColors.Muted, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
+                // Owner 20.11: how far ahead this channel's guide is stored — «ещё на 5 дней (до пт, 27.11)».
+                val ctx = androidx.compose.ui.platform.LocalContext.current
+                tv.own.owntv.core.live.GuideAheadText.of(ctx, nowNext.guideUntilMs)?.let {
+                    Text(it, style = stageText(15, 500), color = StageColors.Muted, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 8.mpx))
+                }
                 now.description?.takeIf { it.isNotBlank() }?.let {
                     Text(
                         it, style = stageText(19, 400).copy(lineHeight = (19 * 1.55f).mpxSp), color = stageTone(Color(0xFFCCD6D2), StageColors.Body),

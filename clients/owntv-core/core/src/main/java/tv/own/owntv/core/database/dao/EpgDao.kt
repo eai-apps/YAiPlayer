@@ -23,6 +23,15 @@ interface EpgDao {
     @Query("SELECT DISTINCT epgChannelId FROM epg_programmes WHERE epgChannelId IN (:keys) AND startMs < :to AND stopMs > :from")
     suspend fun keysWithGuide(keys: List<String>, from: Long, to: Long): List<String>
 
+    /** Owner 20.11: where the stored guide of one channel ends (its latest stop), for «ещё на N дн.». */
+    @Query("SELECT MAX(stopMs) FROM epg_programmes WHERE epgChannelId = :epgChannelId")
+    suspend fun guideUntil(epgChannelId: String): Long?
+
+    /** Owner 20.11: how far ahead the guide reaches for most channels — the later of the keys' ends is
+     *  not useful, so the caller takes a low percentile of these per-key ends. */
+    @Query("SELECT MAX(stopMs) FROM epg_programmes WHERE epgChannelId IN (:keys) GROUP BY epgChannelId")
+    suspend fun guideEnds(keys: List<String>): List<Long>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertChannels(channels: List<EpgChannelEntity>)
 

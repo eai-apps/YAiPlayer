@@ -17,4 +17,14 @@
         <item quantity="many">Провайдер добавил %d новых каналов. Они находятся в категории «Последние добавленные» в «Прямом эфире» 7 дней.</item>
         <item quantity="other">Провайдер добавил %d новых канала. Они находятся в категории «Последние добавленные» в «Прямом эфире» 7 дней.</item>
     </plurals>
+    <string name="guide_stale_title">Телепрограмму пора обновить</string>
+    <string name="guide_stale_body">У %1$d из %2$d каналов нет программы на сегодня. У большинства каналов она есть до %3$s. Обновить?</string>
+    <string name="guide_stale_body_none">У %1$d из %2$d каналов нет программы на сегодня. Обновить телепрограмму?</string>
+    <string name="guide_ahead_today">Телепрограмма заканчивается сегодня в %1$s</string>
+    <plurals name="guide_ahead_days">
+        <item quantity="one">Телепрограмма ещё на %1$d день (до %2$s)</item>
+        <item quantity="few">Телепрограмма ещё на %1$d дня (до %2$s)</item>
+        <item quantity="many">Телепрограмма ещё на %1$d дней (до %2$s)</item>
+        <item quantity="other">Телепрограмма ещё на %1$d дня (до %2$s)</item>
+    </plurals>
 </resources>

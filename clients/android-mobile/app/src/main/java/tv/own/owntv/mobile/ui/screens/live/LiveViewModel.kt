@@ -579,6 +579,22 @@ class LiveViewModel(
         }
     }
 
+    init {
+        // Owner 20.11: a guide download ended — the visible rows read the new guide at once.
+        val tracker: tv.own.owntv.core.sync.EpgActivityTracker = org.koin.core.context.GlobalContext.get().get()
+        viewModelScope.launch {
+            tracker.guideChanged.drop(1).collect {
+                epgReader.onGuideChanged()
+                val window = lastVisibleWindow
+                if (window.isNotEmpty()) {
+                    val found = runCatching { epgReader.nowProgrammesFor(window, custom.value, epgOffset.value) }.getOrDefault(emptyMap())
+                    if (found.isNotEmpty()) _nowPlaying.value = (_nowPlaying.value + found).toList().takeLast(MAX_NOW_PLAYING).toMap()
+                    prefetchVisibleChannels(window)
+                }
+            }
+        }
+    }
+
     /**
      * Read the guide for the rows the user can see, in one query.
      *
