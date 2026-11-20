@@ -1,7 +1,8 @@
 {
   "stations": [
     "ex-record-guetta",
-    "a781a6da-a41f-498d-92f5-aede46952d54"
+    "a781a6da-a41f-498d-92f5-aede46952d54",
+    "42932f35-f4f2-11e8-a471-52543be04c81"
   ],
   "news": [],
   "releases": [],
@@ -19,5 +20,6 @@
     "1793909005"
   ],
   "camIndex": 29,
-  "camCat": 2
+  "camCat": 2,
+  "aiError": "gemini-2.5-flash HTTP 404: {\n  \"error\": {\n    \"code\": 404,\n    \"message\": \"This model models/gemini-2.5-flash is no longer available to new users. Please update your code to use models/gemini-3.8-flash for the latest features and improvements. We recommend you to use the Interactions API (https://aistudio.google.com/docs/get-"
 }
