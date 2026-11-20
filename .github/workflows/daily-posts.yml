@@ -1,6 +1,7 @@
 name: Daily posts to Telegram
 # Ежедневные посты в канал (слово владельца 17.11: «да»). Время по Берлину, летом и зимой одинаково:
 #   10:07 — радио «А вы знали?» (план из 14 возможностей, eai-apps/YAiPlay-Radio scripts/telegram-post.mjs)
+#   (если GitHub пропустил запуск — пост выходит при следующем, см. «What to post»)
 #   12:07 — плеер «А вы знали?» (docs/tips/player-tips.json, общий постер brand/tip-poster-1280x720.png)
 #   14:07 — радио: станция дня
 #   17:07 — большой пост про радио-приложение, раз в 4 дня (telegram-release/post_radio.py)
@@ -31,24 +32,36 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
+      - uses: actions/checkout@v4
+      - name: Saved state (bot-state branch)
+        run: |
+          git clone -q --depth 1 -b bot-state "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" state 2>/dev/null || { mkdir -p state; cd state; git init -q -b bot-state; }
       - name: What to post
         id: m
         run: |
+          # Владелец 20.11: «пост "А вы знали?" сегодня не вышел» — GitHub пропустил запуск в 12:07.
+          # Теперь каждый запуск выпускает САМЫЙ РАННИЙ ещё не вышедший сегодня пост, чьё время уже прошло
+          # (по одному за запуск). Что вышло сегодня — state/daily-done.json.
           mode="${{ inputs.mode }}"
           if [ -z "$mode" ] || [ "$mode" = "auto" ]; then
-            h=$(TZ=Europe/Berlin date +%H)
-            case "$h" in 10) mode=radio-feature;; 12) mode=player-tip;; 14) mode=radio-day;; 17) [ $(( $(date -u +%s) / 86400 % 4 )) -eq 0 ] && mode=radio-showcase || mode=none;; 19) mode=radio-webcam;; *) mode=none;; esac
+            mode=$(python3 - <<'PY'
+          import json, os, time, datetime, zoneinfo
+          now = datetime.datetime.now(zoneinfo.ZoneInfo("Europe/Berlin"))
+          today = now.strftime("%Y-%m-%d")
+          try: done = json.load(open("state/daily-done.json")).get(today, [])
+          except Exception: done = []
+          slots = [(10, "radio-feature"), (12, "player-tip"), (14, "radio-day")]
+          if int(time.time()) // 86400 % 4 == 0: slots.append((17, "radio-showcase"))
+          slots.append((19, "radio-webcam"))
+          due = [m for h, m in slots if h <= now.hour and m not in done]
+          print(due[0] if due else "none")
+          PY
+            )
           fi
           send=true
           [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.send }}" != "true" ] && send=false
           echo "mode=$mode" >> "$GITHUB_OUTPUT"; echo "send=$send" >> "$GITHUB_OUTPUT"
           echo "Режим: $mode, отправка: $send"
-      - uses: actions/checkout@v4
-        if: steps.m.outputs.mode != 'none'
-      - name: Saved state (bot-state branch)
-        if: steps.m.outputs.mode != 'none'
-        run: |
-          git clone -q --depth 1 -b bot-state "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" state 2>/dev/null || { mkdir -p state; cd state; git init -q -b bot-state; }
       - name: Radio repository
         if: startsWith(steps.m.outputs.mode, 'radio-') && steps.m.outputs.mode != 'radio-showcase'
         run: git clone -q --depth 1 https://github.com/eai-apps/YAiPlay-Radio.git radio
@@ -100,6 +113,16 @@ jobs:
         working-directory: state
         run: |
           git config user.name "yaiplayer-bot"; git config user.email "yaiplayer-bot@users.noreply.github.com"
+          python3 - <<'PY'
+          import json, datetime, zoneinfo
+          today = datetime.datetime.now(zoneinfo.ZoneInfo("Europe/Berlin")).strftime("%Y-%m-%d")
+          try: d = json.load(open("daily-done.json"))
+          except Exception: d = {}
+          d = {k: v for k, v in d.items() if k >= (datetime.date.fromisoformat(today) - datetime.timedelta(days=7)).isoformat()}
+          d.setdefault(today, [])
+          if "${{ steps.m.outputs.mode }}" not in d[today]: d[today].append("${{ steps.m.outputs.mode }}")
+          json.dump(d, open("daily-done.json", "w"), indent=1)
+          PY
           git add -A
           git diff --cached --quiet && exit 0
           git commit -qm "state: ${{ steps.m.outputs.mode }} $(date -u +%F)"
