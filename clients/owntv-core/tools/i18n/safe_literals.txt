@@ -5172,7 +5172,7 @@
 1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerEpgLoader.kt	guide ok: period=$period covers ${spanH}h
 1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerEpgLoader.kt	guide: only the short per-channel route worked, channels=${sink.channels} programmes=${sink.kept}
 1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerEpgLoader.kt	guide: period=$period channels=${attemptSink.channels} programmes=${attemptSink.kept} covers ${spanH}h
-1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerEpgLoader.kt	guide: period=$period failed (${e.javaClass.simpleName})
+1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerEpgLoader.kt	guide: period=$period failed (${e.javaClass.simpleName} $why)
 1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerEpgLoader.kt	guide: period=$period returned nothing usable
 1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerEpgLoader.kt	per-channel guide abandoned after $failures failures: ${e.message}
 1	log	core/src/main/java/tv/own/owntv/core/stalker/StalkerEpgLoader.kt	per-channel guide abandoned: $asked channels answered with nothing

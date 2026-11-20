@@ -1086,6 +1086,12 @@ class LiveViewModel(
         viewModelScope.launch { revealInSelectedNow(channelId) }
     }
 
+    /** Where [channelId] sits in the selected category's list, or null (not there). No focus, no reveal. */
+    suspend fun positionInSelected(channelId: Long): Int? {
+        val c = ctx.first { it.profileId >= 0 }
+        return runCatching { pagingSource(_selected.value, c, "", settings.sortLive.first()).positionOf(channelId, { it.id }) }.getOrNull()
+    }
+
     private suspend fun revealInSelectedNow(channelId: Long) {
         val c = ctx.first { it.profileId >= 0 }
         val key = _selected.value

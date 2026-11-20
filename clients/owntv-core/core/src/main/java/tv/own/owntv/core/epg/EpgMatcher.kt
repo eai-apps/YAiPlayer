@@ -333,6 +333,28 @@ object EpgMatcher {
         minScore: Double = REVIEW_THRESHOLD,
     ): List<Result?> {
         if (channelNames.isEmpty() || candidates.isEmpty()) return List(channelNames.size) { null }
+        // Owner 20.11: «Подобрано каналов» crawled for many minutes on a Chromecast (2 921 channels against
+        // the reserve guide). Most names equal a candidate's name or id once normalized — a perfect 1.0 that
+        // the full scan reaches only after scoring every candidate before it. Look those up directly; only
+        // the rest go through the full scan. The first candidate in list order wins a tie, as in the scan.
+        val exact = HashMap<String, Prepared>(candidates.size * 2)
+        for (c in candidates) {
+            if (c.normName.isNotEmpty()) exact.putIfAbsent(c.normName, c)
+            if (c.normId.isNotEmpty()) exact.putIfAbsent(c.normId, c)
+        }
+        val direct = arrayOfNulls<Result>(channelNames.size)
+        val rest = ArrayList<Int>()
+        channelNames.forEachIndexed { i, name ->
+            val hit = normalizeForEpg(name).takeIf { it.isNotEmpty() }?.let { exact[it] }
+            if (hit != null) direct[i] = Result(hit.epgChannelId, hit.displayName, 1.0) else rest.add(i)
+        }
+        if (rest.isEmpty()) return direct.toList()
+        val scanned = scanBulk(rest.map { channelNames[it] }, candidates, minScore)
+        rest.forEachIndexed { j, i -> direct[i] = scanned[j] }
+        return direct.toList()
+    }
+
+    private suspend fun scanBulk(channelNames: List<String>, candidates: List<Prepared>, minScore: Double): List<Result?> {
         if (channelNames.size < PARALLEL_MIN_ITEMS) {
             return channelNames.map { bestEpgMatchPrepared(it, candidates, minScore) }
         }

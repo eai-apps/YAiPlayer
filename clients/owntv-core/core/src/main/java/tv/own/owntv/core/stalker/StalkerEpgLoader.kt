@@ -134,9 +134,16 @@ class StalkerEpgLoader(
 
         var lastError: Exception? = null
         var best: Outcome? = null
+        // Hours or days: learnt from the first reply (see below). Null until something answered.
+        var unitIsHours: Boolean? = null
         for (period in PERIODS) {
-            // Once a smaller request has answered, only a larger one can improve on it.
-            if (best != null && period <= best.periodDays) break
+            // Once a request has answered, only one asking for more hours can improve on it. Owner 20.11:
+            // this used to compare the raw numbers — after `7` (read as 7 hours → 10 h of guide) and a failed
+            // `168`, the `3` stopped the loop and 72, 48 and 24 hours were never asked for.
+            if (best != null) {
+                val askedHours = if (unitIsHours == true) period.toLong() else period * 24L
+                if (askedHours <= bestSpanH) continue
+            }
             val attemptSink = Sink(from, to, onProgress, onBatch)
             try {
                 val programmes = bulk(creds, mac, period, cacheDir, source.id, attemptSink)
@@ -148,6 +155,7 @@ class StalkerEpgLoader(
                     Log.i(TAG, "portal guide sourceId=${source.id} bulk period=$period channels=${attemptSink.channels} programmes=${attemptSink.kept} spanH=$spanH")
                     tv.own.owntv.core.util.GuideTrace.add("guide: period=$period channels=${attemptSink.channels} programmes=${attemptSink.kept} covers ${spanH}h")
                     val outcome = Outcome(Method.BULK, period, attemptSink.channels, attemptSink.kept)
+                    if (unitIsHours == null && period <= 14) unitIsHours = spanH < period * 12L
                     if (best == null || spanH > bestSpanH) { best = outcome; bestSpanH = spanH }
                     // `period` is DAYS on some portals and HOURS on others. A reply covering far less than
                     // was asked for says it was read as hours: ask again in hours (the next entries).
@@ -167,7 +175,9 @@ class StalkerEpgLoader(
             } catch (e: Exception) {
                 lastError = e
                 Log.w(TAG, "portal guide sourceId=${source.id} period=$period failed: ${e.message}")
-                tv.own.owntv.core.util.GuideTrace.add("guide: period=$period failed (${e.javaClass.simpleName})")
+                // The reason without any address (an exception's message can name the portal's host).
+                val why = e.message.orEmpty().substringBefore(':').take(40)
+                tv.own.owntv.core.util.GuideTrace.add("guide: period=$period failed (${e.javaClass.simpleName} $why)")
             }
         }
         best?.let { return it }
@@ -318,7 +328,7 @@ class StalkerEpgLoader(
          * Days of guide to ask for, in order. Seven is what a set-top box asks for and what the app
          * retains anyway; the shorter ones exist for panels that cannot build a week in one go.
          */
-        val PERIODS = listOf(7, 168, 3, 72, 1, 24)
+        val PERIODS = listOf(7, 168, 3, 72, 48, 1, 24)
 
         /** The hours of guide worth accepting for a request of [period]: half of it, read as days (≤ 14) or hours. */
         fun wantedSpanHours(period: Int, windowHours: Long = Long.MAX_VALUE): Long =
