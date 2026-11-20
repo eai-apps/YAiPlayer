@@ -143,6 +143,10 @@ internal fun LivePreview(
                 titleSize = if (tablet) 26f else if (wide) 18f else 20f,
                 plot = now.description?.takeIf { tablet && it.isNotBlank() },
             )
+            // Owner 20.11: how far ahead this channel's guide is stored.
+            tv.own.owntv.core.live.GuideAheadText.of(androidx.compose.ui.platform.LocalContext.current, nowNext.guideUntilMs)?.let {
+                Text(it, style = stageText(11.5f, 500), color = LocalStagePalette.current.muted, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(start = 2.dp, top = 2.dp))
+            }
         }
     }
 }

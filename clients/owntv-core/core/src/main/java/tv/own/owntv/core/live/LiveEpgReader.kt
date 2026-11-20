@@ -43,6 +43,15 @@ private const val NEXT_PROGRAMME_GAP_CAP_MS = 3L * 60 * 60 * 1000
  */
 private const val CACHE_TTL_MS = 5 * 60_000L
 
+/**
+ * Owner 20.11: «программа то есть, то пропадает». An answer with nothing in it was kept as long as a real
+ * one, so a channel looked up while its guide was still loading stayed blank for five minutes. Empty answers
+ * are kept only this long.
+ */
+private const val EMPTY_CACHE_TTL_MS = 30_000L
+
+private fun EpgNowNext.isEmptyAnswer() = now == null && next == null
+
 /** Backoff for channels whose provider returned no short-EPG data. */
 private const val EMPTY_PROVIDER_TTL_MS = 10 * 60_000L
 
@@ -143,6 +152,16 @@ class LiveEpgReader(
         emptyProviderEpgUntil.clear()
     }
 
+    /**
+     * Owner 20.11: a guide download ended. Forget what was remembered as «no programme» (and the stored-guide
+     * answers built before it), so the next look reads the new rows. Answers fetched from the provider stay:
+     * they are still right and fetching them again costs a request per channel.
+     */
+    fun onGuideChanged() {
+        cache.clear()
+        emptyProviderEpgUntil.clear()
+    }
+
     /** Drop one channel's cached now/next (its EPG match or per-channel shift changed). */
     fun invalidate(channelId: Long) {
         cache.remove(channelId)
@@ -154,7 +173,8 @@ class LiveEpgReader(
     suspend fun nowNext(ch: ChannelEntity, cust: SectionCustomizations, globalShiftMinutes: Int): EpgNowNext? =
         withContext(Dispatchers.IO) {
             val now = System.currentTimeMillis()
-            cache[ch.id]?.takeIf { now - it.at < CACHE_TTL_MS }?.let { return@withContext it.data }
+            cache[ch.id]?.takeIf { now - it.at < (if (it.data.isEmptyAnswer()) EMPTY_CACHE_TTL_MS else CACHE_TTL_MS) }
+                ?.let { return@withContext it.data }
 
             // 1) Bulk guide via the effective EPG id (manual match overrides the channel's own id).
             val epgKey = (cust.epgMatchResolver.epgIdFor(ch) ?: ch.epgChannelId)?.trim()?.lowercase()?.takeIf { it.isNotEmpty() }
@@ -186,8 +206,9 @@ class LiveEpgReader(
                     // Days of stored guide — accurate for bulk-guide channels (the short-EPG API path
                     // leaves this null, since its ~8 entries only span a few hours).
                     val days = runCatching { epgDao.coverageDays(epgKey) }.getOrNull()?.takeIf { it > 0 }
+                    val until = runCatching { epgDao.guideUntil(epgKey) }.getOrNull()?.let { it + shift * 60_000L }
                     fun EpgProgrammeEntity.shifted() = EpgShift.apply(this, shift).toXt()
-                    val result = EpgNowNext(nowProg?.shifted(), nextProg?.shifted(), future.drop(1).map { it.shifted() }, previous = prevProg?.shifted(), coverageDays = days, nowDetails = nowProg?.details)
+                    val result = EpgNowNext(nowProg?.shifted(), nextProg?.shifted(), future.drop(1).map { it.shifted() }, previous = prevProg?.shifted(), coverageDays = days, nowDetails = nowProg?.details, guideUntilMs = until)
                     cache[ch.id] = CachedEpg(now, result)
                     return@withContext result
                 }
