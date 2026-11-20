@@ -99,6 +99,8 @@ class GuideOffer(
                 else context.getString(tv.own.owntv.core.R.string.guide_offer_filled_none, n + 1)
                 kotlinx.coroutines.withContext(Dispatchers.Main) { android.widget.Toast.makeText(context, text, android.widget.Toast.LENGTH_LONG).show() }
             }
+            // Owner 20.11: what is still missing after our source filled it — the «normal» gap for the daily check.
+            runCatching { coverage()?.let { (m, t) -> prefs().edit().putInt(FLOOR_MISSING, m).putInt(FLOOR_TOTAL, t).apply() } }
             kotlinx.coroutines.delay(NEXT_OFFER_DELAY_MS)
             // A portal's chain: the next source for the same portal (owner 16.11: source 2 offered too).
             val portalId = chainPortal
@@ -192,12 +194,15 @@ class GuideOffer(
         // Where the guide of most channels ends: the lower quartile, so a few long feeds do not hide it.
         val until = ends.filter { it > now }.sorted().let { if (it.isEmpty()) null else it[it.size / 4] }
         val runningOut = until != null && until < now + 86_400_000L
-        // Channels that never have a guide must not make it ask every day: compare with the fewest missing seen.
+        // Channels that never have a guide must not make it ask every day. The «normal» number of channels
+        // without a programme is recorded only AFTER our additional sources have tried to fill them
+        // (afterFeed) — owner 20.11: the first check took today's gap itself as normal and never asked.
         val p = prefs()
         val floorTotal = p.getInt(FLOOR_TOTAL, -1)
-        val floor = if (floorTotal == total) p.getInt(FLOOR_MISSING, missing) else missing
-        if (missing < floor || floorTotal != total) p.edit().putInt(FLOOR_MISSING, missing).putInt(FLOOR_TOTAL, total).apply()
-        val moreMissing = missing * 5 > total && missing > floor + maxOf(5, total / 20)
+        val floorKnown = floorTotal == total
+        val floor = p.getInt(FLOOR_MISSING, 0)
+        val moreMissing = missing * 5 > total && (!floorKnown || missing > floor + maxOf(5, total / 20))
+        tv.own.owntv.core.util.GuideTrace.add("daily check: $missing of $total without a programme today, normal=${if (floorKnown) floor else -1}, guide of most until=${until ?: 0}")
         if (!runningOut && !moreMissing && have.isNotEmpty()) return null
         p.edit().putString(DAILY_SHOWN, today).apply()
         return Stale(missing, total, until)
