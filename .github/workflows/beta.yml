@@ -28,7 +28,27 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Owner 20.11: «почему такой перескок бет… скоро будет бета 1023». The number used to be the run counter, which
+  # every push and every cancelled/failed run consumed (55 and 57 were cancelled). Now the beta is called 6.01,
+  # 6.02, 6.03… and the number grows only when a beta is actually published: the next one is the published
+  # title + 1. (versionCode stays the run counter — invisible, and it must only ever grow for Android.)
+  number:
+    runs-on: ubuntu-latest
+    outputs:
+      name: ${{ steps.n.outputs.name }}
+    steps:
+      - id: n
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cur=$(gh release view beta --repo "${{ github.repository }}" --json name --jq .name 2>/dev/null || true)
+          if [[ "$cur" =~ ^6\.([0-9]+)$ ]]; then n=$((10#${BASH_REMATCH[1]} + 1)); else n=1; fi
+          name=$(printf '6.%02d' "$n")
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+          echo "Бета: $name (было: $cur)"
+
   build:
+    needs: number
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -74,7 +94,7 @@ jobs:
         working-directory: clients/${{ matrix.app }}
         env:
           VERSION_CODE: ${{ github.run_number }}
-          VERSION_NAME: beta-${{ github.run_number }}
+          VERSION_NAME: ${{ needs.number.outputs.name }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
@@ -108,7 +128,7 @@ jobs:
           if-no-files-found: ignore
 
   publish:
-    needs: build
+    needs: [number, build]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -125,12 +145,12 @@ jobs:
           REPO: ${{ github.repository }}
         run: |
           ls -l dist
-          # Owner 18.11: only "beta-N" and what was added/improved — no branch, commit or links.
-          notes="$(printf 'Бета beta-%s\n\n' "${{ github.run_number }}"; cat docs/BETA_NOTES.md)"
+          # Owner 18.11: only "Бета N" and what was added/improved — no branch, commit or links.
+          notes="$(printf 'Бета %s\n\n' "${{ needs.number.outputs.name }}"; cat docs/BETA_NOTES.md)"
           if ! gh release view beta --repo "$REPO" >/dev/null 2>&1; then
-            gh release create beta --repo "$REPO" --prerelease --target "$GITHUB_SHA" --title "beta-${{ github.run_number }}" --notes "$notes" dist/*.apk
+            gh release create beta --repo "$REPO" --prerelease --target "$GITHUB_SHA" --title "${{ needs.number.outputs.name }}" --notes "$notes" dist/*.apk
           else
             gh release upload beta --repo "$REPO" --clobber dist/*.apk
-            # the title carries the build number: the beta app updates itself when it grows
-            gh release edit beta --repo "$REPO" --prerelease --title "beta-${{ github.run_number }}" --notes "$notes"
+            # the title carries the beta number (6.01, 6.02…): the beta app updates itself when it grows
+            gh release edit beta --repo "$REPO" --prerelease --title "${{ needs.number.outputs.name }}" --notes "$notes"
           fi
