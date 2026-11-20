@@ -7,8 +7,8 @@ import kotlinx.coroutines.flow.asStateFlow
 /**
  * App-wide "an EPG sync is running" signal for the shell's status pill. Mirrors [SyncActivityTracker]:
  * [tv.own.owntv.core.sync.work.EpgSyncWorker] reports here (started / progress / finished), so the same
- * unobtrusive pill that tracks catalog syncs also reflects guide/EPG downloads. Mostly observational;
- * [guideChanged] tells live screens a guide download ended.
+ * unobtrusive pill that tracks catalog syncs also reflects guide/EPG downloads. Purely observational —
+ * nothing reads this to make decisions.
  */
 class EpgActivityTracker {
 
@@ -54,15 +54,5 @@ class EpgActivityTracker {
 
     fun finished(sourceId: Long) {
         _active.value = _active.value - sourceId
-        _guideChanged.value = _guideChanged.value + 1
     }
-
-    private val _guideChanged = MutableStateFlow(0L)
-
-    /**
-     * Owner 20.11: bumped every time a guide download ends. Live screens drop what they remembered about
-     * channels «without a programme» and read the guide again — otherwise a programme loaded a minute ago
-     * stayed hidden (and came and went) until their own caches ran out.
-     */
-    val guideChanged: StateFlow<Long> = _guideChanged.asStateFlow()
 }

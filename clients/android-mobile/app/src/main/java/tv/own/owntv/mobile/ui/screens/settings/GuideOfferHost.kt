@@ -33,28 +33,10 @@ fun GuideOfferHost(onShowNewChannels: () -> Unit = {}) {
     val newChannels: NewChannels = koinInject()
     val offer by offers.offer.collectAsStateWithLifecycle()
     val weekly by offers.weekly.collectAsStateWithLifecycle()
-    val stale by offers.stale.collectAsStateWithLifecycle()
     val fresh by newChannels.notice.collectAsStateWithLifecycle()
     val palette = LocalStagePalette.current
-    // Owner 20.11: the daily guide check also when the app comes back to the screen.
-    androidx.lifecycle.compose.LifecycleResumeEffect(Unit) { offers.onAppResumed(); onPauseOrDispose { } }
     val o = offer
-    val st = stale
     when {
-        st != null -> MobileBottomSheet(onDismissRequest = { offers.staleLater() }) {
-            val locale = androidx.compose.ui.platform.LocalConfiguration.current.locales[0]
-            tv.own.owntv.mobile.ui.stage.StageSheetHeader(stringResource(R.string.guide_stale_title))
-            Column(Modifier.padding(horizontal = MobileDimens.ScreenPaddingH), verticalArrangement = Arrangement.spacedBy(MobileDimens.GapMedium)) {
-                Text(
-                    st.untilMs?.let { stringResource(R.string.guide_stale_body, st.missing, st.total, tv.own.owntv.core.live.GuideAheadText.date(locale, it)) }
-                        ?: stringResource(R.string.guide_stale_body_none, st.missing, st.total),
-                    style = stageText(13.5f, 500), color = palette.dim,
-                )
-                StageButton(text = stringResource(R.string.guide_weekly_provider), onClick = { offers.staleFromProvider() }, style = StageButtonStyle.PRIMARY, modifier = Modifier.fillMaxWidth())
-                StageButton(text = stringResource(R.string.guide_weekly_reserve), onClick = { offers.staleFromReserve() }, modifier = Modifier.fillMaxWidth())
-                StageButton(text = stringResource(R.string.guide_offer_later), onClick = { offers.staleLater() }, modifier = Modifier.fillMaxWidth())
-            }
-        }
         weekly -> MobileBottomSheet(onDismissRequest = { offers.weeklyLater() }) {
             tv.own.owntv.mobile.ui.stage.StageSheetHeader(stringResource(R.string.guide_weekly_title))
             Column(Modifier.padding(horizontal = MobileDimens.ScreenPaddingH), verticalArrangement = Arrangement.spacedBy(MobileDimens.GapMedium)) {

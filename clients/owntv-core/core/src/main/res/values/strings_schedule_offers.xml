@@ -15,12 +15,4 @@
         <item quantity="one">Your provider added %d new channel. It stays in the «Recently added» category of Live TV for 7 days.</item>
         <item quantity="other">Your provider added %d new channels. They stay in the «Recently added» category of Live TV for 7 days.</item>
     </plurals>
-    <string name="guide_stale_title">The TV guide needs updating</string>
-    <string name="guide_stale_body">%1$d of %2$d channels have no programme for today. The guide of most channels runs until %3$s. Update it?</string>
-    <string name="guide_stale_body_none">%1$d of %2$d channels have no programme for today. Update the TV guide?</string>
-    <string name="guide_ahead_today">TV guide ends today at %1$s</string>
-    <plurals name="guide_ahead_days">
-        <item quantity="one">TV guide for %1$d more day (until %2$s)</item>
-        <item quantity="other">TV guide for %1$d more days (until %2$s)</item>
-    </plurals>
 </resources>
