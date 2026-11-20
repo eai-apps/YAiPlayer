@@ -2366,6 +2366,7 @@
 1	log	core/src/main/java/tv/own/owntv/core/epg/GuideCandidates.kt	namedLimitHit=${named.size >= limit} programmeLimitHit=${withProgrammes.size >= limit}
 1	log	core/src/main/java/tv/own/owntv/core/epg/GuideCandidates.kt	queryMs=${queriedAt - startedAt} totalMs=${SystemClock.elapsedRealtime() - startedAt}
 1	log	core/src/main/java/tv/own/owntv/core/epg/GuideCandidates.kt	rankMs=${SystemClock.elapsedRealtime() - startedAt}
+1	log	core/src/main/java/tv/own/owntv/core/epg/GuideOffer.kt	daily check: missing=$missing total=$total normal=$normal until=$untilAt
 1	preference-key	core/src/main/java/tv/own/owntv/core/epg/GuideOffer.kt	daily_shown_day
 1	preference-key	core/src/main/java/tv/own/owntv/core/epg/GuideOffer.kt	guide_offer
 1	preference-key	core/src/main/java/tv/own/owntv/core/epg/GuideOffer.kt	missing_floor

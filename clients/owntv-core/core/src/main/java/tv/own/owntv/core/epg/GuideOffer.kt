@@ -202,7 +202,9 @@ class GuideOffer(
         val floorKnown = floorTotal == total
         val floor = p.getInt(FLOOR_MISSING, 0)
         val moreMissing = missing * 5 > total && (!floorKnown || missing > floor + maxOf(5, total / 20))
-        tv.own.owntv.core.util.GuideTrace.add("daily check: $missing of $total without a programme today, normal=${if (floorKnown) floor else -1}, guide of most until=${until ?: 0}")
+        val normal = if (floorKnown) floor else -1
+        val untilAt = until ?: 0L
+        tv.own.owntv.core.util.GuideTrace.add("daily check: missing=$missing total=$total normal=$normal until=$untilAt")
         if (!runningOut && !moreMissing && have.isNotEmpty()) return null
         p.edit().putString(DAILY_SHOWN, today).apply()
         return Stale(missing, total, until)
