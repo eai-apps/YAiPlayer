@@ -124,7 +124,7 @@
     <string name="update_downloading">Stahování aktualizace… <xliff:g id="percent">%1$d</xliff:g>%%</string>
     <string name="update_available">Je dostupná aktualizace</string>
     <string name="update_latest">Používáte nejnovější verzi (v<xliff:g id="version">%1$s</xliff:g>).</string>
-    <string name="update_available_version">Je dostupná verze <xliff:g id="available">%1$s</xliff:g> (máte v<xliff:g id="current">%2$s</xliff:g>).</string>
+    <string name="update_available_version">Je dostupná verze <xliff:g id="available">%1$s</xliff:g> (máte <xliff:g id="current">%2$s</xliff:g>).</string>
     <string name="update_installer">Po dokončení stahování se otevře systémový instalační program.</string>
     <string name="update_later">Později</string>
     <string name="update_now">Aktualizovat nyní</string>
@@ -140,7 +140,7 @@
     <string name="update_not_enough_space">Pro aktualizaci není dost volného místa. Uvolněte přibližně <xliff:g id="size">%1$s</xliff:g> a zkuste to znovu.</string>
     <string name="update_damaged_download">Aktualizace se nestáhla celá. Zkontrolujte připojení a zkuste to znovu.</string>
     <string name="update_install_rejected">Instalátor systému aktualizaci odmítl: <xliff:g id="reason">%1$s</xliff:g></string>
-    <string name="update_ready">YAiPlayer v<xliff:g id="available">%1$s</xliff:g> je připravena (máte v<xliff:g id="current">%2$s</xliff:g>).</string>
+    <string name="update_ready">YAiPlayer <xliff:g id="available">%1$s</xliff:g> je připravena (máte <xliff:g id="current">%2$s</xliff:g>).</string>
     <string name="recovery_title">YAiPlayer nemohla otevřít svou databázi</string>
     <string name="recovery_data_safe_full">Vaše profily, playlisty, oblíbené položky ani historie NEBYLY odstraněny — jde o selhání upgradu databáze a data jsou stále v tomto zařízení.\n\nNahlaste prosím tuto chybu, aby ji bylo možné opravit, a přiložte níže uvedenou zprávu.</string>
     <string name="recovery_retry">Zkusit znovu</string>

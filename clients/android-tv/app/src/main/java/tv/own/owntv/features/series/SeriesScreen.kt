@@ -661,8 +661,9 @@ private fun SeriesGrid(
                     ) {
                         StageSearchField(
                             query = searchQuery, onQueryChange = vm::setSearchQuery,
-                            placeholder = stringResource(R.string.content_search_in, headerLabel),
-                            modifier = Modifier.width(440.mpx).focusRequester(listSearchFocus).then(searchLeft),
+                            // Owner 18.11: say what the search finds — it already looks in genre, year, country, director and cast.
+                            placeholder = stringResource(R.string.content_search_in, stringResource(R.string.content_search_vod_hint)),
+                            modifier = Modifier.width(620.mpx).focusRequester(listSearchFocus).then(searchLeft),
                             onEditingChange = { searchEditing = it },
                         )
                         VodSortTool(sortMode, Modifier.focusRequester(sortFocus)) { sortOpen = true }
@@ -771,7 +772,7 @@ private fun SeriesGrid(
                 ) {
                     StageSearchField(
                         query = searchQuery, onQueryChange = vm::setSearchQuery,
-                        placeholder = stringResource(R.string.content_search_in, headerLabel),
+                        placeholder = stringResource(R.string.content_search_in, stringResource(R.string.content_search_vod_hint)),
                         modifier = Modifier.weight(1f).focusRequester(listSearchFocus).then(searchLeft),
                         onEditingChange = { searchEditing = it },
                     )
@@ -1435,9 +1436,6 @@ private fun EpisodeView(
         if (!info.backdropUrl.isNullOrBlank()) {
             EpisodesBackdrop(info.backdropUrl, Modifier.align(Alignment.TopEnd))
         }
-        // A portal's portrait poster (no wide picture) now sits in the header row itself, right of the title (below):
-        // placed on its own at a fixed height it slid over «Grid | List» and the sort on long titles (owner 12.11).
-        val sidePoster = info.backdropUrl.isNullOrBlank() && !info.posterUrl.isNullOrBlank()
         // The crumb: "‹ Series · Crunchyroll".
         Row(
             Modifier.padding(start = fx(84), top = 50.mpx).width(fx(980)),
@@ -1456,53 +1454,25 @@ private fun EpisodeView(
         // One column from top to bottom: the header, one row of buttons, then the episodes in the rest. Nothing is
         // placed at a fixed height any more, so the Continue button and the season choice can never overlap (3б).
         Column(Modifier.padding(top = 104.mpx).fillMaxSize()) {
-        Row(Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(start = fx(84)).width(fx(980))) {
-            // At most 170 high, the room the films' hero gives its title, so two lines shrink rather than
-            // push the episodes down.
-            tv.own.owntv.features.shell.components.VodHeroTitle(
-                // «Извне [S02] [ua] [ru]» reads «Извне»: the page holds every season (owner 12.11).
-                if (tv.own.owntv.core.content.SeasonRecordTitle.isSeasonRecord(series.name)) tv.own.owntv.core.content.SeasonRecordTitle.base(series.name) else series.name,
-                Modifier.heightIn(max = 170.mpx),
-            )
-            VodMeta(
-                parts = listOfNotNull(
-                    info.year?.toString(),
-                    info.genres.takeIf { it.isNotEmpty() }?.joinToString(", "),
-                    // Specials are not counted as a season, as on Home.
-                    seasons.count { it > 0 }.takeIf { it > 0 }?.let { androidx.compose.ui.res.pluralStringResource(R.plurals.home_trending_seasons, it, it) },
-                ),
-                rating = info.rating, tags = info.tags, size = 20,
-                modifier = Modifier.padding(top = 18.mpx, bottom = 12.mpx),
-            )
-            info.plot?.takeIf { it.isNotBlank() }?.let {
-                Text(
-                    it, style = stageText(19.5f, 400).copy(lineHeight = (19.5f * 1.55f).mpxSp), color = StageColors.Body,
-                    // The synopsis, kept to four lines so the episodes stay on screen (3б).
-                    maxLines = 4, overflow = TextOverflow.Ellipsis, modifier = Modifier.widthIn(max = 860.mpx),
-                )
-            }
-            // What the portal says about the people: director and cast, when it sends them.
-            listOfNotNull(
-                series.director?.takeIf { it.isNotBlank() }?.let { stringResource(R.string.portal_details_director) to it },
-                series.actors?.takeIf { it.isNotBlank() }?.let { stringResource(R.string.portal_details_cast) to it },
-            ).forEach { (label, value) ->
-                Row(Modifier.padding(top = 8.mpx).widthIn(max = 860.mpx), horizontalArrangement = Arrangement.spacedBy(10.mpx)) {
-                    Text(label, style = stageText(17, 700), color = StageColors.Dim)
-                    Text(value, style = stageText(17, 400), color = StageColors.Body, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                }
-            }
-        }
-        if (sidePoster) {
-            Spacer(Modifier.weight(1f))
-            // Centred in the room right of the text, never lower than the header: the buttons come after it.
-            AsyncImage(
-                model = info.posterUrl, contentDescription = null, contentScale = ContentScale.Fit,
-                modifier = Modifier.padding(end = fx(120)).width(fx(200)).aspectRatio(2f / 3f)
-                    .clip(androidx.compose.foundation.shape.RoundedCornerShape(14.mpx)),
-            )
-        }
-        }
+        // The operator's layout (owner 18.11): cover, title, original title, «year ● genres ● N seasons», country,
+        // director, cast and the full description on the right — one panel.
+        val pageTitle = if (tv.own.owntv.core.content.SeasonRecordTitle.isSeasonRecord(series.name)) tv.own.owntv.core.content.SeasonRecordTitle.base(series.name) else series.name
+        tv.own.owntv.features.shell.components.VodInfoPanel(
+            title = pageTitle,
+            originalTitle = series.originalTitle,
+            metaParts = listOfNotNull(
+                info.year?.toString(),
+                info.genres.takeIf { it.isNotEmpty() }?.joinToString(", "),
+                // Specials are not counted as a season, as on Home.
+                seasons.count { it > 0 }.takeIf { it > 0 }?.let { androidx.compose.ui.res.pluralStringResource(R.plurals.home_trending_seasons, it, it) },
+            ),
+            country = series.country,
+            director = series.director,
+            actors = series.actors ?: info.cast.takeIf { it.isNotEmpty() }?.take(8)?.joinToString(", ") { it.name },
+            plot = info.plot,
+            posterUrl = info.posterUrl,
+            modifier = Modifier.padding(start = fx(84), end = fx(64)).fillMaxWidth().heightIn(max = 290.mpx),
+        )
         val favouriteOn = stringResource(R.string.content_favorited)
         val favouriteOff = stringResource(R.string.content_favorite)
         val favouriteLabel: (Boolean) -> String = { if (it) favouriteOn else favouriteOff }

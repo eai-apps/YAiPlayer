@@ -419,7 +419,7 @@ private fun GateVersionLine(modifier: Modifier = Modifier) {
             tv.own.owntv.core.update.UpdateManager.State.Checking -> stringResource(tv.own.owntv.core.R.string.update_checking)
             tv.own.owntv.core.update.UpdateManager.State.UpToDate -> stringResource(tv.own.owntv.core.R.string.update_latest, current)
             is tv.own.owntv.core.update.UpdateManager.State.Downloading -> stringResource(tv.own.owntv.core.R.string.update_downloading, state.percent)
-            is tv.own.owntv.core.update.UpdateManager.State.Available -> stringResource(tv.own.owntv.core.R.string.update_available_version, state.info.version, current)
+            is tv.own.owntv.core.update.UpdateManager.State.Available -> stringResource(tv.own.owntv.core.R.string.update_available_version, tv.own.owntv.core.update.UpdateManager.shown(state.info.version), tv.own.owntv.core.update.UpdateManager.shown(current))
             else -> null
         }
         line?.let { Text(it, style = stageText(11f, 500), color = palette.muted, textAlign = TextAlign.End) }

@@ -162,7 +162,7 @@
     <string name="update_downloading">Eguneraketa deskargatzen… <xliff:g id="percent">%1$d</xliff:g>%%</string>
     <string name="update_available">Eguneraketa eskuragarri</string>
     <string name="update_latest">Azken bertsioa duzu (v<xliff:g id="version">%1$s</xliff:g>).</string>
-    <string name="update_available_version"><xliff:g id="available">%1$s</xliff:g> bertsioa eskuragarri dago (v<xliff:g id="current">%2$s</xliff:g> duzu).</string>
+    <string name="update_available_version"><xliff:g id="available">%1$s</xliff:g> bertsioa eskuragarri dago (<xliff:g id="current">%2$s</xliff:g> duzu).</string>
     <string name="update_installer">Sistemaren instalatzailea irekitzen da deskarga amaitzen denean.</string>
     <string name="update_later">Geroago</string>
     <string name="update_now">Eguneratu orain</string>
@@ -178,7 +178,7 @@
     <string name="update_not_enough_space">Ez dago biltegiratze libre nahikorik eguneraketarako. Askatu gutxi gorabehera <xliff:g id="size">%1$s</xliff:g> eta saiatu berriro.</string>
     <string name="update_damaged_download">Eguneraketa ez da guztiz deskargatu. Egiaztatu konexioa eta saiatu berriro.</string>
     <string name="update_install_rejected">Sistemaren instalatzaileak eguneraketa baztertu du: <xliff:g id="reason">%1$s</xliff:g></string>
-    <string name="update_ready">YAiPlayer v<xliff:g id="available">%1$s</xliff:g> prest dago (v<xliff:g id="current">%2$s</xliff:g> duzu).</string>
+    <string name="update_ready">YAiPlayer <xliff:g id="available">%1$s</xliff:g> prest dago (<xliff:g id="current">%2$s</xliff:g> duzu).</string>
     <string name="recovery_title">YAiPlayerk ezin izan du bere datu-basea ireki</string>
     <string name="recovery_data_safe_full">Zure profilak, erreprodukzio-zerrendak, gogokoak eta historia EZ dira ezabatu — datu-baseen bertsio-berritzeak huts egin du, eta datuak gailu honetan daude oraindik.\n\nInformatu hau konpon dadin, eta sartu beheko mezua.</string>
     <string name="recovery_retry">Saiatu berriro</string>

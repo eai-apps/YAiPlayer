@@ -112,7 +112,7 @@
     <string name="update_downloading">Downloader opdatering… <xliff:g id="percent">%1$d</xliff:g>%%</string>
     <string name="update_available">Opdatering tilgængelig</string>
     <string name="update_latest">Du har den nyeste version (v<xliff:g id="version">%1$s</xliff:g>).</string>
-    <string name="update_available_version">Version <xliff:g id="available">%1$s</xliff:g> er tilgængelig (du har v<xliff:g id="current">%2$s</xliff:g>).</string>
+    <string name="update_available_version">Version <xliff:g id="available">%1$s</xliff:g> er tilgængelig (du har <xliff:g id="current">%2$s</xliff:g>).</string>
     <string name="update_installer">Systemets installationsprogram åbnes, når downloaden er færdig.</string>
     <string name="update_later">Senere</string>
     <string name="update_now">Opdater nu</string>
@@ -128,7 +128,7 @@
     <string name="update_not_enough_space">Der er ikke plads nok til opdateringen. Frigør cirka <xliff:g id="size">%1$s</xliff:g>, og prøv igen.</string>
     <string name="update_damaged_download">Opdateringen blev ikke hentet helt. Tjek din forbindelse, og prøv igen.</string>
     <string name="update_install_rejected">Systemets installationsprogram afviste opdateringen: <xliff:g id="reason">%1$s</xliff:g></string>
-    <string name="update_ready">YAiPlayer v<xliff:g id="available">%1$s</xliff:g> er klar (du har v<xliff:g id="current">%2$s</xliff:g>).</string>
+    <string name="update_ready">YAiPlayer <xliff:g id="available">%1$s</xliff:g> er klar (du har <xliff:g id="current">%2$s</xliff:g>).</string>
     <string name="recovery_title">YAiPlayer kunne ikke åbne sin database</string>
     <string name="recovery_data_safe_full">Dine profiler, afspilningslister, favoritter og din afspilningshistorik er IKKE blevet slettet — dette er en fejl under opgradering af databasen, og dataene findes stadig på denne enhed.\n\nRapportér dette, så det kan blive rettet, og medtag meddelelsen nedenfor.</string>
     <string name="recovery_retry">Prøv igen</string>

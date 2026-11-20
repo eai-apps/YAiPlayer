@@ -3236,6 +3236,7 @@
 1	technical	core/src/main/java/tv/own/owntv/core/player/ForceMpvStore.kt	LIVE
 1	technical	core/src/main/java/tv/own/owntv/core/player/ForceMpvStore.kt	MPV
 1	preference-key	core/src/main/java/tv/own/owntv/core/player/ForceMpvStore.kt	exo_urls
+1	preference-key	core/src/main/java/tv/own/owntv/core/player/ForceMpvStore.kt	live_pins_reset_b49
 1	technical	core/src/main/java/tv/own/owntv/core/player/ForceMpvStore.kt	moved_to_db_v44
 1	technical	core/src/main/java/tv/own/owntv/core/player/ForceMpvStore.kt	owntv_force_mpv
 1	preference-key	core/src/main/java/tv/own/owntv/core/player/ForceMpvStore.kt	urls
@@ -3256,7 +3257,7 @@
 1	technical	core/src/main/java/tv/own/owntv/core/player/PlayerBudget.kt	48MiB
 2	technical	core/src/main/java/tv/own/owntv/core/player/PlayerBudget.kt	60
 1	technical	core/src/main/java/tv/own/owntv/core/player/PlayerBudget.kt	64MiB
-1	empty	core/src/main/java/tv/own/owntv/core/player/TrackLanguages.kt	\0
+2	empty	core/src/main/java/tv/own/owntv/core/player/TrackLanguages.kt	\0
 1	technical	core/src/main/java/tv/own/owntv/core/player/TrackLanguages.kt	ara
 1	technical	core/src/main/java/tv/own/owntv/core/player/TrackLanguages.kt	ben
 1	technical	core/src/main/java/tv/own/owntv/core/player/TrackLanguages.kt	bos
@@ -6161,6 +6162,7 @@
 1	log	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	update installed
 2	file-path	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	updates
 1	technical	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	v
+1	technical	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	v$version
 1	log	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	wrong package ${info.packageName}
 2	technical	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	x86_64
 1	technical	core/src/main/java/tv/own/owntv/core/util/BackgroundWork.kt	owntv-refresh-${n.incrementAndGet()}
@@ -7047,7 +7049,7 @@
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	tunneled playback requested, active=${player?.isTunnelingEnabled == true}
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	type${v.first}
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	type=${response.header("Content-Type").orEmpty()}
-2	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	und
+3	locale	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	und
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	uri=${HttpClient.redactUrl(loadEventInfo.uri.toString())}
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	url=${HttpClient.redactUrl(finalUrl)}$via$body
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	url=${HttpClient.redactUrl(request.url.toString())}

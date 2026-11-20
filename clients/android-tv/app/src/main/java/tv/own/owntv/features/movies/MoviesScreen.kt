@@ -25,7 +25,6 @@ import tv.own.owntv.features.shell.components.VodGroupLibrary
 import tv.own.owntv.features.shell.components.VodGroupOrganise
 import tv.own.owntv.features.shell.components.VodGroupWatch
 import tv.own.owntv.features.shell.components.VodHeader
-import tv.own.owntv.features.shell.components.VodHero
 import tv.own.owntv.features.shell.components.VodListRow
 import tv.own.owntv.features.shell.components.VodOptionsMenu
 import tv.own.owntv.features.shell.components.VodPosterArt
@@ -48,6 +47,7 @@ import tv.own.owntv.ui.theme.mpx
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -571,7 +571,22 @@ fun MoviesScreen(
                     section = stringResource(R.string.common_nav_movies), category = headerLabel, count = vodCount(false, count).takeUnless { sealed },
                     showChevron = true, modifier = Modifier.padding(start = fx(84), top = 52.mpx).width(fx(900)),
                 )
-                titleInfo?.let { VodHero(it, Modifier.padding(start = fx(84), top = 122.mpx).width(fx(1000)).height(heroH)) }
+                // The operator's layout (owner 18.11): one panel with every detail the portal sends and the full description.
+                titleInfo?.let { info ->
+                    tv.own.owntv.features.shell.components.VodInfoPanel(
+                        title = info.title,
+                        originalTitle = info.originalTitle,
+                        metaParts = listOfNotNull(
+                            info.year?.toString(),
+                            info.genres.takeIf { it.isNotEmpty() }?.joinToString(", "),
+                            info.runtimeSecs?.let { tv.own.owntv.features.shell.components.vodRuntime(it) },
+                        ),
+                        country = info.country, director = info.director,
+                        actors = info.actorsText ?: info.cast.takeIf { it.isNotEmpty() }?.take(8)?.joinToString(", ") { it.name },
+                        plot = info.plot,
+                        modifier = Modifier.padding(start = fx(84), top = 122.mpx).width(fx(1752)).heightIn(max = heroH - 16.mpx),
+                    )
+                }
                 Column(Modifier.padding(top = toolTop).fillMaxSize().then(paneModifier)) {
                     Row(
                         Modifier.padding(start = fx(68), end = fx(64)).fillMaxWidth()
@@ -583,8 +598,9 @@ fun MoviesScreen(
                     ) {
                         StageSearchField(
                             query = searchQuery, onQueryChange = vm::setSearchQuery,
-                            placeholder = stringResource(R.string.content_search_in, headerLabel),
-                            modifier = Modifier.width(440.mpx).focusRequester(listSearchFocus).then(searchLeft),
+                            // Owner 18.11: say what the search finds — it already looks in genre, year, country, director and cast.
+                            placeholder = stringResource(R.string.content_search_in, stringResource(R.string.content_search_vod_hint)),
+                            modifier = Modifier.width(620.mpx).focusRequester(listSearchFocus).then(searchLeft),
                             onEditingChange = { searchEditing = it },
                         )
                         VodSortTool(sortMode, Modifier.focusRequester(sortFocus)) { sortOpen = true }
@@ -696,7 +712,7 @@ fun MoviesScreen(
                 ) {
                     StageSearchField(
                         query = searchQuery, onQueryChange = vm::setSearchQuery,
-                        placeholder = stringResource(R.string.content_search_in, headerLabel),
+                        placeholder = stringResource(R.string.content_search_in, stringResource(R.string.content_search_vod_hint)),
                         modifier = Modifier.weight(1f).focusRequester(listSearchFocus).then(searchLeft),
                         onEditingChange = { searchEditing = it },
                     )
@@ -1233,5 +1249,9 @@ internal fun movieTitleInfo(
         tags = cinematicQualityBadges(movie.qualityRank, movie.advertisedCapabilities),
         plot = if (tmdbWins) meta?.overview ?: providerPlot else providerPlot ?: meta?.overview,
         cast = tv.own.owntv.core.metadata.MetadataCast.parse(meta?.castJson),
+        originalTitle = movie.originalTitle?.takeIf { it.isNotBlank() },
+        country = movie.country?.takeIf { it.isNotBlank() },
+        director = movie.director?.takeIf { it.isNotBlank() },
+        actorsText = movie.actors?.takeIf { it.isNotBlank() },
     )
 }

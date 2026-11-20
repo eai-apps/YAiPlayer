@@ -110,7 +110,7 @@ fun UpdateDialog(onDismiss: () -> Unit, checkOnOpen: Boolean = false) {
             }
             UpdateManager.State.UpToDate -> Text(stringResource(R.string.update_latest, manager.currentVersion), style = body, color = StageColors.Muted)
             is UpdateManager.State.Available -> {
-                Text(stringResource(R.string.update_available_version, s.info.version, manager.currentVersion), style = stageText(19, 600), color = StageColors.Text)
+                Text(stringResource(R.string.update_available_version, tv.own.owntv.core.update.UpdateManager.shown(s.info.version), tv.own.owntv.core.update.UpdateManager.shown(manager.currentVersion)), style = stageText(19, 600), color = StageColors.Text)
                 if (s.info.notes.isNotBlank()) {
                     Text(
                         stringResource(R.string.update_whats_new).uppercase(),

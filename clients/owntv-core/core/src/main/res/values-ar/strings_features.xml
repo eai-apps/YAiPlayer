@@ -136,7 +136,7 @@
     <string name="update_downloading">جارٍ تنزيل التحديث… <xliff:g id="percent">%1$d</xliff:g>%%</string>
     <string name="update_available">يتوفر تحديث</string>
     <string name="update_latest">أنت تستخدم أحدث إصدار (v<xliff:g id="version">%1$s</xliff:g>).</string>
-    <string name="update_available_version">يتوفر الإصدار <xliff:g id="available">%1$s</xliff:g> (لديك v<xliff:g id="current">%2$s</xliff:g>).</string>
+    <string name="update_available_version">يتوفر الإصدار <xliff:g id="available">%1$s</xliff:g> (لديك <xliff:g id="current">%2$s</xliff:g>).</string>
     <string name="update_installer">يُفتح مثبّت النظام عند اكتمال التنزيل.</string>
     <string name="update_later">لاحقًا</string>
     <string name="update_now">التحديث الآن</string>
@@ -152,7 +152,7 @@
     <string name="update_not_enough_space">لا توجد مساحة تخزين كافية للتحديث. أفرِغ نحو <xliff:g id="size">%1$s</xliff:g> ثم أعد المحاولة.</string>
     <string name="update_damaged_download">لم يكتمل تنزيل التحديث. تحقّق من اتصالك ثم أعد المحاولة.</string>
     <string name="update_install_rejected">رفض مثبّت النظام التحديث: <xliff:g id="reason">%1$s</xliff:g></string>
-    <string name="update_ready">YAiPlayer v<xliff:g id="available">%1$s</xliff:g> جاهز (لديك v<xliff:g id="current">%2$s</xliff:g>).</string>
+    <string name="update_ready">YAiPlayer <xliff:g id="available">%1$s</xliff:g> جاهز (لديك <xliff:g id="current">%2$s</xliff:g>).</string>
     <string name="recovery_title">تعذّر على YAiPlayer فتح قاعدة بياناته</string>
     <string name="recovery_data_safe_full">لم تُحذف ملفاتك الشخصية أو قوائم التشغيل أو المفضّلة أو سجل المشاهدة — فهذا إخفاق في ترقية قاعدة البيانات، وما تزال البيانات على هذا الجهاز.\n\nيرجى الإبلاغ عن ذلك حتى يمكن إصلاحه، وإرفاق الرسالة أدناه.</string>
     <string name="recovery_retry">إعادة المحاولة</string>

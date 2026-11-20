@@ -118,7 +118,7 @@
     <string name="update_downloading">A transferir a atualização… <xliff:g id="percent">%1$d</xliff:g>%%</string>
     <string name="update_available">Atualização disponível</string>
     <string name="update_latest">Está a usar a versão mais recente (v<xliff:g id="version">%1$s</xliff:g>).</string>
-    <string name="update_available_version">A versão <xliff:g id="available">%1$s</xliff:g> está disponível (tem a v<xliff:g id="current">%2$s</xliff:g>).</string>
+    <string name="update_available_version">A versão <xliff:g id="available">%1$s</xliff:g> está disponível (tem a <xliff:g id="current">%2$s</xliff:g>).</string>
     <string name="update_installer">O instalador do sistema abre quando a transferência terminar.</string>
     <string name="update_later">Mais tarde</string>
     <string name="update_now">Atualizar agora</string>
@@ -134,7 +134,7 @@
     <string name="update_not_enough_space">Espaço de armazenamento insuficiente para a atualização. Liberte cerca de <xliff:g id="size">%1$s</xliff:g> e tente novamente.</string>
     <string name="update_damaged_download">A atualização não foi transferida por completo. Verifique a sua ligação e tente novamente.</string>
     <string name="update_install_rejected">O instalador do sistema recusou a atualização: <xliff:g id="reason">%1$s</xliff:g></string>
-    <string name="update_ready">YAiPlayer v<xliff:g id="available">%1$s</xliff:g> está pronta (tem a v<xliff:g id="current">%2$s</xliff:g>).</string>
+    <string name="update_ready">YAiPlayer <xliff:g id="available">%1$s</xliff:g> está pronta (tem a <xliff:g id="current">%2$s</xliff:g>).</string>
     <string name="recovery_title">YAiPlayer não conseguiu abrir a respetiva base de dados</string>
     <string name="recovery_data_safe_full">Os seus perfis, listas de reprodução, favoritos e histórico NÃO foram eliminados — trata-se de uma falha na atualização da base de dados e os dados continuam neste dispositivo.\n\nComunique este problema para que possa ser corrigido e inclua a mensagem abaixo.</string>
     <string name="recovery_retry">Tentar novamente</string>
