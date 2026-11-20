@@ -36,15 +36,19 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       name: ${{ steps.n.outputs.name }}
+      title: ${{ steps.n.outputs.title }}
     steps:
       - id: n
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           cur=$(gh release view beta --repo "${{ github.repository }}" --json name --jq .name 2>/dev/null || true)
-          if [[ "$cur" =~ ^6\.([0-9]+)$ ]]; then n=$((10#${BASH_REMATCH[1]} + 1)); else n=1; fi
+          if [[ "$cur" =~ ^6\.([0-9]+) ]]; then n=$((10#${BASH_REMATCH[1]} + 1)); else n=1; fi
           name=$(printf '6.%02d' "$n")
           echo "name=$name" >> "$GITHUB_OUTPUT"
+          # The release title ends with the build number: betas before 6.01 («beta-58») decide on an update by the
+          # number at the END of the title, so «6.01 · 60» still reaches them. Newer betas show only «6.01».
+          echo "title=$name · ${{ github.run_number }}" >> "$GITHUB_OUTPUT"
           echo "Бета: $name (было: $cur)"
 
   build:
@@ -148,9 +152,9 @@ jobs:
           # Owner 18.11: only "Бета N" and what was added/improved — no branch, commit or links.
           notes="$(printf 'Бета %s\n\n' "${{ needs.number.outputs.name }}"; cat docs/BETA_NOTES.md)"
           if ! gh release view beta --repo "$REPO" >/dev/null 2>&1; then
-            gh release create beta --repo "$REPO" --prerelease --target "$GITHUB_SHA" --title "${{ needs.number.outputs.name }}" --notes "$notes" dist/*.apk
+            gh release create beta --repo "$REPO" --prerelease --target "$GITHUB_SHA" --title "${{ needs.number.outputs.title }}" --notes "$notes" dist/*.apk
           else
             gh release upload beta --repo "$REPO" --clobber dist/*.apk
             # the title carries the beta number (6.01, 6.02…): the beta app updates itself when it grows
-            gh release edit beta --repo "$REPO" --prerelease --title "${{ needs.number.outputs.name }}" --notes "$notes"
+            gh release edit beta --repo "$REPO" --prerelease --title "${{ needs.number.outputs.title }}" --notes "$notes"
           fi
