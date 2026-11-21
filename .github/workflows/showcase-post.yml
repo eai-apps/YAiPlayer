@@ -3,8 +3,7 @@ name: Weekly phone showcase to Telegram
 # Скриншоты: docs/showcase/raw (+ список в tools/brand/make_showcase.py). Текст: docs/showcase/post.html.
 # Есть новое в приложении — обновите скриншоты и текст. Остановить: отключите этот workflow во вкладке Actions.
 on:
-  schedule:
-    - cron: "0 9 * * 6"
+  # Расписание выключено: пост про телефон теперь в weekly-posts.yml (Вт и Пт, docs/posts/phone; 21.11, п.86). Ручной запуск остаётся.
   workflow_dispatch:
 permissions:
   contents: read

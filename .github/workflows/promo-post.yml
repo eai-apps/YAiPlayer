@@ -2,8 +2,7 @@ name: Promo post to Telegram
 # Рекламный пост с постером: раз в 3 дня в 9:00 по Берлину (08:00 UTC зимой). Постер рисуется из tools/brand/make_promo.py,
 # текст — docs/promo/post.html. Добавили функцию — поправьте оба файла.
 on:
-  schedule:
-    - cron: "0 8 * * *"
+  # Расписание выключено: заменён рекламным постом docs/posts/ad в weekly-posts.yml (21.11, п.87); старый текст содержал «бесплатный» — запрещено владельцем. Ручной запуск остаётся.
   workflow_dispatch:
     inputs:
       force:
