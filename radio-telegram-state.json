@@ -7,19 +7,19 @@
   "news": [],
   "releases": [],
   "askIndex": 0,
-  "featIndex": 3,
+  "featIndex": 4,
   "featRecent": [
     "globe",
     "webcams",
-    "record"
+    "record",
+    "moods"
   ],
-  "featStyle": 3,
-  "featCta": 3,
+  "featStyle": 4,
+  "featCta": 4,
   "cams": [
     "1793876473",
     "1793909005"
   ],
   "camIndex": 29,
-  "camCat": 2,
-  "aiError": "gemini-2.5-flash HTTP 404: {\n  \"error\": {\n    \"code\": 404,\n    \"message\": \"This model models/gemini-2.5-flash is no longer available to new users. Please update your code to use models/gemini-3.8-flash for the latest features and improvements. We recommend you to use the Interactions API (https://aistudio.google.com/docs/get-"
+  "camCat": 2
 }
