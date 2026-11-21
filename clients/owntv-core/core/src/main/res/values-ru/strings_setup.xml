@@ -301,7 +301,6 @@
     <string name="guest_hook_title">Зарегистрируйтесь — плейлисты синхронизируются между устройствами</string>
     <string name="guest_hook_action">Зарегистрироваться</string>
     <string name="guest_hook_dismiss">Скрыть</string>
-
     <!-- Profiles Gate Menu -->
     <string name="profiles_menu_enter">Войти</string>
     <string name="profiles_menu_hide">Скрыть с главной</string>
@@ -309,7 +308,6 @@
     <string name="profiles_hidden_tag">Скрыт</string>
     <string name="profiles_delete_confirm_title">Удалить профиль «<xliff:g id="name">%1$s</xliff:g>»?</string>
     <string name="profiles_delete_confirm_message">Это нельзя отменить</string>
-
     <!-- Stalker & Source Setup Enhancements -->
     <string name="setup_stalker_btn_connect">Войти в портал и синхронизировать</string>
     <string name="setup_btn_connect">Подключить и синхронизировать</string>

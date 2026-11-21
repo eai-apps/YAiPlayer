@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2026 YAiPlayer authors. Remote pairing by on-screen code (owner 16.11). -->
-<resources>
+<!-- Copyright (C) 2026 YAiPlayer authors. Remote pairing by on-screen code (owner 16.11). --><resources>
     <string name="remote_pair_popup_title">Пульт на телефоне</string>
     <string name="remote_pair_popup_body">Введите этот код на телефоне:</string>
     <string name="remote_pair_requesting">Получаем код с телевизора…</string>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="channel_preview_modes_description">У невеликому вікні поруч зі списком грає канал. Легкий режим цей перемикач не змінює.</string>
+    <string name="channel_preview_mode_active">Прев\'ю активного каналу</string>
+    <string name="channel_preview_mode_active_hint">Грає останній переглянутий канал; під час руху списком змінюється лише телепрограма. Натисніть OK, щоб дивитися вибраний канал.</string>
+    <string name="channel_preview_mode_all">Прев\'ю всіх каналів</string>
+    <string name="channel_preview_mode_all_hint">Кожен канал, на який ви переходите, починає грати. Більше навантаження на приставку та провайдера.</string>
+    <string name="channel_preview_value_active">Активний канал</string>
+    <string name="channel_preview_value_all">Усі канали</string>
+    <string name="gate_continue">Продовжити</string>
+</resources>

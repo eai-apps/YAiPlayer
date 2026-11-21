@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2026 YAiPlayer authors. Original code, written for YAiPlayer. -->
-<resources>
+<!-- Copyright (C) 2026 YAiPlayer authors. Original code, written for YAiPlayer. --><resources>
     <string name="settings_epg_background_resync">Im Hintergrund aktualisieren, wenn lange inaktiv</string>
     <string name="settings_epg_background_resync_desc">Programmführer und Playlists für alle Profile im Hintergrund aktuell halten</string>
     <string name="settings_epg_background_resync_threshold">Wie lange her</string>

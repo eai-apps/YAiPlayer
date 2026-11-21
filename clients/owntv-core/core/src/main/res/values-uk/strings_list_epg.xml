@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="refresh_list_epg">Оновити програму в списку</string>
+    <string name="channel_preview">Прев\'ю каналів</string>
+    <string name="channel_preview_description">Вибраний канал грає в невеликому вікні поруч зі списком. Це окремий перемикач: легкий режим вимикає лише анімації та прев\'ю не чіпає.</string>
+</resources>

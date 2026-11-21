@@ -19,7 +19,7 @@
     <string name="parental_mode_lock">PIN</string>
     <string name="parental_mode_lock_hint">Adult categories open only with the PIN</string>
     <plurals name="parental_adult_count">
-        <item quantity="one">%d adult category</item>
-        <item quantity="other">%d adult categories</item>
+        <item quantity="one">%1$d adult category</item>
+        <item quantity="other">%1$d adult categories</item>
     </plurals>
 </resources>

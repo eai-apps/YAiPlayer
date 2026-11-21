@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="quick_categories">Категорії</string>
+    <string name="quick_categories_hint">Приховати й показати категорії</string>
+    <string name="categories_search_hint">Пошук категорій…</string>
+    <string name="categories_select_all">Вибрати все</string>
+    <string name="categories_deselect_all">Зняти всі</string>
+    <string name="epg_time_shift_title">Зсув часу EPG</string>
+    <string name="epg_time_shift_description">Зсув телепрограми від -12 до +12 годин із кроком 30 хвилин</string>
+    <string name="epg_time_shift_reset">Скинути</string>
+</resources>

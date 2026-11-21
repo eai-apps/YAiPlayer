@@ -164,3 +164,11 @@ Text a user *can* read stays unclassified so it lands in `hardcoded_baseline.txt
 that file may only shrink against a pull request's merge base. Never file real UI copy as technical to
 make CI green; extract it to `strings.xml` instead, or leave it in the baseline for a later pass when
 the fix is bigger than the string (persisted values, for example).
+
+<!-- canonical-weblate:start -->
+**Canonical project overview:** <https://hosted.weblate.org/projects/owntv/>
+
+**New-language request form:** <https://github.com/ahXN00/OwnTV/issues/new?template=feature_request.yml&title=%5BLanguage%5D%20Add%20>
+
+The app, README, and this guide use these values from `community.json`; update that single source when either route changes.
+<!-- canonical-weblate:end -->

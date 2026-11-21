@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="yesterday_on_air">Учора в ефірі</string>
+    <string name="yesterday_on_air_title">Учора в ефірі · <xliff:g id="channel">%1$s</xliff:g></string>
+    <string name="yesterday_on_air_prompt">Виберіть передачу за минулі дні для перегляду з архіву.</string>
+    <string name="yesterday_on_air_empty">Телепрограму за цей день не знайдено.</string>
+    <string name="yesterday_day_yesterday">Учора</string>
+    <string name="yesterday_day_2_days">Позавчора</string>
+    <string name="yesterday_day_ago"><xliff:g id="days">%1$d</xliff:g> дн. тому</string>
+</resources>

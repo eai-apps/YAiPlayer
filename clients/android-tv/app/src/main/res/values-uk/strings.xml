@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="content_search_channels">Пошук каналів…</string>
+    <string name="content_search_movies">Пошук фільмів…</string>
+    <string name="content_search_series">Пошук серіалів…</string>
+</resources>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="parental_title">Захист від дітей</string>
+    <string name="parental_description">Категорії для дорослих (18+, XXX, «Для дорослих»…) кожного плейлиста й порталу: показувати, приховати або відкривати лише за PIN.</string>
+    <string name="parental_enter_pin">Введіть PIN</string>
+    <string name="parental_enter_pin_default">Введіть PIN (за замовчуванням 1111)</string>
+    <string name="parental_wrong_pin">Неправильний PIN</string>
+    <string name="parental_new_pin">Новий PIN (не менше 4 цифр)</string>
+    <string name="parental_pin_too_short">У PIN потрібно не менше 4 цифр</string>
+    <string name="parental_pin_changed">PIN змінено</string>
+    <string name="parental_change_pin">Змінити PIN</string>
+    <string name="parental_no_sources">У цьому профілі немає плейлистів і порталів</string>
+    <string name="parental_source_body">Що робити з категоріями для дорослих цього джерела.</string>
+    <string name="parental_mode_show">Показувати</string>
+    <string name="parental_mode_show_hint">Категорії для дорослих видно всім</string>
+    <string name="parental_mode_hide">Приховати</string>
+    <string name="parental_mode_hide_hint">Категорії для дорослих зникають з усіх списків</string>
+    <string name="parental_mode_lock">За PIN</string>
+    <string name="parental_mode_lock_hint">Категорії для дорослих відкриваються лише після PIN</string>
+    <plurals name="parental_adult_count">
+        <item quantity="one">%1$d категорія для дорослих</item>
+        <item quantity="few">%1$d категорії для дорослих</item>
+        <item quantity="many">%1$d категорій для дорослих</item>
+        <item quantity="other">%1$d категорій для дорослих</item>
+    </plurals>
+</resources>

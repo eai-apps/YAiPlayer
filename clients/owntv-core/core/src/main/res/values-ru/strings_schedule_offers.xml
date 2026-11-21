@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2026 YAiPlayer authors. Weekly guide offer, portal guide offer, new channels (owner 16.11). -->
-<resources>
+<!-- Copyright (C) 2026 YAiPlayer authors. Weekly guide offer, portal guide offer, new channels (owner 16.11). --><resources>
     <string name="guide_weekly_title">Новая телепрограмма на неделю</string>
     <string name="guide_weekly_body">Провайдеры обычно выкладывают программу на новую неделю в понедельник. Загрузить её сейчас? Сам плеер загрузит её в понедельник в 18:00.</string>
     <string name="guide_weekly_provider">От провайдера</string>
@@ -12,10 +11,10 @@
     <string name="new_channels_title">Новые каналы у провайдера</string>
     <string name="new_channels_show">Посмотреть</string>
     <plurals name="new_channels_body">
-        <item quantity="one">Провайдер добавил %d новый канал. Он находится в категории «Последние добавленные» в «Прямом эфире» 7 дней.</item>
-        <item quantity="few">Провайдер добавил %d новых канала. Они находятся в категории «Последние добавленные» в «Прямом эфире» 7 дней.</item>
-        <item quantity="many">Провайдер добавил %d новых каналов. Они находятся в категории «Последние добавленные» в «Прямом эфире» 7 дней.</item>
-        <item quantity="other">Провайдер добавил %d новых канала. Они находятся в категории «Последние добавленные» в «Прямом эфире» 7 дней.</item>
+        <item quantity="one">Провайдер добавил %1$d новый канал. Он находится в категории «Последние добавленные» в «Прямом эфире» 7 дней.</item>
+        <item quantity="few">Провайдер добавил %1$d новых канала. Они находятся в категории «Последние добавленные» в «Прямом эфире» 7 дней.</item>
+        <item quantity="many">Провайдер добавил %1$d новых каналов. Они находятся в категории «Последние добавленные» в «Прямом эфире» 7 дней.</item>
+        <item quantity="other">Провайдер добавил %1$d новых канала. Они находятся в категории «Последние добавленные» в «Прямом эфире» 7 дней.</item>
     </plurals>
     <string name="guide_stale_title">Телепрограмму пора обновить</string>
     <string name="guide_stale_body">У %1$d из %2$d каналов нет программы на сегодня. У большинства каналов она есть до %3$s. Обновить?</string>

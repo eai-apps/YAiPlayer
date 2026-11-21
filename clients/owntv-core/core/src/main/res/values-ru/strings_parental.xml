@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2026 YAiPlayer authors. «Защита от детей» (owner 16.11). -->
-<resources>
+<!-- Copyright (C) 2026 YAiPlayer authors. «Защита от детей» (owner 16.11). --><resources>
     <string name="parental_title">Защита от детей</string>
     <string name="parental_description">Категории для взрослых (18+, XXX, «Для взрослых»…) каждого плейлиста и портала: показывать, скрыть или открывать только по PIN.</string>
     <string name="parental_enter_pin">Введите PIN</string>
@@ -19,9 +18,9 @@
     <string name="parental_mode_lock">По PIN</string>
     <string name="parental_mode_lock_hint">Категории для взрослых открываются только после PIN</string>
     <plurals name="parental_adult_count">
-        <item quantity="one">%d категория для взрослых</item>
-        <item quantity="few">%d категории для взрослых</item>
-        <item quantity="many">%d категорий для взрослых</item>
-        <item quantity="other">%d категории для взрослых</item>
+        <item quantity="one">%1$d категория для взрослых</item>
+        <item quantity="few">%1$d категории для взрослых</item>
+        <item quantity="many">%1$d категорий для взрослых</item>
+        <item quantity="other">%1$d категории для взрослых</item>
     </plurals>
 </resources>

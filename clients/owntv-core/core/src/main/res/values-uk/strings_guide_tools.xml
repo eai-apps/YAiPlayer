@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sync_epg_matched">Підібрано каналів: %1$d з %2$d</string>
+    <string name="sync_loaded_at">Завантажено: %1$s</string>
+    <string name="guide_clear_all">Видалити всю завантажену телепрограму</string>
+    <string name="guide_clear_all_body">Кожна завантажена телепрограма видаляється з пам\'яті приставки. Під час наступного запуску вона завантажиться знову, якщо не вимкнено в налаштуваннях джерел.</string>
+    <string name="guide_cleared">Телепрограму видалено. Вона завантажиться знову за розкладом або за кнопкою «Оновити телепрограму».</string>
+    <string name="last_update_at">Останнє оновлення: %1$s</string>
+    <string name="last_update_never">ніколи</string>
+    <string name="guide_portal_done">«%1$s»: телепрограма є у %2$d з %3$d каналів.</string>
+    <string name="guide_reserve_started">Завантаження телепрограми з додаткового джерела %1$d…</string>
+</resources>

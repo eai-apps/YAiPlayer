@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="guide_check_action">Перевірити телепрограму каналу</string>
+    <plurals name="guide_check_found">
+        <item quantity="one">Телепрограма «%1$s»: далі %2$d передача (id %3$s)</item>
+        <item quantity="few">Телепрограма «%1$s»: далі %2$d передачі (id %3$s)</item>
+        <item quantity="many">Телепрограма «%1$s»: далі %2$d передач (id %3$s)</item>
+        <item quantity="other">Телепрограма «%1$s»: далі %2$d передач (id %3$s)</item>
+    </plurals>
+    <string name="guide_check_no_id">У «%1$s» немає ідентифікатора телепрограми. Виберіть її через «Зіставити EPG».</string>
+    <string name="guide_check_no_playlist_guide">У «%1$s» немає телепрограми, а в плейлисті немає посилання на неї.</string>
+    <string name="guide_check_loading">Для «%1$s» телепрограми поки немає — завантажую телепрограму плейлиста…</string>
+    <string name="guide_check_still_loading">Телепрограма плейлиста ще завантажується — перевірте «%1$s» через кілька хвилин.</string>
+    <string name="guide_check_none_after">У телепрограмі плейлиста немає даних для «%1$s». Спробуйте «Зіставити EPG» або додаткове джерело.</string>
+    <string name="guide_check_failed">Не вдалося перевірити телепрограму.</string>
+    <plurals name="guide_offer_filled">
+        <item quantity="one">Джерело %1$d: телепрограму додано для %2$d каналу</item>
+        <item quantity="few">Джерело %1$d: телепрограму додано для %2$d каналів</item>
+        <item quantity="many">Джерело %1$d: телепрограму додано для %2$d каналів</item>
+        <item quantity="other">Джерело %1$d: телепрограму додано для %2$d каналів</item>
+    </plurals>
+    <string name="guide_offer_filled_none">У джерелі %1$d немає телепрограми для каналів, яким її бракує.</string>
+</resources>

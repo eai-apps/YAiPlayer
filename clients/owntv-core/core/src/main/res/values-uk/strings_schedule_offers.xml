@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="guide_weekly_title">Нова телепрограма на тиждень</string>
+    <string name="guide_weekly_body">Провайдери зазвичай викладають програму на новий тиждень у понеділок. Завантажити її зараз? Сам плеєр завантажить її в понеділок о 18:00.</string>
+    <string name="guide_weekly_provider">Від провайдера</string>
+    <string name="guide_weekly_reserve">З наших джерел</string>
+    <string name="guide_portal_offer_title">У порталу немає телепрограми</string>
+    <string name="guide_portal_offer_body">У %1$d з %2$d каналів порталу «%3$s» немає телепрограми. Завантажити її з додаткового джерела?</string>
+    <string name="guide_portal_offer_load">Завантажити</string>
+    <string name="new_channels_category">Нещодавно додані</string>
+    <string name="new_channels_title">Нові канали у провайдера</string>
+    <string name="new_channels_show">Подивитися</string>
+    <plurals name="new_channels_body">
+        <item quantity="one">Провайдер додав %1$d новий канал. Він буде в категорії «Нещодавно додані» в «ТБ наживо» 7 днів.</item>
+        <item quantity="few">Провайдер додав %1$d нові канали. Вони будуть у категорії «Нещодавно додані» в «ТБ наживо» 7 днів.</item>
+        <item quantity="many">Провайдер додав %1$d нових каналів. Вони будуть у категорії «Нещодавно додані» в «ТБ наживо» 7 днів.</item>
+        <item quantity="other">Провайдер додав %1$d нових каналів. Вони будуть у категорії «Нещодавно додані» в «ТБ наживо» 7 днів.</item>
+    </plurals>
+    <string name="guide_stale_title">Телепрограму час оновити</string>
+    <string name="guide_stale_body">У %1$d з %2$d каналів немає програми на сьогодні. У більшості каналів вона є до %3$s. Оновити?</string>
+    <string name="guide_stale_body_none">У %1$d з %2$d каналів немає програми на сьогодні. Оновити телепрограму?</string>
+    <string name="guide_ahead_today">Телепрограма закінчується сьогодні о %1$s</string>
+    <plurals name="guide_ahead_days">
+        <item quantity="one">Телепрограма ще на %1$d день (до %2$s)</item>
+        <item quantity="few">Телепрограма ще на %1$d дні (до %2$s)</item>
+        <item quantity="many">Телепрограма ще на %1$d днів (до %2$s)</item>
+        <item quantity="other">Телепрограма ще на %1$d днів (до %2$s)</item>
+    </plurals>
+</resources>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="quick_start_on">Швидке завантаження: увімк</string>
+    <string name="quick_start_off">Швидке завантаження: вимк</string>
+    <string name="quick_start_hint">Під час запуску застосунок відразу відкриває останній використаний профіль і його портал, минаючи вибір профілів і синхронізацію. Зручно, якщо плеєром користується одна людина.</string>
+</resources>

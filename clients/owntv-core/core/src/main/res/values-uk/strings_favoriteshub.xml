@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="favorites_hub_title">Обране</string>
+    <string name="favorites_hub_row_all">Усі обрані</string>
+    <string name="favorites_hub_uncategorized">Без категорії</string>
+    <string name="favorites_hub_empty_title">Поки немає обраних каналів</string>
+    <string name="favorites_hub_empty_tv">Додавайте канали в обране (утримуйте OK на каналі)</string>
+    <string name="favorites_hub_empty_mobile">Додавайте канали в обране (натисніть ♥ на каналі)</string>
+    <string name="favorites_hub_open_live">Відкрити «ТБ наживо»</string>
+    <string name="favorites_hub_filter_all">Усі плейлисти</string>
+    <string name="favorites_hub_filter_current">Лише поточний</string>
+    <string name="favorites_hub_archive_days">Архів %1$d дн.</string>
+    <string name="favorites_hub_archive">Архів</string>
+    <string name="home_tile_favorites">Обране</string>
+    <string name="home_tile_favorites_desc">Вітрина улюблених каналів</string>
+</resources>
