@@ -1,0 +1,96 @@
+name: Weekly posts to Telegram
+# Витрины плеера (владелец 21.11, п.84–89). Время по Берлину; посты не пересекаются по дням:
+#   Пн 16:00 — приставка (docs/posts/tv)
+#   Вт 11:30 — техподдержка (telegram-release/post_support.py) · 16:00 — телефон (docs/posts/phone)
+#   Ср 18:30 — большой рекламный пост для пересылки (docs/posts/ad)
+#   Чт 16:00 — приставка
+#   Пт 11:30 — техподдержка · 16:00 — телефон
+#   Сб 12:40 — сайт (docs/posts/site) · 18:30 — рекламный пост
+#   Вс — без витрин (ежедневные «А вы знали?» и радио идут своим расписанием, daily-posts.yml)
+# Если GitHub пропустил запуск — пост выходит при следующем в тот же день. Что вышло — state/weekly-done.json
+# в ветке bot-state. Тексты: docs/posts/<вид>/post.html, слайды — tools/brand/make_posts.py.
+# Остановить: Actions → Weekly posts to Telegram → «…» → Disable workflow.
+on:
+  schedule:
+    - cron: "7,37 9-18 * * *"
+  workflow_dispatch:
+    inputs:
+      kind:
+        description: "Что опубликовать сейчас (auto — по расписанию)"
+        type: choice
+        options: [auto, tv, phone, site, ad, support]
+        default: auto
+      send:
+        description: "Отправить в канал (выключено — только проверка)"
+        type: boolean
+        default: false
+permissions:
+  contents: write
+concurrency:
+  group: weekly-posts
+  cancel-in-progress: false
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Saved state (bot-state branch)
+        run: |
+          git clone -q --depth 1 -b bot-state "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" state 2>/dev/null || { mkdir -p state; cd state; git init -q -b bot-state; }
+      - name: What to post
+        id: m
+        run: |
+          kind="${{ inputs.kind }}"
+          if [ -z "$kind" ] || [ "$kind" = "auto" ]; then
+            kind=$(python3 - <<'PY'
+          import json, datetime, zoneinfo
+          now = datetime.datetime.now(zoneinfo.ZoneInfo("Europe/Berlin"))
+          today = now.strftime("%Y-%m-%d")
+          try: done = json.load(open("state/weekly-done.json")).get(today, [])
+          except Exception: done = []
+          # weekday(): Mon=0 … Sun=6; (hour, minute, kind)
+          plan = {
+              0: [(16, 0, "tv")],
+              1: [(11, 30, "support"), (16, 0, "phone")],
+              2: [(18, 30, "ad")],
+              3: [(16, 0, "tv")],
+              4: [(11, 30, "support"), (16, 0, "phone")],
+              5: [(12, 40, "site"), (18, 30, "ad")],
+              6: [],
+          }[now.weekday()]
+          due = [k for h, mi, k in plan if (h, mi) <= (now.hour, now.minute) and k not in done]
+          print(due[0] if due else "none")
+          PY
+            )
+          fi
+          send=true
+          [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.send }}" != "true" ] && send=false
+          echo "kind=$kind" >> "$GITHUB_OUTPUT"; echo "send=$send" >> "$GITHUB_OUTPUT"
+          echo "Пост: $kind, отправка: $send"
+      - name: Post
+        if: steps.m.outputs.kind != 'none'
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          k="${{ steps.m.outputs.kind }}"
+          dry=""; [ "${{ steps.m.outputs.send }}" = "true" ] || dry="--dry-run"
+          if [ "$k" = "support" ]; then python3 telegram-release/post_support.py $dry; else python3 telegram-release/post_rich.py "$k" $dry; fi
+      - name: Save state
+        if: steps.m.outputs.kind != 'none' && steps.m.outputs.send == 'true'
+        working-directory: state
+        run: |
+          git config user.name "yaiplayer-bot"; git config user.email "yaiplayer-bot@users.noreply.github.com"
+          python3 - <<'PY'
+          import json, datetime, zoneinfo
+          today = datetime.datetime.now(zoneinfo.ZoneInfo("Europe/Berlin")).strftime("%Y-%m-%d")
+          try: d = json.load(open("weekly-done.json"))
+          except Exception: d = {}
+          d.setdefault(today, []).append("${{ steps.m.outputs.kind }}")
+          d = dict(sorted(d.items())[-21:])
+          json.dump(d, open("weekly-done.json", "w"), ensure_ascii=False, indent=1)
+          PY
+          git add weekly-done.json
+          git commit -qm "weekly post ${{ steps.m.outputs.kind }}" || exit 0
+          git push -q "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" HEAD:bot-state

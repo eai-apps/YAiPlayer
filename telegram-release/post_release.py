@@ -168,7 +168,12 @@ def format_release_post(
     escaped_tag = html.escape(tag_name, quote=False)
     header = f"🚀 <b>YAiPlayer {escaped_tag}</b>" if escaped_tag else "🚀 <b>YAiPlayer</b>"
 
-    footer = f'💬 Обсуждение и баги — <a href="{CHAT_URL}">наш чат</a>'
+    # Владелец 21.11 (п.90): в постах об обновлениях — что учли пожелания и благодарность за сообщения в поддержку.
+    footer = (
+        "🙌 В этом обновлении — и ваши пожелания, и исправления по вашим сообщениям. "
+        "Спасибо, что пишете в техподдержку: так плеер становится лучше.\n\n"
+        f'💬 Обсуждение и баги — <a href="{CHAT_URL}">наш чат</a>'
+    )
 
     body = release_data.get("body") or ""
     items, was_truncated = extract_items(body, max_items=max_items)

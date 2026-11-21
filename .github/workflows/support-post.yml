@@ -2,8 +2,7 @@ name: Support post to Telegram
 # Once every 3 days around 12:00 Berlin: how to report a bug / ask for a feature and how to export the log.
 # GitHub cron is UTC only and may start late; the gate lets only every third day (counted from the epoch) through.
 on:
-  schedule:
-    - cron: "3 11 * * *"
+  # Расписание выключено: пост техподдержки теперь в weekly-posts.yml (Вт и Пт 11:30; 21.11, п.89). Ручной запуск остаётся.
   workflow_dispatch:
 permissions:
   contents: read
