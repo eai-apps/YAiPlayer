@@ -8,6 +8,7 @@
     <string name="portal_resync_vod_only">Фильмы и сериалы</string>
     <string name="portal_details_genre">Жанр</string>
     <string name="portal_details_year">Год</string>
+    <string name="portal_details_age_rating">Возрастной рейтинг</string>
     <string name="portal_details_country">Страна</string>
     <string name="portal_details_duration">Длительность</string>
     <string name="portal_details_director">Режиссёр</string>

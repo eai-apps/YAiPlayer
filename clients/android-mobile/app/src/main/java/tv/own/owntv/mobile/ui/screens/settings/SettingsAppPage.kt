@@ -102,7 +102,7 @@ fun AboutPage(onOpenLanguage: () -> Unit, modifier: Modifier = Modifier) {
             Column(Modifier.weight(1f)) {
                 tv.own.owntv.mobile.ui.components.Wordmark(150.dp)
                 Row(Modifier.padding(top = 6.dp), horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Text(stringResource(R.string.settings_about_version, BuildConfig.VERSION_NAME), style = stageText(13f, 700), color = palette.text)
+                    Text(stringResource(R.string.settings_about_version, tv.own.owntv.core.CoreBuildInfo.displayVersion), style = stageText(13f, 700), color = palette.text)
                     when (updateState) {
                         tv.own.owntv.core.update.UpdateManager.State.UpToDate ->
                             StageTag(stringResource(R.string.more_about_up_to_date).uppercase(LocalConfiguration.current.locales[0]), tone = StageTagTone.ACCENT)

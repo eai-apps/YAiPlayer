@@ -26,7 +26,6 @@ import tv.own.owntv.features.shell.components.VodGroupLibrary
 import tv.own.owntv.features.shell.components.VodGroupOrganise
 import tv.own.owntv.features.shell.components.VodGroupWatch
 import tv.own.owntv.features.shell.components.VodHeader
-import tv.own.owntv.features.shell.components.VodHero
 import tv.own.owntv.features.shell.components.VodListRow
 import tv.own.owntv.features.shell.components.VodOptionsMenu
 import tv.own.owntv.features.shell.components.VodPosterArt
@@ -309,7 +308,6 @@ private fun SeriesGrid(
     val vodLayout by settingsVm.vodLayout.collectAsStateWithLifecycle()
     // Cinematic is the browse section's; More → Favourites / History pin the plain Separate list.
     val cinematic = vodLayout == SettingsRepository.VodLayout.CINEMATIC && lockedKey == null
-    val cinematicDetailsPct by settingsVm.cinematicDetailsHeight(PanelSection.SERIES).collectAsStateWithLifecycle()
     // Cinematic is grid-only. The stored choice is deliberately not rewritten, so switching back to
     // Separate restores the user's List.
     val viewMode = if (cinematic) SettingsRepository.VodViewMode.GRID else storedViewMode
@@ -641,15 +639,14 @@ private fun SeriesGrid(
         val screenW = maxWidth
         fun fx(px: Int) = screenW * (px / 1920f)
         if (cinematic) {
-            val heroH = if (panelShares != null) maxHeight * (cinematicDetailsPct / 100f) else 464.mpx
-            val toolTop = 122.mpx + heroH
+            // Owner 23.11 (п.100): the first page is only posters with titles — no hero block, the tiles
+            // rise right under the toolbar; everything about a series shows after opening it.
+            val toolTop = 122.mpx
             Box(Modifier.fillMaxSize().then(if (categoriesOpen) Modifier.graphicsLayer { alpha = 0.36f } else Modifier)) {
-                VodCinematicBackdrop(titleInfo?.backdropUrl, series = true, Modifier.align(Alignment.TopEnd))
                 VodHeader(
                     section = stringResource(R.string.common_nav_series), category = headerLabel, count = vodCount(true, count).takeUnless { sealed },
                     showChevron = true, modifier = Modifier.padding(start = fx(84), top = 52.mpx).width(fx(900)),
                 )
-                titleInfo?.let { VodHero(it, Modifier.padding(start = fx(84), top = 122.mpx).width(fx(1000)).height(heroH)) }
                 Column(Modifier.padding(top = toolTop).fillMaxSize().then(paneModifier)) {
                     Row(
                         Modifier.padding(start = fx(68), end = fx(64)).fillMaxWidth()
@@ -697,6 +694,7 @@ private fun SeriesGrid(
                                         title = show.name,
                                         rating = show.rating?.takeIf { it > 0 }?.let(::vodRating),
                                         width = 196.mpx, height = 294.mpx,
+                                        titleMaxLines = 4,
                                         progress = seriesProgress[show.id],
                                         onClick = { onOpenAt(index); vm.openSeries(show) },
                                         onLongClick = { openMenu(show, index) },
@@ -1471,7 +1469,9 @@ private fun EpisodeView(
             actors = series.actors ?: info.cast.takeIf { it.isNotEmpty() }?.take(8)?.joinToString(", ") { it.name },
             plot = info.plot,
             posterUrl = info.posterUrl,
-            modifier = Modifier.padding(start = fx(84), end = fx(64)).fillMaxWidth().heightIn(max = 290.mpx),
+            ageRating = series.ageRating,
+            // Owner 23.11 (п.101): the block sits lower, with room for the bigger cover and 2× description.
+            modifier = Modifier.padding(start = fx(84), end = fx(64), top = 70.mpx).fillMaxWidth().heightIn(max = 400.mpx),
         )
         val favouriteOn = stringResource(R.string.content_favorited)
         val favouriteOff = stringResource(R.string.content_favorite)
@@ -1482,7 +1482,8 @@ private fun EpisodeView(
         val seasonFocus = remember { FocusRequester() }
         val episodeFocus = remember { FocusRequester() }
         Row(
-            Modifier.padding(start = fx(84), end = fx(64), top = 22.mpx).fillMaxWidth().focusGroup(),
+            // Shifted right to line up with the title column, after the cover (п.101).
+            Modifier.padding(start = fx(84) + tv.own.owntv.features.shell.components.SERIES_POSTER_WIDTH + 36.mpx, end = fx(64), top = 22.mpx).fillMaxWidth().focusGroup(),
             horizontalArrangement = Arrangement.spacedBy(14.mpx),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -1678,7 +1679,7 @@ private fun EpisodeView(
                                 onLongClick = { openMenu(ep) },
                                 width = tileW, height = tileW * (189f / 336f),
                                 modifier = epModifierFor(index, ep),
-                            ) { filter -> EpisodeStill(episodeStillUrl(meta, series, "w780"), filter) }
+                            ) { filter -> EpisodeStill(episodeStillUrl(meta, series, "w780"), filter, localizedInteger(ep.episodeNumber, grouping = false)) }
                         }
                     }
                 }
@@ -1705,7 +1706,7 @@ private fun EpisodeView(
                                 modifier = epModifierFor(index, ep).fillMaxWidth(),
                             ) { focused ->
                                 Box(Modifier.size(224.mpx, 126.mpx).clip(RoundedCornerShape(14.mpx))) {
-                                    EpisodeStill(episodeStillUrl(meta, series, "w300"), null)
+                                    EpisodeStill(episodeStillUrl(meta, series, "w300"), null, localizedInteger(ep.episodeNumber, grouping = false))
                                 }
                                 Column(Modifier.weight(1f)) {
                                     Text(
@@ -1995,6 +1996,7 @@ internal fun seriesTitleInfo(
         tags = cinematicQualityBadges(series.qualityRank, series.advertisedCapabilities),
         plot = if (tmdbWins) meta?.overview ?: providerPlot else providerPlot ?: meta?.overview,
         cast = tv.own.owntv.core.metadata.MetadataCast.parse(meta?.castJson),
+        ageRating = series.ageRating?.takeIf { it.isNotBlank() },
     )
 }
 
@@ -2027,13 +2029,16 @@ private fun episodeStillUrl(
     series: SeriesEntity,
     size: String,
 ): String? = tv.own.owntv.core.metadata.MetadataImages.backdrop(meta?.backdropPath, size = size)
-    ?: series.backdropUrl?.takeIf { it.isNotBlank() } ?: series.posterUrl?.takeIf { it.isNotBlank() }
+    ?: series.backdropUrl?.takeIf { it.isNotBlank() }
 
 @Composable
-private fun EpisodeStill(url: String?, filter: androidx.compose.ui.graphics.ColorFilter?) {
+private fun EpisodeStill(url: String?, filter: androidx.compose.ui.graphics.ColorFilter?, number: String? = null) {
     Box(Modifier.fillMaxSize().background(StageColors.Ink.copy(alpha = 0.06f)), contentAlignment = Alignment.Center) {
         if (!url.isNullOrBlank()) {
             AsyncImage(model = url, contentDescription = null, contentScale = ContentScale.Crop, colorFilter = filter, modifier = Modifier.fillMaxSize())
+        } else if (number != null) {
+            // No picture of its own: the episode number, big — never the series poster (owner 23.11, п.101).
+            Text(number, style = stageText(64, 800), color = StageColors.Dim)
         } else {
             OwnTVIcon(OwnTVIcon.SERIES, StageColors.Dim, Modifier.size(40.mpx))
         }

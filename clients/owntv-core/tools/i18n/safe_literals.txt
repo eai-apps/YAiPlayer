@@ -20,7 +20,9 @@
 # category technical: Reviewed non-user-facing technical literal.
 
 3	technical	core/src/main/java/tv/own/owntv/core/CoreBuildInfo.kt	\0
+1	technical	core/src/main/java/tv/own/owntv/core/CoreBuildInfo.kt	Beta $versionName
 1	technical	core/src/main/java/tv/own/owntv/core/CoreBuildInfo.kt	ahXN00/OwnTV
+1	technical	core/src/main/java/tv/own/owntv/core/CoreBuildInfo.kt	beta
 1	log	core/src/main/java/tv/own/owntv/core/CorePerf.kt	OwnTVPerf
 1	empty	core/src/main/java/tv/own/owntv/core/PerfJournal.kt	\0
 1	log	core/src/main/java/tv/own/owntv/core/PerfJournal.kt	$label ${(System.nanoTime() - t0) / 1_000_000} ms
@@ -730,7 +732,13 @@
 1	protocol	core/src/main/java/tv/own/owntv/core/content/ProviderFieldReader.kt	name
 1	protocol	core/src/main/java/tv/own/owntv/core/content/ProviderFieldReader.kt	title
 1	protocol	core/src/main/java/tv/own/owntv/core/content/ProviderMediaDetails.kt	\0
+1	technical	core/src/main/java/tv/own/owntv/core/content/ProviderMediaDetails.kt	$s+
+1	technical	core/src/main/java/tv/own/owntv/core/content/ProviderMediaDetails.kt	-
+1	technical	core/src/main/java/tv/own/owntv/core/content/ProviderMediaDetails.kt	0
 1	protocol	core/src/main/java/tv/own/owntv/core/content/ProviderMediaDetails.kt	actors
+1	technical	core/src/main/java/tv/own/owntv/core/content/ProviderMediaDetails.kt	age
+1	technical	core/src/main/java/tv/own/owntv/core/content/ProviderMediaDetails.kt	age_limit
+1	technical	core/src/main/java/tv/own/owntv/core/content/ProviderMediaDetails.kt	age_rating
 1	protocol	core/src/main/java/tv/own/owntv/core/content/ProviderMediaDetails.kt	cast
 1	protocol	core/src/main/java/tv/own/owntv/core/content/ProviderMediaDetails.kt	country
 1	protocol	core/src/main/java/tv/own/owntv/core/content/ProviderMediaDetails.kt	director
@@ -740,10 +748,15 @@
 1	protocol	core/src/main/java/tv/own/owntv/core/content/ProviderMediaDetails.kt	genre
 1	protocol	core/src/main/java/tv/own/owntv/core/content/ProviderMediaDetails.kt	genres
 1	protocol	core/src/main/java/tv/own/owntv/core/content/ProviderMediaDetails.kt	genres_str
-1	protocol	core/src/main/java/tv/own/owntv/core/content/ProviderMediaDetails.kt	null
+1	technical	core/src/main/java/tv/own/owntv/core/content/ProviderMediaDetails.kt	mpaa
+1	technical	core/src/main/java/tv/own/owntv/core/content/ProviderMediaDetails.kt	mpaa_rating
+1	technical	core/src/main/java/tv/own/owntv/core/content/ProviderMediaDetails.kt	n/a
+1	technical	core/src/main/java/tv/own/owntv/core/content/ProviderMediaDetails.kt	none
+2	technical	core/src/main/java/tv/own/owntv/core/content/ProviderMediaDetails.kt	null
 1	protocol	core/src/main/java/tv/own/owntv/core/content/ProviderMediaDetails.kt	o_name
 1	protocol	core/src/main/java/tv/own/owntv/core/content/ProviderMediaDetails.kt	original_name
 1	protocol	core/src/main/java/tv/own/owntv/core/content/ProviderMediaDetails.kt	original_title
+1	technical	core/src/main/java/tv/own/owntv/core/content/ProviderMediaDetails.kt	rating_mpaa
 1	protocol	core/src/main/java/tv/own/owntv/core/content/ProviderMediaDetails.kt	release_date
 1	protocol	core/src/main/java/tv/own/owntv/core/content/ProviderMediaDetails.kt	releasedate
 1	protocol	core/src/main/java/tv/own/owntv/core/content/ProviderMediaDetails.kt	time
@@ -851,6 +864,10 @@
 1	sql	core/src/main/java/tv/own/owntv/core/database/Migration53To54.kt	originalTitle
 1	sql	core/src/main/java/tv/own/owntv/core/database/Migration53To54.kt	searchText
 2	sql	core/src/main/java/tv/own/owntv/core/database/Migration53To54.kt	series
+1	technical	core/src/main/java/tv/own/owntv/core/database/Migration54To55.kt	ALTER TABLE `$table` ADD COLUMN `ageRating` TEXT
+1	technical	core/src/main/java/tv/own/owntv/core/database/Migration54To55.kt	ageRating
+1	technical	core/src/main/java/tv/own/owntv/core/database/Migration54To55.kt	movies
+1	technical	core/src/main/java/tv/own/owntv/core/database/Migration54To55.kt	series
 18	sql	core/src/main/java/tv/own/owntv/core/database/OwnTVDatabase.kt	)
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/OwnTVDatabase.kt	,
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/OwnTVDatabase.kt	?
@@ -1800,6 +1817,7 @@
 1	sql	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	SELECT COUNT(DISTINCT seasonNumber) FROM episodes WHERE seriesId = :seriesId AND seasonNumber > 0
 1	sql	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	SELECT categoryId, COUNT(*) AS itemCount FROM series
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	SELECT categoryId, COUNT(*) AS itemCount FROM series WHERE sourceId = :sourceId AND categoryId IS NOT NULL GROUP BY categoryId
+1	sql	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	SELECT id, addedAt FROM series WHERE sourceId IN (:sourceIds) AND name LIKE '%[S%'
 2	sql	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	SELECT id, name, categoryId FROM series WHERE sourceId IN (:sourceIds) AND name LIKE '%[S%'
 2	sql	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	SELECT id, sourceId, categoryId, name, year, remoteId, sortOrder, canonicalTitle,
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	SELECT remoteId FROM series WHERE sourceId = :sourceId AND categoryId = :categoryId AND remoteId IS NOT NULL
@@ -1813,6 +1831,7 @@
 3	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	SELECT s.* FROM series s INNER JOIN watch_history h ON h.itemId = s.id AND h.mediaType = 'SERIES'
 1	sql	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	SELECT seriesId, COUNT(DISTINCT seasonNumber) AS seasonCount FROM episodes
 2	sql	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	UNION ALL SELECT id, ROW_NUMBER() OVER (ORDER BY CASE WHEN :alpha THEN nm END, mp, so, nm) - 1 AS slot, 1 AS grp, 0 AS tie FROM base WHERE pos IS NULL)
+1	technical	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	UPDATE series SET addedAt = :addedAt WHERE id = :id
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	UPDATE series SET episodesSyncedAt = 0 WHERE sourceId = :sourceId AND episodesSyncedAt != 0
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	UPDATE series SET episodesSyncedAt = :at WHERE id = :seriesId
 1	sql	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	UPDATE series SET sortOrder = :sortOrder WHERE id = :id
@@ -3098,6 +3117,8 @@
 1	json	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	active_cons
 2	json	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	actors
 3	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	added
+1	technical	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	age
+1	technical	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	age_rating
 2	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	air_date
 2	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	airdate
 1	json	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	auth
@@ -3141,6 +3162,7 @@
 1	technical	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	max_connections
 1	json	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	movie_data
 2	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	mp4
+1	technical	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	mpaa_rating
 3	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	name
 1	protocol	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	num
 2	json	core/src/main/java/tv/own/owntv/core/parser/XtreamClient.kt	o_name

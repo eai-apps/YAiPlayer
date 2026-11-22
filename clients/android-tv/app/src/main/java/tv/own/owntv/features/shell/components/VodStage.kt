@@ -124,6 +124,7 @@ internal data class VodTitleInfo(
     val country: String? = null,
     val director: String? = null,
     val actorsText: String? = null,
+    val ageRating: String? = null,
 )
 
 /** A rating as the design writes it: one decimal, in the user's number format ("8.4", "8,4"). */
@@ -650,10 +651,11 @@ internal class VodStepper(private val scope: CoroutineScope, private val state: 
 private const val META_DOT = "  \u25CF  "
 
 /**
- * The operator's layout for the films' hero and the series page (owner 18.11, his mock-ups): one dark-blue
- * panel — on the left the title, the original title, «year ● genres ● length», then Country / Director / Cast;
- * on the right the full description in italics. [posterUrl] adds the cover at the far left (series page).
- * Lines without data are left out, never shown empty.
+ * The operator's layout for the films' hero and the series page (owner 18.11, his mock-ups; reworked 23.11 on the
+ * operator's remarks): NO panel — everything sits straight on the backdrop in white. On the left the title (big;
+ * the [ua] [ru] tags after it small and not bold), the original title, «year ● genres ● length», then the
+ * age rating, Country, Director and Cast; on the right the full description in a plain upright sans font, twice
+ * the old size. [posterUrl] adds the cover at the far left (series page). Lines without data are left out.
  */
 @Composable
 internal fun VodInfoPanel(
@@ -665,54 +667,97 @@ internal fun VodInfoPanel(
     actors: String?,
     plot: String?,
     posterUrl: String? = null,
+    ageRating: String? = null,
     modifier: Modifier = Modifier,
 ) {
+    val white = Color.White
+    val soft = Color(0xFFE6EBF2)
+    // Text straight on the picture needs its own edge: a soft dark shadow instead of a plate behind it.
+    val edge = androidx.compose.ui.graphics.Shadow(Color(0xDD000000), androidx.compose.ui.geometry.Offset(0f, 2f), 10f)
+    val sans = androidx.compose.ui.text.font.FontFamily.SansSerif
     val italic = androidx.compose.ui.text.font.FontStyle.Italic
-    val text = Color(0xFFF1F4F8)
-    val soft = Color(0xFFD8DEE8)
+    val (cleanTitle, tags) = remember(title) { splitTitleTags(HeadlineTitle.of(title)) }
+    // The operator asked for the title three times bigger; a long one steps down so it still fits in two lines.
+    val titleSize = when {
+        cleanTitle.length <= 20 -> 96
+        cleanTitle.length <= 32 -> 78
+        else -> 62
+    }
     Row(
-        modifier
-            .clip(RoundedCornerShape(10.mpx))
-            .background(Color(0xE60B2D52))
-            .padding(horizontal = 24.mpx, vertical = 18.mpx),
-        horizontalArrangement = Arrangement.spacedBy(28.mpx),
+        modifier,
+        horizontalArrangement = Arrangement.spacedBy(36.mpx),
     ) {
         if (!posterUrl.isNullOrBlank()) {
             AsyncImage(
                 model = posterUrl, contentDescription = null, contentScale = ContentScale.Crop,
-                modifier = Modifier.width(150.mpx).aspectRatio(2f / 3f).clip(RoundedCornerShape(6.mpx)),
+                modifier = Modifier.width(SERIES_POSTER_WIDTH).aspectRatio(2f / 3f).clip(RoundedCornerShape(8.mpx)),
             )
         }
-        Column(Modifier.weight(0.52f)) {
+        Column(Modifier.weight(0.46f)) {
+            val tagStyle = stageText((titleSize * 0.38f).toInt(), 400).copy(color = soft, shadow = edge)
             Text(
-                HeadlineTitle.of(title), style = stageText(32, 800), color = text,
+                androidx.compose.ui.text.buildAnnotatedString {
+                    append(cleanTitle)
+                    if (tags.isNotEmpty()) {
+                        append("  ")
+                        withStyle(tagStyle.toSpanStyle()) { append(tags) }
+                    }
+                },
+                style = stageText(titleSize, 800).copy(color = white, shadow = edge, lineHeight = (titleSize * 1.05f).mpxSp),
                 maxLines = 2, overflow = TextOverflow.Ellipsis,
             )
-            originalTitle?.takeIf { it.isNotBlank() && it.trim() != title.trim() }?.let {
-                Text(it, style = stageText(24, 400).copy(fontStyle = italic), color = text, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 2.mpx))
+            originalTitle?.let(::cleanOriginalTitle)?.takeIf { it.isNotBlank() && it.trim() != cleanTitle.trim() }?.let {
+                Text(it, style = stageText(30, 400).copy(fontStyle = italic, color = white, shadow = edge), maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 2.mpx))
             }
             if (metaParts.isNotEmpty()) {
                 Text(
-                    metaParts.joinToString(META_DOT), style = stageText(18, 500).copy(fontStyle = italic), color = soft,
-                    maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 12.mpx, bottom = 10.mpx),
+                    metaParts.joinToString(META_DOT), style = stageText(24, 500).copy(color = soft, shadow = edge),
+                    maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 12.mpx, bottom = 8.mpx),
                 )
             }
+            // The age rating comes first, before the country — and only when the portal sent one.
             listOfNotNull(
+                ageRating?.takeIf { it.isNotBlank() }?.let { stringResource(R.string.portal_details_age_rating) to it },
                 country?.takeIf { it.isNotBlank() }?.let { stringResource(R.string.portal_details_country) to it },
                 director?.takeIf { it.isNotBlank() }?.let { stringResource(R.string.portal_details_director) to it },
                 actors?.takeIf { it.isNotBlank() }?.let { stringResource(R.string.portal_details_cast) to it },
             ).forEach { (label, value) ->
                 Text(
-                    stringResource(R.string.content_detail_label_value, label, value), style = stageText(18, 400).copy(fontStyle = italic), color = soft,
-                    maxLines = 3, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 3.mpx),
+                    stringResource(R.string.content_detail_label_value, label, value), style = stageText(23, 400).copy(color = soft, shadow = edge),
+                    maxLines = if (label == stringResource(R.string.portal_details_cast)) 2 else 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 3.mpx),
                 )
             }
         }
         plot?.takeIf { it.isNotBlank() }?.let {
+            // Twice the old 19: upright, plain sans, white. A very long description steps down rather than getting cut.
+            val size = when {
+                it.length <= 190 -> 38
+                it.length <= 320 -> 33
+                it.length <= 480 -> 29
+                else -> 25
+            }
             Text(
-                it, style = stageText(19, 400).copy(fontStyle = italic, lineHeight = (19f * 1.35f).mpxSp, textAlign = TextAlign.End),
-                color = soft, maxLines = 9, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(0.48f),
+                it,
+                style = stageText(size, 400).copy(fontFamily = sans, color = white, shadow = edge, lineHeight = (size * 1.3f).mpxSp, textAlign = TextAlign.Start),
+                maxLines = 9, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(0.54f),
             )
         }
     }
 }
+
+/** The width of the cover on the series page; the buttons under the panel line up after it. */
+internal val SERIES_POSTER_WIDTH @Composable get() = 240.mpx
+
+private val TRAILING_TAGS = Regex("""^(.*?)((?:\s*\[[^\]]{1,8}\])+)\s*$""")
+
+/** «Внезапно / Раптом [ua] [ru]» -> («Внезапно / Раптом», «[ua] [ru]»): the language tags are shown small. */
+internal fun splitTitleTags(name: String): Pair<String, String> {
+    val m = TRAILING_TAGS.find(name.trim()) ?: return name.trim() to ""
+    val base = m.groupValues[1].trim()
+    if (base.isEmpty()) return name.trim() to ""
+    return base to m.groupValues[2].trim().replace(Regex("""\s+"""), " ")
+}
+
+/** The original title as a bare name: «Die Kaiserin [S01]» -> «Die Kaiserin» (owner 23.11). */
+internal fun cleanOriginalTitle(raw: String): String =
+    raw.replace(Regex("""\s*\[[^\]]*\]"""), "").replace(Regex("""\s{2,}"""), " ").trim()

@@ -1136,7 +1136,7 @@ class XtreamClient(private val http: HttpClient) {
                 "added" -> added = reader.nextLongOrNull()
                 "o_name", "original_title", "original_name", "genres_str", "genre", "genres",
                 "country", "director", "actors", "cast", "duration_secs", "duration_seconds", "duration",
-                "time", "releasedate", "release_date", "year" -> metadata[key] = tv.own.owntv.core.content.readProviderField(reader)
+                "time", "releasedate", "release_date", "year", "age", "mpaa_rating", "age_rating" -> metadata[key] = tv.own.owntv.core.content.readProviderField(reader)
                 else -> reader.skipValue()
             }
         }

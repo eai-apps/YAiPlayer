@@ -101,6 +101,20 @@ fun BrandIntro(enabled: Boolean, modifier: Modifier = Modifier) {
                 modifier = Modifier.graphicsLayer { alpha = name.value; translationY = (1f - name.value) * 24.dp.toPx() },
                 style = TextStyle(color = Color.White, fontSize = 34.sp, fontWeight = FontWeight.Bold),
             )
+            // Beta build (owner 23.11): the word BETA in graffiti, in the middle of the launch screen.
+            if (tv.own.owntv.BuildConfig.BETA) {
+                Spacer(Modifier.height(10.dp))
+                BasicText(
+                    "BETA",
+                    modifier = Modifier.rotate(-6f).graphicsLayer { alpha = name.value; scaleX = 0.7f + 0.3f * name.value; scaleY = 0.7f + 0.3f * name.value },
+                    style = TextStyle(
+                        color = Color(0xFFFFD640),
+                        fontSize = 84.sp,
+                        fontFamily = androidx.compose.ui.text.font.FontFamily(androidx.compose.ui.text.font.Font(tv.own.owntv.R.font.permanent_marker)),
+                        shadow = androidx.compose.ui.graphics.Shadow(Color(0xFF140C3C), offset = Offset(6f, 6f), blurRadius = 3f),
+                    ),
+                )
+            }
         }
     }
 }

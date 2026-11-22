@@ -88,6 +88,14 @@ object CoreBuildInfo {
      */
     var releaseTag: String? = null
 
+    /**
+     * The version as the person reads it on screen (owner 23.11: the beta must say it is a beta in «О приложении»):
+     * `Beta 6.04` in the beta build, the plain `4.0.6` in the normal one. The updater keeps comparing [versionName].
+     */
+    val displayVersion: String
+        get() = if (releaseTag == "beta") "Beta $versionName" else versionName
+
+
     /** Whether channel preview (small player) is on until the user chooses; the phone app turns it off so a tap opens full screen. */
     var livePreviewDefault: Boolean = true
 

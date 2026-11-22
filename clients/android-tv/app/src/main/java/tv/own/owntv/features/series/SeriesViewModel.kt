@@ -554,6 +554,12 @@ class SeriesViewModel(
                 val rows = seriesDao.seasonRecordNames(c.sourceIds.ifEmpty { listOf(-1L) })
                 tv.own.owntv.core.PerfJournal.measure("series_merge records=${rows.size}") {
                     tv.own.owntv.core.content.SeasonRecordTitle.cards(rows.map { it.id to it.name })
+                }.also { cards ->
+                    // п.102: lift each show's card to its newest season record's date, so «latest added» works.
+                    runCatching {
+                        val dates = seriesDao.seasonRecordDates(c.sourceIds.ifEmpty { listOf(-1L) }).associate { it.id to it.addedAt }
+                        tv.own.owntv.core.content.SeasonRecordTitle.liftedDates(cards, dates).forEach { (id, d) -> seriesDao.setAddedAt(id, d) }
+                    }
                 }
             }.getOrDefault(tv.own.owntv.core.content.SeasonRecordTitle.Cards(emptySet(), emptyMap()))
         }

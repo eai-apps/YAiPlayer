@@ -82,15 +82,31 @@ object SeasonRecordTitle {
         }
         val hidden = HashSet<Long>()
         val names = HashMap<Long, String>()
+        val keeper = HashMap<Long, Long>()
         for (g in groups) {
             val keep = g.minBy { it.id }
-            g.forEach { if (it.id != keep.id) hidden.add(it.id) }
+            g.forEach { if (it.id != keep.id) hidden.add(it.id); keeper[it.id] = keep.id }
             names[keep.id] = g.first().shown
         }
-        return Cards(hidden, names)
+        return Cards(hidden, names, keeper)
     }
 
-    data class Cards(val hidden: Set<Long>, val names: Map<Long, String>)
+    /** [keeper] maps every season record to the record whose card represents its show. */
+    data class Cards(val hidden: Set<Long>, val names: Map<Long, String>, val keeper: Map<Long, Long> = emptyMap())
+
+    /**
+     * Owner 23.11 (п.102): a card is the show's lowest-id record, so a season or episode the operator added to a
+     * LATER season record never lifted the card in «latest added». For every card: the newest `addedAt` of its
+     * show's records, when that is newer than the card's own. Returns card id → new date.
+     */
+    fun liftedDates(cards: Cards, dates: Map<Long, Long?>): Map<Long, Long> {
+        val newest = HashMap<Long, Long>()
+        for ((id, keep) in cards.keeper) {
+            val d = dates[id] ?: continue
+            if (d > (newest[keep] ?: 0L)) newest[keep] = d
+        }
+        return newest.filter { (keep, d) -> d > (dates[keep] ?: 0L) }
+    }
 
     /**
      * How many hidden season records a count must lose (owner 12.11: the counts beside the series categories

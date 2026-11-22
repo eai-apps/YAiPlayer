@@ -153,6 +153,14 @@ fun ProfileGate(
             ) { BrandMark(rememberAppliedIcon(), 28.dp) }
             Wordmark(110.dp)
         }
+        // Beta build (owner 23.11): the «BETA VERSION» seal under the logo.
+        if (tv.own.owntv.mobile.BuildConfig.BETA) {
+            androidx.compose.foundation.Image(
+                painter = androidx.compose.ui.res.painterResource(tv.own.owntv.core.R.drawable.yai_beta_badge),
+                contentDescription = null,
+                modifier = Modifier.padding(top = 14.dp).size(150.dp),
+            )
+        }
         Text(
             text = if (guestGroupOpen) stringResource(R.string.profiles_guest_name) else stringResource(R.string.profiles_gate_title),
             style = stageText(28f, 800),

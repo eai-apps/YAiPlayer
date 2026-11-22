@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The beta build's launcher icon (owner 23.11): the app's triangle with BETA in graffiti.
+     Made by tools/brand/make_beta_icon.py. Used only through the manifest placeholders of the beta build. -->
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@color/owntv_icon_bg_eggshell"/>
+    <foreground android:drawable="@mipmap/yai_beta_icon_foreground"/>
+    <monochrome android:drawable="@drawable/owntv_icon_monochrome"/>
+</adaptive-icon>

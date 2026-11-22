@@ -211,6 +211,8 @@ data class MovieEntity(
     val country: String? = null,
     val director: String? = null,
     val actors: String? = null,
+    /** The portal's age limit («16+»), shown before the country on the film and series page (v55). */
+    val ageRating: String? = null,
     @ColumnInfo(defaultValue = "''") val searchText: String =
         tv.own.owntv.core.content.providerSearchText(name, originalTitle, genres, year, country, director, actors, plot),
 )
@@ -274,6 +276,8 @@ data class SeriesEntity(
     val country: String? = null,
     val director: String? = null,
     val actors: String? = null,
+    /** The portal's age limit («16+»), shown before the country on the film and series page (v55). */
+    val ageRating: String? = null,
     val durationSecs: Int? = null,
     @ColumnInfo(defaultValue = "''") val searchText: String =
         tv.own.owntv.core.content.providerSearchText(name, originalTitle, genres, year, country, director, actors, plot),

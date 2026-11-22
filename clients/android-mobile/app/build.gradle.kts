@@ -59,6 +59,12 @@ android {
         buildConfigField("boolean", "SELF_UPDATE", (!playStore).toString())
         buildConfigField("boolean", "BETA", beta.toString())
         manifestPlaceholders["appLabel"] = if (beta) "YAiPlayer Beta" else "@string/app_name"
+        // Beta build: one launcher icon and banner with BETA in graffiti for every colour (owner 23.11,
+        // tools/brand/make_beta_icon.py); the normal build keeps each colour's own.
+        for (colour in listOf("eggshell", "petrol", "sunflower", "cobalt", "tomato", "board", "olive", "olive_cream", "pixel")) {
+            manifestPlaceholders["icon_$colour"] = if (beta) "@mipmap/yai_beta_icon" else "@mipmap/owntv_icon_$colour"
+            manifestPlaceholders["banner_$colour"] = if (beta) "@drawable/yai_banner_beta" else "@drawable/owntv_banner_$colour"
+        }
         buildConfigField("boolean", "RADIO", (!playStore).toString())
         // The radio's background service (RadioPlaybackService) exists only in the build with the radio.
         manifestPlaceholders["radioEnabled"] = (!playStore).toString()

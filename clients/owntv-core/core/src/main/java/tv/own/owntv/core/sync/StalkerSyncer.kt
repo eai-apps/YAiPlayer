@@ -456,6 +456,7 @@ internal class StalkerSyncer(
                     year = item.details.year ?: item.year, durationSecs = item.details.durationSecs,
                     originalTitle = item.details.originalTitle, genres = item.details.genres,
                     country = item.details.country, director = item.details.director, actors = item.details.actors,
+                    ageRating = item.details.ageRating,
                     // Portal command — resolved to a real URL at play time (create_link, type=vod) in D-2.
                     streamUrl = item.cmd ?: "", containerExt = null, remoteId = item.id,
                     // Portal `added` date when the panel exposes one; null falls through to playlist order.
@@ -492,7 +493,7 @@ internal class StalkerSyncer(
         year = item.details.year ?: item.year, remoteId = item.id, sortOrder = order,
         durationSecs = item.details.durationSecs, originalTitle = item.details.originalTitle,
         genres = item.details.genres, country = item.details.country,
-        director = item.details.director, actors = item.details.actors,
+        director = item.details.director, actors = item.details.actors, ageRating = item.details.ageRating,
         // Portal `added` date when the panel exposes one; null falls through to playlist order.
         addedAt = item.addedAt,
     )
@@ -950,6 +951,7 @@ internal class StalkerSyncer(
                     year = item.details.year ?: item.year, durationSecs = item.details.durationSecs,
                     originalTitle = item.details.originalTitle, genres = item.details.genres,
                     country = item.details.country, director = item.details.director, actors = item.details.actors,
+                    ageRating = item.details.ageRating,
                     streamUrl = item.cmd ?: "", containerExt = null, remoteId = item.id,
                     addedAt = item.addedAt, sortOrder = order,
                 )

@@ -556,7 +556,7 @@ open class MainActivity : ComponentActivity() {
                         // The phone-remote code, over everything — the gate included (owner 16.11: no code appeared).
                         tv.own.owntv.extras.remote.RemotePinHost()
                         tv.own.owntv.extras.screensaver.ScreensaverOverlay()
-                        tv.own.owntv.ui.BrandIntro(enabled = animationLevel != tv.own.owntv.core.theme.AnimationLevel.OFF)
+                        tv.own.owntv.ui.BrandIntro(enabled = tv.own.owntv.BuildConfig.BETA || animationLevel != tv.own.owntv.core.theme.AnimationLevel.OFF)
                     }
                     } // end LocalizedContent
                 }

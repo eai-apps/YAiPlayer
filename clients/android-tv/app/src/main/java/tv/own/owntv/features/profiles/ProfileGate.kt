@@ -247,6 +247,14 @@ fun ProfileGate(onEnter: (Long) -> Unit, onAddProfile: () -> Unit, modifier: Mod
             }
         }
         GateVersionCorner(Modifier.align(Alignment.TopEnd).padding(top = 36.mpx, end = 48.mpx))
+        // Beta build (owner 23.11): the «BETA VERSION» seal in the middle-bottom of the profile screen.
+        if (tv.own.owntv.BuildConfig.BETA) {
+            androidx.compose.foundation.Image(
+                painter = androidx.compose.ui.res.painterResource(tv.own.owntv.core.R.drawable.yai_beta_badge),
+                contentDescription = null,
+                modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 36.mpx).size(260.mpx),
+            )
+        }
     }
 
     menuProfile?.let { p ->
@@ -419,7 +427,7 @@ private fun GateVersionCorner(modifier: Modifier = Modifier) {
     val state = manager?.state?.collectAsStateWithLifecycle()?.value
     LaunchedEffect(manager) { if (manager?.state?.value == tv.own.owntv.core.update.UpdateManager.State.Idle) manager.check() }
     Column(modifier, horizontalAlignment = Alignment.End) {
-        Text("v$current", style = tv.own.owntv.ui.theme.stageText(22, 700), color = StageColors.Text)
+        Text(if (tv.own.owntv.BuildConfig.BETA) tv.own.owntv.core.CoreBuildInfo.displayVersion else "v$current", style = tv.own.owntv.ui.theme.stageText(22, 700), color = StageColors.Text)
         val line = when (state) {
             tv.own.owntv.core.update.UpdateManager.State.Checking -> stringResource(tv.own.owntv.core.R.string.update_checking)
             tv.own.owntv.core.update.UpdateManager.State.UpToDate -> stringResource(tv.own.owntv.core.R.string.update_latest, current)
@@ -433,13 +441,23 @@ private fun GateVersionCorner(modifier: Modifier = Modifier) {
         }
         if (state is tv.own.owntv.core.update.UpdateManager.State.Available) {
             Spacer(Modifier.height(10.mpx))
+            // п.105: «Что нового» first — the dialog lists Added / Fixed before the owner agrees to update.
+            var showNotes by remember { mutableStateOf(false) }
+            tv.own.owntv.ui.stage.StageButton(
+                text = stringResource(tv.own.owntv.core.R.string.update_whats_new),
+                onClick = { showNotes = true },
+                height = 52.mpx,
+                textSize = 19,
+                tinted = true,
+            )
+            Spacer(Modifier.height(8.mpx))
             tv.own.owntv.ui.stage.StageButton(
                 text = stringResource(tv.own.owntv.core.R.string.update_now),
                 onClick = { manager.downloadAndInstall() },
                 height = 52.mpx,
                 textSize = 19,
-                tinted = true,
             )
+            if (showNotes) tv.own.owntv.features.update.UpdateDialog(onDismiss = { showNotes = false }, checkOnOpen = false)
         }
     }
 }
