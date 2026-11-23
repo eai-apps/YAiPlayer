@@ -162,6 +162,26 @@ class StalkerEpgInfoParseTest {
         assertEquals(listOf(7, 168), client.periodsTried)
     }
 
+    /**
+     * Owner 20.11, the operator's portal: `7` gives 10 hours (so the unit is hours), a week (`168`) fails —
+     * then 72 hours must still be asked for. The loop used to stop at `3` and keep the 10 hours.
+     */
+    @Test
+    fun crawl_asksForFewerHoursWhenAWeekFailsOnAnHoursPortal() {
+        val hour = 3_600_000L
+        val client = FakeClient(
+            bulk = mapOf(
+                7 to listOf("1" to entry("Now", from, from + 10 * hour)),
+                72 to listOf("1" to entry("Days", from, from + 30 * hour)),
+            ),
+        )
+        val outcome = crawl(client)
+
+        assertEquals(72, outcome.periodDays)
+        assertTrue(client.periodsTried.contains(168))
+        assertTrue(!client.periodsTried.contains(3))
+    }
+
     /** A portal that counts days: a small guide must not trigger a second, pointless download. */
     @Test
     fun crawl_doesNotAskAgainWhenDaysAlreadyGaveMoreThanHours() {

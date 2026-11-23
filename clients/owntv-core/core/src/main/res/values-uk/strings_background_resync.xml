@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_epg_background_resync">Оновлювати у фоні, якщо давно не заходили</string>
+    <string name="settings_epg_background_resync_desc">Підтримувати актуальність телепрограми та плейлистів для всіх профілів</string>
+    <string name="settings_epg_background_resync_threshold">Як давно</string>
+    <string name="settings_epg_background_resync_12h">12 год</string>
+    <string name="settings_epg_background_resync_24h">1 доба</string>
+    <string name="settings_epg_background_resync_48h">2 доби</string>
+    <string name="settings_epg_background_resync_72h">3 доби</string>
+</resources>

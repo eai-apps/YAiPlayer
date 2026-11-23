@@ -34,10 +34,31 @@ fun GuideOfferHost(onShowNewChannels: (categoryId: String) -> Unit = {}) {
     val settings: tv.own.owntv.core.settings.SettingsRepository = koinInject()
     val offer by offers.offer.collectAsStateWithLifecycle()
     val weekly by offers.weekly.collectAsStateWithLifecycle()
+    val stale by offers.stale.collectAsStateWithLifecycle()
     val fresh by newChannels.notice.collectAsStateWithLifecycle()
     val focus = remember { FocusRequester() }
+    // Owner 20.11: the daily guide check also when the app comes back to the screen (the box keeps it alive).
+    androidx.lifecycle.compose.LifecycleResumeEffect(Unit) { offers.onAppResumed(); onPauseOrDispose { } }
     val o = offer
+    val st = stale
     when {
+        st != null -> {
+            LaunchedEffect(st) { kotlinx.coroutines.delay(60); runCatching { focus.requestFocus() } }
+            val locale = androidx.compose.ui.platform.LocalConfiguration.current.locales[0]
+            StagePopup(
+                onDismiss = { offers.staleLater() },
+                title = stringResource(R.string.guide_stale_title),
+                body = st.untilMs?.let { stringResource(R.string.guide_stale_body, st.missing, st.total, tv.own.owntv.core.live.GuideAheadText.date(locale, it)) }
+                    ?: stringResource(R.string.guide_stale_body_none, st.missing, st.total),
+                width = 900.mpx,
+                buttons = {
+                    StageButton(stringResource(R.string.guide_weekly_provider), onClick = { offers.staleFromProvider() }, height = 56.mpx, textSize = 19,
+                        tinted = true, modifier = Modifier.focusRequester(focus))
+                    StageButton(stringResource(R.string.guide_weekly_reserve), onClick = { offers.staleFromReserve() }, height = 56.mpx, textSize = 19)
+                    StageButton(stringResource(R.string.guide_offer_later), onClick = { offers.staleLater() }, height = 56.mpx, textSize = 19)
+                },
+            ) {}
+        }
         weekly -> {
             LaunchedEffect(Unit) { kotlinx.coroutines.delay(60); runCatching { focus.requestFocus() } }
             StagePopup(

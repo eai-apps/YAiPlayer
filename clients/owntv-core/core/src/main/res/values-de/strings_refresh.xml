@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Refresh control (owner 12.11): visible start, "already running", stop. -->
-<resources>
+<!-- Refresh control (owner 12.11): visible start, "already running", stop. --><resources>
     <string name="sync_stop">Stoppen</string>
     <string name="sync_already_running">Eine Aktualisierung läuft bereits: Schritt %1$d von %2$d · %3$s</string>
     <string name="sync_stop_running">Aktualisierung stoppen</string>

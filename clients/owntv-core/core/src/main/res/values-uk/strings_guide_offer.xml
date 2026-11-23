@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="guide_offer_title">Не у всіх каналів є телепрограма</string>
+    <string name="guide_offer_body">У %1$d з %2$d каналів немає телепрограми. Завантажити відсутні дані з додаткового джерела %3$d? Завантаження триватиме у фоні. Якщо телепрограми все ще бракуватиме, запропонуємо наступне джерело.</string>
+    <string name="guide_offer_load">Завантажити з джерела %1$d</string>
+    <string name="guide_offer_later">Не зараз</string>
+    <string name="guide_choice_title">Яку телепрограму оновити</string>
+    <string name="guide_choice_own">З плейлиста</string>
+    <string name="guide_choice_provider">Від провайдера</string>
+    <string name="guide_choice_feed">Додаткове джерело %1$d</string>
+    <string name="guide_choice_all">Все одразу (важко для слабких приставок)</string>
+</resources>

@@ -357,7 +357,7 @@ private fun ImportProgress(
             step = WizardStep.PLAYLIST,
             title = stringResource(R.string.setup_import_failed),
             sub = state.failure.displayText(resources) + "\n\n" +
-                resources.getString(R.string.settings_about_version, tv.own.owntv.mobile.BuildConfig.VERSION_NAME),
+                resources.getString(R.string.settings_about_version, tv.own.owntv.core.CoreBuildInfo.displayVersion),
             next = stringResource(R.string.setup_try_again_caps),
             onNext = onRetry,
             onBack = onCancel,

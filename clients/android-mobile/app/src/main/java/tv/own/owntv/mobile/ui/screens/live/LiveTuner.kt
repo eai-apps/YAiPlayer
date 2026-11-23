@@ -5,6 +5,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -418,6 +419,18 @@ class LiveTuner(
 
     private val _nowNext = MutableStateFlow<EpgNowNext?>(null)
     val nowNext: StateFlow<EpgNowNext?> = _nowNext
+
+    init {
+        // Owner 20.11: a guide download ended — read the channel's programme again (it was blank until re-opened).
+        val tracker: tv.own.owntv.core.sync.EpgActivityTracker = org.koin.core.context.GlobalContext.get().get()
+        scope.launch {
+            tracker.guideChanged.drop(1).collect {
+                epgReader.onGuideChanged()
+                val ch = _channel.value ?: return@collect
+                _nowNext.value = epgReader.nowNext(ch, custom.value, settings.epgOffsetMinutes.first())
+            }
+        }
+    }
 
     private val _replaying = MutableStateFlow(false)
 

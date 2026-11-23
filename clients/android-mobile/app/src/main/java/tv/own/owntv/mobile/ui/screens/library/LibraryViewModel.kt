@@ -426,6 +426,11 @@ class LibraryViewModel(
                                 runCatching { tv.own.owntv.core.content.SeasonRecordTitle.cards(rows) }.getOrNull()
                             }
                         }
+                        // п.102: lift each show's card to its newest season record's date («latest added»).
+                        if (cards != null) runCatching {
+                            val dates = seriesDao.seasonRecordDates(c.sourceIdsFor(MediaType.SERIES).ifEmpty { listOf(-1L) }).associate { it.id to it.addedAt }
+                            tv.own.owntv.core.content.SeasonRecordTitle.liftedDates(cards, dates).forEach { (id, d) -> seriesDao.setAddedAt(id, d) }
+                        }
                         val merged = if (cards == null || cards.hidden.isEmpty()) paging
                             else paging.filter { it.id !in cards.hidden }.map { s -> cards.names[s.id]?.let { s.copy(name = it) } ?: s }
                         merged.customized(key, cust, hidden, { CustomizeKeys.series(it) }, { it.categoryId })

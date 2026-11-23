@@ -425,10 +425,20 @@ interface SeriesDao {
     @Query("SELECT id, name, categoryId FROM series WHERE sourceId IN (:sourceIds) AND name LIKE '%[S%'")
     suspend fun seasonRecordNames(sourceIds: List<Long>): List<SeriesIdName>
 
+    /** The season records with their dates, to lift a show's card to its newest season's date (п.102). */
+    @Query("SELECT id, addedAt FROM series WHERE sourceId IN (:sourceIds) AND name LIKE '%[S%'")
+    suspend fun seasonRecordDates(sourceIds: List<Long>): List<SeriesIdDate>
+
+    @Query("UPDATE series SET addedAt = :addedAt WHERE id = :id")
+    suspend fun setAddedAt(id: Long, addedAt: Long)
+
     /** The same rows, observed: the category counts subtract the season records one card per show hides. */
     @Query("SELECT id, name, categoryId FROM series WHERE sourceId IN (:sourceIds) AND name LIKE '%[S%'")
     fun observeSeasonRecordNames(sourceIds: List<Long>): Flow<List<SeriesIdName>>
 }
+
+/** A series row's id and its added date only. */
+data class SeriesIdDate(val id: Long, val addedAt: Long?)
 
 /** A series row's id, name and category only. */
 data class SeriesIdName(val id: Long, val name: String, val categoryId: Long?)

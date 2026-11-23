@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="quick_refresh_playlist">Оновити плейлист</string>
+    <string name="quick_refresh_portal">Оновити портал</string>
+    <string name="quick_refresh_epg">Оновити телепрограму (EPG)</string>
+    <string name="quick_refresh_vod">Оновити фільми та серіали</string>
+    <string name="more_group_quick_actions">Швидкі дії</string>
+    <string name="quick_start_title">Швидке завантаження порталу</string>
+    <string name="quick_start_turn_on">Увімкнути швидке завантаження порталу</string>
+    <string name="quick_start_turn_off">Вимкнути швидке завантаження порталу</string>
+    <string name="settings_epg_startup_refresh">Оновлювати телепрограму та плейлист під час запуску</string>
+    <string name="settings_epg_startup_refresh_desc">Автоматично перевіряти й оновлювати телепрограму та плейлисти під час запуску застосунку</string>
+    <string name="shell_resync_title_playlist">Пересинхронізувати плейлист?</string>
+    <string name="shell_resync_title_portal">Пересинхронізувати портал?</string>
+</resources>

@@ -797,6 +797,8 @@ fun StagePoster(
     progress: Float? = null,
     /** A finished title: the `.ep` ✓ badge in the top corner instead of a bar. */
     watched: Boolean = false,
+    /** Series list: the whole title under the tile, however long (the operator asked for no truncation). */
+    titleMaxLines: Int = 1,
     artwork: @Composable BoxScope.() -> Unit,
 ) {
     val interaction = remember { MutableInteractionSource() }
@@ -848,7 +850,7 @@ fun StagePoster(
             title,
             style = if (line != null) stageText(18, 700) else stageText(if (compact) 15.5f else 17f, if (focused) 700 else 600),
             color = if (focused || line != null) stageTone(Color.White, StageColors.Text) else StageColors.Muted,
-            maxLines = 1,
+            maxLines = titleMaxLines,
             overflow = TextOverflow.Ellipsis,
         )
         if (line != null) Text(line, style = stageText(15, 400), color = StageColors.Muted, maxLines = 1, overflow = TextOverflow.Ellipsis)

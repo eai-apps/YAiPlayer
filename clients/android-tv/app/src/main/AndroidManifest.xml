@@ -56,14 +56,14 @@
     <application
         android:name=".OwnTVApp"
         android:allowBackup="false"
-        android:banner="@drawable/owntv_banner_eggshell"
+        android:banner="${banner_eggshell}"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/owntv_icon_eggshell"
+        android:icon="${icon_eggshell}"
         android:label="${appLabel}"
         android:largeHeap="true"
         android:requestLegacyExternalStorage="true"
-        android:roundIcon="@mipmap/owntv_icon_eggshell"
+        android:roundIcon="${icon_eggshell}"
         android:supportsRtl="true"
         android:theme="@style/Theme.OwnTV"
         android:usesCleartextTraffic="true"
@@ -105,14 +105,14 @@
              the window resizes the activity, which screenSize|smallestScreenSize|screenLayout keep alive. -->
         <activity
             android:name=".MainActivityPetrol"
-            android:banner="@drawable/owntv_banner_petrol"
+            android:banner="${banner_petrol}"
             android:enabled="false"
             android:exported="true"
-            android:icon="@mipmap/owntv_icon_petrol"
+            android:icon="${icon_petrol}"
             android:configChanges="keyboard|keyboardHidden|navigation|screenSize|smallestScreenSize|screenLayout|orientation|uiMode|density|colorMode"
             android:launchMode="singleTop"
             android:supportsPictureInPicture="true"
-            android:roundIcon="@mipmap/owntv_icon_petrol"
+            android:roundIcon="${icon_petrol}"
             android:theme="@style/Theme.OwnTV.Starting.Petrol"
             android:windowSoftInputMode="adjustPan">
             <intent-filter>
@@ -143,14 +143,14 @@
 
         <activity
             android:name=".MainActivitySunflower"
-            android:banner="@drawable/owntv_banner_sunflower"
+            android:banner="${banner_sunflower}"
             android:enabled="false"
             android:exported="true"
-            android:icon="@mipmap/owntv_icon_sunflower"
+            android:icon="${icon_sunflower}"
             android:configChanges="keyboard|keyboardHidden|navigation|screenSize|smallestScreenSize|screenLayout|orientation|uiMode|density|colorMode"
             android:launchMode="singleTop"
             android:supportsPictureInPicture="true"
-            android:roundIcon="@mipmap/owntv_icon_sunflower"
+            android:roundIcon="${icon_sunflower}"
             android:theme="@style/Theme.OwnTV.Starting.Sunflower"
             android:windowSoftInputMode="adjustPan">
             <intent-filter>
@@ -181,14 +181,14 @@
 
         <activity
             android:name=".MainActivityCobalt"
-            android:banner="@drawable/owntv_banner_cobalt"
+            android:banner="${banner_cobalt}"
             android:enabled="false"
             android:exported="true"
-            android:icon="@mipmap/owntv_icon_cobalt"
+            android:icon="${icon_cobalt}"
             android:configChanges="keyboard|keyboardHidden|navigation|screenSize|smallestScreenSize|screenLayout|orientation|uiMode|density|colorMode"
             android:launchMode="singleTop"
             android:supportsPictureInPicture="true"
-            android:roundIcon="@mipmap/owntv_icon_cobalt"
+            android:roundIcon="${icon_cobalt}"
             android:theme="@style/Theme.OwnTV.Starting.Cobalt"
             android:windowSoftInputMode="adjustPan">
             <intent-filter>
@@ -219,14 +219,14 @@
 
         <activity
             android:name=".MainActivityTomato"
-            android:banner="@drawable/owntv_banner_tomato"
+            android:banner="${banner_tomato}"
             android:enabled="false"
             android:exported="true"
-            android:icon="@mipmap/owntv_icon_tomato"
+            android:icon="${icon_tomato}"
             android:configChanges="keyboard|keyboardHidden|navigation|screenSize|smallestScreenSize|screenLayout|orientation|uiMode|density|colorMode"
             android:launchMode="singleTop"
             android:supportsPictureInPicture="true"
-            android:roundIcon="@mipmap/owntv_icon_tomato"
+            android:roundIcon="${icon_tomato}"
             android:theme="@style/Theme.OwnTV.Starting.Tomato"
             android:windowSoftInputMode="adjustPan">
             <intent-filter>
@@ -257,14 +257,14 @@
 
         <activity
             android:name=".MainActivityBoard"
-            android:banner="@drawable/owntv_banner_board"
+            android:banner="${banner_board}"
             android:enabled="false"
             android:exported="true"
-            android:icon="@mipmap/owntv_icon_board"
+            android:icon="${icon_board}"
             android:configChanges="keyboard|keyboardHidden|navigation|screenSize|smallestScreenSize|screenLayout|orientation|uiMode|density|colorMode"
             android:launchMode="singleTop"
             android:supportsPictureInPicture="true"
-            android:roundIcon="@mipmap/owntv_icon_board"
+            android:roundIcon="${icon_board}"
             android:theme="@style/Theme.OwnTV.Starting.Board"
             android:windowSoftInputMode="adjustPan">
             <intent-filter>
@@ -295,14 +295,14 @@
 
         <activity
             android:name=".MainActivity"
-            android:banner="@drawable/owntv_banner_eggshell"
+            android:banner="${banner_eggshell}"
             android:enabled="true"
             android:exported="true"
-            android:icon="@mipmap/owntv_icon_eggshell"
+            android:icon="${icon_eggshell}"
             android:configChanges="keyboard|keyboardHidden|navigation|screenSize|smallestScreenSize|screenLayout|orientation|uiMode|density|colorMode"
             android:launchMode="singleTop"
             android:supportsPictureInPicture="true"
-            android:roundIcon="@mipmap/owntv_icon_eggshell"
+            android:roundIcon="${icon_eggshell}"
             android:theme="@style/Theme.OwnTV.Starting.Eggshell"
             android:windowSoftInputMode="adjustPan">
             <intent-filter>
@@ -333,14 +333,14 @@
 
         <activity
             android:name=".MainActivityOlive"
-            android:banner="@drawable/owntv_banner_olive"
+            android:banner="${banner_olive}"
             android:enabled="false"
             android:exported="true"
-            android:icon="@mipmap/owntv_icon_olive"
+            android:icon="${icon_olive}"
             android:configChanges="keyboard|keyboardHidden|navigation|screenSize|smallestScreenSize|screenLayout|orientation|uiMode|density|colorMode"
             android:launchMode="singleTop"
             android:supportsPictureInPicture="true"
-            android:roundIcon="@mipmap/owntv_icon_olive"
+            android:roundIcon="${icon_olive}"
             android:theme="@style/Theme.OwnTV.Starting.Olive"
             android:windowSoftInputMode="adjustPan">
             <intent-filter>
@@ -371,14 +371,14 @@
 
         <activity
             android:name=".MainActivityOliveCream"
-            android:banner="@drawable/owntv_banner_olive_cream"
+            android:banner="${banner_olive_cream}"
             android:enabled="false"
             android:exported="true"
-            android:icon="@mipmap/owntv_icon_olive_cream"
+            android:icon="${icon_olive_cream}"
             android:configChanges="keyboard|keyboardHidden|navigation|screenSize|smallestScreenSize|screenLayout|orientation|uiMode|density|colorMode"
             android:launchMode="singleTop"
             android:supportsPictureInPicture="true"
-            android:roundIcon="@mipmap/owntv_icon_olive_cream"
+            android:roundIcon="${icon_olive_cream}"
             android:theme="@style/Theme.OwnTV.Starting.OliveCream"
             android:windowSoftInputMode="adjustPan">
             <intent-filter>
@@ -410,14 +410,14 @@
 
         <activity
             android:name=".MainActivityPixel"
-            android:banner="@drawable/owntv_banner_pixel"
+            android:banner="${banner_pixel}"
             android:enabled="false"
             android:exported="true"
-            android:icon="@mipmap/owntv_icon_pixel"
+            android:icon="${icon_pixel}"
             android:configChanges="keyboard|keyboardHidden|navigation|screenSize|smallestScreenSize|screenLayout|orientation|uiMode|density|colorMode"
             android:launchMode="singleTop"
             android:supportsPictureInPicture="true"
-            android:roundIcon="@mipmap/owntv_icon_pixel"
+            android:roundIcon="${icon_pixel}"
             android:theme="@style/Theme.OwnTV.Starting.Pixel"
             android:windowSoftInputMode="adjustPan">
             <intent-filter>

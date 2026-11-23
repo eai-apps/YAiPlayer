@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Keep every translation file byte-for-byte in the form Weblate writes.
+"""Keep translation files in Weblate form while preserving explicit Russian plurals.
 
 Weblate saves Android strings through translate-toolkit, and a save rewrites the
 whole file into that library's own form. Any translation file we write
@@ -17,7 +17,8 @@ gates. Needs translate-toolkit: pip install -r tools/i18n/requirements-weblate.t
 What Weblate's form cannot hold, so never write it into a translation:
 non-breaking spaces (any spelling), a space before a placeholder at the start of
 a string, and plural forms Android only uses for fractions (cs `many`,
-pl/ru `other` are rewritten from the integer forms).
+pl `other` are rewritten from the integer forms). Preserve explicit Russian
+`other` text, which translate-toolkit otherwise replaces with `many`.
 """
 import difflib
 import sys
@@ -28,13 +29,29 @@ from translate.storage.aresource import AndroidResourceFile
 RES = Path(__file__).resolve().parents[2] / 'core' / 'src' / 'main' / 'res'
 
 
+class RussianResourceFile(AndroidResourceFile):
+    """Keep an explicit Android quantity that translate-toolkit would replace."""
+
+    preserve_other = False
+
+    def get_plural_tags(self, target=None):
+        tags = super().get_plural_tags(target)
+        if self.preserve_other and "other" not in tags:
+            return [*tags, "other"]
+        return tags
+
+
 def weblate_form(path: Path) -> bytes:
-    """The file as Weblate would write it after a translator saves every unit."""
-    store = AndroidResourceFile()
+    """Round-trip through Weblate's serializer, retaining explicit Russian `other`."""
+    store = RussianResourceFile() if path.parent.name == 'values-ru' else AndroidResourceFile()
     # Without the language, plural forms English lacks are dropped on save.
     store.settargetlanguage(path.parent.name[len('values-'):].replace('-r', '_'))
     store.parse(path.read_bytes())
     for unit in store.units:
+        if isinstance(store, RussianResourceFile):
+            store.preserve_other = unit.xmlelement.tag == "plurals" and any(
+                item.get("quantity") == "other" for item in unit.xmlelement.iterchildren("item")
+            )
         unit.target = unit.target
     return bytes(store)
 

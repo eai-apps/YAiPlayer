@@ -9,6 +9,8 @@ data class ProviderMediaDetails(
     val country: String? = null,
     val director: String? = null,
     val actors: String? = null,
+    /** The portal's age limit as shown to people: «16+». Absent when the portal does not send one. */
+    val ageRating: String? = null,
     val year: Int? = null,
     val durationSecs: Int? = null,
 ) {
@@ -28,11 +30,19 @@ data class ProviderMediaDetails(
                 genres = value("genres_str", "genre", "genres"),
                 country = value("country"), director = value("director"),
                 actors = value("actors", "cast"),
+                ageRating = ageLabel(value("age", "age_rating", "age_limit", "rating_mpaa", "mpaa_rating", "mpaa")),
                 year = listOf("year", "releasedate", "release_date").firstNotNullOfOrNull { key ->
                     fields[key]?.trim()?.take(4)?.toIntOrNull()?.takeIf { it in 1800..3000 }
                 },
                 durationSecs = duration?.takeIf { it > 0 },
             )
+        }
+
+        /** «16» -> «16+», «16+» and «PG-13» stay, nothing-values («0», «N/A», «-») are dropped. */
+        internal fun ageLabel(raw: String?): String? {
+            val s = raw?.trim()?.takeIf { it.isNotEmpty() } ?: return null
+            if (s == "0" || s == "-" || s.equals("n/a", true) || s.equals("none", true) || s.equals("null", true)) return null
+            return if (s.all { it.isDigit() }) "$s+" else s
         }
 
         private fun durationSeconds(raw: String): Int? {

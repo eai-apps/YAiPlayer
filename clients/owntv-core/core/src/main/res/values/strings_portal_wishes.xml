@@ -8,6 +8,7 @@
     <string name="portal_resync_vod_only">Movies and series</string>
     <string name="portal_details_genre">Genre</string>
     <string name="portal_details_year">Year</string>
+    <string name="portal_details_age_rating">Age rating</string>
     <string name="portal_details_country">Country</string>
     <string name="portal_details_duration">Duration</string>
     <string name="portal_details_director">Director</string>

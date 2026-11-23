@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="subscription_expiry_title">Підписка: %1$s</string>
+    <string name="subscription_expiry_today">Шановний абоненте! Термін вашої оплати спливає сьогодні. Просимо поповнити особовий рахунок, щоб послуги залишалися доступними.</string>
+    <plurals name="subscription_expiry_message">
+        <item quantity="one">Шановний абоненте! Термін вашої оплати спливає через %1$d день. Просимо поповнити особовий рахунок, щоб послуги залишалися доступними.</item>
+        <item quantity="few">Шановний абоненте! Термін вашої оплати спливає через %1$d дні. Просимо поповнити особовий рахунок, щоб послуги залишалися доступними.</item>
+        <item quantity="many">Шановний абоненте! Термін вашої оплати спливає через %1$d днів. Просимо поповнити особовий рахунок, щоб послуги залишалися доступними.</item>
+        <item quantity="other">Шановний абоненте! Термін вашої оплати спливає через %1$d днів. Просимо поповнити особовий рахунок, щоб послуги залишалися доступними.</item>
+    </plurals>
+    <string name="subscription_expiry_ok">Зрозуміло</string>
+    <string name="subscription_days_left">%1$d дн.</string>
+    <string name="subscription_days_zero">0 дн.</string>
+    <string name="subscription_days_unlimited">∞</string>
+    <plurals name="subscription_days_left_long">
+        <item quantity="one">Залишився %1$d день</item>
+        <item quantity="few">Залишилося %1$d дні</item>
+        <item quantity="many">Залишилося %1$d днів</item>
+        <item quantity="other">Залишилося %1$d днів</item>
+    </plurals>
+    <string name="subscription_last_day">Останній день підписки</string>
+</resources>

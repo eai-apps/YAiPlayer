@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="portal_resync_submenu_title">Синхронізація</string>
+    <string name="portal_resync_all">Синхронізувати все</string>
+    <string name="portal_resync_channels_only">Лише телеканали</string>
+    <string name="portal_resync_epg_only">Лише телепрограму</string>
+    <string name="portal_resync_channels_and_epg">Канали й телепрограма</string>
+    <string name="portal_resync_vod_only">Фільми та серіали</string>
+    <string name="portal_details_genre">Жанр</string>
+    <string name="portal_details_year">Рік</string>
+    <string name="portal_details_age_rating">Віковий рейтинг</string>
+    <string name="portal_details_country">Країна</string>
+    <string name="portal_details_duration">Тривалість</string>
+    <string name="portal_details_director">Режисер</string>
+    <string name="portal_details_cast">У ролях</string>
+    <string name="content_search_vod_hint">назва, жанр, рік, країна, режисер, актор</string>
+    <string name="content_detail_label_value">%1$s: %2$s</string>
+</resources>

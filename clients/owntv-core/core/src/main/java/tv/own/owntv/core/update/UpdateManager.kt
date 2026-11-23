@@ -325,9 +325,15 @@ class UpdateManager(
     /** Numeric segment-wise compare: "1.10.0" > "1.9.3"; non-numeric junk compares as 0. */
     private fun isNewer(remote: String, local: String): Boolean {
         if (CoreBuildInfo.releaseTag != null) {
-            // beta: "beta-12" vs "beta-11" — the build number decides
-            fun build(s: String) = Regex("(\\d+)$").find(s.trim())?.value?.toIntOrNull() ?: 0
-            return build(remote) > build(local)
+            // Owner 20.11: betas are numbered 6.01, 6.02… (they were "beta-58"). Any new-style number is newer
+            // than an old "beta-N"; two new-style numbers compare part by part, like releases, below.
+            val remoteNew = remote.firstOrNull()?.isDigit() == true
+            val localNew = local.firstOrNull()?.isDigit() == true
+            if (remoteNew != localNew) return remoteNew
+            if (!remoteNew) {
+                fun build(s: String) = Regex("(\\d+)$").find(s.trim())?.value?.toIntOrNull() ?: 0
+                return build(remote) > build(local)
+            }
         }
         val r = remote.split('.').map { it.takeWhile(Char::isDigit).toIntOrNull() ?: 0 }
         val l = local.split('.').map { it.takeWhile(Char::isDigit).toIntOrNull() ?: 0 }
@@ -342,8 +348,12 @@ class UpdateManager(
     private class InstallException(cause: Throwable) : IOException(cause)
 
     companion object {
-        /** "4.0.3" -> "v4.0.3"; a beta name ("beta-50") stays as it is — the strings carry no "v" of their own. */
-        fun shown(version: String): String = if (version.firstOrNull()?.isDigit() == true) "v$version" else version
+        /** "4.0.3" -> "v4.0.3"; a beta ("6.01", or the old "beta-50") stays as it is — the strings carry no "v". */
+        fun shown(version: String): String {
+            // A beta's release title is «6.02 · 61»: the part after «·» is only for betas older than 6.01.
+            val v = version.substringBefore(" ·").trim()
+            return if (v.firstOrNull()?.isDigit() == true && CoreBuildInfo.releaseTag == null) "v$v" else v
+        }
 
         private const val TAG = "UpdateManager"
         private const val SESSION_ENTRY = "owntv-update"

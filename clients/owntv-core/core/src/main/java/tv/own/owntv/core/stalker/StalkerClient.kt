@@ -899,10 +899,18 @@ open class StalkerClient(okHttpClient: OkHttpClient) {
      * [request]; the difference is that nothing is parsed while the connection is open — see
      * [downloadEpgInfo] for why that matters.
      */
+    private val guideClient: OkHttpClient by lazy {
+        client.newBuilder().readTimeout(GUIDE_READ_TIMEOUT_S, java.util.concurrent.TimeUnit.SECONDS).build()
+    }
+
     private suspend fun requestToFile(
         url: String, mac: String, token: String?, userAgent: String?, dest: File,
     ): Long = withContext(Dispatchers.IO) {
-        val call = client.newCall(portalRequest(url, mac, token, userAgent))
+        // Owner 20.11 (operator portal, 4 473 channels): a week of guide failed every time with an
+        // IOException, so only 10 hours were ever stored. The portal builds that reply for longer than the
+        // shared client's 20-second read timeout before the first byte arrives. The whole-guide download
+        // alone waits longer; everything else keeps the short timeout.
+        val call = guideClient.newCall(portalRequest(url, mac, token, userAgent))
         val coroutineContext = currentCoroutineContext()
         val startedAt = SystemClock.elapsedRealtime()
         val safeUrl = url.substringBefore('?')
@@ -1127,6 +1135,9 @@ open class StalkerClient(okHttpClient: OkHttpClient) {
 
         /** A portal guide larger than this is not a guide; refuse it rather than fill the device. */
         private const val MAX_GUIDE_BYTES = 192L * 1024 * 1024
+
+        /** Seconds the whole-guide download may wait between bytes (the portal builds a week first). */
+        private const val GUIDE_READ_TIMEOUT_S = 120L
 
         /** How much of a non-JSON response is worth quoting in the error — enough to name the shape, not the whole body. */
         private const val RESPONSE_PEEK_BYTES = 200

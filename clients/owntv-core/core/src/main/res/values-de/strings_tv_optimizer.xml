@@ -19,7 +19,7 @@
     <string name="tv_optimizer_port_hint">Port (Standard 5555)</string>
     <string name="tv_optimizer_connect_btn">Verbinden</string>
     <string name="tv_optimizer_status_prompt">Drücken Sie \"Zulassen\" auf dem Fernseher</string>
-    <string name="tv_optimizer_applying">Wende Optimierung an\u2026</string>
+    <string name="tv_optimizer_applying">Wende Optimierung an…</string>
     <string name="tv_optimizer_result_title">Optimierung abgeschlossen</string>
     <string name="tv_optimizer_nav_next">Weiter</string>
     <string name="tv_optimizer_nav_back">Zurück</string>

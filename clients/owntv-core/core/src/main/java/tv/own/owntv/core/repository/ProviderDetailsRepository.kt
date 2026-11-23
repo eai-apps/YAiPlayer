@@ -47,6 +47,7 @@ class ProviderDetailsRepository(
                 val d = details.metadata
                 val updated = current.copy(originalTitle = current.originalTitle ?: d.originalTitle, genres = current.genres ?: d.genres,
                     country = current.country ?: d.country, director = current.director ?: d.director, actors = current.actors ?: d.actors,
+                    ageRating = current.ageRating ?: d.ageRating,
                     year = current.year ?: d.year, durationSecs = current.durationSecs ?: d.durationSecs, plot = current.plot ?: details.plot)
                 val searchable = updated.copy(searchText = providerSearchText(updated.name, updated.originalTitle, updated.genres,
                     updated.year, updated.country, updated.director, updated.actors, updated.plot))
@@ -67,6 +68,7 @@ class ProviderDetailsRepository(
                 val d = details.metadata
                 val updated = current.copy(originalTitle = current.originalTitle ?: d.originalTitle, genres = current.genres ?: d.genres,
                     country = current.country ?: d.country, director = current.director ?: d.director, actors = current.actors ?: d.actors,
+                    ageRating = current.ageRating ?: d.ageRating,
                     year = current.year ?: d.year, durationSecs = current.durationSecs ?: d.durationSecs, plot = current.plot ?: details.plot)
                 val searchable = updated.copy(searchText = providerSearchText(updated.name, updated.originalTitle, updated.genres,
                     updated.year, updated.country, updated.director, updated.actors, updated.plot))

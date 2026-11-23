@@ -45,6 +45,16 @@ class GuideOffer(
     /** Monday/Tuesday morning: this week's guide is not in yet — «Загрузить новый телегид?» (owner 16.11). */
     val weekly: StateFlow<Boolean> = _weekly
 
+    /**
+     * Owner 20.11: the daily check on entering — the guide is running out (most channels end within a day) or
+     * clearly more channels than usual have nothing on today. [untilMs]: where the guide of most channels ends.
+     */
+    data class Stale(val missing: Int, val total: Int, val untilMs: Long?)
+
+    private val _stale = MutableStateFlow<Stale?>(null)
+    /** Shown at most once a day, whatever the answer. */
+    val stale: StateFlow<Stale?> = _stale
+
     private val _offer = MutableStateFlow<Offer?>(null)
     val offer: StateFlow<Offer?> = _offer
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -89,6 +99,8 @@ class GuideOffer(
                 else context.getString(tv.own.owntv.core.R.string.guide_offer_filled_none, n + 1)
                 kotlinx.coroutines.withContext(Dispatchers.Main) { android.widget.Toast.makeText(context, text, android.widget.Toast.LENGTH_LONG).show() }
             }
+            // Owner 20.11: what is still missing after our source filled it — the «normal» gap for the daily check.
+            runCatching { coverage()?.let { (m, t) -> prefs().edit().putInt(FLOOR_MISSING, m).putInt(FLOOR_TOTAL, t).apply() } }
             kotlinx.coroutines.delay(NEXT_OFFER_DELAY_MS)
             // A portal's chain: the next source for the same portal (owner 16.11: source 2 offered too).
             val portalId = chainPortal
@@ -147,9 +159,73 @@ class GuideOffer(
                     _weekly.value = true
                     return@launch
                 }
+                dailyCheck(today)?.let { _stale.value = it; return@launch }
                 portalOffer(active, sources.filter { it.type == SourceType.STALKER })?.let { _offer.value = it }
             }
         }
+    }
+
+    /**
+     * Owner 20.11: «если человек зашёл через 2 дня, а там наполовину программы — предложить обновить, раз в
+     * день». Nothing while a guide is downloading (the playlist's own guide may be loading on entry).
+     */
+    private suspend fun dailyCheck(today: String): Stale? {
+        if (prefs().getString(DAILY_SHOWN, null) == today) return null
+        val tracker = org.koin.core.context.GlobalContext.get().get<tv.own.owntv.core.sync.EpgActivityTracker>()
+        if (tracker.active.value.isNotEmpty()) return null
+        val active = db.profileDao().resolveExistingProfileId(settings.activeProfileId.first()) ?: return null
+        val own = db.sourceDao().sourceIdsForProfile(active).toSet()
+        val playlists = db.sourceDao().getAllOnce().filter { it.id in own && it.type != SourceType.STALKER && it.type != SourceType.LOCAL_BACKUP }
+        if (playlists.isEmpty()) return null
+        val cust = customize.observe(active, MediaType.LIVE).first()
+        val channels = db.channelDao().allForSources(playlists.map { it.id }, Int.MAX_VALUE)
+            .filter { CustomizeKeys.channel(it) !in cust.hiddenItems }
+        if (channels.isEmpty()) return null
+        val keys = channels.map { epgKeyOf(it, cust) }
+        val now = System.currentTimeMillis()
+        val have = HashSet<String>()
+        val ends = ArrayList<Long>()
+        keys.filterNotNull().distinct().chunked(500).forEach {
+            have.addAll(db.epgDao().keysWithGuide(it, now, now + 86_400_000L))
+            ends.addAll(db.epgDao().guideEnds(it))
+        }
+        val missing = keys.count { it == null || it !in have }
+        val total = channels.size
+        // Where the guide of most channels ends: the lower quartile, so a few long feeds do not hide it.
+        val until = ends.filter { it > now }.sorted().let { if (it.isEmpty()) null else it[it.size / 4] }
+        val runningOut = until != null && until < now + 86_400_000L
+        // Channels that never have a guide must not make it ask every day. The «normal» number of channels
+        // without a programme is recorded only AFTER our additional sources have tried to fill them
+        // (afterFeed) — owner 20.11: the first check took today's gap itself as normal and never asked.
+        val p = prefs()
+        val floorTotal = p.getInt(FLOOR_TOTAL, -1)
+        val floorKnown = floorTotal == total
+        val floor = p.getInt(FLOOR_MISSING, 0)
+        val moreMissing = missing * 5 > total && (!floorKnown || missing > floor + maxOf(5, total / 20))
+        val normal = if (floorKnown) floor else -1
+        val untilAt = until ?: 0L
+        tv.own.owntv.core.util.GuideTrace.add("daily check: missing=$missing total=$total normal=$normal until=$untilAt")
+        if (!runningOut && !moreMissing && have.isNotEmpty()) return null
+        p.edit().putString(DAILY_SHOWN, today).apply()
+        return Stale(missing, total, until)
+    }
+
+    /** The daily offer's «От провайдера» / «Из наших источников» / «Не сейчас». */
+    fun staleFromProvider() { _stale.value = null; weeklyFromProvider() }
+    fun staleFromReserve() { _stale.value = null; weeklyFromReserve() }
+    fun staleLater() { _stale.value = null }
+
+    @Volatile private var checkedDay: String? = null
+
+    /**
+     * Owner 20.11: the box keeps the app alive for days, so the daily check also runs when the app comes back
+     * to the screen — at most once a day.
+     */
+    fun onAppResumed() {
+        val today = java.text.SimpleDateFormat("yyyyMMdd", java.util.Locale.US).format(java.util.Date())
+        if (checkedDay == today) return
+        checkedDay = today
+        onProfileEntered()
     }
 
     /** «От провайдера»: every guide the profile's playlists and portals name. */
@@ -244,6 +320,9 @@ class GuideOffer(
     companion object {
         private const val NEXT_OFFER_DELAY_MS = 4_000L
         private const val WEEKLY_DECLINED = "weekly_declined_day"
+        private const val DAILY_SHOWN = "daily_shown_day"
+        private const val FLOOR_MISSING = "missing_floor"
+        private const val FLOOR_TOTAL = "missing_floor_total"
         fun fromKoin(): GuideOffer = org.koin.core.context.GlobalContext.get().get()
     }
 }

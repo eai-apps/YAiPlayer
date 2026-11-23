@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sync_stop">Зупинити</string>
+    <string name="sync_already_running">Оновлення вже триває: крок %1$d з %2$d · %3$s</string>
+    <string name="sync_stop_running">Зупинити оновлення</string>
+    <string name="sync_started">Оновлення запущено. Перебіг видно в рядку стану.</string>
+    <string name="settings_sync_hidden_categories">Оновлювати приховані категорії</string>
+    <string name="settings_sync_hidden_categories_desc">Увімк.: під час оновлення оновлюються і приховані вами категорії. Вимк.: приховані категорії залишаються як є — їхні фільми та серіали не перезавантажуються, для їхніх каналів не завантажується телепрограма, тому оновлення швидше. Якщо знову показати категорію, вона оновиться під час наступного оновлення. Плейлист і його телепрограма надходять одним файлом, тому економія є в основному для порталу.</string>
+</resources>

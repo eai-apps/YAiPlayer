@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2026 YAiPlayer authors. «Защита от детей» (owner 16.11). -->
-<resources>
+<!-- Copyright (C) 2026 YAiPlayer authors. «Защита от детей» (owner 16.11). --><resources>
     <string name="parental_title">Kinderschutz</string>
     <string name="parental_description">Erwachsenen-Kategorien (18+, XXX, «Erwachsene»…) jeder Playlist und jedes Portals: anzeigen, ausblenden oder nur mit PIN öffnen.</string>
     <string name="parental_enter_pin">PIN eingeben</string>
@@ -19,7 +18,7 @@
     <string name="parental_mode_lock">PIN</string>
     <string name="parental_mode_lock_hint">Erwachsenen-Kategorien öffnen sich nur mit PIN</string>
     <plurals name="parental_adult_count">
-        <item quantity="one">%d Erwachsenen-Kategorie</item>
-        <item quantity="other">%d Erwachsenen-Kategorien</item>
+        <item quantity="one">%1$d Erwachsenen-Kategorie</item>
+        <item quantity="other">%1$d Erwachsenen-Kategorien</item>
     </plurals>
 </resources>

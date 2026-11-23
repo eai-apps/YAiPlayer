@@ -19,7 +19,7 @@
     <string name="tv_optimizer_port_hint">Порт (по умолчанию 5555)</string>
     <string name="tv_optimizer_connect_btn">Подключиться</string>
     <string name="tv_optimizer_status_prompt">Нажмите «Разрешить» на экране ТВ</string>
-    <string name="tv_optimizer_applying">Применяем оптимизацию\u2026</string>
+    <string name="tv_optimizer_applying">Применяем оптимизацию…</string>
     <string name="tv_optimizer_result_title">Готово</string>
     <string name="tv_optimizer_nav_next">Далее</string>
     <string name="tv_optimizer_nav_back">Назад</string>

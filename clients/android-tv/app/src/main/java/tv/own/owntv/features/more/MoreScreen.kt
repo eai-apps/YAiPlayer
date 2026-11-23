@@ -325,7 +325,7 @@ fun MoreScreen(
             }
             GroupLabel(stringResource(R.string.settings_app_group))
             item(MoreItem.ERROR_LOG, OwnTVIcon.WARNING, stringResource(R.string.settings_playback_error_log), logCount.toString(), false)
-            item(MoreItem.ABOUT, OwnTVIcon.INFO, stringResource(R.string.settings_about), BuildConfig.VERSION_NAME, false)
+            item(MoreItem.ABOUT, OwnTVIcon.INFO, stringResource(R.string.settings_about), tv.own.owntv.core.CoreBuildInfo.displayVersion, false)
             // Maintainer-only; DEV_TOOLS is a compile-time constant, so R8 removes it from published APKs.
             if (BuildConfig.DEV_TOOLS) item(MoreItem.DEVELOPER, OwnTVIcon.GEAR, "Developer", "DEV", false)
             Spacer(Modifier.height(16.mpx))
@@ -366,7 +366,7 @@ fun MoreScreen(
                 MoreItem.BACKUP -> BackupScreen(entry = pageTarget, modifier = Modifier.fillMaxSize())
                 MoreItem.LOCAL_SYNC -> LocalSyncScreen(entry = pageTarget, modifier = Modifier.fillMaxSize())
                 MoreItem.ERROR_LOG -> ErrorLogPage(setEntry = setEntry, onCountChanged = { logVersion++ })
-                MoreItem.ABOUT -> AboutPage(vm = vm, entry = pageTarget, onOpenLanguage = { onOpenSettings(8, false) })
+                MoreItem.ABOUT -> AboutPage(vm = vm, entry = pageTarget, onOpenLanguage = { onOpenSettings(tv.own.owntv.features.shell.components.SettingsGroup.APP.ordinal, false) })
                 MoreItem.DEVELOPER -> Box(Modifier.focusRequester(pageTarget).focusGroup()) { DeveloperScreen(onBack = backToSheet) }
             }
         }

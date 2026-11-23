@@ -824,7 +824,9 @@ class EpgRepository(
      * a TV for a 10,000-row batch, against microseconds without it. Same SQL as the generated insert.
      */
     private suspend fun writeProgrammes(batch: List<EpgProgrammeEntity>) {
-        for (part in batch.chunked(250)) {
+        // Owner 20.11: 250 rows a commit meant ~1 000 commits for a reserve guide on a Chromecast — minutes of
+        // fixed per-commit cost. 1 000 rows a commit is still short enough for the screens' reads (WAL).
+        for (part in batch.chunked(WRITE_CHUNK)) {
             val started = SystemClock.elapsedRealtime()
             db.useWriterConnection { connection ->
                 connection.immediateTransaction {
@@ -971,7 +973,7 @@ class EpgRepository(
         val now = System.currentTimeMillis()
         val from = now - WINDOW_BACK_MS
         val to = now + guideAheadMs()
-        val buffer = ArrayList<EpgProgrammeEntity>(250)
+        val buffer = ArrayList<EpgProgrammeEntity>(WRITE_CHUNK)
         val filled = HashSet<String>()
         suspend fun flush() {
             if (buffer.isEmpty()) return
@@ -987,7 +989,7 @@ class EpgRepository(
                             buffer.add(EpgProgrammeEntity(sourceId = storeId, epgChannelId = key,
                                 startMs = start, stopMs = stop, title = title, description = desc).withDetails(details))
                             filled.add(key)
-                            if (buffer.size >= 250) flush()
+                            if (buffer.size >= WRITE_CHUNK) flush()
                         }
                     }
                 }, channelFilter = aliases.keys)
@@ -1165,6 +1167,8 @@ class EpgRepository(
     }
 
     companion object {
+        /** Programmes per database commit (owner 20.11: was 250). */
+        private const val WRITE_CHUNK = 1_000
         /**
          * How a Stalker portal's own guide is addressed where a URL is expected. Not a real scheme and
          * never fetched: the EPG machinery — the sources list, the sync worker, the staleness check,

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2026 YAiPlayer authors. Weekly guide offer, portal guide offer, new channels (owner 16.11). -->
-<resources>
+<!-- Copyright (C) 2026 YAiPlayer authors. Weekly guide offer, portal guide offer, new channels (owner 16.11). --><resources>
     <string name="guide_weekly_title">Neues TV-Programm für die Woche</string>
     <string name="guide_weekly_body">Anbieter stellen das Programm der neuen Woche meist am Montag bereit. Jetzt laden? Der Player lädt es selbst am Montag um 18:00.</string>
     <string name="guide_weekly_provider">Vom Anbieter</string>
@@ -12,7 +11,15 @@
     <string name="new_channels_title">Neue Sender beim Anbieter</string>
     <string name="new_channels_show">Ansehen</string>
     <plurals name="new_channels_body">
-        <item quantity="one">Ihr Anbieter hat %d neuen Sender hinzugefügt. Er steht 7 Tage in der Kategorie «Zuletzt hinzugefügt» im Live-TV.</item>
-        <item quantity="other">Ihr Anbieter hat %d neue Sender hinzugefügt. Sie stehen 7 Tage in der Kategorie «Zuletzt hinzugefügt» im Live-TV.</item>
+        <item quantity="one">Ihr Anbieter hat %1$d neuen Sender hinzugefügt. Er steht 7 Tage in der Kategorie «Zuletzt hinzugefügt» im Live-TV.</item>
+        <item quantity="other">Ihr Anbieter hat %1$d neue Sender hinzugefügt. Sie stehen 7 Tage in der Kategorie «Zuletzt hinzugefügt» im Live-TV.</item>
+    </plurals>
+    <string name="guide_stale_title">Das TV-Programm sollte aktualisiert werden</string>
+    <string name="guide_stale_body">%1$d von %2$d Sendern haben für heute kein Programm. Bei den meisten Sendern reicht es bis %3$s. Jetzt aktualisieren?</string>
+    <string name="guide_stale_body_none">%1$d von %2$d Sendern haben für heute kein Programm. TV-Programm aktualisieren?</string>
+    <string name="guide_ahead_today">TV-Programm endet heute um %1$s</string>
+    <plurals name="guide_ahead_days">
+        <item quantity="one">TV-Programm für noch %1$d Tag (bis %2$s)</item>
+        <item quantity="other">TV-Programm für noch %1$d Tage (bis %2$s)</item>
     </plurals>
 </resources>

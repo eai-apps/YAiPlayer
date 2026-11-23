@@ -134,6 +134,7 @@ internal class XtreamSyncer(
                                 year = details.year, durationSecs = details.durationSecs,
                                 originalTitle = details.originalTitle, genres = details.genres,
                                 country = details.country, director = details.director, actors = details.actors,
+                                ageRating = details.ageRating,
                                 streamUrl = xtream.movieUrl(s, streamId, containerExt),
                                 containerExt = containerExt, remoteId = streamId,
                                 addedAt = added?.takeIf { it > 0L }?.let { if (it < 10_000_000_000L) it * 1000L else it },
@@ -177,7 +178,7 @@ internal class XtreamSyncer(
                                 year = year ?: details.year, remoteId = seriesId,
                                 durationSecs = details.durationSecs, originalTitle = details.originalTitle,
                                 genres = details.genres, country = details.country,
-                                director = details.director, actors = details.actors,
+                                director = details.director, actors = details.actors, ageRating = details.ageRating,
                                 addedAt = (lastModified ?: added)?.takeIf { it > 0L }?.let {
                                     if (it < 10_000_000_000L) it * 1000L else it
                                 },

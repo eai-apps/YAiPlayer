@@ -1086,6 +1086,12 @@ class LiveViewModel(
         viewModelScope.launch { revealInSelectedNow(channelId) }
     }
 
+    /** Where [channelId] sits in the selected category's list, or null (not there). No focus, no reveal. */
+    suspend fun positionInSelected(channelId: Long): Int? {
+        val c = ctx.first { it.profileId >= 0 }
+        return runCatching { pagingSource(_selected.value, c, "", settings.sortLive.first()).positionOf(channelId, { it.id }) }.getOrNull()
+    }
+
     private suspend fun revealInSelectedNow(channelId: Long) {
         val c = ctx.first { it.profileId >= 0 }
         val key = _selected.value
@@ -2264,7 +2270,39 @@ class LiveViewModel(
         nowPlayingJob?.cancel()
         nowPlayingJob = viewModelScope.launch {
             val found = runCatching { nowPlayingFor(loaded) }.getOrDefault(emptyMap())
-            publishNowPlaying(found + loaded.filter { it.id !in found }.associate { it.id to null })
+            // Owner 20.11: «программа то есть, то пропадает». A programme fetched from the provider for a
+            // visible row is not in the stored guide, so this once-a-minute re-read answered «nothing» for
+            // it and blanked the row, until the row fetched it again. One still on air is kept.
+            val now = System.currentTimeMillis()
+            val known = cachedNowPlaying()
+            publishNowPlaying(found + loaded.filter { it.id !in found }.associate { ch ->
+                ch.id to known[ch.id]?.takeIf { it.stopMs > now }
+            })
+        }
+    }
+
+    /**
+     * Owner 20.11: a guide download ended. Rows remembered as «no programme» are read again, and the
+     * preview pane re-asks for its channel — without this a fresh guide stayed hidden until the caches ran out.
+     */
+    private val epgTracker: tv.own.owntv.core.sync.EpgActivityTracker = org.koin.core.context.GlobalContext.get().get()
+
+    init {
+        viewModelScope.launch {
+            epgTracker.guideChanged.drop(1).collect {
+                epgReader.onGuideChanged()
+                synchronized(nowPlayingCache) {
+                    val stillOn = nowPlayingCache.filterValues { it != null }
+                    nowPlayingCache.clear(); nowPlayingCache.putAll(stillOn)
+                    _nowPlaying.value = HashMap(nowPlayingCache)
+                }
+                epgRefresh.value++
+                val window = lastVisibleWindow
+                if (window.isNotEmpty()) {
+                    val found = runCatching { epgReader.nowProgrammesFor(window, custom.value, epgOffset.value) }.getOrDefault(emptyMap())
+                    if (found.isNotEmpty()) publishNowPlaying(found)
+                }
+            }
         }
     }
 

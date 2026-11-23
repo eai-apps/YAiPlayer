@@ -43,7 +43,7 @@ class OperatorFixesTest {
         val details = ProviderMediaDetails.from(mapOf("o_name" to "Original", "genres_str" to "Драма",
             "country" to "Германия", "director" to "Режиссёр", "actors" to "Актёр",
             "year" to "2024", "time" to "95"))
-        assertEquals(ProviderMediaDetails("Original", "Драма", "Германия", "Режиссёр", "Актёр", 2024, 5700), details)
+        assertEquals(ProviderMediaDetails("Original", "Драма", "Германия", "Режиссёр", "Актёр", year = 2024, durationSecs = 5700), details)
     }
 
     @Test fun xtreamAliasesAndDurationAreParsedWithoutInventingMissingFields() {

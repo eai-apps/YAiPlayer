@@ -127,6 +127,14 @@ fun ProfileGate(
     val visibleProfiles = remember(profiles, hiddenProfileIds, guestId, accountProfileIds, emptyLocalIds) {
         profiles.filter { it.id == guestId || (it.id !in hiddenProfileIds && it.id !in accountProfileIds && it.id !in emptyLocalIds) }
     }
+    // Owner 21.11 (as on the TV since 4.0.2): with the account on, profiles made on THIS phone (before 4.0 or
+    // without an account) are no longer on «Кто смотрит?» — they open from Guest: Guest → Guest + those profiles.
+    val grouped = accountService != null
+    val localProfiles = if (grouped) visibleProfiles.filter { it.id != guestId } else emptyList()
+    val mainProfiles = if (grouped) visibleProfiles.filter { it.id == guestId } else visibleProfiles
+    var guestGroupOpen by remember { mutableStateOf(false) }
+    LaunchedEffect(localProfiles.isEmpty()) { if (localProfiles.isEmpty()) guestGroupOpen = false }
+    androidx.activity.compose.BackHandler(enabled = guestGroupOpen) { guestGroupOpen = false }
 
     Column(
         modifier = modifier
@@ -145,8 +153,16 @@ fun ProfileGate(
             ) { BrandMark(rememberAppliedIcon(), 28.dp) }
             Wordmark(110.dp)
         }
+        // Beta build (owner 23.11): the «BETA VERSION» seal under the logo.
+        if (tv.own.owntv.mobile.BuildConfig.BETA) {
+            androidx.compose.foundation.Image(
+                painter = androidx.compose.ui.res.painterResource(tv.own.owntv.core.R.drawable.yai_beta_badge),
+                contentDescription = null,
+                modifier = Modifier.padding(top = 14.dp).size(150.dp),
+            )
+        }
         Text(
-            text = stringResource(R.string.profiles_gate_title),
+            text = if (guestGroupOpen) stringResource(R.string.profiles_guest_name) else stringResource(R.string.profiles_gate_title),
             style = stageText(28f, 800),
             color = palette.text,
             textAlign = TextAlign.Center,
@@ -163,9 +179,14 @@ fun ProfileGate(
         val guestMissing = visibleProfiles.none { it.id == guestId }
         // «Продолжить» (owner 16.11, as on the TV): the last profile straight to its last channel.
         val resumeProfile = profiles.firstOrNull { it.id == activeProfileId }
-        val tiles: List<Any> = (if (resumeProfile != null) listOf("continue") else emptyList()) +
-            (if (accountService != null) listOf("account") else emptyList()) + visibleProfiles + (if (accountService == null) listOf("add") else emptyList()) + (if (guestMissing) listOf("guest") else emptyList()) + (if (TV_OPTIMIZER_READY) listOf("tv_optimizer") else emptyList()) +
-            (if (tv.own.owntv.extras.radio.RadioFeature.AVAILABLE) listOf("radio") else emptyList()) + listOf("remote")
+        val tiles: List<Any> = if (guestGroupOpen) {
+            // Guest's own tile first, then the profiles made on this phone; Back returns to «Кто смотрит?».
+            (if (guestMissing) listOf("guest") else visibleProfiles.filter { it.id == guestId }) + localProfiles
+        } else {
+            (if (resumeProfile != null) listOf("continue") else emptyList()) +
+                (if (accountService != null) listOf("account") else emptyList()) + mainProfiles + (if (accountService == null) listOf("add") else emptyList()) + (if (guestMissing) listOf("guest") else emptyList()) + (if (TV_OPTIMIZER_READY) listOf("tv_optimizer") else emptyList()) +
+                (if (tv.own.owntv.extras.radio.RadioFeature.AVAILABLE) listOf("radio") else emptyList()) + listOf("remote")
+        }
         tiles.chunked(2).forEach { pair ->
             Row(Modifier.fillMaxWidth().padding(bottom = 26.dp), horizontalArrangement = Arrangement.spacedBy(20.dp)) {
                 pair.forEach { tile ->
@@ -188,7 +209,7 @@ fun ProfileGate(
                             )
                         } else if (tile == "guest") {
                             AddProfileTile(
-                                onClick = { vm.enterGuest(onEntered) },
+                                onClick = { if (!guestGroupOpen && localProfiles.isNotEmpty()) guestGroupOpen = true else vm.enterGuest(onEntered) },
                                 label = stringResource(R.string.profiles_guest_name),
                                 icon = MobileIcons.Person,
                             )
@@ -218,7 +239,9 @@ fun ProfileGate(
                                 current = profile.id == activeProfileId,
                                 isGuest = profile.id == guestId,
                                 onClick = {
-                                    if (profile.id == guestId) {
+                                    if (profile.id == guestId && !guestGroupOpen && localProfiles.isNotEmpty()) {
+                                        guestGroupOpen = true
+                                    } else if (profile.id == guestId) {
                                         if (profile.pinHash == null) enter(profile) else pinFor = profile
                                     } else {
                                         menuFor = profile

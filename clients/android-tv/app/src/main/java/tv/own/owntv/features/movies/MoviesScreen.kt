@@ -581,10 +581,11 @@ fun MoviesScreen(
                             info.genres.takeIf { it.isNotEmpty() }?.joinToString(", "),
                             info.runtimeSecs?.let { tv.own.owntv.features.shell.components.vodRuntime(it) },
                         ),
-                        country = info.country, director = info.director,
+                        country = info.country, director = info.director, ageRating = info.ageRating,
                         actors = info.actorsText ?: info.cast.takeIf { it.isNotEmpty() }?.take(8)?.joinToString(", ") { it.name },
                         plot = info.plot,
-                        modifier = Modifier.padding(start = fx(84), top = 122.mpx).width(fx(1752)).heightIn(max = heroH - 16.mpx),
+                        // Lowered (owner 23.11: «до 5 сантиметров»), so the description does not run into the clock and the date.
+                        modifier = Modifier.padding(start = fx(84), top = 190.mpx).width(fx(1752)).heightIn(max = heroH - 84.mpx),
                     )
                 }
                 Column(Modifier.padding(top = toolTop).fillMaxSize().then(paneModifier)) {
@@ -1253,5 +1254,6 @@ internal fun movieTitleInfo(
         country = movie.country?.takeIf { it.isNotBlank() },
         director = movie.director?.takeIf { it.isNotBlank() },
         actorsText = movie.actors?.takeIf { it.isNotBlank() },
+        ageRating = movie.ageRating?.takeIf { it.isNotBlank() },
     )
 }

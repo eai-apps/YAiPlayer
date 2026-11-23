@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="remote_pair_popup_title">Пульт на телефоні</string>
+    <string name="remote_pair_popup_body">Введіть цей код на телефоні:</string>
+    <string name="remote_pair_requesting">Отримуємо код із телевізора…</string>
+    <string name="remote_pair_enter_code">Введіть 6 цифр коду, що з\'явився на екрані телевізора.</string>
+    <string name="remote_pair_no_answer">Телевізор не відповів. Відкрийте YAiPlayer на приставці, перевірте, що телефон і приставка в одній мережі Wi-Fi, і спробуйте ще раз.</string>
+    <string name="remote_pair_code_in_settings">Ця версія YAiPlayer на ТВ сама код не показує (найімовірніше, це звичайний застосунок поруч із бетою). Виберіть у списку «Beta · …» або відкрийте на ТВ Налаштування → Пульт із телефона — код там.</string>
+</resources>

@@ -522,6 +522,24 @@ fun LiveScreen(
         }
         onRestored()
     }
+    // Owner 20.11: Live TV → Settings (error log…) → back to Live TV: the channel kept playing in the preview,
+    // but the list opened at its top («Кинозалы»), not at that channel. Coming back from the player was right
+    // (restoreFocus); arriving from another section was not. The list now scrolls to the playing channel —
+    // focus stays where it is (the rail), and → lands on that row (focusChannelList finds it loaded).
+    LaunchedEffect(Unit) {
+        if (restoreFocus) return@LaunchedEffect
+        val ch = previewChannel ?: return@LaunchedEffect
+        repeat(30) {
+            if (vm.reveal.value != null) return@LaunchedEffect
+            if (channels.itemCount > 0) {
+                val idx = channels.itemSnapshotList.indexOfFirst { it?.id == ch.id }
+                if (idx >= 0) { revealRow(idx); return@LaunchedEffect }
+                val pos = vm.positionInSelected(ch.id) ?: return@LaunchedEffect
+                runCatching { effectiveListState.scrollToItem(pos.coerceAtMost(channels.itemCount - 1)) }
+            }
+            delay(100)
+        }
+    }
     // Search's "Go to channel": scroll to where the channel sits so that part of the list loads, find
     // its row by id and focus it. The list can still be the old category's for a moment, so focus is
     // re-asserted for a short while; nothing found after ~5 s lands on the first row.

@@ -262,7 +262,7 @@ fun MoreScreen(
                 }
                 StageGroupLabel(stringResource(R.string.settings_app_group))
                 MoreItem(R.string.settings_playback_error_log, MobileIcons.Warning, logCount.toString()) { onOpenLeaf(MoreLeaf.ERROR_LOG) }
-                MoreItem(R.string.settings_about, MobileIcons.Info, BuildConfig.VERSION_NAME) { onOpenLeaf(MoreLeaf.ABOUT) }
+                MoreItem(R.string.settings_about, MobileIcons.Info, tv.own.owntv.core.CoreBuildInfo.displayVersion) { onOpenLeaf(MoreLeaf.ABOUT) }
 
                 // Dev-only and English-only: R8 removes the row from a published build.
                 if (BuildConfig.DEV_TOOLS) {

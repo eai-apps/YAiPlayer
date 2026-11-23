@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="version_gate_block_title">Оновіть застосунок</string>
+    <string name="version_gate_block_body">Ця версія застаріла і більше не працює. Встановіть актуальну версію, щоб продовжити.</string>
+    <string name="version_gate_warn_title">Ця версія скоро перестане працювати</string>
+    <plurals name="version_gate_warn_body">
+        <item quantity="one">Ця версія перестане працювати через %1$d день. Оновіть застосунок до актуальної версії.</item>
+        <item quantity="few">Ця версія перестане працювати через %1$d дні. Оновіть застосунок до актуальної версії.</item>
+        <item quantity="many">Ця версія перестане працювати через %1$d днів. Оновіть застосунок до актуальної версії.</item>
+        <item quantity="other">Ця версія перестане працювати через %1$d днів. Оновіть застосунок до актуальної версії.</item>
+    </plurals>
+    <string name="version_gate_update_now">Оновити зараз</string>
+    <string name="version_gate_check_again">Перевірити знову</string>
+    <string name="version_gate_open_site">Відкрити сторінку завантаження</string>
+    <string name="version_gate_later">Пізніше</string>
+    <string name="version_gate_downloading">Завантаження: %1$d%%</string>
+</resources>

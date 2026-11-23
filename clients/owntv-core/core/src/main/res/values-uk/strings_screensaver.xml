@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="screensaver_title">Заставка</string>
+    <string name="screensaver_desc">Фотографії та годинник у режимі очікування</string>
+    <string name="screensaver_enable">Увімкнути заставку</string>
+    <string name="screensaver_timeout">Час до ввімкнення</string>
+    <string name="screensaver_timeout_1m">1 хвилина</string>
+    <string name="screensaver_timeout_3m">3 хвилини</string>
+    <string name="screensaver_timeout_5m">5 хвилин</string>
+    <string name="screensaver_timeout_10m">10 хвилин</string>
+    <string name="screensaver_timeout_15m">15 хвилин</string>
+    <string name="screensaver_timeout_30m">30 хвилин</string>
+    <string name="screensaver_mode">Режим відображення</string>
+    <string name="screensaver_mode_posters">Постери каталогу</string>
+    <string name="screensaver_mode_nature">Природа та космос</string>
+    <string name="screensaver_mode_clock">Годинник</string>
+    <string name="screensaver_mode_mix">Мікс</string>
+    <string name="screensaver_corner_clock">Годинник у кутку</string>
+    <string name="screensaver_corner_clock_desc">Невеликий годинник поверх фотографій</string>
+    <string name="screensaver_preview">Попередній перегляд</string>
+    <string name="screensaver_preview_desc">Запустити заставку зараз</string>
+    <string name="screensaver_dismiss_hint">Натисніть будь-яку кнопку для повернення</string>
+</resources>

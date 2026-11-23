@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="light_mode_title">Легкий режим</string>
+    <string name="light_mode_description">Легкий режим вимикає анімації, меню відгукується швидше. Бажано ввімкнути, якщо у вас слабка приставка. Прев\'ю каналів — окремий перемикач поруч.</string>
+    <string name="light_mode_prompt_title">Увімкнути легкий режим?</string>
+    <string name="light_mode_prompt_body">Меню працюватиме швидше на цьому пристрої.</string>
+    <string name="light_mode_action_enable">Увімкнути</string>
+    <string name="light_mode_action_not_now">Не зараз</string>
+    <string name="light_mode_action_disable">Вимкнути</string>
+</resources>

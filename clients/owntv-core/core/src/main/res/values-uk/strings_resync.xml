@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="shell_resync_label">Пересинхронізувати портал</string>
+    <string name="shell_resync_title">Пересинхронізувати портал?</string>
+    <string name="shell_resync_body">Канали, фільми, серіали й телепрограма завантажаться заново. Обране та історія збережуться. Це може зайняти кілька хвилин.</string>
+    <string name="shell_resync_confirm">Пересинхронізувати</string>
+    <string name="shell_resync_started">Синхронізацію запущено</string>
+</resources>
