@@ -211,6 +211,15 @@ fun ExoPreviewSurface(
         // 4K codec per Surface — see LivePreviewEngine.recreateSurface.
         val surfaceGeneration by engine.surfaceGeneration.collectAsStateWithLifecycle()
         val viewModifier = Modifier.videoZoom(zoom, aspect, videoSize, maxWidth, maxHeight)
+        // Owner 25.11 (Kinofranchise): only on his Amlogic box the preview's TextureView showed stale picture rows
+        // under the frame while the same stream was clean full screen and on another device. The texture's default
+        // buffer is sized for the pane the view first filled (before the video size was known), not for the video;
+        // keep it equal to the decoded size so the decoder's output is never scaled into a mismatching buffer.
+        val textureRef = remember { arrayOfNulls<SurfaceTexture>(1) }
+        LaunchedEffect(videoSize, surfaceGeneration) {
+            val vs = videoSize ?: return@LaunchedEffect
+            if (vs.first > 0 && vs.second > 0) runCatching { textureRef[0]?.setDefaultBufferSize(vs.first, vs.second) }
+        }
         key(surfaceGeneration) {
             if (useTextureView) {
                 AndroidView(
@@ -222,14 +231,22 @@ fun ExoPreviewSurface(
                             var surface: Surface? = null
                             surfaceTextureListener = object : TextureView.SurfaceTextureListener {
                                 override fun onSurfaceTextureAvailable(texture: SurfaceTexture, width: Int, height: Int) {
+                                    textureRef[0] = texture
+                                    engine.videoSize.value?.takeIf { it.first > 0 && it.second > 0 }
+                                        ?.let { runCatching { texture.setDefaultBufferSize(it.first, it.second) } }
                                     surface = Surface(texture).also { engine.setSurface(it) }
                                 }
 
-                                override fun onSurfaceTextureSizeChanged(texture: SurfaceTexture, width: Int, height: Int) = Unit
+                                override fun onSurfaceTextureSizeChanged(texture: SurfaceTexture, width: Int, height: Int) {
+                                    // TextureView resets the buffer to the view size on every resize; put the video's back.
+                                    engine.videoSize.value?.takeIf { it.first > 0 && it.second > 0 }
+                                        ?.let { runCatching { texture.setDefaultBufferSize(it.first, it.second) } }
+                                }
 
                                 override fun onSurfaceTextureDestroyed(texture: SurfaceTexture): Boolean {
                                     surface?.let { engine.detachSurface(it); it.release() }
                                     surface = null
+                                    textureRef[0] = null
                                     return true
                                 }
 
