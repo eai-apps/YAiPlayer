@@ -2193,6 +2193,7 @@
 1	log	core/src/main/java/tv/own/owntv/core/epg/EpgGapFill.kt	reserve: nothing to fill (no playlist without a guide, no portal with the reserve on)
 1	preference-key	core/src/main/java/tv/own/owntv/core/epg/EpgGapFill.kt	reserve_purged_shared_ids_v2
 1	log	core/src/main/java/tv/own/owntv/core/epg/EpgGapFill.kt	sourceId=${source.id} failed: ${e.javaClass.simpleName}
+1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgLogoStore.kt	$it
 1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgLogoStore.kt	5 канал
 12	technical	core/src/main/java/tv/own/owntv/core/epg/EpgMatcher.kt	\0
 1	regex	core/src/main/java/tv/own/owntv/core/epg/EpgMatcher.kt	(?<![\\p{L}\\p{N}])\\+(\\d{1,2})(?![\\p{L}\\p{N}])
@@ -6868,7 +6869,7 @@
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	://
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	;
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	<-
-1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	?
+2	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	?
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	AV1
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	Age
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	Authorization
@@ -6938,6 +6939,7 @@
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	decoder failure before first frame — rebuild ${tune.decoderRebuilds} in ${delayMs}ms
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	decoder failure cause: ${decoderCause(error)}
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	decoder init failed for ${it.mimeType}: ${it.codecInfo?.name ?: "no decoder on this device"}
+1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	decoder=${tune.lastVideoDecoder} fps=${displayFpsOrNull() ?: "?"} url=${currentUrl?.substringBefore('?')?.takeLast(48)}
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	device
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	discontinuitySeq=${manifest.mediaPlaylist.discontinuitySequence}
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	distinct segments on this load
@@ -7086,6 +7088,7 @@
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	url=${HttpClient.redactUrl(url)}
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	variants=${mv.variants.size} audios=${mv.audios.size} subs=${mv.subtitles.size}
 3	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	video
+1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	video ${videoSize.width}x${videoSize.height} par=${videoSize.pixelWidthHeightRatio}
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	video decoder: $decoderName (
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	video surface attached (${id(s)}), decoder ${if (player == null) "not built" else "running"}
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	video surface detached (${id(previous!!)})
