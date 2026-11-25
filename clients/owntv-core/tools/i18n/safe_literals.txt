@@ -2193,8 +2193,27 @@
 1	log	core/src/main/java/tv/own/owntv/core/epg/EpgGapFill.kt	reserve: nothing to fill (no playlist without a guide, no portal with the reserve on)
 1	preference-key	core/src/main/java/tv/own/owntv/core/epg/EpgGapFill.kt	reserve_purged_shared_ids_v2
 1	log	core/src/main/java/tv/own/owntv/core/epg/EpgGapFill.kt	sourceId=${source.id} failed: ${e.javaClass.simpleName}
-1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgLogoStore.kt	$it
+1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgLogoStore.kt	4k
 1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgLogoStore.kt	5 канал
+1	regex	core/src/main/java/tv/own/owntv/core/epg/EpgLogoStore.kt	[^\\p{L}\\p{N}]+
+1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgLogoStore.kt	fhd
+1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgLogoStore.kt	hd
+1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgLogoStore.kt	orig
+1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgLogoStore.kt	original
+1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgLogoStore.kt	plus0
+1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgLogoStore.kt	ru
+1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgLogoStore.kt	russia
+1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgLogoStore.kt	sd
+1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgLogoStore.kt	spb
+1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgLogoStore.kt	tv
+1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgLogoStore.kt	uhd
+1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgLogoStore.kt	канал
+1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgLogoStore.kt	петербург
+1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgLogoStore.kt	россия
+1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgLogoStore.kt	рф
+1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgLogoStore.kt	санкт
+1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgLogoStore.kt	спб
+1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgLogoStore.kt	тв
 12	technical	core/src/main/java/tv/own/owntv/core/epg/EpgMatcher.kt	\0
 1	regex	core/src/main/java/tv/own/owntv/core/epg/EpgMatcher.kt	(?<![\\p{L}\\p{N}])\\+(\\d{1,2})(?![\\p{L}\\p{N}])
 1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgMatcher.kt	+
