@@ -217,7 +217,10 @@ internal class StalkerSyncer(
                             epgChannelId = ch.xmltvId ?: ch.id,
                             number = ch.number?.toIntOrNull(),
                             remoteId = ch.id,
-                            sortOrder = order++,
+                            // Owner 25.11 (operator): "All" must start at channel 1 as the portal numbers them, not at
+                            // 71 (the portal lists channels in its own order). A channel with a number sorts by it;
+                            // the rest keep the portal's order after them.
+                            sortOrder = ch.number?.toIntOrNull()?.takeIf { it in 1 until UNNUMBERED_SORT_BASE } ?: (UNNUMBERED_SORT_BASE + order++),
                             catchup = ch.archive,
                             catchupDays = ch.archiveDuration,
                     ))
@@ -1276,6 +1279,9 @@ internal class StalkerSyncer(
 
     companion object {
         private const val TAG = SyncSupport.TAG
+
+        /** Portal-numbered channels sort below this; channels without a number follow in the portal's order. */
+        private const val UNNUMBERED_SORT_BASE = 1_000_000
 
         /**
          * Portal answers worth one more attempt after a backoff — "ask again in a moment", not

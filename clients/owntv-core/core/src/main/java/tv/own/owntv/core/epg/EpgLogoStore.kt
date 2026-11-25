@@ -143,9 +143,20 @@ object EpgLogoStore {
         return out
     }
 
+    /**
+     * "5 канал Украина" is a different channel from the national "5 канал", yet it carries the same guide id or
+     * matches it, and showed the other channel's logo (owner 25.11, again). A name that is an ambiguous one plus
+     * extra words never takes a guide icon: the playlist's own logo, or none.
+     */
+    private fun isRegionalVariant(name: String): Boolean {
+        val n = EpgMatcher.normalizeForEpg(name)
+        return AMBIGUOUS_NAMES.any { n.startsWith("$it ") }
+    }
+
     /** The feed icon for [channel], or null when there is none / no feed has logos enabled. */
     fun iconFor(channel: ChannelEntity): String? {
         if (icons.isEmpty() && nameIcons.isEmpty()) return null
+        if (isRegionalVariant(channel.name)) return null
         matches.epgIdFor(channel)?.let { id -> icons[id.trim().lowercase()]?.let { return it } }
         val own = channel.epgChannelId
         if (!own.isNullOrBlank()) icons[own.trim().lowercase()]?.let { return it }
@@ -155,6 +166,7 @@ object EpgLogoStore {
     /** A guide icon for a channel whose playlist gave it no logo; null when no guide has one. */
     fun fallbackFor(channel: ChannelEntity): String? {
         if (!channel.logoUrl.isNullOrBlank()) return null
+        if (isRegionalVariant(channel.name)) return null
         if (fallbackIds.isEmpty() && fallbackNames.isEmpty()) return null
         matches.epgIdFor(channel)?.let { id -> fallbackIds[id.trim().lowercase()]?.let { return it } }
         channel.epgChannelId?.takeIf { it.isNotBlank() }?.let { id -> fallbackIds[id.trim().lowercase()]?.let { return it } }

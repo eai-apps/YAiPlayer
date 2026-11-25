@@ -1454,12 +1454,13 @@ private fun EpisodeView(
         Column(Modifier.padding(top = 104.mpx).fillMaxSize()) {
         // The operator's layout (owner 18.11): cover, title, original title, «year ● genres ● N seasons», country,
         // director, cast and the full description on the right — one panel.
+        val seasonYears by androidx.compose.runtime.produceState(emptyMap<Int, Int>(), series.id) { value = vm.seasonYears(series) }
         val pageTitle = if (tv.own.owntv.core.content.SeasonRecordTitle.isSeasonRecord(series.name)) tv.own.owntv.core.content.SeasonRecordTitle.base(series.name) else series.name
         tv.own.owntv.features.shell.components.VodInfoPanel(
             title = pageTitle,
             originalTitle = series.originalTitle,
             metaParts = listOfNotNull(
-                info.year?.toString(),
+                (seasonYears[activeSeason] ?: info.year)?.toString(),
                 info.genres.takeIf { it.isNotEmpty() }?.joinToString(", "),
                 // Specials are not counted as a season, as on Home.
                 seasons.count { it > 0 }.takeIf { it > 0 }?.let { androidx.compose.ui.res.pluralStringResource(R.plurals.home_trending_seasons, it, it) },
@@ -1471,7 +1472,7 @@ private fun EpisodeView(
             posterUrl = info.posterUrl,
             ageRating = series.ageRating,
             // Owner 23.11 (п.101): the block sits lower, with room for the bigger cover and 2× description.
-            modifier = Modifier.padding(start = fx(84), end = fx(64), top = 70.mpx).fillMaxWidth().heightIn(max = 400.mpx),
+            modifier = Modifier.padding(start = fx(84), end = fx(64), top = 60.mpx).fillMaxWidth().heightIn(max = 440.mpx),
         )
         val favouriteOn = stringResource(R.string.content_favorited)
         val favouriteOff = stringResource(R.string.content_favorite)
@@ -1665,21 +1666,18 @@ private fun EpisodeView(
                         modifier = epArea,
                     ) {
                         gridItemsIndexed(visibleEpisodes, key = { _, ep -> ep.id }) { index, ep ->
-                            val meta = seasonMeta[ep.id]
                             val completed = ep.id in completedIds
                             val prog = episodeProgress[ep.id]
-                            val title = epName(ep, meta)
-                            StageEpisode(
-                                title = title,
-                                line = episodeLine(rememberAirDateLabel(ep, meta), durationSecs(ep), secondsLeft(ep), watched = false),
-                                number = localizedInteger(ep.episodeNumber, grouping = false),
+                            tv.own.owntv.ui.stage.StageEpisodeTile(
+                                seasonLabel = stringResource(R.string.content_season, ep.seasonNumber).lowercase(),
+                                episodeLabel = stringResource(R.string.player_episode_number, ep.episodeNumber).lowercase(),
                                 watched = completed,
                                 progress = prog?.takeIf { it.durationMs > 0 }?.let { (it.positionMs.toFloat() / it.durationMs).coerceIn(0f, 1f) },
                                 onClick = { startEpisode(ep) },
                                 onLongClick = { openMenu(ep) },
                                 width = tileW, height = tileW * (189f / 336f),
                                 modifier = epModifierFor(index, ep),
-                            ) { filter -> EpisodeStill(episodeStillUrl(meta, series, "w780"), filter, localizedInteger(ep.episodeNumber, grouping = false)) }
+                            )
                         }
                     }
                 }
@@ -1694,43 +1692,18 @@ private fun EpisodeView(
                         modifier = epArea,
                     ) {
                         itemsIndexed(visibleEpisodes, key = { _, ep -> ep.id }) { index, ep ->
-                            val meta = seasonMeta[ep.id]
                             val completed = ep.id in completedIds
                             val prog = episodeProgress[ep.id]
-                            val title = epName(ep, meta)
-                            val plot = if (metadataMode.tmdbWins) meta?.overview ?: ep.plot else ep.plot?.takeIf { it.isNotBlank() } ?: meta?.overview
-                            StageRow(
+                            tv.own.owntv.ui.stage.StageEpisodeTile(
+                                seasonLabel = stringResource(R.string.content_season, ep.seasonNumber).lowercase(),
+                                episodeLabel = stringResource(R.string.player_episode_number, ep.episodeNumber).lowercase(),
+                                watched = completed,
+                                progress = prog?.takeIf { it.durationMs > 0 }?.let { (it.positionMs.toFloat() / it.durationMs).coerceIn(0f, 1f) },
                                 onClick = { startEpisode(ep) },
                                 onLongClick = { openMenu(ep) },
-                                height = 138.mpx, horizontalPadding = 22.mpx, gap = 24.mpx, radius = 24.mpx,
-                                modifier = epModifierFor(index, ep).fillMaxWidth(),
-                            ) { focused ->
-                                Box(Modifier.size(224.mpx, 126.mpx).clip(RoundedCornerShape(14.mpx))) {
-                                    EpisodeStill(episodeStillUrl(meta, series, "w300"), null, localizedInteger(ep.episodeNumber, grouping = false))
-                                }
-                                Column(Modifier.weight(1f)) {
-                                    Text(
-                                        stringResource(R.string.content_episode_numbered, localizedInteger(ep.episodeNumber, grouping = false), title),
-                                        style = stageText(24, 700), color = if (focused) StageColors.FxText else StageColors.Text,
-                                        maxLines = 1, overflow = TextOverflow.Ellipsis,
-                                    )
-                                    Text(
-                                        episodeLine(rememberAirDateLabel(ep, meta), durationSecs(ep), null, watched = completed),
-                                        style = stageText(17, 400), color = StageColors.Muted, maxLines = 1, overflow = TextOverflow.Ellipsis,
-                                        modifier = Modifier.padding(top = 4.mpx),
-                                    )
-                                    plot?.takeIf { it.isNotBlank() }?.let {
-                                        Text(
-                                            it, style = stageText(16, 400), color = StageColors.Muted, maxLines = 1, overflow = TextOverflow.Ellipsis,
-                                            modifier = Modifier.padding(top = 6.mpx),
-                                        )
-                                    }
-                                }
-                                Box(Modifier.width(300.mpx)) {
-                                    val fraction = if (completed) 1f else prog?.takeIf { it.durationMs > 0 }?.let { it.positionMs.toFloat() / it.durationMs }
-                                    if (fraction != null && fraction > 0f) StageProgress(fraction, Modifier.fillMaxWidth())
-                                }
-                            }
+                                width = 760.mpx, height = 150.mpx,
+                                modifier = epModifierFor(index, ep),
+                            )
                         }
                     }
                 }

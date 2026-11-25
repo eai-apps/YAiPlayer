@@ -730,6 +730,8 @@ class LivePreviewEngine(
     /** Video frame rate of the current live stream, or null while unknown. */
     val videoFps: StateFlow<Float?> = _videoFps.asStateFlow()
 
+    private fun displayFpsOrNull(): Float? = player?.videoFormat?.frameRate?.takeIf { it > 0 }
+
     private fun displayFps(f: Format) = f.frameRate.takeIf { it > 0 } ?: fpsSample.lastFps
 
     override fun refreshStreamChips() = ensureFpsMeasurement()
@@ -1418,6 +1420,14 @@ class LivePreviewEngine(
         override fun onRenderedFirstFrame() { tune.firstFrameRendered = true }
 
         override fun onVideoSizeChanged(videoSize: VideoSize) {
+            // Owner 25.11 (stray line at the bottom of a preview on one channel): the journal now says what
+            // the stream really is — coded size, pixel ratio, decoder, frame rate — each time it changes.
+            if (videoSize.width > 0 && videoSize.height > 0) {
+                LiveDiagnosticsLog.event(
+                    "video ${videoSize.width}x${videoSize.height} par=${videoSize.pixelWidthHeightRatio} " +
+                        "decoder=${tune.lastVideoDecoder} fps=${displayFpsOrNull() ?: "?"} url=${currentUrl?.substringBefore('?')?.takeLast(48)}",
+                )
+            }
             if (videoSize.height > 0) {
                 _videoRes.value = "${videoSize.height}p"
                 if (videoSize.height > 1080) sawUhd = true // mark UHD → full decoder release on leave
@@ -2307,7 +2317,10 @@ class LivePreviewEngine(
         )
         if (refusedSegments.size < LiveStreamQuirks.REFUSALS_BEFORE_HANDOFF) return
         if (_segmentsRefused.value) return // already handed over
-        LiveStreamQuirks.rememberSegmentRefusal(url)
+        // Owner 25.11: a 404/410 is a segment that is simply gone (a playout channel rolling to the next film), not a
+        // token the panel will never honour. Only a 403 teaches the whole panel to open on mpv; a 404 hands over
+        // this one load and the next channel still starts on ExoPlayer.
+        if (status == 403) LiveStreamQuirks.rememberSegmentRefusal(url)
         LiveDiagnosticsLog.event(
             "provider refuses its own signed segment URLs — ExoPlayer cannot re-sign them; handing this " +
                 "panel to mpv",
