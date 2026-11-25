@@ -1737,10 +1737,16 @@ fun OwnTVShell(
       // only its video view inside — the surface lives on, nothing is released, and the next channel
       // opened full screen reuses it.
       val exoParked = playerMode == PlayerMode.NONE && liveOnExo && multiview == null
-      if (multiview == null && (playerMode == PlayerMode.FULLSCREEN || playerMode == PlayerMode.MINI || exoParked)) {
+      // Owner 25.11 (log from VS KM6 + a user's report of the whole screen flickering after leaving a
+      // channel): the same freeze hit channels on mpv, whose SurfaceView was still taken off screen on
+      // Back (stalls of 0.75–0.87 s right after perf_tv_exit_end, SurfaceView.releaseSurfaces → System.gc).
+      // The mpv view is now parked the same way: it stays composed, off screen, 2 dp, nothing else around it.
+      var mpvSurfaceUsed by remember { mutableStateOf(false) }
+      val mpvParked = playerMode == PlayerMode.NONE && !liveOnExo && multiview == null && mpvSurfaceUsed
+      if (multiview == null && (playerMode == PlayerMode.FULLSCREEN || playerMode == PlayerMode.MINI || exoParked || mpvParked)) {
         val isFull = playerMode == PlayerMode.FULLSCREEN
         Box(
-            modifier = if (exoParked) Modifier.offset(x = (-8000).dp).size(2.dp) else (if (isFull || inPip) {
+            modifier = if (exoParked || mpvParked) Modifier.offset(x = (-8000).dp).size(2.dp) else (if (isFull || inPip) {
                 Modifier.fillMaxSize().background(Color.Black)
             } else {
                 // Dynamic docked size/position: a screen-width fraction at the chosen corner/edge, so it
@@ -1769,7 +1775,7 @@ fun OwnTVShell(
             // opened channel is rarely the one previewing, so this hit nearly every open. Live waits briefly
             // for the engine before building mpv's surface; mpv's load simply waits for it.
             val mpvHold = remember(playerMode == PlayerMode.NONE, zapSource) {
-                androidx.compose.runtime.mutableStateOf(zapSource == MainSection.LIVE_TV)
+                androidx.compose.runtime.mutableStateOf(zapSource == MainSection.LIVE_TV && !mpvSurfaceUsed)
             }
             LaunchedEffect(playerMode == PlayerMode.NONE, zapSource) {
                 if (mpvHold.value) { kotlinx.coroutines.delay(MPV_SURFACE_HOLD_MS); mpvHold.value = false }
@@ -1779,6 +1785,10 @@ fun OwnTVShell(
             } else if (mpvHold.value) {
                 Box(Modifier.fillMaxSize().background(Color.Black))
             } else {
+                androidx.compose.runtime.DisposableEffect(Unit) {
+                    mpvSurfaceUsed = true
+                    onDispose { mpvSurfaceUsed = false }
+                }
                 MpvVideoSurface(
                     player = player, modifier = Modifier.fillMaxSize(),
                     autoFrameRateFilms = isFull && !inPip && autoFrameRateFilms,
@@ -1794,13 +1804,13 @@ fun OwnTVShell(
             } else {
                 player.audioOnlyMedia.collectAsStateWithLifecycle()
             }
-            if (audioOnlyMedia && !inPip) {
+            if (audioOnlyMedia && !inPip && !mpvParked) {
                 tv.own.owntv.player.AudioOnlyBadge(modifier = Modifier.fillMaxSize(), compact = !isFull)
             }
             // Direct render mode: mpv can't draw subtitles on the decoder-owned surface — the app does.
             // Also drawn docked: the mini-player is a real watching mode for a subtitled film, and
             // dropping the only line of dialogue there made subtitles look broken. Scaled to the box.
-            if (!liveOnExo && !inPip) {
+            if (!liveOnExo && !inPip && !mpvParked) {
                 tv.own.owntv.player.SubtitleOverlay(
                     player = player, modifier = Modifier.fillMaxSize(),
                     // Tied to the chosen mini size, but nudged up and floored: a strictly proportional
@@ -2151,7 +2161,7 @@ fun OwnTVShell(
                         modifier = Modifier.fillMaxSize(),
                     )
                 }
-            } else if (!inPip) {
+            } else if (!inPip && !mpvParked) {
                 MiniPlayer(
                     player = if (liveOnExo) liveVm.previewEngine else mpvEngine,
                     onExpand = expandPlayer,
