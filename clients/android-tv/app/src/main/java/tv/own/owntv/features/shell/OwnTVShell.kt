@@ -1529,7 +1529,15 @@ fun OwnTVShell(
                         selectedSection == MainSection.FAVORITES -> tv.own.owntv.extras.favoriteshub.FavoritesHubTvScreen(
                             onPlayChannel = { ch ->
                                 scope.launch {
-                                    if (liveVm.ensurePlayingByIdAsync(ch.id)) openFullscreen(MainSection.LIVE_TV)
+                                    if (liveVm.ensurePlayingByIdAsync(ch.id)) {
+                                        // Owner 26.11: going to Live TV afterwards opened the list at its first
+                                        // channel. Put Live TV on this channel's category with the cursor on it.
+                                        if (liveVm.isVisibleToActiveProfile(ch)) {
+                                            liveVm.select(liveVm.railKeyOf(ch))
+                                            liveVm.onChannelFocused(ch)
+                                        }
+                                        openFullscreen(MainSection.LIVE_TV)
+                                    }
                                 }
                             },
                             onPlayCatchup = guidePlayCatchup,

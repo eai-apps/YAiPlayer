@@ -112,8 +112,8 @@ fun FavoritesHubTvScreen(
         val (row, id) = returnTo ?: run { if (restoreFocus) onRestored(); return@LaunchedEffect }
         if (state.allFavorites.isEmpty() && state.categoryRows.isEmpty()) return@LaunchedEffect
         if (grid) {
-            val index = state.allFavorites.indexOfFirst { it.channel.id == id }
-            if (index >= 0) runCatching { gridState.scrollToItem(index + 1) } // the header is item 0
+            gridIndexOf(gridSections(state.allFavorites, state.categoryRows.map { it.categoryName to it.channels }), row, id)
+                ?.let { runCatching { gridState.scrollToItem(it) } }
         } else {
             val item = 1 + if (hasAll) row else row - 1 // the header is item 0
             runCatching { columnState.scrollToItem(item.coerceAtLeast(0)) }
@@ -126,14 +126,14 @@ fun FavoritesHubTvScreen(
     }
     val play: (Int, ChannelEntity) -> Unit = { row, ch -> vm.lastPlayed = row to ch.id; onPlayChannel(ch) }
 
-    if (grid && hasAll) {
+    if (grid && (hasAll || state.categoryRows.isNotEmpty())) {
         FavoritesHubGridTv(
             state = gridState,
-            channels = state.allFavorites,
+            sections = gridSections(state.allFavorites, state.categoryRows.map { it.categoryName to it.channels }),
             contentStart = contentStart,
-            returnChannelId = returnTo?.second,
+            returnTo = returnTo,
             returnFocus = returnFocus,
-            onPlayChannel = { play(0, it) },
+            onPlay = play,
             header = {
                 FavoritesHubHeaderTv(
                     filter = state.filter,
@@ -476,17 +476,51 @@ private fun FavoritesHubEmptyTv(
  * Every favourite as a tile, the whole screen filled and scrolled up and down (owner 26.11): a big
  * logo, the name, what is on now and how much of it is left.
  */
+/** One titled block of tiles: its row number (as `lastPlayed` counts rows) and its channels. */
+private data class GridSection(val row: Int, val title: String?, val channels: List<FavoriteChannelItem>)
+
+/**
+ * Tiles split by category, each block under its own title (owner 26.11: «сразу разбито на категории»).
+ * Favourites without categories fall back to one untitled block of everything.
+ */
+private fun gridSections(all: List<FavoriteChannelItem>, rows: List<Pair<String, List<FavoriteChannelItem>>>): List<GridSection> =
+    if (rows.isEmpty()) listOf(GridSection(0, null, all))
+    else rows.mapIndexed { i, (title, channels) -> GridSection(i + 1, title, channels) }
+
+/** The grid item index of the tile [id] in block [row] (falls back to the first tile with that id). */
+private fun gridIndexOf(sections: List<GridSection>, row: Int, id: Long): Int? {
+    fun find(match: (GridSection) -> Boolean): Int? {
+        var index = 1 // the page header
+        for (section in sections) {
+            if (section.title != null) index++
+            val at = section.channels.indexOfFirst { it.channel.id == id }
+            if (at >= 0 && match(section)) return index + at
+            index += section.channels.size
+        }
+        return null
+    }
+    return find { it.row == row } ?: find { true }
+}
+
+/**
+ * Every favourite as a tile, the whole screen filled and scrolled up and down (owner 26.11): a big
+ * logo, the name, what is on now and how much of it is left — grouped under category titles.
+ */
 @Composable
 private fun FavoritesHubGridTv(
     state: androidx.compose.foundation.lazy.grid.LazyGridState,
-    channels: List<FavoriteChannelItem>,
+    sections: List<GridSection>,
     contentStart: Dp,
-    returnChannelId: Long?,
+    returnTo: Pair<Int, Long>?,
     returnFocus: FocusRequester,
-    onPlayChannel: (ChannelEntity) -> Unit,
+    onPlay: (Int, ChannelEntity) -> Unit,
     header: @Composable () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    // The tile the cursor goes back to: in its own block if it is there, else its first appearance.
+    val returnIndex = returnTo?.let { gridIndexOf(sections, it.first, it.second) }
+    val full: (androidx.compose.foundation.lazy.grid.LazyGridItemSpanScope) -> androidx.compose.foundation.lazy.grid.GridItemSpan =
+        { androidx.compose.foundation.lazy.grid.GridItemSpan(it.maxLineSpan) }
     androidx.compose.foundation.lazy.grid.LazyVerticalGrid(
         columns = androidx.compose.foundation.lazy.grid.GridCells.Fixed(GRID_COLUMNS),
         state = state,
@@ -495,19 +529,31 @@ private fun FavoritesHubGridTv(
         horizontalArrangement = Arrangement.spacedBy(20.mpx),
         verticalArrangement = Arrangement.spacedBy(20.mpx),
     ) {
-        item(span = { androidx.compose.foundation.lazy.grid.GridItemSpan(maxLineSpan) }) {
+        item(key = Long.MIN_VALUE, span = { full(this) }) {
             Column {
                 header()
                 Spacer(Modifier.height(8.mpx))
             }
         }
-        items(channels.size, key = { channels[it].channel.id }) { index ->
-            val item = channels[index]
-            FavoritesHubTileTv(
-                item = item,
-                onClick = { onPlayChannel(item.channel) },
-                modifier = if (item.channel.id == returnChannelId) Modifier.focusRequester(returnFocus) else Modifier,
-            )
+        var index = 1
+        for (section in sections) {
+            val title = section.title
+            if (title != null) {
+                index++
+                item(key = -section.row.toLong() - 1, span = { full(this) }) {
+                    HomeRowHeader(title = title, small = section.channels.size.toString(), start = 0.mpx)
+                }
+            }
+            val first = index
+            items(section.channels.size, key = { section.row * GRID_KEY_STRIDE + section.channels[it].channel.id }) { i ->
+                val item = section.channels[i]
+                FavoritesHubTileTv(
+                    item = item,
+                    onClick = { onPlay(section.row, item.channel) },
+                    modifier = if (first + i == returnIndex) Modifier.focusRequester(returnFocus) else Modifier,
+                )
+            }
+            index += section.channels.size
         }
     }
 }
@@ -569,4 +615,5 @@ private fun FavoritesHubTileTv(
 }
 
 private const val GRID_COLUMNS = 4
+private const val GRID_KEY_STRIDE = 10_000_000_000L
 private const val RETURN_FOCUS_FRAMES = 30
