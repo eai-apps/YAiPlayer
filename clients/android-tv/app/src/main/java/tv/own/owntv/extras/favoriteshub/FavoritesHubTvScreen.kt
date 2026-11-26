@@ -69,15 +69,22 @@ fun FavoritesHubTvScreen(
     onEntryHook: (((() -> Boolean)?) -> Unit)? = null,
     contentStart: Dp = 150.mpx,
     modifier: Modifier = Modifier,
+    // Back from full screen: put the cursor on the card that was played (owner 26.11 — it landed on the
+    // side menu's heart and the channel had to be found again by hand).
+    restoreFocus: Boolean = false,
+    onRestored: () -> Unit = {},
     vm: FavoritesHubViewModel = koinViewModel(),
 ) {
     val state by vm.state.collectAsStateWithLifecycle()
     val uncategorizedLabel = stringResource(R.string.favorites_hub_uncategorized)
     val firstItemFocus = remember { FocusRequester() }
 
+    val returnFocus = remember { FocusRequester() }
     LaunchedEffect(Unit) {
         onEntryHook?.invoke {
-            runCatching { firstItemFocus.requestFocus() }.isSuccess
+            // Entering from the side menu: the last played card first, the header pills otherwise.
+            (vm.lastPlayed != null && runCatching { returnFocus.requestFocus() }.getOrDefault(false)) ||
+                runCatching { firstItemFocus.requestFocus() }.isSuccess
         }
         vm.refresh(uncategorizedLabel)
     }
@@ -93,22 +100,54 @@ fun FavoritesHubTvScreen(
         return
     }
 
-    // Back from full screen: the card that was played, not the side menu (owner 15.11).
+    // Back from full screen: the card that was played, not the side menu (owner 15.11, again 26.11).
+    // Read live — the screen stays composed under the player, so a value remembered on first
+    // composition was the one from BEFORE the channel was played.
     val columnState = androidx.compose.foundation.lazy.rememberLazyListState()
-    val returnFocus = remember { FocusRequester() }
-    val returnTo = remember { vm.lastPlayed }
+    val gridState = androidx.compose.foundation.lazy.grid.rememberLazyGridState()
+    val returnTo = vm.lastPlayed
+    val grid = vm.gridView
     val hasAll = state.allFavorites.isNotEmpty()
-    LaunchedEffect(returnTo, state.allFavorites.size, state.categoryRows.size) {
-        val (row, _) = returnTo ?: return@LaunchedEffect
+    LaunchedEffect(restoreFocus, returnTo, grid, state.allFavorites.size, state.categoryRows.size) {
+        val (row, id) = returnTo ?: run { if (restoreFocus) onRestored(); return@LaunchedEffect }
         if (state.allFavorites.isEmpty() && state.categoryRows.isEmpty()) return@LaunchedEffect
-        val item = 1 + if (hasAll) row else row - 1 // the header is item 0
-        runCatching { columnState.scrollToItem(item.coerceAtLeast(0)) }
+        if (grid) {
+            val index = state.allFavorites.indexOfFirst { it.channel.id == id }
+            if (index >= 0) runCatching { gridState.scrollToItem(index + 1) } // the header is item 0
+        } else {
+            val item = 1 + if (hasAll) row else row - 1 // the header is item 0
+            runCatching { columnState.scrollToItem(item.coerceAtLeast(0)) }
+        }
         repeat(RETURN_FOCUS_FRAMES) {
             androidx.compose.runtime.withFrameNanos { }
-            if (runCatching { returnFocus.requestFocus() }.getOrDefault(false)) return@LaunchedEffect
+            if (runCatching { returnFocus.requestFocus() }.getOrDefault(false)) { onRestored(); return@LaunchedEffect }
         }
+        onRestored()
     }
     val play: (Int, ChannelEntity) -> Unit = { row, ch -> vm.lastPlayed = row to ch.id; onPlayChannel(ch) }
+
+    if (grid && hasAll) {
+        FavoritesHubGridTv(
+            state = gridState,
+            channels = state.allFavorites,
+            contentStart = contentStart,
+            returnChannelId = returnTo?.second,
+            returnFocus = returnFocus,
+            onPlayChannel = { play(0, it) },
+            header = {
+                FavoritesHubHeaderTv(
+                    filter = state.filter,
+                    onFilterChanged = { newFilter -> vm.setFilter(newFilter, uncategorizedLabel) },
+                    contentStart = 0.mpx,
+                    firstFocusRequester = firstItemFocus,
+                    grid = true,
+                    onToggleGrid = { vm.gridView = false },
+                )
+            },
+            modifier = modifier.onFocusChanged { if (it.hasFocus) onChildFocused() },
+        )
+        return
+    }
 
     LazyColumn(
         state = columnState,
@@ -127,6 +166,8 @@ fun FavoritesHubTvScreen(
                 onFilterChanged = { newFilter -> vm.setFilter(newFilter, uncategorizedLabel) },
                 contentStart = contentStart,
                 firstFocusRequester = firstItemFocus,
+                grid = false,
+                onToggleGrid = { vm.gridView = true },
             )
         }
 
@@ -167,6 +208,8 @@ private fun FavoritesHubHeaderTv(
     contentStart: Dp,
     firstFocusRequester: FocusRequester,
     modifier: Modifier = Modifier,
+    grid: Boolean = false,
+    onToggleGrid: (() -> Unit)? = null,
 ) {
     Column(
         modifier = modifier
@@ -202,6 +245,15 @@ private fun FavoritesHubHeaderTv(
                     text = stringResource(R.string.favorites_hub_filter_current),
                     icon = if (!allActive) OwnTVIcon.CHECK else OwnTVIcon.PLAYLIST,
                 )
+                if (onToggleGrid != null) {
+                    Spacer(Modifier.width(18.mpx))
+                    // Tiles across the screen ⇄ horizontal rows by category (owner 26.11).
+                    StagePill(
+                        onClick = onToggleGrid,
+                        text = stringResource(if (grid) R.string.favorites_hub_view_rows else R.string.favorites_hub_view_grid),
+                        icon = if (grid) OwnTVIcon.LIST else OwnTVIcon.GRID,
+                    )
+                }
             }
         }
     }
@@ -420,4 +472,101 @@ private fun FavoritesHubEmptyTv(
     }
 }
 
+/**
+ * Every favourite as a tile, the whole screen filled and scrolled up and down (owner 26.11): a big
+ * logo, the name, what is on now and how much of it is left.
+ */
+@Composable
+private fun FavoritesHubGridTv(
+    state: androidx.compose.foundation.lazy.grid.LazyGridState,
+    channels: List<FavoriteChannelItem>,
+    contentStart: Dp,
+    returnChannelId: Long?,
+    returnFocus: FocusRequester,
+    onPlayChannel: (ChannelEntity) -> Unit,
+    header: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    androidx.compose.foundation.lazy.grid.LazyVerticalGrid(
+        columns = androidx.compose.foundation.lazy.grid.GridCells.Fixed(GRID_COLUMNS),
+        state = state,
+        modifier = modifier.fillMaxSize().focusGroup(),
+        contentPadding = PaddingValues(start = contentStart, end = 64.mpx, top = 120.mpx, bottom = 64.mpx),
+        horizontalArrangement = Arrangement.spacedBy(20.mpx),
+        verticalArrangement = Arrangement.spacedBy(20.mpx),
+    ) {
+        item(span = { androidx.compose.foundation.lazy.grid.GridItemSpan(maxLineSpan) }) {
+            Column {
+                header()
+                Spacer(Modifier.height(8.mpx))
+            }
+        }
+        items(channels.size, key = { channels[it].channel.id }) { index ->
+            val item = channels[index]
+            FavoritesHubTileTv(
+                item = item,
+                onClick = { onPlayChannel(item.channel) },
+                modifier = if (item.channel.id == returnChannelId) Modifier.focusRequester(returnFocus) else Modifier,
+            )
+        }
+    }
+}
+
+@Composable
+private fun FavoritesHubTileTv(
+    item: FavoriteChannelItem,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val a = stageAccent
+    StageSurface(
+        onClick = onClick,
+        radius = StageRadii.Row,
+        modifier = modifier.fillMaxWidth().height(230.mpx),
+        focusStyle = StageFocus.FX,
+        idle = Modifier.background(StageColors.Ink.copy(alpha = 0.06f), RoundedCornerShape(StageRadii.Row)),
+        contentAlignment = Alignment.TopStart,
+    ) {
+        Column(Modifier.fillMaxSize().padding(16.mpx)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                ChannelPlate(item.channel, Modifier.size(132.mpx, 92.mpx))
+                Spacer(Modifier.weight(1f))
+                if (item.hasCatchup) ArchiveBadgeTv(catchupDays = item.catchupDays)
+            }
+            Spacer(Modifier.height(12.mpx))
+            Text(
+                item.channel.name,
+                style = stageText(19, 700),
+                color = StageColors.Text,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            val prog = item.programme
+            if (prog != null) {
+                Spacer(Modifier.height(4.mpx))
+                Text(
+                    prog.title,
+                    style = stageText(15, 400),
+                    color = StageColors.Muted,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f, fill = true),
+                )
+                Text(timeLeftText(item.timeLeftMinutes), style = stageText(13, 400), color = StageColors.Muted, maxLines = 1)
+                Spacer(Modifier.height(5.mpx))
+                Box(
+                    Modifier.fillMaxWidth().height(4.mpx).clip(RoundedCornerShape(2.mpx))
+                        .background(StageColors.Ink.copy(alpha = 0.12f)),
+                ) {
+                    Box(
+                        Modifier.fillMaxWidth(item.progress).height(4.mpx).clip(RoundedCornerShape(2.mpx))
+                            .background(Brush.horizontalGradient(listOf(a.accent, a.focus))),
+                    )
+                }
+            }
+        }
+    }
+}
+
+private const val GRID_COLUMNS = 4
 private const val RETURN_FOCUS_FRAMES = 30

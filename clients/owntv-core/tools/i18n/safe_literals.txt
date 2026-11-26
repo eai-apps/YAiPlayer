@@ -3600,6 +3600,8 @@
 1	technical	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	${it.name}:${it.length()}:${it.lastModified()}
 1	technical	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	${missing.size}|${missing.hashCode()}|${cacheFingerprint()}
 1	technical	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	,
+1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	/ch=
+1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	/past=
 1	room-schema	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	AND `epgChannelId` NOT IN (SELECT `epgChannelId` FROM `epg_keep_history`)
 1	room-schema	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	CREATE TEMP TABLE IF NOT EXISTS `epg_keep_history` (`epgChannelId` TEXT PRIMARY KEY NOT NULL)
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	Cached EPG channel filter ids=${keys.size} files=${files.size}
@@ -3619,7 +3621,7 @@
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	EPG programme prune sourceId=$sourceId stale=${staleIds.size} overflowed=${tracker.overflowed} ms=${SystemClock.elapsedRealtime() - startedAt}
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	EPG prune sourceId=$storeId ms=${SystemClock.elapsedRealtime() - pruneStartedAt}
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	EPG sync incomplete — keeping partial (written=$writtenCount accepted=$processedCount inserted=$inserted updated=$updated skipped=$skipped)
-33	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	EpgRepository
+34	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	EpgRepository
 1	protocol	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	Guide channels match no playlist channel
 1	protocol	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	Guide has no programmes in the guide window
 1	room-schema	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	INSERT OR IGNORE INTO `epg_keep_history` VALUES (?)
@@ -3627,7 +3629,10 @@
 1	sql	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	PRAGMA $name
 1	sql	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	PRAGMA wal_checkpoint(TRUNCATE)
 1	protocol	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	Portal guide source $portalSourceId no longer exists
+1	sql	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	SELECT COUNT(*) FROM (SELECT 1 FROM epg_programmes GROUP BY epgChannelId, startMs)
+1	sql	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	SELECT MIN(startMs) FROM epg_programmes
 1	sql	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	SELECT epgChannelId, startMs, id, contentHash FROM epg_programmes WHERE sourceId = ? ORDER BY epgChannelId, startMs
+1	sql	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	SELECT sourceId, COUNT(*), SUM(stopMs < ?), COUNT(DISTINCT epgChannelId) FROM epg_programmes GROUP BY sourceId
 2	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	Unable to analyze EPG tables
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	Unable to compact database
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	Unable to create EPG guide index
@@ -3657,12 +3662,14 @@
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	epg_retention catchupIds=${keep.size} recentPastH=${RECENT_PAST_MS / 3_600_000} archiveH=${WINDOW_BACK_MS / 3_600_000}
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	epg_retention catchupIds=0 recentPastH=${RECENT_PAST_MS / 3_600_000}
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	epg_retention skipped=unknown-catchup archiveH=${WINDOW_BACK_MS / 3_600_000}
+1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	epg_storage slots=$slots oldestH=${(now - oldest) / 3_600_000}$perSource
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	epg_sync sourceId=$storeId fresh=$freshSource filteredIds=${needed?.size ?: -1}
 1	sql	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	freelist_count
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	guide gap fill done sourceId=$sourceId repaired=$repaired stillMissing=$remaining
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	guide gap fill failed sourceId=$sourceId
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	guide gap fill sourceId=$sourceId channelsWithoutProgrammes=${missing.size}
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	guide gap fill sourceId=$sourceId skipped — same gap and same cache as the last empty attempt
+1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	guide storage stats failed
 2	protocol	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	http://
 2	protocol	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	https://
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	inserted=$inserted updated=$updated skipped=$skipped
@@ -3673,6 +3680,7 @@
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	parseMs=${parsedAt - startedAt - writeMs} writeMs=$writeMs pruneMs=$pruneMs
 1	technical	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	period=${outcome.periodDays} channels=${channels.size} written=$written dayTables=${missingPast.size}
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	removedProgrammes=$removedProgrammes removedChannels=$removedChannels
+1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	s
 2	protocol	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	stalker://
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	windowBackH=${WINDOW_BACK_MS / 3_600_000} windowAheadH=${aheadMs / 3_600_000}
 1	technical	core/src/main/java/tv/own/owntv/core/repository/EpisodeMerge.kt	s${seasonNumber}e$episodeNumber

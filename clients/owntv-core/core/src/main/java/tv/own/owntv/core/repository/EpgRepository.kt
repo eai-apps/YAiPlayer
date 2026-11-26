@@ -294,6 +294,27 @@ class EpgRepository(
     }
 
     /**
+     * One line on what the guide table holds after a sync: rows per source (and how many of them are
+     * already over), how many distinct time slots that is across sources, and the oldest row. Tells
+     * whether a big table is history, the future, or the same programmes stored once per source.
+     */
+    private suspend fun logGuideStorage(now: Long) = withContext(Dispatchers.IO) {
+        runCatching {
+            db.useWriterConnection { connection ->
+                val perSource = StringBuilder()
+                connection.usePrepared(GUIDE_STORAGE_PER_SOURCE_SQL) { st ->
+                    st.bindLong(1, now)
+                    while (st.step()) perSource.append(" s").append(st.getLong(0)).append('=').append(st.getLong(1))
+                        .append("/past=").append(st.getLong(2)).append("/ch=").append(st.getLong(3))
+                }
+                val slots = connection.usePrepared(GUIDE_STORAGE_SLOTS_SQL) { st -> if (st.step()) st.getLong(0) else -1L }
+                val oldest = connection.usePrepared(GUIDE_STORAGE_OLDEST_SQL) { st -> if (st.step()) st.getLong(0) else now }
+                CorePerf.log { "epg_storage slots=$slots oldestH=${(now - oldest) / 3_600_000}$perSource" }
+            }
+        }.onFailure { Log.w("EpgRepository", "guide storage stats failed", it) }
+    }
+
+    /**
      * Per guide id, the earliest stop time a sync accepts — [pruneFinishedProgrammes]' rule, applied
      * before writing instead of after. Unknown catch-up set: the whole window, as retention does.
      */
@@ -616,6 +637,7 @@ class EpgRepository(
         }
         val pruneStartedAt = SystemClock.elapsedRealtime()
         pruneFinishedProgrammes(now)
+        logGuideStorage(now)
         Log.d("EpgRepository", "EPG prune sourceId=$storeId ms=${SystemClock.elapsedRealtime() - pruneStartedAt}")
         // No collapse after the sync any more. Deleting one feed's copy of a programme another feed also
         // carries made it "missing" to that feed's next sync, which wrote it again — every row, every
@@ -771,6 +793,7 @@ class EpgRepository(
         // whole truth for this store, so anything outside the window it just served is stale.
         epgDao.pruneOutsideWindow(storeId, from, to)
         pruneFinishedProgrammes(now)
+        logGuideStorage(now)
         ensureEpgIndexes()
         runCatching { bulkInsertHelper.analyzeTables("epg_programmes", "epg_channels") }
             .onFailure { Log.w("EpgRepository", "Unable to analyze EPG tables", it) }
@@ -1208,6 +1231,11 @@ class EpgRepository(
         // because two days was throwing away most of what providers actually send: the grid could only
         // scroll two days, and two days after a sync the guide was empty. See [guideAheadMs].
         private const val QUERY_CHUNK = 500
+        private const val GUIDE_STORAGE_PER_SOURCE_SQL =
+            "SELECT sourceId, COUNT(*), SUM(stopMs < ?), COUNT(DISTINCT epgChannelId) FROM epg_programmes GROUP BY sourceId"
+        private const val GUIDE_STORAGE_SLOTS_SQL =
+            "SELECT COUNT(*) FROM (SELECT 1 FROM epg_programmes GROUP BY epgChannelId, startMs)"
+        private const val GUIDE_STORAGE_OLDEST_SQL = "SELECT MIN(startMs) FROM epg_programmes"
         private const val UPSERT_PROGRAMME_SQL =
             "INSERT OR REPLACE INTO `epg_programmes` (`id`,`sourceId`,`epgChannelId`,`startMs`,`stopMs`,`title`,`description`," +
                 "`contentHash`,`categories`,`year`,`rating`,`lengthMin`,`episode`) VALUES (nullif(?, 0),?,?,?,?,?,?,?,?,?,?,?,?)"

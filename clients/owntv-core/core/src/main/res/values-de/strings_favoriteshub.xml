@@ -13,4 +13,6 @@
     <string name="favorites_hub_archive">Archiv</string>
     <string name="home_tile_favorites">Favoriten</string>
     <string name="home_tile_favorites_desc">Lieblingskanäle im Überblick</string>
+    <string name="favorites_hub_view_grid">Kacheln</string>
+    <string name="favorites_hub_view_rows">Reihen</string>
 </resources>

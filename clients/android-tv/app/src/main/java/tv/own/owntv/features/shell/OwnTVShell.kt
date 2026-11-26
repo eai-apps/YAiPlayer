@@ -653,8 +653,10 @@ fun OwnTVShell(
         restoreFocus = true
         // Over Live TV's list the screen itself puts the cursor back on the channel; sending it to the rail
         // first only made that restore fight the rail (owner 15.11: menu felt frozen after beta-22).
-        val listRestores = selectedSection == MainSection.LIVE_TV &&
-            liveVm.liveView.value != tv.own.owntv.core.settings.SettingsRepository.LiveView.GUIDE
+        val listRestores = (selectedSection == MainSection.LIVE_TV &&
+            liveVm.liveView.value != tv.own.owntv.core.settings.SettingsRepository.LiveView.GUIDE) ||
+            // Favourites put the cursor back on the played card themselves (owner 26.11).
+            (selectedSection == MainSection.FAVORITES && favHubVm.lastPlayed != null)
         if (!listRestores) focusRail()
         tv.own.owntv.core.CorePerf.log { "perf_tv_exit_end at=${android.os.SystemClock.elapsedRealtime()}" }
         Unit
@@ -1534,6 +1536,8 @@ fun OwnTVShell(
                             onOpenLive = { onSelectSection(MainSection.LIVE_TV) },
                             onChildFocused = { focusedLayer = ShellLayer.CONTENT },
                             onEntryHook = { favoritesEntry = it },
+                            restoreFocus = restoreFocus,
+                            onRestored = { restoreFocus = false },
                             contentStart = if (navStyle == tv.own.owntv.core.settings.SettingsRepository.NavStyle.DOCKED) 64.mpx else 150.mpx,
                             modifier = Modifier.fillMaxSize(),
                         )
