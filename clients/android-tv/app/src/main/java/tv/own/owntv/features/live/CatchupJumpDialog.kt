@@ -109,7 +109,7 @@ internal fun CatchupJumpRows(
                     )
                 }
             }
-            if (programmeStart != null) item(key = "programme-start-bottom") { StartRow() }
+            if (programmeStart != null) item(key = Long.MIN_VALUE) { StartRow() }
         } else items(offsetsSec, key = { it }) { offset ->
             val at = CatchupJumps.instantFor(offset, nowMs)
             tv.own.owntv.ui.stage.StagePopupOption(
