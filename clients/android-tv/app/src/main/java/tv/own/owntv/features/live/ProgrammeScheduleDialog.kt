@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -35,6 +36,7 @@ internal fun ProgrammeScheduleDialog(
     onDismiss: () -> Unit,
 ) {
     val first = remember { FocusRequester() }
+    val closeFocus = remember { FocusRequester() }
     val programmes by produceState<List<EpgProgrammeEntity>?>(null) {
         value = runCatching { load() }.getOrDefault(emptyList())
     }
@@ -69,7 +71,7 @@ internal fun ProgrammeScheduleDialog(
         body = if (list != null && list.isEmpty()) stringResource(R.string.content_schedule_empty) else null,
         eyebrow = null,
         scroll = false,
-        buttons = { tv.own.owntv.ui.stage.StageButton(stringResource(R.string.content_close), onClick = onDismiss, height = 56.mpx, textSize = 19) },
+        buttons = { tv.own.owntv.ui.stage.StageButton(stringResource(R.string.content_close), onClick = onDismiss, modifier = Modifier.focusRequester(closeFocus), height = 56.mpx, textSize = 19) },
     ) {
         if (!list.isNullOrEmpty()) {
             val byDay = remember(list) { list.groupBy { (it.startMs + zone.getOffset(it.startMs)) / 86_400_000L } }
@@ -94,7 +96,12 @@ internal fun ProgrammeScheduleDialog(
                             },
                             onClick = { openId = if (openId == p.id) null else p.id },
                             chosen = onAir,
-                            modifier = if (p.id == focusId) Modifier.focusRequester(first) else Modifier,
+                            modifier = (if (p.id == focusId) Modifier.focusRequester(first) else Modifier).onPreviewKeyEvent { e ->
+                                // Long list: "Right" jumps straight to Close, so there is no need to scroll to the end.
+                                if (e.type == androidx.compose.ui.input.key.KeyEventType.KeyDown && e.key == androidx.compose.ui.input.key.Key.DirectionRight) {
+                                    runCatching { closeFocus.requestFocus() }.isSuccess
+                                } else false
+                            },
                             leading = { tv.own.owntv.ui.stage.StagePopupIcon(tv.own.owntv.ui.components.OwnTVIcon.CLOCK) },
                         )
                     }

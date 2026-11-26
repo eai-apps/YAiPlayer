@@ -2704,6 +2704,7 @@
 1	protocol	core/src/main/java/tv/own/owntv/core/live/LiveArchiveUrls.kt	xc
 1	protocol	core/src/main/java/tv/own/owntv/core/live/LiveArchiveUrls.kt	xtream
 1	log	core/src/main/java/tv/own/owntv/core/live/LiveEpgReader.kt	\0
+1	log	core/src/main/java/tv/own/owntv/core/live/LiveEpgReader.kt	catchup_range days=$days raw=${raw.size} out=${out.size} oldestH=${out.lastOrNull()?.let { (now - it.startMs) / 3_600_000 }}
 1	log	core/src/main/java/tv/own/owntv/core/live/LiveEpgReader.kt	fromStored=$fromStored fromCache=${result.size - fromStored}
 1	log	core/src/main/java/tv/own/owntv/core/live/LiveEpgReader.kt	keys=${channelKeys.map { it.second }.distinct().size} chunks=$chunks
 1	log	core/src/main/java/tv/own/owntv/core/live/LiveEpgReader.kt	live_nowplaying channels=${channels.size} keyed=${channelKeys.size}
@@ -2711,7 +2712,7 @@
 1	log	core/src/main/java/tv/own/owntv/core/live/LiveEpgReader.kt	portal days: ${keep.size} programmes added for one channel
 1	log	core/src/main/java/tv/own/owntv/core/live/LiveEpgReader.kt	portal days: failed (${e.javaClass.simpleName})
 1	log	core/src/main/java/tv/own/owntv/core/live/LiveEpgReader.kt	s$id=${rows.size}/oldestH=${(now - rows.minOf { it.startMs }) / 3_600_000}
-1	log	core/src/main/java/tv/own/owntv/core/live/LiveEpgReader.kt	schedule_range key=$epgKey raw=${raw.size} resolved=${resolved.size} $perSource
+1	log	core/src/main/java/tv/own/owntv/core/live/LiveEpgReader.kt	schedule_range raw=${raw.size} resolved=${resolved.size} $perSource
 1	log	core/src/main/java/tv/own/owntv/core/live/LiveEpgReader.kt	totalMs=${android.os.SystemClock.elapsedRealtime() - startedAt}
 2	preference-key	core/src/main/java/tv/own/owntv/core/live/LiveKey.kt	ALL
 2	preference-key	core/src/main/java/tv/own/owntv/core/live/LiveKey.kt	CATCHUP

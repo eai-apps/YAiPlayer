@@ -568,7 +568,7 @@ class LiveEpgReader(
             val perSource = raw.groupBy { it.sourceId }.entries.joinToString(" ") { (id, rows) ->
                 "s$id=${rows.size}/oldestH=${(now - rows.minOf { it.startMs }) / 3_600_000}"
             }
-            "schedule_range key=$epgKey raw=${raw.size} resolved=${resolved.size} $perSource"
+            "schedule_range raw=${raw.size} resolved=${resolved.size} $perSource"
         }
         resolved.map { EpgShift.apply(it, shift) }.sortedBy { it.startMs }
     }
@@ -593,11 +593,14 @@ class LiveEpgReader(
         // archive URL built from the picked programme asks for the time it really aired.
         val shift = EpgShift.minutesFor(cust, ch, globalShiftMinutes)
         val at = EpgShift.toStored(now, shift)
-        epgSourceStore.priority().resolve(epgDao.programmesForChannel(epgKey, at - windowMs, at + 60 * 60 * 1000))
+        val raw = epgDao.programmesForChannel(epgKey, at - windowMs, at + 60 * 60 * 1000)
+        val out = epgSourceStore.priority().resolve(raw)
             .filter { it.startMs <= at }           // already started → catch-up applies
             .sortedByDescending { it.startMs }      // most recent first
             .take(900)
             .map { EpgShift.apply(it, shift) }
+        CorePerf.log { "catchup_range days=$days raw=${raw.size} out=${out.size} oldestH=${out.lastOrNull()?.let { (now - it.startMs) / 3_600_000 }}" }
+        out
     }
 
     /**
