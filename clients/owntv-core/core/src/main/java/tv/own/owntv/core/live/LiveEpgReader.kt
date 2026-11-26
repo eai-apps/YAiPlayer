@@ -561,10 +561,16 @@ class LiveEpgReader(
         val epgKey = (cust.epgMatchResolver.epgIdFor(ch) ?: ch.epgChannelId)
             ?.trim()?.lowercase()?.takeIf { it.isNotEmpty() } ?: return@withContext emptyList()
         val shift = EpgShift.minutesFor(cust, ch, globalShiftMinutes)
-        epgSourceStore.priority()
-            .resolve(epgDao.programmesForChannel(epgKey, EpgShift.toStored(fromMs, shift), EpgShift.toStored(toMs, shift)))
-            .map { EpgShift.apply(it, shift) }
-            .sortedBy { it.startMs }
+        val raw = epgDao.programmesForChannel(epgKey, EpgShift.toStored(fromMs, shift), EpgShift.toStored(toMs, shift))
+        val resolved = epgSourceStore.priority().resolve(raw)
+        CorePerf.log {
+            val now = System.currentTimeMillis()
+            val perSource = raw.groupBy { it.sourceId }.entries.joinToString(" ") { (id, rows) ->
+                "s$id=${rows.size}/oldestH=${(now - rows.minOf { it.startMs }) / 3_600_000}"
+            }
+            "schedule_range key=$epgKey raw=${raw.size} resolved=${resolved.size} $perSource"
+        }
+        resolved.map { EpgShift.apply(it, shift) }.sortedBy { it.startMs }
     }
 
     /** Recent (already-aired) programmes for a catch-up channel, newest first — drives the Live TV
