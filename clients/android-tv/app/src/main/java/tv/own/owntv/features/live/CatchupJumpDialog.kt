@@ -55,13 +55,31 @@ internal fun CatchupJumpRows(
     val timeOnly = rememberBestDateFormatter("Hm")
     val withDay = rememberBestDateFormatter("EEEHm")
     val dayTitle = rememberBestDateFormatter("EEEdMMM")
-    val orderedProgrammes = remember(programmes) { programmes.sortedByDescending { it.startMs } }
+    val orderedProgrammes = remember(programmes) { programmes.sortedBy { it.startMs } }
     val programmesByDay = remember(orderedProgrammes) {
         orderedProgrammes.groupBy { (it.startMs + zone.getOffset(it.startMs)) / 86_400_000L }
     }
-    val firstProgrammeId = if (programmeStart == null) orderedProgrammes.firstOrNull()?.id else null
-    LazyColumn(modifier, verticalArrangement = Arrangement.spacedBy(2.mpx)) {
-        if (programmeStart != null) item(key = "programme-start") {
+    val firstProgrammeId = if (programmeStart == null) orderedProgrammes.lastOrNull()?.id else null
+    // Same order as the schedule list: the past above, "now" at the bottom — Up goes back in time.
+    val listState = androidx.compose.foundation.lazy.rememberLazyListState()
+    androidx.compose.runtime.LaunchedEffect(orderedProgrammes.size) {
+        if (orderedProgrammes.isNotEmpty()) runCatching { listState.scrollToItem((programmesByDay.size + orderedProgrammes.size + (if (programmeStart != null) 1 else 0) - 1).coerceAtLeast(0)) }
+    }
+    val startAtBottom = orderedProgrammes.isNotEmpty()
+    @androidx.compose.runtime.Composable
+    fun StartRow() {
+        if (programmeStart == null) return
+        tv.own.owntv.ui.stage.StagePopupOption(
+            title = if (programmeStart.title.isEmpty()) stringResource(R.string.content_catchup_jump_programme_start_untitled)
+            else stringResource(R.string.content_catchup_jump_programme_start, programmeStart.title),
+            subtitle = stringResource(R.string.content_catchup_jump_programme_start_at, timeOnly(programmeStart.startMs)),
+            onClick = { onPick(programmeStart.offsetSec(System.currentTimeMillis())) },
+            modifier = Modifier.focusRequester(firstFocus),
+            leading = { tv.own.owntv.ui.stage.StagePopupIcon(tv.own.owntv.ui.components.OwnTVIcon.SKIP_PREVIOUS) },
+        )
+    }
+    LazyColumn(modifier, state = listState, verticalArrangement = Arrangement.spacedBy(2.mpx)) {
+        if (programmeStart != null && !startAtBottom) item(key = "programme-start") {
             tv.own.owntv.ui.stage.StagePopupOption(
                 title = if (programmeStart.title.isEmpty()) stringResource(R.string.content_catchup_jump_programme_start_untitled)
                 else stringResource(R.string.content_catchup_jump_programme_start, programmeStart.title),
@@ -91,6 +109,7 @@ internal fun CatchupJumpRows(
                     )
                 }
             }
+            if (programmeStart != null) item(key = "programme-start-bottom") { StartRow() }
         } else items(offsetsSec, key = { it }) { offset ->
             val at = CatchupJumps.instantFor(offset, nowMs)
             tv.own.owntv.ui.stage.StagePopupOption(
