@@ -1196,13 +1196,14 @@ class EpgRepository(
         private const val WINDOW_BACK_MS = 14L * 24 * 60 * 60 * 1000
 
         /**
-         * How much finished guide a channel that cannot replay it keeps.
+         * How much finished guide a channel that cannot replay it keeps: a week (26.11 — the owner wants
+         * the past schedule on every channel, archive or not, never less than 7 days).
          *
          * It exists for the player overlay's "Before" slot and for a programme that has only just
          * ended, so it needs to cover a long film and nothing more. Everything past this is history
          * no user of that channel has any way to watch.
          */
-        private const val RECENT_PAST_MS = 6L * 60 * 60 * 1000
+        private const val RECENT_PAST_MS = 7L * 24 * 60 * 60 * 1000
         // WINDOW_AHEAD_MS used to be a hard-coded 48h here. It is now [SettingsRepository.guideDaysToKeep],
         // because two days was throwing away most of what providers actually send: the grid could only
         // scroll two days, and two days after a sync the guide was empty. See [guideAheadMs].

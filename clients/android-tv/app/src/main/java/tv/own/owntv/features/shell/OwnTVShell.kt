@@ -2037,7 +2037,7 @@ fun OwnTVShell(
                         title = stringResource(R.string.content_schedule_title),
                         load = {
                             val now = System.currentTimeMillis()
-                            liveVm.pastProgrammes(ch, now - 6 * 3_600_000L, now + 7 * 86_400_000L).filter { it.stopMs > now }
+                            liveVm.pastProgrammes(ch, now - 7 * 86_400_000L, now + 14 * 86_400_000L)
                         },
                         description = liveVm::programmeDescription,
                         onDismiss = { showSchedule = false },

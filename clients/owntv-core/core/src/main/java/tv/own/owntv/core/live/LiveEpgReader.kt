@@ -581,7 +581,7 @@ class LiveEpgReader(
         val portal = ensurePortalDays(ch, epgKey)
         val now = System.currentTimeMillis()
         val days = if (portal) PORTAL_PAST_DAYS else ch.catchupDays.takeIf { it > 0 } ?: DEFAULT_CATCHUP_DAYS
-        val windowMs = (days * 24L * 60 * 60 * 1000).coerceAtMost(CATCHUP_LOOKBACK_CAP_MS)
+        val windowMs = (maxOf(days, DEFAULT_CATCHUP_DAYS) * 24L * 60 * 60 * 1000).coerceAtMost(CATCHUP_LOOKBACK_CAP_MS)
         val ids = liveSourceIds + epgSourceStore.getAll().map { it.id }
         // Shifted guide → shifted window, and the rows come back on the corrected clock, so the
         // archive URL built from the picked programme asks for the time it really aired.

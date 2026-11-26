@@ -46,8 +46,23 @@ internal fun ProgrammeScheduleDialog(
     val dayTitle = rememberBestDateFormatter("EEEdMMM")
     val zone = remember { java.util.TimeZone.getDefault() }
     val list = programmes
-    LaunchedEffect(list) { if (!list.isNullOrEmpty()) { kotlinx.coroutines.delay(60); runCatching { first.requestFocus() } } }
     val now = remember { System.currentTimeMillis() }
+    val listState = androidx.compose.foundation.lazy.rememberLazyListState()
+    // Open on the programme that is on air (or the next one), with the past scrolled up above it.
+    val focusId = remember(list) { list?.firstOrNull { it.stopMs > now }?.id ?: list?.lastOrNull()?.id }
+    LaunchedEffect(list) {
+        if (list.isNullOrEmpty()) return@LaunchedEffect
+        var index = 0
+        for (day in list.groupBy { (it.startMs + zone.getOffset(it.startMs)) / 86_400_000L }.values) {
+            index++
+            val hit = day.indexOfFirst { it.id == focusId }
+            if (hit >= 0) { index += hit; break }
+            index += day.size
+        }
+        runCatching { listState.scrollToItem((index - 1).coerceAtLeast(0)) }
+        kotlinx.coroutines.delay(60)
+        runCatching { first.requestFocus() }
+    }
     tv.own.owntv.ui.stage.StagePopup(
         onDismiss = onDismiss,
         title = title,
@@ -58,7 +73,7 @@ internal fun ProgrammeScheduleDialog(
     ) {
         if (!list.isNullOrEmpty()) {
             val byDay = remember(list) { list.groupBy { (it.startMs + zone.getOffset(it.startMs)) / 86_400_000L } }
-            LazyColumn(Modifier.fillMaxWidth().weight(1f, fill = false), verticalArrangement = Arrangement.spacedBy(2.mpx)) {
+            LazyColumn(state = listState, modifier = Modifier.fillMaxWidth().weight(1f, fill = false), verticalArrangement = Arrangement.spacedBy(2.mpx)) {
                 byDay.values.forEach { day ->
                     item(key = -day.first().id) {
                         androidx.tv.material3.Text(
@@ -79,7 +94,7 @@ internal fun ProgrammeScheduleDialog(
                             },
                             onClick = { openId = if (openId == p.id) null else p.id },
                             chosen = onAir,
-                            modifier = if (p.id == list.first().id) Modifier.focusRequester(first) else Modifier,
+                            modifier = if (p.id == focusId) Modifier.focusRequester(first) else Modifier,
                             leading = { tv.own.owntv.ui.stage.StagePopupIcon(tv.own.owntv.ui.components.OwnTVIcon.CLOCK) },
                         )
                     }
