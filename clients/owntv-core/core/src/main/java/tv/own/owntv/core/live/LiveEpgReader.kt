@@ -546,6 +546,27 @@ class LiveEpgReader(
         return true
     }
 
+    /**
+     * The guide of [ch] between two instants on the clock the user sees, ONE source per time slot — the same
+     * priority rule the Guide and the now/next card use. Owner 26.11: the schedule list read the raw rows of
+     * every guide source (9 of them on his box) and showed each film 2–3 times with slightly different times.
+     */
+    suspend fun programmesBetween(
+        ch: ChannelEntity,
+        cust: SectionCustomizations,
+        globalShiftMinutes: Int,
+        fromMs: Long,
+        toMs: Long,
+    ): List<EpgProgrammeEntity> = withContext(Dispatchers.IO) {
+        val epgKey = (cust.epgMatchResolver.epgIdFor(ch) ?: ch.epgChannelId)
+            ?.trim()?.lowercase()?.takeIf { it.isNotEmpty() } ?: return@withContext emptyList()
+        val shift = EpgShift.minutesFor(cust, ch, globalShiftMinutes)
+        epgSourceStore.priority()
+            .resolve(epgDao.programmesForChannel(epgKey, EpgShift.toStored(fromMs, shift), EpgShift.toStored(toMs, shift)))
+            .map { EpgShift.apply(it, shift) }
+            .sortedBy { it.startMs }
+    }
+
     /** Recent (already-aired) programmes for a catch-up channel, newest first — drives the Live TV
      *  catch-up picker. Bounded to the EPG we retain (7 days) and the channel's archive window. */
     suspend fun catchupProgrammes(
