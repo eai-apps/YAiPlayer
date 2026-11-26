@@ -1871,6 +1871,7 @@ fun OwnTVShell(
                 val sportsConfig by settingsRepo.activeSportsConfig.collectAsStateWithLifecycle(tv.own.owntv.core.sports.SportsConfig())
                 val matchSession = sportsSession?.takeIf { s -> isTunedLive && s.options.any { it.channel.id == previewChannel?.id } }
                 var showOtherChannels by remember { mutableStateOf(false) }
+                var showSchedule by remember { mutableStateOf(false) }
                 var goalToast by remember { mutableStateOf<tv.own.owntv.core.sports.MatchAlert?>(null) }
                 LaunchedEffect(isTunedLive) { if (isTunedLive) sportsPlayback.goals().collect { goalToast = it } }
                 LaunchedEffect(goalToast) { if (goalToast != null) { kotlinx.coroutines.delay(GOAL_TOAST_MS); goalToast = null } }
@@ -2007,6 +2008,7 @@ fun OwnTVShell(
                                 tv.own.owntv.features.shell.components.LiveEpgCard(
                                     epg = epg,
                                     modifier = if (watching == null) Modifier else Modifier.alpha(0.55f),
+                                    onClick = { showSchedule = true },
                                 )
                             }
                         }
@@ -2026,6 +2028,20 @@ fun OwnTVShell(
                 )
                 goalToast?.let { a ->
                     tv.own.owntv.features.sports.GoalToast(a, Modifier.align(androidx.compose.ui.Alignment.TopEnd).padding(top = 45.mpx, end = 60.mpx))
+                }
+                // Owner 26.11: the guide ahead for the playing channel, opened from «В эфире сейчас» in the HUD.
+                if (showSchedule) {
+                    val ch = previewChannel
+                    if (ch == null) showSchedule = false
+                    else tv.own.owntv.features.live.ProgrammeScheduleDialog(
+                        title = stringResource(R.string.content_schedule_title),
+                        load = {
+                            val now = System.currentTimeMillis()
+                            liveVm.pastProgrammes(ch, now - 6 * 3_600_000L, now + 7 * 86_400_000L).filter { it.stopMs > now }
+                        },
+                        description = liveVm::programmeDescription,
+                        onDismiss = { showSchedule = false },
+                    )
                 }
                 if (showOtherChannels) {
                     val s = matchSession

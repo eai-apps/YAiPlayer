@@ -728,4 +728,6 @@
     <string name="content_archive_only">Archive only</string>
     <string name="content_archive_only_on">Archive only: on</string>
     <string name="content_episodes_slow">The portal is slow to send the episodes of this show. They will appear here by themselves as soon as they arrive.</string>
+    <string name="content_schedule_title">TV guide</string>
+    <string name="content_schedule_empty">No guide data for this channel.</string>
 </resources>
