@@ -606,4 +606,6 @@
     <string name="sports_move_instructions">▲/▼ выбор · OK взять или положить · В конце «Сохранить»</string>
     <string name="home_row_new_channels">Последние добавленные</string>
     <string name="home_row_new_channels_description">Каналы, которые провайдер добавил за неделю</string>
+    <string name="stale_refresh_title">Давно не обновлялось</string>
+    <string name="stale_refresh_body">Плейлисты и порталы этого профиля не обновлялись %1$d дн.: %2$s. Обновить список каналов и телепрограмму сейчас?</string>
 </resources>

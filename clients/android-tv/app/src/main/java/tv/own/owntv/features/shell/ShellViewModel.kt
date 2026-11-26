@@ -58,6 +58,7 @@ class ShellViewModel(
 ) : ViewModel() {
 
     companion object {
+        private const val STALE_OFFER_DELAY_MS = 4_000L
         private const val TAG = "OwnTVHome"
     }
 
@@ -115,6 +116,28 @@ class ShellViewModel(
     /** Whether the device currently has internet (drives the offline banner). */
     val isOnline: StateFlow<Boolean> = connectivity.isOnline
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), connectivity.isOnlineNow())
+
+    /**
+     * Playlists/portals of the opened profile not refreshed for 2+ days (owner 26.11): offered once per
+     * profile per app run, a few seconds after it opens.
+     */
+    private val _staleOffer = MutableStateFlow<List<tv.own.owntv.core.database.entity.SourceEntity>>(emptyList())
+    val staleOffer: StateFlow<List<tv.own.owntv.core.database.entity.SourceEntity>> = _staleOffer.asStateFlow()
+    private val staleOffered = HashSet<Long>()
+    init {
+        settings.activeProfileId.distinctUntilChanged().onEach { pid ->
+            if (pid <= 0 || !staleOffered.add(pid)) return@onEach
+            kotlinx.coroutines.delay(STALE_OFFER_DELAY_MS)
+            if (settings.activeProfileId.first() != pid) return@onEach
+            _staleOffer.value = runCatching { autoRefresh.staleSourcesOfActive() }.getOrDefault(emptyList())
+        }.launchIn(viewModelScope)
+    }
+    fun acceptStaleOffer() {
+        val sources = _staleOffer.value
+        _staleOffer.value = emptyList()
+        viewModelScope.launch { runCatching { autoRefresh.refreshNow(sources) } }
+    }
+    fun dismissStaleOffer() { _staleOffer.value = emptyList() }
 
     /** The Auto refresh settings — core's [tv.own.owntv.core.sync.AutoRefresh], shared with the phone. */
     fun checkAutoRefresh(includeStartup: Boolean) {

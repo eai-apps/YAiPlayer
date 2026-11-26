@@ -115,6 +115,33 @@ class AutoRefresh(
     }
 
     /**
+     * The active profile's playlists and portals that have not been refreshed for [STALE_OFFER_MS]
+     * (owner 26.11): other profiles are not refreshed in the background, so on coming back to one the
+     * app OFFERS to refresh it instead of showing a list days out of date.
+     */
+    suspend fun staleSourcesOfActive(nowMs: Long = System.currentTimeMillis()): List<tv.own.owntv.core.database.entity.SourceEntity> {
+        val pid = profileDao.resolveExistingProfileId(settings.activeProfileId.first()) ?: return emptyList()
+        return sourceRepository.observeSources(pid).first().filter { (it.lastSyncAt ?: 0L) in 1 until nowMs - STALE_OFFER_MS }
+    }
+
+    /** "Refresh now" from that offer: each playlist/portal (its channels), then its own guide feeds. */
+    suspend fun refreshNow(sources: List<tv.own.owntv.core.database.entity.SourceEntity>) {
+        if (sources.isEmpty()) return
+        val epgRepository = org.koin.core.context.GlobalContext.get().get<tv.own.owntv.core.repository.EpgRepository>()
+        val playlists = sources.map { source ->
+            val counts = importFinalizer.contentCounts(source.id)
+            PlaylistInfo(source.id, true, true, counts.channels + counts.movies + counts.series, epgRepository.guideUrls(source))
+        }
+        val urls = playlists.flatMap { it.guideUrls }.map { it.trim().lowercase() }.toSet()
+        val feeds = epgSourceStore.getAll().filter { !it.builtin && it.url.trim().lowercase() in urls }.map { src ->
+            GuideFeedInfo(src.id, src.url, false, true, epgDao.countForSources(listOf(src.id)))
+        }
+        val jobs = RefreshQueuePlanner.plan(playlists, feeds)
+        Log.i(TAG, "stale offer accepted: sources=${sources.size} jobs=${jobs.size}")
+        if (jobs.isNotEmpty()) startQueue(jobs)
+    }
+
+    /**
      * The app left the screen. On a phone ([tv.own.owntv.core.CoreBuildInfo.batteryPowered]) the automatic
      * queue stops here — downloading guides with the screen off drained a phone to empty (owner, 11.11) —
      * and [check] on the next return starts it again for what is still due. Manual refreshes are not touched.
@@ -195,6 +222,8 @@ class AutoRefresh(
     }
 
     companion object {
+        /** Two days without a refresh: the profile is offered one when it is opened (owner 26.11). */
+        const val STALE_OFFER_MS = 2L * 24 * 60 * 60 * 1000
         private const val TAG = "OwnTVHome"
         /** The work reason the sync workers recognise as automatic, and hold back during playback. */
         const val REASON = "auto_refresh"
