@@ -572,7 +572,9 @@ class EpgViewModel(
      *  still inside the channel's archive window. The Guide gates its "Watch from start" button on this. */
     fun canCatchup(channel: ChannelEntity, programme: EpgProgrammeEntity, now: Long): Boolean {
         if (!channel.catchup || programme.startMs > now) return false
-        val windowMs = channel.catchupDays.coerceAtLeast(1) * 24L * 60 * 60 * 1000
+        // Owner 25.11: a playlist without catchup-days used to get ONE day here (coerceAtLeast(1)) while the archive list
+        // and the guide use the shared 7-day default — the archive «showed one day only».
+        val windowMs = (channel.catchupDays.takeIf { it > 0 } ?: tv.own.owntv.core.live.DEFAULT_CATCHUP_DAYS) * 24L * 60 * 60 * 1000
         return now - programme.startMs <= windowMs
     }
 
