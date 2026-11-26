@@ -123,7 +123,7 @@ internal fun GuideVideo(
             .aspectRatio(16f / 9f)
             .drawBehind { drawBoxShadow(videoShadow, 80.mpx.toPx(), r.toPx(), dy = 30.mpx.toPx()) }
             .clip(RoundedCornerShape(r))
-            .background(Color.Black),
+            .background(if (tv.own.owntv.player.PreviewOnSurfaceView && playing) Color.Transparent else Color.Black),
         contentAlignment = Alignment.Center,
     ) {
         if (channel != null) {
@@ -137,7 +137,7 @@ internal fun GuideVideo(
             // collection on the main thread (~0.9 s, SurfaceView.releaseSurfaces). The pane comes and goes
             // on every channel opened and closed; a TextureView leaves without that. Full screen keeps the
             // SurfaceView (hardware video plane).
-            useTextureView = true,
+            useTextureView = !tv.own.owntv.player.PreviewOnSurfaceView,
         )
         if (showVideo && previewState == tv.own.owntv.player.LivePreviewEngine.State.LOADING) OwnTVSpinner(sizeDp = 24)
         Box(Modifier.fillMaxSize().background(Brush.verticalGradient(0.58f to Color.Transparent, 1f to Color.Black.copy(alpha = 0.72f))))

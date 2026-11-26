@@ -155,6 +155,16 @@ fun MpvVideoSurface(
  * create and released on destroy. [keepAwake] holds the screen on (TV screensaver off) while actively
  * watching full-screen/PiP.
  */
+/**
+ * Live-list / guide preview on a SurfaceView instead of a TextureView, from Android 11 up.
+ * Owner 26.11, video from a user's Amlogic X88Pro (Android 14): with the preview on, the whole Live screen blanked
+ * to black, only a stair-shaped block at the top-left kept drawing (a partial-redraw glitch of the GPU path that a
+ * TextureView forces every frame); with the preview off it never happened. The reason for the TextureView
+ * (SurfaceView.releaseSurfaces forces a ~0.9 s garbage collection) exists only on Android 10 and older.
+ * Revert = return false here.
+ */
+val PreviewOnSurfaceView: Boolean = android.os.Build.VERSION.SDK_INT >= 30
+
 @Composable
 fun ExoPreviewSurface(
     engine: LivePreviewEngine,
