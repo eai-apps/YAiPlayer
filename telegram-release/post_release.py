@@ -370,6 +370,23 @@ def send_digest(bot_token: str, chat_id: str, rich_html: str, classic_text: str,
     return _send_classic_release(bot_token, chat_id, classic_text, image_path, buttons)
 
 
+RELEASE_POSTER = "docs/posts/release-407/poster.png"
+
+
+def check_release_rules(announce_file: str, text: str, rich_html: str, image: str | None) -> list[str]:
+    """Правила владельца для постов о выпуске (файлы vN*.html): ошибки мешают отправке."""
+    name = os.path.basename(announce_file)
+    if not re.match(r"^v\d+.*\.html$", name):
+        return []
+    errors: list[str] = []
+    if (image or "").replace("\\", "/") != RELEASE_POSTER:
+        errors.append(f"картинка должна быть {RELEASE_POSTER} (только логотип и слово «Обновление», без списка)")
+    for label, body in (("обычный текст", text), ("rich-текст", rich_html)):
+        if body and not re.search(r"Обновление YAiPlayer до версии \d+\.\d+\.\d+", body[:300]):
+            errors.append(f"{label}: начало должно быть «Обновление YAiPlayer до версии X.Y.Z»")
+    return errors
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Автопост релизов YAiPlayer в Telegram")
     parser.add_argument(
@@ -408,6 +425,16 @@ def main(argv: list[str] | None = None) -> int:
     if args.announce_file:
         with open(args.announce_file, "r", encoding="utf-8") as f:
             text = f.read().strip()
+        rich_text = ""
+        if args.rich_file:
+            with open(args.rich_file, "r", encoding="utf-8") as f:
+                rich_text = f.read().strip()
+        problems = check_release_rules(args.announce_file, text, rich_text, args.image)
+        if problems:
+            print("ПОСТ НЕ ОТПРАВЛЕН — нарушены правила владельца (HANDOFF п.39):")
+            for pr in problems:
+                print(" -", pr)
+            return 2
         if args.dry_run:
             print(text)
             return 0
