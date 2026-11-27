@@ -746,7 +746,7 @@ internal fun VodInfoPanel(
 }
 
 /** The width of the cover on the series page; the buttons under the panel line up after it. */
-internal val SERIES_POSTER_WIDTH @Composable get() = 240.mpx
+internal val SERIES_POSTER_WIDTH @Composable get() = 280.mpx
 
 private val TRAILING_TAGS = Regex("""^(.*?)((?:\s*\[[^\]]{1,8}\])+)\s*$""")
 

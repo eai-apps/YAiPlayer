@@ -2193,7 +2193,27 @@
 1	log	core/src/main/java/tv/own/owntv/core/epg/EpgGapFill.kt	reserve: nothing to fill (no playlist without a guide, no portal with the reserve on)
 1	preference-key	core/src/main/java/tv/own/owntv/core/epg/EpgGapFill.kt	reserve_purged_shared_ids_v2
 1	log	core/src/main/java/tv/own/owntv/core/epg/EpgGapFill.kt	sourceId=${source.id} failed: ${e.javaClass.simpleName}
+1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgLogoStore.kt	4k
 1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgLogoStore.kt	5 канал
+1	regex	core/src/main/java/tv/own/owntv/core/epg/EpgLogoStore.kt	[^\\p{L}\\p{N}]+
+1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgLogoStore.kt	fhd
+1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgLogoStore.kt	hd
+1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgLogoStore.kt	orig
+1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgLogoStore.kt	original
+1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgLogoStore.kt	plus0
+1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgLogoStore.kt	ru
+1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgLogoStore.kt	russia
+1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgLogoStore.kt	sd
+1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgLogoStore.kt	spb
+1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgLogoStore.kt	tv
+1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgLogoStore.kt	uhd
+1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgLogoStore.kt	канал
+1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgLogoStore.kt	петербург
+1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgLogoStore.kt	россия
+1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgLogoStore.kt	рф
+1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgLogoStore.kt	санкт
+1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgLogoStore.kt	спб
+1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgLogoStore.kt	тв
 12	technical	core/src/main/java/tv/own/owntv/core/epg/EpgMatcher.kt	\0
 1	regex	core/src/main/java/tv/own/owntv/core/epg/EpgMatcher.kt	(?<![\\p{L}\\p{N}])\\+(\\d{1,2})(?![\\p{L}\\p{N}])
 1	technical	core/src/main/java/tv/own/owntv/core/epg/EpgMatcher.kt	+
@@ -2683,12 +2703,16 @@
 1	uri	core/src/main/java/tv/own/owntv/core/live/LiveArchiveUrls.kt	ts
 1	protocol	core/src/main/java/tv/own/owntv/core/live/LiveArchiveUrls.kt	xc
 1	protocol	core/src/main/java/tv/own/owntv/core/live/LiveArchiveUrls.kt	xtream
+1	log	core/src/main/java/tv/own/owntv/core/live/LiveEpgReader.kt	\0
+1	log	core/src/main/java/tv/own/owntv/core/live/LiveEpgReader.kt	catchup_range days=$days raw=${raw.size} out=${out.size} oldestH=${out.lastOrNull()?.let { (now - it.startMs) / 3_600_000 }}
 1	log	core/src/main/java/tv/own/owntv/core/live/LiveEpgReader.kt	fromStored=$fromStored fromCache=${result.size - fromStored}
 1	log	core/src/main/java/tv/own/owntv/core/live/LiveEpgReader.kt	keys=${channelKeys.map { it.second }.distinct().size} chunks=$chunks
 1	log	core/src/main/java/tv/own/owntv/core/live/LiveEpgReader.kt	live_nowplaying channels=${channels.size} keyed=${channelKeys.size}
 1	log	core/src/main/java/tv/own/owntv/core/live/LiveEpgReader.kt	perf_now_programmes_for_start channels=${channels.size} at=$startedAt
 1	log	core/src/main/java/tv/own/owntv/core/live/LiveEpgReader.kt	portal days: ${keep.size} programmes added for one channel
 1	log	core/src/main/java/tv/own/owntv/core/live/LiveEpgReader.kt	portal days: failed (${e.javaClass.simpleName})
+1	log	core/src/main/java/tv/own/owntv/core/live/LiveEpgReader.kt	s$id=${rows.size}/oldestH=${(now - rows.minOf { it.startMs }) / 3_600_000}
+1	log	core/src/main/java/tv/own/owntv/core/live/LiveEpgReader.kt	schedule_range raw=${raw.size} resolved=${resolved.size} $perSource
 1	log	core/src/main/java/tv/own/owntv/core/live/LiveEpgReader.kt	totalMs=${android.os.SystemClock.elapsedRealtime() - startedAt}
 2	preference-key	core/src/main/java/tv/own/owntv/core/live/LiveKey.kt	ALL
 2	preference-key	core/src/main/java/tv/own/owntv/core/live/LiveKey.kt	CATCHUP
@@ -3576,6 +3600,8 @@
 1	technical	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	${it.name}:${it.length()}:${it.lastModified()}
 1	technical	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	${missing.size}|${missing.hashCode()}|${cacheFingerprint()}
 1	technical	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	,
+1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	/ch=
+1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	/past=
 1	room-schema	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	AND `epgChannelId` NOT IN (SELECT `epgChannelId` FROM `epg_keep_history`)
 1	room-schema	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	CREATE TEMP TABLE IF NOT EXISTS `epg_keep_history` (`epgChannelId` TEXT PRIMARY KEY NOT NULL)
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	Cached EPG channel filter ids=${keys.size} files=${files.size}
@@ -3595,7 +3621,7 @@
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	EPG programme prune sourceId=$sourceId stale=${staleIds.size} overflowed=${tracker.overflowed} ms=${SystemClock.elapsedRealtime() - startedAt}
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	EPG prune sourceId=$storeId ms=${SystemClock.elapsedRealtime() - pruneStartedAt}
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	EPG sync incomplete — keeping partial (written=$writtenCount accepted=$processedCount inserted=$inserted updated=$updated skipped=$skipped)
-33	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	EpgRepository
+34	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	EpgRepository
 1	protocol	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	Guide channels match no playlist channel
 1	protocol	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	Guide has no programmes in the guide window
 1	room-schema	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	INSERT OR IGNORE INTO `epg_keep_history` VALUES (?)
@@ -3603,7 +3629,10 @@
 1	sql	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	PRAGMA $name
 1	sql	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	PRAGMA wal_checkpoint(TRUNCATE)
 1	protocol	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	Portal guide source $portalSourceId no longer exists
+1	sql	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	SELECT COUNT(*) FROM (SELECT 1 FROM epg_programmes GROUP BY epgChannelId, startMs)
+1	sql	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	SELECT MIN(startMs) FROM epg_programmes
 1	sql	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	SELECT epgChannelId, startMs, id, contentHash FROM epg_programmes WHERE sourceId = ? ORDER BY epgChannelId, startMs
+1	sql	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	SELECT sourceId, COUNT(*), SUM(stopMs < ?), COUNT(DISTINCT epgChannelId) FROM epg_programmes GROUP BY sourceId
 2	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	Unable to analyze EPG tables
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	Unable to compact database
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	Unable to create EPG guide index
@@ -3633,12 +3662,14 @@
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	epg_retention catchupIds=${keep.size} recentPastH=${RECENT_PAST_MS / 3_600_000} archiveH=${WINDOW_BACK_MS / 3_600_000}
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	epg_retention catchupIds=0 recentPastH=${RECENT_PAST_MS / 3_600_000}
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	epg_retention skipped=unknown-catchup archiveH=${WINDOW_BACK_MS / 3_600_000}
+1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	epg_storage slots=$slots oldestH=${(now - oldest) / 3_600_000}$perSource
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	epg_sync sourceId=$storeId fresh=$freshSource filteredIds=${needed?.size ?: -1}
 1	sql	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	freelist_count
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	guide gap fill done sourceId=$sourceId repaired=$repaired stillMissing=$remaining
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	guide gap fill failed sourceId=$sourceId
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	guide gap fill sourceId=$sourceId channelsWithoutProgrammes=${missing.size}
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	guide gap fill sourceId=$sourceId skipped — same gap and same cache as the last empty attempt
+1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	guide storage stats failed
 2	protocol	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	http://
 2	protocol	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	https://
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	inserted=$inserted updated=$updated skipped=$skipped
@@ -3649,6 +3680,7 @@
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	parseMs=${parsedAt - startedAt - writeMs} writeMs=$writeMs pruneMs=$pruneMs
 1	technical	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	period=${outcome.periodDays} channels=${channels.size} written=$written dayTables=${missingPast.size}
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	removedProgrammes=$removedProgrammes removedChannels=$removedChannels
+1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	s
 2	protocol	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	stalker://
 1	log	core/src/main/java/tv/own/owntv/core/repository/EpgRepository.kt	windowBackH=${WINDOW_BACK_MS / 3_600_000} windowAheadH=${aheadMs / 3_600_000}
 1	technical	core/src/main/java/tv/own/owntv/core/repository/EpisodeMerge.kt	s${seasonNumber}e$episodeNumber
@@ -3784,6 +3816,7 @@
 1	technical	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	clock_date_color
 1	technical	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	clock_time_color
 1	technical	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	clock_weather_color
+1	technical	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	daily_refresh_offer
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	data_saver
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	default_source_id
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	default_volume
@@ -5400,6 +5433,7 @@
 1	log	core/src/main/java/tv/own/owntv/core/sync/AutoRefresh.kt	epgRefill sourceId=${src.id} — synced before but guide is empty, re-fetching
 1	technical	core/src/main/java/tv/own/owntv/core/sync/AutoRefresh.kt	migration_refill
 1	log	core/src/main/java/tv/own/owntv/core/sync/AutoRefresh.kt	refresh queue paused: app in background
+1	log	core/src/main/java/tv/own/owntv/core/sync/AutoRefresh.kt	stale offer accepted: sources=${sources.size} jobs=${jobs.size}
 1	technical	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	$NAME ${i + 1}
 1	technical	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	Built-in guide
 1	technical	core/src/main/java/tv/own/owntv/core/sync/BuiltinGuide.kt	builtin
@@ -6868,7 +6902,7 @@
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	://
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	;
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	<-
-1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	?
+2	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	?
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	AV1
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	Age
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	Authorization
@@ -6938,6 +6972,7 @@
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	decoder failure before first frame — rebuild ${tune.decoderRebuilds} in ${delayMs}ms
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	decoder failure cause: ${decoderCause(error)}
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	decoder init failed for ${it.mimeType}: ${it.codecInfo?.name ?: "no decoder on this device"}
+1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	decoder=${tune.lastVideoDecoder} fps=${displayFpsOrNull() ?: "?"} url=${currentUrl?.substringBefore('?')?.takeLast(48)}
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	device
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	discontinuitySeq=${manifest.mediaPlaylist.discontinuitySequence}
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	distinct segments on this load
@@ -7086,6 +7121,7 @@
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	url=${HttpClient.redactUrl(url)}
 1	technical	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	variants=${mv.variants.size} audios=${mv.audios.size} subs=${mv.subtitles.size}
 3	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	video
+1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	video ${videoSize.width}x${videoSize.height} par=${videoSize.pixelWidthHeightRatio}
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	video decoder: $decoderName (
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	video surface attached (${id(s)}), decoder ${if (player == null) "not built" else "running"}
 1	log	player-core/src/main/java/tv/own/owntv/player/LivePreviewEngine.kt	video surface detached (${id(previous!!)})

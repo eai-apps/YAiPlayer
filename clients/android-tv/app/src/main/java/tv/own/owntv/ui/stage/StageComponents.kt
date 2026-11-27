@@ -10,6 +10,8 @@ import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -49,6 +51,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.em
 import androidx.tv.material3.Text
@@ -1012,6 +1015,84 @@ fun StageEpisode(
         if (line != null) {
             Spacer(Modifier.height(3.mpx))
             Text(line, style = stageText(15.5f, 400), color = StageColors.Muted, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        }
+    }
+}
+
+/**
+ * The episode tile of the operator's design (owner 25.11): a dark glass card, a colour bar on the left edge,
+ * a light "сезон N" over a big bold "серия N", a play circle on the right and a thin progress line. Nothing else —
+ * no still, no title, no date. Used by both the grid and the list of episodes; [height] sets every size in it.
+ */
+@Composable
+fun StageEpisodeTile(
+    seasonLabel: String,
+    episodeLabel: String,
+    watched: Boolean,
+    progress: Float?,
+    onClick: () -> Unit,
+    width: Dp,
+    height: Dp,
+    modifier: Modifier = Modifier,
+    onLongClick: (() -> Unit)? = null,
+) {
+    val interaction = remember { MutableInteractionSource() }
+    val focused by interaction.collectIsFocusedAsState()
+    val accent = stageAccent
+    val r = (height.value * 0.15f).coerceIn(14f, 28f).dp
+    val density = androidx.compose.ui.platform.LocalDensity.current
+    val seasonSp = with(density) { (height * 0.17f).toSp() }
+    val episodeSp = with(density) { (height * 0.30f).toSp() }
+    val circle = height * 0.24f
+    Box(
+        modifier
+            .width(width)
+            .height(height)
+            .stageLift(focused, StageFocus.POSTER, episode = true)
+            .stageClickable(interaction, true, onClick, onLongClick)
+            .then(
+                if (focused) Modifier.stageFocusDecor(StageFocus.POSTER, r, accent, LocalStagePalette.current)
+                else Modifier,
+            )
+            .clip(RoundedCornerShape(r))
+            .background(
+                Brush.linearGradient(
+                    if (focused) listOf(Color(0xFF16204A), Color(0xFF0C1330)) else listOf(Color(0xFF0B1224), Color(0xFF0A0F1F)),
+                ),
+            )
+            .border(1.mpx, Color.White.copy(alpha = if (focused) 0.34f else 0.10f), RoundedCornerShape(r)),
+    ) {
+        Box(
+            Modifier
+                .align(Alignment.CenterStart)
+                .padding(start = height * 0.09f)
+                .width(maxOf(4.mpx, height * 0.03f))
+                .fillMaxHeight(0.74f)
+                .clip(RoundedCornerShape(50))
+                .background(Brush.verticalGradient(listOf(Color(0xFFE23DD6), Color(0xFF5B6BFF)))),
+        )
+        Column(Modifier.align(Alignment.CenterStart).padding(start = height * 0.42f)) {
+            Text(seasonLabel, style = stageText(1, 300).copy(fontSize = seasonSp), color = Color.White.copy(alpha = 0.62f), maxLines = 1)
+            Text(episodeLabel, style = stageText(1, 800).copy(fontSize = episodeSp), color = Color.White, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        }
+        Box(
+            Modifier
+                .align(Alignment.CenterEnd)
+                .padding(end = height * 0.14f)
+                .size(circle)
+                .border(2.mpx, Color.White.copy(alpha = if (focused) 0.85f else 0.45f), CircleShape),
+            contentAlignment = Alignment.Center,
+        ) {
+            if (watched) StageIcon(OwnTVIcon.CHECK, accent.accent, circle * 0.55f)
+            else StageIcon(OwnTVIcon.PLAY, Color.White.copy(alpha = if (focused) 0.95f else 0.6f), circle * 0.5f)
+        }
+        if (progress != null && progress > 0f && !watched) {
+            Box(
+                Modifier.align(Alignment.BottomStart).padding(start = height * 0.42f, end = height * 0.14f, bottom = height * 0.07f)
+                    .fillMaxWidth().height(3.mpx).clip(RoundedCornerShape(50)).background(Color.White.copy(alpha = 0.14f)),
+            ) {
+                Box(Modifier.fillMaxWidth(progress.coerceIn(0f, 1f)).height(3.mpx).background(accent.accent))
+            }
         }
     }
 }

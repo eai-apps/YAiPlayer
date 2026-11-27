@@ -3974,6 +3974,11 @@ class OwnTVPlayer(
         _isPlaying.value = false
         _buffering.value = false
         _audioOnlyMedia.value = false
+        // Owner 26.11: the full-screen HUD is bound to mpv until a live tune settles on Exo, so a failure mpv had
+        // left behind (an earlier channel that never opened) flashed as "Playback error" in front of every channel.
+        // A stop ends the failed item: callers that want an error shown set it AFTER stopping ([abandonLive]).
+        _error.value = null
+        _errorInfo.value = null
     }
 
     /** Live TV's fallback ladder has given up on the channel mpv is holding — no rung left, or the whole

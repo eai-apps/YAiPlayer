@@ -3,6 +3,8 @@ package tv.own.owntv.features.shell.components
 import tv.own.owntv.ui.theme.hudInk
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -54,6 +56,8 @@ fun LiveEpgCard(
     variant: EpgCardVariant = EpgCardVariant.LIVE,
     // ARCHIVE only: the wall-clock instant on screen, which drives the progress bar and "x min left".
     atMs: Long? = null,
+    // LIVE only: when set the card can be chosen with the remote (OK opens the guide ahead, owner 26.11).
+    onClick: (() -> Unit)? = null,
 ) {
     if (epg == null || (epg.now == null && epg.next == null)) return
     val archive = variant == EpgCardVariant.ARCHIVE
@@ -65,8 +69,18 @@ fun LiveEpgCard(
     // not about the present — otherwise a programme from yesterday reads as 100% finished.
     val nowMs = if (archive) (atMs ?: wallNow) else wallNow
 
+    val interaction = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+    val focused by interaction.collectIsFocusedAsState()
+    val pick = if (!archive && onClick != null) {
+        Modifier
+            .clip(RoundedCornerShape(10.dp))
+            .background(if (focused) hudInk.copy(alpha = 0.16f) else Color.Transparent)
+            .border(if (focused) 2.dp else 0.dp, if (focused) hudInk else Color.Transparent, RoundedCornerShape(10.dp))
+            .clickable(interactionSource = interaction, indication = null, onClick = onClick)
+            .padding(horizontal = 8.dp, vertical = 4.dp)
+    } else Modifier
     Row(
-        modifier = if (!archive) modifier else modifier
+        modifier = if (!archive) modifier.then(pick) else modifier
             .clip(RoundedCornerShape(8.dp))
             .background(tv.own.owntv.ui.theme.stageAccent.accent.copy(alpha = 0.09f))
             .border(1.dp, tv.own.owntv.ui.theme.stageAccent.accent.copy(alpha = 0.45f), RoundedCornerShape(8.dp))

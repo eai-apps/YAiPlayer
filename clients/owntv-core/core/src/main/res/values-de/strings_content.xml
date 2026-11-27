@@ -405,4 +405,6 @@
     <string name="content_archive_only">Nur mit Archiv</string>
     <string name="content_archive_only_on">Nur mit Archiv: ein</string>
     <string name="content_episodes_slow">Das Portal liefert die Folgen dieser Serie langsam. Sie erscheinen hier von selbst, sobald sie da sind.</string>
+    <string name="content_schedule_title">Programm</string>
+    <string name="content_schedule_empty">Für diesen Sender gibt es keine Programmdaten.</string>
 </resources>

@@ -26,4 +26,6 @@
     <string name="home_tile_favorites">Favorites</string>
     <!-- Translators: Home screen quick tile description for Favorites Hub. -->
     <string name="home_tile_favorites_desc">Favorite channels showcase</string>
+    <string name="favorites_hub_view_grid">Tiles</string>
+    <string name="favorites_hub_view_rows">Rows</string>
 </resources>

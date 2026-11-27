@@ -59,11 +59,13 @@ class StaleResyncWorker(
         val activeId = profileDao.resolveExistingProfileId(settings.activeProfileId.first())
         val profiles = profileDao.getAllOnce().sortedBy { if (it.id == activeId) 0 else 1 }
         val seenSourceIds = mutableSetOf<Long>()
+        // Owner 27.11: «Ежедневное обновление» set to «offer» — no quiet morning catalogue refresh.
+        val dailyOffer = settings.dailyRefreshOffer.first()
         val playlists = ArrayList<tv.own.owntv.core.sync.PlaylistInfo>()
         for (profile in profiles) {
             for (source in sourceRepository.observeSources(profile.id).first()) {
                 if (!seenSourceIds.add(source.id)) continue
-                val due = tv.own.owntv.core.sync.WeeklySchedule.isCatalogDue(source.lastSyncAt, nowMs)
+                val due = !dailyOffer && tv.own.owntv.core.sync.WeeklySchedule.isCatalogDue(source.lastSyncAt, nowMs)
                 val counts = if (due) importFinalizer.contentCounts(source.id) else null
                 playlists += tv.own.owntv.core.sync.PlaylistInfo(
                     source.id, profile.id == activeId, due,

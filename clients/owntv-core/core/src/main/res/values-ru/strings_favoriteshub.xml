@@ -13,4 +13,6 @@
     <string name="favorites_hub_archive">Архив</string>
     <string name="home_tile_favorites">Избранное</string>
     <string name="home_tile_favorites_desc">Витрина любимых каналов</string>
+    <string name="favorites_hub_view_grid">Плиткой</string>
+    <string name="favorites_hub_view_rows">Рядами</string>
 </resources>

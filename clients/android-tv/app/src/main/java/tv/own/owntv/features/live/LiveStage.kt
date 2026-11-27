@@ -270,7 +270,8 @@ internal fun LiveStagePane(
                     drawBoxShadow(videoShadow, 80.mpx.toPx(), videoR.toPx(), dy = 30.mpx.toPx())
                 }
                 .clip(RoundedCornerShape(videoR))
-                .background(Color.Black),
+                // A SurfaceView sits behind the window: an opaque black behind it would hide the picture.
+                .background(if (tv.own.owntv.player.PreviewOnSurfaceView && playing) Color.Transparent else Color.Black),
             contentAlignment = Alignment.Center,
         ) {
             if (videoChannel != null) {
@@ -286,7 +287,7 @@ internal fun LiveStagePane(
             // collection on the main thread (~0.9 s, SurfaceView.releaseSurfaces). The pane comes and goes
             // on every channel opened and closed; a TextureView leaves without that. Full screen keeps the
             // SurfaceView (hardware video plane).
-            useTextureView = true,
+            useTextureView = !tv.own.owntv.player.PreviewOnSurfaceView,
         )
             if (loading) OwnTVSpinner(sizeDp = 28)
             // `.shade`: black 72% at the bottom, clear by 42% up — a video-sized gradient, one pass.

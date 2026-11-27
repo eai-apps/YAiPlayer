@@ -37,6 +37,12 @@ object EpgLogoStore {
     /** Normalized names that exist both as a national and a regional channel in the feeds. */
     private val AMBIGUOUS_NAMES = setOf("5 канал")
 
+    /** Words that may follow an ambiguous name without making it a different (regional) channel. */
+    private val NATIONAL_TAGS = setOf(
+        "hd", "fhd", "uhd", "sd", "4k", "orig", "original", "тв", "tv", "россия", "russia", "ru", "рф",
+        "санкт", "петербург", "спб", "spb", "plus0", "канал",
+    )
+
 
     /** Normalized EPG channel id → feed icon URL. Empty when no EPG source has logos enabled. */
     var icons by mutableStateOf<Map<String, String>>(emptyMap())
@@ -143,9 +149,26 @@ object EpgLogoStore {
         return out
     }
 
+    /**
+     * "5 канал Украина" is a different channel from the national "5 канал", yet it carries the same guide id or
+     * matches it, and showed the other channel's logo (owner 25.11, again). A name that is an ambiguous one plus
+     * extra words never takes a guide icon: the playlist's own logo, or none.
+     */
+    private fun isRegionalVariant(name: String): Boolean {
+        // Judged on the RAW name: the guide normalizer drops country tags, so "5 канал Украина" normalizes to plain
+        // "5 канал" and would pass for the national one.
+        val raw = name.lowercase().replace('ё', 'е').split(Regex("[^\\p{L}\\p{N}]+")).filter { it.isNotEmpty() }
+        return AMBIGUOUS_NAMES.any { ambiguous ->
+            val base = ambiguous.split(' ')
+            val at = raw.windowed(base.size).indexOf(base)
+            at >= 0 && raw.filterIndexed { i, t -> (i < at || i >= at + base.size) && t !in NATIONAL_TAGS }.isNotEmpty()
+        }
+    }
+
     /** The feed icon for [channel], or null when there is none / no feed has logos enabled. */
     fun iconFor(channel: ChannelEntity): String? {
         if (icons.isEmpty() && nameIcons.isEmpty()) return null
+        if (isRegionalVariant(channel.name)) return null
         matches.epgIdFor(channel)?.let { id -> icons[id.trim().lowercase()]?.let { return it } }
         val own = channel.epgChannelId
         if (!own.isNullOrBlank()) icons[own.trim().lowercase()]?.let { return it }
@@ -155,6 +178,7 @@ object EpgLogoStore {
     /** A guide icon for a channel whose playlist gave it no logo; null when no guide has one. */
     fun fallbackFor(channel: ChannelEntity): String? {
         if (!channel.logoUrl.isNullOrBlank()) return null
+        if (isRegionalVariant(channel.name)) return null
         if (fallbackIds.isEmpty() && fallbackNames.isEmpty()) return null
         matches.epgIdFor(channel)?.let { id -> fallbackIds[id.trim().lowercase()]?.let { return it } }
         channel.epgChannelId?.takeIf { it.isNotBlank() }?.let { id -> fallbackIds[id.trim().lowercase()]?.let { return it } }

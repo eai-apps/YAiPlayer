@@ -653,8 +653,10 @@ fun OwnTVShell(
         restoreFocus = true
         // Over Live TV's list the screen itself puts the cursor back on the channel; sending it to the rail
         // first only made that restore fight the rail (owner 15.11: menu felt frozen after beta-22).
-        val listRestores = selectedSection == MainSection.LIVE_TV &&
-            liveVm.liveView.value != tv.own.owntv.core.settings.SettingsRepository.LiveView.GUIDE
+        val listRestores = (selectedSection == MainSection.LIVE_TV &&
+            liveVm.liveView.value != tv.own.owntv.core.settings.SettingsRepository.LiveView.GUIDE) ||
+            // Favourites put the cursor back on the played card themselves (owner 26.11).
+            (selectedSection == MainSection.FAVORITES && favHubVm.lastPlayed != null)
         if (!listRestores) focusRail()
         tv.own.owntv.core.CorePerf.log { "perf_tv_exit_end at=${android.os.SystemClock.elapsedRealtime()}" }
         Unit
@@ -1527,13 +1529,23 @@ fun OwnTVShell(
                         selectedSection == MainSection.FAVORITES -> tv.own.owntv.extras.favoriteshub.FavoritesHubTvScreen(
                             onPlayChannel = { ch ->
                                 scope.launch {
-                                    if (liveVm.ensurePlayingByIdAsync(ch.id)) openFullscreen(MainSection.LIVE_TV)
+                                    if (liveVm.ensurePlayingByIdAsync(ch.id)) {
+                                        // Owner 26.11: going to Live TV afterwards opened the list at its first
+                                        // channel. Put Live TV on this channel's category with the cursor on it.
+                                        if (liveVm.isVisibleToActiveProfile(ch)) {
+                                            liveVm.select(liveVm.railKeyOf(ch))
+                                            liveVm.onChannelFocused(ch)
+                                        }
+                                        openFullscreen(MainSection.LIVE_TV)
+                                    }
                                 }
                             },
                             onPlayCatchup = guidePlayCatchup,
                             onOpenLive = { onSelectSection(MainSection.LIVE_TV) },
                             onChildFocused = { focusedLayer = ShellLayer.CONTENT },
                             onEntryHook = { favoritesEntry = it },
+                            restoreFocus = restoreFocus,
+                            onRestored = { restoreFocus = false },
                             contentStart = if (navStyle == tv.own.owntv.core.settings.SettingsRepository.NavStyle.DOCKED) 64.mpx else 150.mpx,
                             modifier = Modifier.fillMaxSize(),
                         )
@@ -1737,10 +1749,16 @@ fun OwnTVShell(
       // only its video view inside — the surface lives on, nothing is released, and the next channel
       // opened full screen reuses it.
       val exoParked = playerMode == PlayerMode.NONE && liveOnExo && multiview == null
-      if (multiview == null && (playerMode == PlayerMode.FULLSCREEN || playerMode == PlayerMode.MINI || exoParked)) {
+      // Owner 25.11 (log from VS KM6 + a user's report of the whole screen flickering after leaving a
+      // channel): the same freeze hit channels on mpv, whose SurfaceView was still taken off screen on
+      // Back (stalls of 0.75–0.87 s right after perf_tv_exit_end, SurfaceView.releaseSurfaces → System.gc).
+      // The mpv view is now parked the same way: it stays composed, off screen, 2 dp, nothing else around it.
+      var mpvSurfaceUsed by remember { mutableStateOf(false) }
+      val mpvParked = playerMode == PlayerMode.NONE && !liveOnExo && multiview == null && mpvSurfaceUsed
+      if (multiview == null && (playerMode == PlayerMode.FULLSCREEN || playerMode == PlayerMode.MINI || exoParked || mpvParked)) {
         val isFull = playerMode == PlayerMode.FULLSCREEN
         Box(
-            modifier = if (exoParked) Modifier.offset(x = (-8000).dp).size(2.dp) else (if (isFull || inPip) {
+            modifier = if (exoParked || mpvParked) Modifier.offset(x = (-8000).dp).size(2.dp) else (if (isFull || inPip) {
                 Modifier.fillMaxSize().background(Color.Black)
             } else {
                 // Dynamic docked size/position: a screen-width fraction at the chosen corner/edge, so it
@@ -1769,7 +1787,7 @@ fun OwnTVShell(
             // opened channel is rarely the one previewing, so this hit nearly every open. Live waits briefly
             // for the engine before building mpv's surface; mpv's load simply waits for it.
             val mpvHold = remember(playerMode == PlayerMode.NONE, zapSource) {
-                androidx.compose.runtime.mutableStateOf(zapSource == MainSection.LIVE_TV)
+                androidx.compose.runtime.mutableStateOf(zapSource == MainSection.LIVE_TV && !mpvSurfaceUsed)
             }
             LaunchedEffect(playerMode == PlayerMode.NONE, zapSource) {
                 if (mpvHold.value) { kotlinx.coroutines.delay(MPV_SURFACE_HOLD_MS); mpvHold.value = false }
@@ -1779,6 +1797,10 @@ fun OwnTVShell(
             } else if (mpvHold.value) {
                 Box(Modifier.fillMaxSize().background(Color.Black))
             } else {
+                androidx.compose.runtime.DisposableEffect(Unit) {
+                    mpvSurfaceUsed = true
+                    onDispose { mpvSurfaceUsed = false }
+                }
                 MpvVideoSurface(
                     player = player, modifier = Modifier.fillMaxSize(),
                     autoFrameRateFilms = isFull && !inPip && autoFrameRateFilms,
@@ -1794,13 +1816,13 @@ fun OwnTVShell(
             } else {
                 player.audioOnlyMedia.collectAsStateWithLifecycle()
             }
-            if (audioOnlyMedia && !inPip) {
+            if (audioOnlyMedia && !inPip && !mpvParked) {
                 tv.own.owntv.player.AudioOnlyBadge(modifier = Modifier.fillMaxSize(), compact = !isFull)
             }
             // Direct render mode: mpv can't draw subtitles on the decoder-owned surface — the app does.
             // Also drawn docked: the mini-player is a real watching mode for a subtitled film, and
             // dropping the only line of dialogue there made subtitles look broken. Scaled to the box.
-            if (!liveOnExo && !inPip) {
+            if (!liveOnExo && !inPip && !mpvParked) {
                 tv.own.owntv.player.SubtitleOverlay(
                     player = player, modifier = Modifier.fillMaxSize(),
                     // Tied to the chosen mini size, but nudged up and floored: a strictly proportional
@@ -1861,6 +1883,7 @@ fun OwnTVShell(
                 val sportsConfig by settingsRepo.activeSportsConfig.collectAsStateWithLifecycle(tv.own.owntv.core.sports.SportsConfig())
                 val matchSession = sportsSession?.takeIf { s -> isTunedLive && s.options.any { it.channel.id == previewChannel?.id } }
                 var showOtherChannels by remember { mutableStateOf(false) }
+                var showSchedule by remember { mutableStateOf(false) }
                 var goalToast by remember { mutableStateOf<tv.own.owntv.core.sports.MatchAlert?>(null) }
                 LaunchedEffect(isTunedLive) { if (isTunedLive) sportsPlayback.goals().collect { goalToast = it } }
                 LaunchedEffect(goalToast) { if (goalToast != null) { kotlinx.coroutines.delay(GOAL_TOAST_MS); goalToast = null } }
@@ -1997,6 +2020,7 @@ fun OwnTVShell(
                                 tv.own.owntv.features.shell.components.LiveEpgCard(
                                     epg = epg,
                                     modifier = if (watching == null) Modifier else Modifier.alpha(0.55f),
+                                    onClick = { showSchedule = true },
                                 )
                             }
                         }
@@ -2016,6 +2040,20 @@ fun OwnTVShell(
                 )
                 goalToast?.let { a ->
                     tv.own.owntv.features.sports.GoalToast(a, Modifier.align(androidx.compose.ui.Alignment.TopEnd).padding(top = 45.mpx, end = 60.mpx))
+                }
+                // Owner 26.11: the guide ahead for the playing channel, opened from «В эфире сейчас» in the HUD.
+                if (showSchedule) {
+                    val ch = previewChannel
+                    if (ch == null) showSchedule = false
+                    else tv.own.owntv.features.live.ProgrammeScheduleDialog(
+                        title = stringResource(R.string.content_schedule_title),
+                        load = {
+                            val now = System.currentTimeMillis()
+                            liveVm.pastProgrammes(ch, now - 7 * 86_400_000L, now + 14 * 86_400_000L)
+                        },
+                        description = liveVm::programmeDescription,
+                        onDismiss = { showSchedule = false },
+                    )
                 }
                 if (showOtherChannels) {
                     val s = matchSession
@@ -2151,7 +2189,7 @@ fun OwnTVShell(
                         modifier = Modifier.fillMaxSize(),
                     )
                 }
-            } else if (!inPip) {
+            } else if (!inPip && !mpvParked) {
                 MiniPlayer(
                     player = if (liveOnExo) liveVm.previewEngine else mpvEngine,
                     onExpand = expandPlayer,
@@ -2168,6 +2206,24 @@ fun OwnTVShell(
         }
       }
 
+    // Owner 26.11: a profile not opened for 2+ days — offer to refresh its playlists/portals and guides
+    // (other profiles are not refreshed in the background). Not over the full-screen player.
+    val staleOffer by shellVm.staleOffer.collectAsStateWithLifecycle()
+    if (staleOffer.isNotEmpty() && playerMode != PlayerMode.FULLSCREEN && !showExit) {
+        val refreshFocus = remember { androidx.compose.ui.focus.FocusRequester() }
+        LaunchedEffect(Unit) { kotlinx.coroutines.delay(60); runCatching { refreshFocus.requestFocus() } }
+        tv.own.owntv.ui.stage.StagePopup(
+            onDismiss = shellVm::dismissStaleOffer,
+            title = stringResource(R.string.stale_refresh_title),
+            body = stringResource(R.string.stale_refresh_body, staleOffer.joinToString { it.name }),
+            eyebrow = null,
+            scroll = false,
+            buttons = {
+                tv.own.owntv.ui.stage.StageButton(stringResource(R.string.update_later), onClick = shellVm::dismissStaleOffer, height = 56.mpx, textSize = 19)
+                tv.own.owntv.ui.stage.StageButton(stringResource(R.string.update_now), onClick = shellVm::acceptStaleOffer, modifier = Modifier.focusRequester(refreshFocus), tinted = true, height = 56.mpx, textSize = 19)
+            },
+        ) {}
+    }
     if (showExit) {
         ExitDialog(onConfirm = onExitApp, onDismiss = { showExit = false })
     }

@@ -572,7 +572,9 @@ class EpgViewModel(
      *  still inside the channel's archive window. The Guide gates its "Watch from start" button on this. */
     fun canCatchup(channel: ChannelEntity, programme: EpgProgrammeEntity, now: Long): Boolean {
         if (!channel.catchup || programme.startMs > now) return false
-        val windowMs = channel.catchupDays.coerceAtLeast(1) * 24L * 60 * 60 * 1000
+        // Owner 25.11: a playlist without catchup-days used to get ONE day here (coerceAtLeast(1)) while the archive list
+        // and the guide use the shared 7-day default — the archive «showed one day only».
+        val windowMs = (channel.catchupDays.takeIf { it > 0 } ?: tv.own.owntv.core.live.DEFAULT_CATCHUP_DAYS) * 24L * 60 * 60 * 1000
         return now - programme.startMs <= windowMs
     }
 
@@ -935,7 +937,7 @@ class EpgViewModel(
         val maxCatchupDays = channelDao.maxCatchupDays(playlistIds)
         val catchupLookbackMs = if (maxCatchupDays > 0)
             minOf(maxCatchupDays * DAY_MS, CATCHUP_LOOKBACK_CAP_MS) else 0L
-        val lookbackMs = maxOf(GUIDE_VISIBLE_PAST_MS, catchupLookbackMs)
+        val lookbackMs = maxOf(GUIDE_VISIBLE_PAST_MS, catchupLookbackMs, MIN_GUIDE_PAST_MS)
         val windowStart = nowAligned - lookbackMs
         // How far the grid can scroll forward is the SAME value that decides how much is stored.
         // Storing a week and only letting the user reach tomorrow would be half a feature — and the
@@ -1146,6 +1148,8 @@ class EpgViewModel(
         private const val GUIDE_DATA_SETTLE_MS = 10_000L
         private const val HALF_HOUR_MS = 30L * 60 * 1000
         private const val GUIDE_VISIBLE_PAST_MS = 2L * 60 * 60 * 1000
+        /** The guide shows at least a week of past programmes on every channel (owner, 26.11). */
+        private const val MIN_GUIDE_PAST_MS = 7L * 24 * 60 * 60 * 1000
         // How many guide rows to keep read. A screen shows ~8; this is generous enough that scrolling
         // back never re-reads, and small enough that the grid's memory does not grow with the
         // catalogue. ~100 programmes a row, so a few megabytes at the cap.

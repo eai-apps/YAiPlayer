@@ -356,6 +356,8 @@ class SettingsRepository(private val context: Context, private val localeStore: 
         val EPG_AUTO_REFRESH = stringPreferencesKey("epg_auto_refresh")
         val AUTO_REFRESH_ON_STARTUP = booleanPreferencesKey("auto_refresh_on_startup")
         val BACKGROUND_RESYNC_ENABLED = booleanPreferencesKey("background_resync_enabled")
+        /** Owner 27.11: false = catalogues refresh quietly every morning from 06:00; true = offered once a day. */
+        val DAILY_REFRESH_OFFER = booleanPreferencesKey("daily_refresh_offer")
         val SYNC_HIDDEN_CATEGORIES = booleanPreferencesKey("sync_hidden_categories")
         val BACKGROUND_RESYNC_HOURS = intPreferencesKey("background_resync_hours")
         // Per-EPG-source: use that feed's own <icon src> channel logos instead of the playlist's.
@@ -2351,6 +2353,13 @@ class SettingsRepository(private val context: Context, private val localeStore: 
     }
 
     /** Whether background resync runs periodically when inactive (default on). */
+    /** Daily refresh: quietly every morning (false, the default) or offered once a day per profile (true). */
+    val dailyRefreshOffer: Flow<Boolean> = prefsFlow { it[Keys.DAILY_REFRESH_OFFER] ?: false }
+
+    suspend fun setDailyRefreshOffer(offer: Boolean) {
+        context.dataStore.edit { it[Keys.DAILY_REFRESH_OFFER] = offer }
+    }
+
     val backgroundResyncEnabled: Flow<Boolean> =
         prefsFlow { it[Keys.BACKGROUND_RESYNC_ENABLED] ?: DEFAULT_BACKGROUND_RESYNC_ENABLED }
 
@@ -3461,7 +3470,7 @@ class SettingsRepository(private val context: Context, private val localeStore: 
             Keys.MULTIVIEW_ENABLED, Keys.MULTIVIEW_WARNING_ACCEPTED,
             Keys.RECORDING_RESERVE_CONNECTION, Keys.RECORD_WHAT_IM_WATCHING, Keys.RECORDING_OVER_MOBILE_DATA,
             Keys.AUDIO_PASSTHROUGH, Keys.NIGHT_MODE, Keys.VOLUME_LEVELLING, Keys.TUNNELED_PLAYBACK,
-            Keys.TIMESHIFT_ENABLED, Keys.AUTO_WIDESCREEN, Keys.AUTO_REFRESH_ON_STARTUP, Keys.BACKGROUND_RESYNC_ENABLED, Keys.SYNC_HIDDEN_CATEGORIES,
+            Keys.TIMESHIFT_ENABLED, Keys.AUTO_WIDESCREEN, Keys.AUTO_REFRESH_ON_STARTUP, Keys.BACKGROUND_RESYNC_ENABLED, Keys.SYNC_HIDDEN_CATEGORIES, Keys.DAILY_REFRESH_OFFER,
         )
         val floats = listOf(Keys.SUB_SCALE, Keys.SUB_SCALE_MPV, Keys.SUB_SCALE_EXO)
 

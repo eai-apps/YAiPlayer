@@ -606,4 +606,9 @@
     <string name="sports_move_instructions">▲/▼ выбор · OK взять или положить · В конце «Сохранить»</string>
     <string name="home_row_new_channels">Последние добавленные</string>
     <string name="home_row_new_channels_description">Каналы, которые провайдер добавил за неделю</string>
+    <string name="stale_refresh_title">Сегодня новый день</string>
+    <string name="stale_refresh_body">Сегодня список каналов и телепрограмма ещё не обновлялись: %1$s. Обновить сейчас? Возможно, появились новые каналы.</string>
+    <string name="daily_refresh_title">Ежедневное обновление</string>
+    <string name="daily_refresh_auto">Автоматически каждое утро (с 6:00, в фоне)</string>
+    <string name="daily_refresh_offer">Предлагать раз в день («Обновить сейчас?»)</string>
 </resources>

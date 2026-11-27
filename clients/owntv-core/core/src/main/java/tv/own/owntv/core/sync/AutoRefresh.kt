@@ -76,6 +76,7 @@ class AutoRefresh(
         // playlists, then their guides, then unclaimed feeds, then the built-in guide. Other profiles wait until
         // they are opened or until the background refresh.
         val playlistModes = settings.playlistAutoRefresh.first()
+        val dailyOffer = settings.dailyRefreshOffer.first()
         val epgRepository = org.koin.core.context.GlobalContext.get().get<tv.own.owntv.core.repository.EpgRepository>()
         val active = sourceRepository.observeSources(pid).first()
         // A profile with no playlist or portal has nothing to refresh — and must not pull the built-in guide (owner, 12.11).
@@ -85,7 +86,8 @@ class AutoRefresh(
         val playlists = active.map { source ->
             val mode = playlistModes[source.id] ?: PlaylistRefresh.OFF
             val due = shouldRefresh(mode, source.lastSyncAt, nowMs, includeStartup) ||
-                (staleCatchUp && WeeklySchedule.isCatalogDue(source.lastSyncAt, nowMs))
+                // Owner 27.11: «Ежедневное обновление» — quietly every morning (default) or offered once a day.
+                (staleCatchUp && !dailyOffer && WeeklySchedule.isCatalogDue(source.lastSyncAt, nowMs))
             val counts = if (due) importFinalizer.contentCounts(source.id) else null
             PlaylistInfo(source.id, true, due, counts?.let { it.channels + it.movies + it.series } ?: 0, epgRepository.guideUrls(source))
         } + others.map { PlaylistInfo(it.id, false, false, 0, epgRepository.guideUrls(it)) }
@@ -112,6 +114,42 @@ class AutoRefresh(
             refillGuideEmptiedByMigration()
             vodResort.runOnce()
         }
+    }
+
+    /**
+     * The active profile's playlists and portals that have not been refreshed for [STALE_OFFER_MS]
+     * (owner 26.11): other profiles are not refreshed in the background, so on coming back to one the
+     * app OFFERS to refresh it instead of showing a list days out of date.
+     */
+    suspend fun staleSourcesOfActive(nowMs: Long = System.currentTimeMillis()): List<tv.own.owntv.core.database.entity.SourceEntity> {
+        val pid = profileDao.resolveExistingProfileId(settings.activeProfileId.first()) ?: return emptyList()
+        return sourceRepository.observeSources(pid).first().filter { (it.lastSyncAt ?: 0L) in 1 until nowMs - STALE_OFFER_MS }
+    }
+
+    /**
+     * The active profile's playlists/portals not refreshed today (owner 27.11): once a day — at the first
+     * opening of a profile, or when a new day starts with the box left on — the app offers to refresh them.
+     */
+    suspend fun notRefreshedToday(nowMs: Long = System.currentTimeMillis()): List<tv.own.owntv.core.database.entity.SourceEntity> {
+        val pid = profileDao.resolveExistingProfileId(settings.activeProfileId.first()) ?: return emptyList()
+        return sourceRepository.observeSources(pid).first().filter { !syncedToday(it.lastSyncAt, nowMs) }
+    }
+
+    /** "Refresh now" from that offer: each playlist/portal (its channels), then its own guide feeds. */
+    suspend fun refreshNow(sources: List<tv.own.owntv.core.database.entity.SourceEntity>) {
+        if (sources.isEmpty()) return
+        val epgRepository = org.koin.core.context.GlobalContext.get().get<tv.own.owntv.core.repository.EpgRepository>()
+        val playlists = sources.map { source ->
+            val counts = importFinalizer.contentCounts(source.id)
+            PlaylistInfo(source.id, true, true, counts.channels + counts.movies + counts.series, epgRepository.guideUrls(source))
+        }
+        val urls = playlists.flatMap { it.guideUrls }.map { it.trim().lowercase() }.toSet()
+        val feeds = epgSourceStore.getAll().filter { !it.builtin && it.url.trim().lowercase() in urls }.map { src ->
+            GuideFeedInfo(src.id, src.url, false, true, epgDao.countForSources(listOf(src.id)))
+        }
+        val jobs = RefreshQueuePlanner.plan(playlists, feeds)
+        Log.i(TAG, "stale offer accepted: sources=${sources.size} jobs=${jobs.size}")
+        if (jobs.isNotEmpty()) startQueue(jobs)
     }
 
     /**
@@ -195,6 +233,8 @@ class AutoRefresh(
     }
 
     companion object {
+        /** Two days without a refresh: the profile is offered one when it is opened (owner 26.11). */
+        const val STALE_OFFER_MS = 2L * 24 * 60 * 60 * 1000
         private const val TAG = "OwnTVHome"
         /** The work reason the sync workers recognise as automatic, and hold back during playback. */
         const val REASON = "auto_refresh"

@@ -122,6 +122,9 @@ class SeriesViewModel(
     /** The categories' search text, held here so it survives the player (see LiveViewModel). */
     private val _categoryQuery = kotlinx.coroutines.flow.MutableStateFlow("")
     val categoryQuery: kotlinx.coroutines.flow.StateFlow<String> = _categoryQuery
+    /** Year of each season (portal files seasons as separate records); empty when the portal gives none. */
+    suspend fun seasonYears(series: SeriesEntity): Map<Int, Int> = seriesRepository.seasonYears(series)
+
     fun setCategoryQuery(query: String) { _categoryQuery.value = query }
 
     data class SeriesMoveState(val items: List<SeriesEntity>, val activeIndex: Int, val contextKey: String, val carried: Set<Long> = emptySet())

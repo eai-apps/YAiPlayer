@@ -2,6 +2,8 @@
 
 package tv.own.owntv.extras.favoriteshub
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,6 +23,9 @@ class FavoritesHubViewModel(
      * screen puts the cursor back on it after full screen instead of on the side menu (owner 15.11).
      */
     var lastPlayed: Pair<Int, Long>? = null
+
+    /** Tiles across the whole screen (owner 26.11) instead of horizontal rows. Default: tiles. */
+    var gridView by androidx.compose.runtime.mutableStateOf(true)
 
     private val _state = MutableStateFlow(FavoritesHubState(isLoading = true))
     val state: StateFlow<FavoritesHubState> = _state.asStateFlow()

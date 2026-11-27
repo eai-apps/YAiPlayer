@@ -441,21 +441,15 @@ private fun GateVersionCorner(modifier: Modifier = Modifier) {
         }
         if (state is tv.own.owntv.core.update.UpdateManager.State.Available) {
             Spacer(Modifier.height(10.mpx))
-            // п.105: «Что нового» first — the dialog lists Added / Fixed before the owner agrees to update.
+            // Owner 26.11: «Обновить сейчас» here used to install at once, without the notes. Now one button opens the
+            // same dialog as Settings (Added / Fixed / Improved of THIS version, then «Позже» / «Обновить сейчас»).
             var showNotes by remember { mutableStateOf(false) }
             tv.own.owntv.ui.stage.StageButton(
-                text = stringResource(tv.own.owntv.core.R.string.update_whats_new),
+                text = stringResource(tv.own.owntv.core.R.string.update_now),
                 onClick = { showNotes = true },
                 height = 52.mpx,
                 textSize = 19,
                 tinted = true,
-            )
-            Spacer(Modifier.height(8.mpx))
-            tv.own.owntv.ui.stage.StageButton(
-                text = stringResource(tv.own.owntv.core.R.string.update_now),
-                onClick = { manager.downloadAndInstall() },
-                height = 52.mpx,
-                textSize = 19,
             )
             if (showNotes) tv.own.owntv.features.update.UpdateDialog(onDismiss = { showNotes = false }, checkOnOpen = false)
         }

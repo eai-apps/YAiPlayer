@@ -155,6 +155,16 @@ fun MpvVideoSurface(
  * create and released on destroy. [keepAwake] holds the screen on (TV screensaver off) while actively
  * watching full-screen/PiP.
  */
+/**
+ * Live-list / guide preview on a SurfaceView instead of a TextureView, from Android 11 up.
+ * Owner 26.11, video from a user's Amlogic X88Pro (Android 14): with the preview on, the whole Live screen blanked
+ * to black, only a stair-shaped block at the top-left kept drawing (a partial-redraw glitch of the GPU path that a
+ * TextureView forces every frame); with the preview off it never happened. The reason for the TextureView
+ * (SurfaceView.releaseSurfaces forces a ~0.9 s garbage collection) exists only on Android 10 and older.
+ * Revert = return false here.
+ */
+val PreviewOnSurfaceView: Boolean = android.os.Build.VERSION.SDK_INT >= 30
+
 @Composable
 fun ExoPreviewSurface(
     engine: LivePreviewEngine,
@@ -211,6 +221,15 @@ fun ExoPreviewSurface(
         // 4K codec per Surface — see LivePreviewEngine.recreateSurface.
         val surfaceGeneration by engine.surfaceGeneration.collectAsStateWithLifecycle()
         val viewModifier = Modifier.videoZoom(zoom, aspect, videoSize, maxWidth, maxHeight)
+        // Owner 25.11 (Kinofranchise): only on his Amlogic box the preview's TextureView showed stale picture rows
+        // under the frame while the same stream was clean full screen and on another device. The texture's default
+        // buffer is sized for the pane the view first filled (before the video size was known), not for the video;
+        // keep it equal to the decoded size so the decoder's output is never scaled into a mismatching buffer.
+        val textureRef = remember { arrayOfNulls<SurfaceTexture>(1) }
+        LaunchedEffect(videoSize, surfaceGeneration) {
+            val vs = videoSize ?: return@LaunchedEffect
+            if (vs.first > 0 && vs.second > 0) runCatching { textureRef[0]?.setDefaultBufferSize(vs.first, vs.second) }
+        }
         key(surfaceGeneration) {
             if (useTextureView) {
                 AndroidView(
@@ -222,14 +241,22 @@ fun ExoPreviewSurface(
                             var surface: Surface? = null
                             surfaceTextureListener = object : TextureView.SurfaceTextureListener {
                                 override fun onSurfaceTextureAvailable(texture: SurfaceTexture, width: Int, height: Int) {
+                                    textureRef[0] = texture
+                                    engine.videoSize.value?.takeIf { it.first > 0 && it.second > 0 }
+                                        ?.let { runCatching { texture.setDefaultBufferSize(it.first, it.second) } }
                                     surface = Surface(texture).also { engine.setSurface(it) }
                                 }
 
-                                override fun onSurfaceTextureSizeChanged(texture: SurfaceTexture, width: Int, height: Int) = Unit
+                                override fun onSurfaceTextureSizeChanged(texture: SurfaceTexture, width: Int, height: Int) {
+                                    // TextureView resets the buffer to the view size on every resize; put the video's back.
+                                    engine.videoSize.value?.takeIf { it.first > 0 && it.second > 0 }
+                                        ?.let { runCatching { texture.setDefaultBufferSize(it.first, it.second) } }
+                                }
 
                                 override fun onSurfaceTextureDestroyed(texture: SurfaceTexture): Boolean {
                                     surface?.let { engine.detachSurface(it); it.release() }
                                     surface = null
+                                    textureRef[0] = null
                                     return true
                                 }
 

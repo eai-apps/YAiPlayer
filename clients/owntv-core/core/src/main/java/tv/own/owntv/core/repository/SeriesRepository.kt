@@ -174,6 +174,21 @@ class SeriesRepository(
      * Each episode keeps its own record's season command, so playback is untouched. A season the opened
      * record already lists wins; a sibling that fails to answer is skipped, never fatal.
      */
+    /**
+     * Release year of each season of a show the portal files as one record per season («Title [S02]»), keyed by
+     * season number. Owner 25.11 (operator): seasons come out in different years and the page showed one year for
+     * all of them; the portal's own year of each season record is what is shown for the season chosen.
+     */
+    suspend fun seasonYears(series: SeriesEntity): Map<Int, Int> = withContext(Dispatchers.IO) {
+        val out = HashMap<Int, Int>()
+        (siblingRecords(series) + series).forEach { rec ->
+            val season = tv.own.owntv.core.content.SeasonRecordTitle.season(rec.name)
+            val year = rec.year
+            if (season != null && year != null && year > 1800) out.putIfAbsent(season, year)
+        }
+        out
+    }
+
     /** The show's other season records in the same playlist («Title [S02]», «Title: Subtitle [S03]»). */
     private suspend fun siblingRecords(series: SeriesEntity): List<SeriesEntity> {
         if (!tv.own.owntv.core.content.SeasonRecordTitle.isSeasonRecord(series.name)) return emptyList()

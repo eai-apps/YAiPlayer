@@ -1023,4 +1023,9 @@
     <string name="sports_move_instructions">▲/▼ to choose · OK to pick up or put down · Save when done</string>
     <string name="home_row_new_channels">Recently added</string>
     <string name="home_row_new_channels_description">Channels your provider added this week</string>
+    <string name="stale_refresh_title">A new day — refresh?</string>
+    <string name="stale_refresh_body">Today the channel list and TV guide have not been refreshed yet: %1$s. Refresh them now? New channels may have been added.</string>
+    <string name="daily_refresh_title">Daily refresh</string>
+    <string name="daily_refresh_auto">Automatically every morning (from 06:00, in the background)</string>
+    <string name="daily_refresh_offer">Offer once a day («Refresh now?»)</string>
 </resources>

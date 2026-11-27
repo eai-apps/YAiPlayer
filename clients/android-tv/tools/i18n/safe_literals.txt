@@ -212,6 +212,8 @@
 1	log	app/src/main/java/tv/own/owntv/features/live/LiveViewModel.kt	zap: tune wait ${delayMs}ms — ${zapWaitReason(lastZapPressMs, now, singleConnection)}
 1	log	app/src/main/java/tv/own/owntv/features/live/LiveZapList.kt	LiveZapList
 1	log	app/src/main/java/tv/own/owntv/features/live/LiveZapList.kt	direct tune: zap rebuild failed
+1	technical	app/src/main/java/tv/own/owntv/features/live/ProgrammeScheduleDialog.kt	EEEdMMM
+1	technical	app/src/main/java/tv/own/owntv/features/live/ProgrammeScheduleDialog.kt	Hm
 1	technical	app/src/main/java/tv/own/owntv/features/live/ScheduleRecordingDialog.kt	:
 1	technical	app/src/main/java/tv/own/owntv/features/live/ScheduleRecordingDialog.kt	EEEMMMd
 1	log	app/src/main/java/tv/own/owntv/features/live/ZapTuneDelay.kt	(single-connection)
@@ -322,8 +324,7 @@
 2	preference-key	app/src/main/java/tv/own/owntv/features/series/SeriesScreen.kt	set_tmdb_name
 4	preference-key	app/src/main/java/tv/own/owntv/features/series/SeriesScreen.kt	tmdb_details
 1	url	app/src/main/java/tv/own/owntv/features/series/SeriesScreen.kt	w1280
-2	url	app/src/main/java/tv/own/owntv/features/series/SeriesScreen.kt	w300
-1	url	app/src/main/java/tv/own/owntv/features/series/SeriesScreen.kt	w780
+1	url	app/src/main/java/tv/own/owntv/features/series/SeriesScreen.kt	w300
 6	technical	app/src/main/java/tv/own/owntv/features/series/SeriesScreen.kt	·
 2	technical	app/src/main/java/tv/own/owntv/features/series/SeriesScreen.kt	▾
 1	technical	app/src/main/java/tv/own/owntv/features/series/SeriesScreen.kt	◀

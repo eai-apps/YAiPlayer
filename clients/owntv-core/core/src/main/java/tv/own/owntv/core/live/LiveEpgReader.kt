@@ -546,6 +546,33 @@ class LiveEpgReader(
         return true
     }
 
+    /**
+     * The guide of [ch] between two instants on the clock the user sees, ONE source per time slot — the same
+     * priority rule the Guide and the now/next card use. Owner 26.11: the schedule list read the raw rows of
+     * every guide source (9 of them on his box) and showed each film 2–3 times with slightly different times.
+     */
+    suspend fun programmesBetween(
+        ch: ChannelEntity,
+        cust: SectionCustomizations,
+        globalShiftMinutes: Int,
+        fromMs: Long,
+        toMs: Long,
+    ): List<EpgProgrammeEntity> = withContext(Dispatchers.IO) {
+        val epgKey = (cust.epgMatchResolver.epgIdFor(ch) ?: ch.epgChannelId)
+            ?.trim()?.lowercase()?.takeIf { it.isNotEmpty() } ?: return@withContext emptyList()
+        val shift = EpgShift.minutesFor(cust, ch, globalShiftMinutes)
+        val raw = epgDao.programmesForChannel(epgKey, EpgShift.toStored(fromMs, shift), EpgShift.toStored(toMs, shift))
+        val resolved = epgSourceStore.priority().resolve(raw)
+        CorePerf.log {
+            val now = System.currentTimeMillis()
+            val perSource = raw.groupBy { it.sourceId }.entries.joinToString(" ") { (id, rows) ->
+                "s$id=${rows.size}/oldestH=${(now - rows.minOf { it.startMs }) / 3_600_000}"
+            }
+            "schedule_range raw=${raw.size} resolved=${resolved.size} $perSource"
+        }
+        resolved.map { EpgShift.apply(it, shift) }.sortedBy { it.startMs }
+    }
+
     /** Recent (already-aired) programmes for a catch-up channel, newest first — drives the Live TV
      *  catch-up picker. Bounded to the EPG we retain (7 days) and the channel's archive window. */
     suspend fun catchupProgrammes(
@@ -560,17 +587,20 @@ class LiveEpgReader(
         val portal = ensurePortalDays(ch, epgKey)
         val now = System.currentTimeMillis()
         val days = if (portal) PORTAL_PAST_DAYS else ch.catchupDays.takeIf { it > 0 } ?: DEFAULT_CATCHUP_DAYS
-        val windowMs = (days * 24L * 60 * 60 * 1000).coerceAtMost(CATCHUP_LOOKBACK_CAP_MS)
+        val windowMs = (maxOf(days, DEFAULT_CATCHUP_DAYS) * 24L * 60 * 60 * 1000).coerceAtMost(CATCHUP_LOOKBACK_CAP_MS)
         val ids = liveSourceIds + epgSourceStore.getAll().map { it.id }
         // Shifted guide → shifted window, and the rows come back on the corrected clock, so the
         // archive URL built from the picked programme asks for the time it really aired.
         val shift = EpgShift.minutesFor(cust, ch, globalShiftMinutes)
         val at = EpgShift.toStored(now, shift)
-        epgSourceStore.priority().resolve(epgDao.programmesForChannel(epgKey, at - windowMs, at + 60 * 60 * 1000))
+        val raw = epgDao.programmesForChannel(epgKey, at - windowMs, at + 60 * 60 * 1000)
+        val out = epgSourceStore.priority().resolve(raw)
             .filter { it.startMs <= at }           // already started → catch-up applies
             .sortedByDescending { it.startMs }      // most recent first
             .take(900)
             .map { EpgShift.apply(it, shift) }
+        CorePerf.log { "catchup_range days=$days raw=${raw.size} out=${out.size} oldestH=${out.lastOrNull()?.let { (now - it.startMs) / 3_600_000 }}" }
+        out
     }
 
     /**

@@ -2,6 +2,7 @@
 package tv.own.owntv.extras.portal
 
 import androidx.compose.runtime.Composable
+import kotlinx.coroutines.launch
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -36,6 +37,32 @@ fun PortalResyncDialog(
     // «Только телепрограмму» opens a second list: which guide (owner 13.11).
     var guideMenu by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
     var confirmClear by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(startOnClear) }
+    // Owner 27.11: «Ежедневное обновление» — quietly every morning (default) or offered once a day.
+    val settingsRepo: tv.own.owntv.core.settings.SettingsRepository = org.koin.compose.koinInject()
+    val dailyOffer by settingsRepo.dailyRefreshOffer.collectAsStateWithLifecycle(initialValue = false)
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
+    var dailyMenu by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
+    if (dailyMenu) {
+        val dFocus = remember { FocusRequester() }
+        LaunchedEffect(Unit) { kotlinx.coroutines.delay(60); runCatching { dFocus.requestFocus() } }
+        StagePopup(
+            onDismiss = { dailyMenu = false },
+            title = stringResource(tv.own.owntv.core.R.string.daily_refresh_title),
+            body = null,
+            buttons = { StageButton(stringResource(R.string.common_cancel), onClick = { dailyMenu = false }, height = 56.mpx, textSize = 19) },
+        ) {
+            listOf(false to tv.own.owntv.core.R.string.daily_refresh_auto, true to tv.own.owntv.core.R.string.daily_refresh_offer).forEach { (offer, label) ->
+                StagePopupOption(
+                    title = stringResource(label),
+                    chosen = dailyOffer == offer,
+                    onClick = { scope.launch { settingsRepo.setDailyRefreshOffer(offer) }; dailyMenu = false },
+                    modifier = if (dailyOffer == offer) Modifier.focusRequester(dFocus) else Modifier,
+                    leading = { StagePopupIcon(if (offer) OwnTVIcon.INFO else OwnTVIcon.REFRESH) },
+                )
+            }
+        }
+        return
+    }
     if (confirmClear) {
         val ctx = androidx.compose.ui.platform.LocalContext.current
         val epgRepo: tv.own.owntv.core.repository.EpgRepository = org.koin.compose.koinInject()
@@ -135,5 +162,11 @@ fun PortalResyncDialog(
                 leading = { StagePopupIcon(icon) },
             )
         }
+        StagePopupOption(
+            title = stringResource(tv.own.owntv.core.R.string.daily_refresh_title),
+            subtitle = stringResource(if (dailyOffer) tv.own.owntv.core.R.string.daily_refresh_offer else tv.own.owntv.core.R.string.daily_refresh_auto),
+            onClick = { dailyMenu = true },
+            leading = { StagePopupIcon(OwnTVIcon.CALENDAR) },
+        )
     }
 }
