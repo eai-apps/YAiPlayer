@@ -76,6 +76,7 @@ class AutoRefresh(
         // playlists, then their guides, then unclaimed feeds, then the built-in guide. Other profiles wait until
         // they are opened or until the background refresh.
         val playlistModes = settings.playlistAutoRefresh.first()
+        val dailyOffer = settings.dailyRefreshOffer.first()
         val epgRepository = org.koin.core.context.GlobalContext.get().get<tv.own.owntv.core.repository.EpgRepository>()
         val active = sourceRepository.observeSources(pid).first()
         // A profile with no playlist or portal has nothing to refresh — and must not pull the built-in guide (owner, 12.11).
@@ -85,7 +86,8 @@ class AutoRefresh(
         val playlists = active.map { source ->
             val mode = playlistModes[source.id] ?: PlaylistRefresh.OFF
             val due = shouldRefresh(mode, source.lastSyncAt, nowMs, includeStartup) ||
-                false // Owner 27.11: no silent daily catalogue refresh any more — the app OFFERS it once a day ([notRefreshedToday]).
+                // Owner 27.11: «Ежедневное обновление» — quietly every morning (default) or offered once a day.
+                (staleCatchUp && !dailyOffer && WeeklySchedule.isCatalogDue(source.lastSyncAt, nowMs))
             val counts = if (due) importFinalizer.contentCounts(source.id) else null
             PlaylistInfo(source.id, true, due, counts?.let { it.channels + it.movies + it.series } ?: 0, epgRepository.guideUrls(source))
         } + others.map { PlaylistInfo(it.id, false, false, 0, epgRepository.guideUrls(it)) }

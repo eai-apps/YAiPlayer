@@ -3816,6 +3816,7 @@
 1	technical	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	clock_date_color
 1	technical	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	clock_time_color
 1	technical	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	clock_weather_color
+1	technical	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	daily_refresh_offer
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	data_saver
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	default_source_id
 1	preference-key	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	default_volume

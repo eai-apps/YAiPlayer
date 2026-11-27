@@ -129,6 +129,7 @@ class ShellViewModel(
     private fun today(): Long = java.time.LocalDate.now().toEpochDay()
     private suspend fun offerIfDue(pid: Long) {
         if (pid <= 0 || staleOffered[pid] == today()) return
+        if (!settings.dailyRefreshOffer.first()) return // «Автоматически каждое утро»: nothing to offer
         staleOffered[pid] = today()
         _staleOffer.value = runCatching { autoRefresh.notRefreshedToday() }.getOrDefault(emptyList())
     }

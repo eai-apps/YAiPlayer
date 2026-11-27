@@ -560,4 +560,7 @@
     <string name="home_row_new_channels_description">Sender, die Ihr Anbieter diese Woche hinzugefügt hat</string>
     <string name="stale_refresh_title">Ein neuer Tag</string>
     <string name="stale_refresh_body">Senderliste und TV-Programm wurden heute noch nicht aktualisiert: %1$s. Jetzt aktualisieren? Vielleicht sind neue Sender dazugekommen.</string>
+    <string name="daily_refresh_title">Tägliche Aktualisierung</string>
+    <string name="daily_refresh_auto">Automatisch jeden Morgen (ab 6:00, im Hintergrund)</string>
+    <string name="daily_refresh_offer">Einmal täglich anbieten («Jetzt aktualisieren?»)</string>
 </resources>

@@ -608,4 +608,7 @@
     <string name="home_row_new_channels_description">Канали, які провайдер додав за тиждень</string>
     <string name="stale_refresh_title">Сьогодні новий день</string>
     <string name="stale_refresh_body">Сьогодні список каналів і телепрограма ще не оновлювалися: %1$s. Оновити зараз? Можливо, з\'явилися нові канали.</string>
+    <string name="daily_refresh_title">Щоденне оновлення</string>
+    <string name="daily_refresh_auto">Автоматично щоранку (з 6:00, у фоні)</string>
+    <string name="daily_refresh_offer">Пропонувати раз на день («Оновити зараз?»)</string>
 </resources>
