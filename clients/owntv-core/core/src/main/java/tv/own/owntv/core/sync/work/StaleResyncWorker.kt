@@ -63,7 +63,7 @@ class StaleResyncWorker(
         for (profile in profiles) {
             for (source in sourceRepository.observeSources(profile.id).first()) {
                 if (!seenSourceIds.add(source.id)) continue
-                val due = tv.own.owntv.core.sync.WeeklySchedule.isCatalogDue(source.lastSyncAt, nowMs)
+                val due = false // Owner 27.11: catalogues are offered once a day, never refreshed silently
                 val counts = if (due) importFinalizer.contentCounts(source.id) else null
                 playlists += tv.own.owntv.core.sync.PlaylistInfo(
                     source.id, profile.id == activeId, due,

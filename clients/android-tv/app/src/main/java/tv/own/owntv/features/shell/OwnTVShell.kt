@@ -2210,13 +2210,12 @@ fun OwnTVShell(
     // (other profiles are not refreshed in the background). Not over the full-screen player.
     val staleOffer by shellVm.staleOffer.collectAsStateWithLifecycle()
     if (staleOffer.isNotEmpty() && playerMode != PlayerMode.FULLSCREEN && !showExit) {
-        val days = ((System.currentTimeMillis() - staleOffer.minOf { it.lastSyncAt ?: 0L }) / 86_400_000L).toInt()
         val refreshFocus = remember { androidx.compose.ui.focus.FocusRequester() }
         LaunchedEffect(Unit) { kotlinx.coroutines.delay(60); runCatching { refreshFocus.requestFocus() } }
         tv.own.owntv.ui.stage.StagePopup(
             onDismiss = shellVm::dismissStaleOffer,
             title = stringResource(R.string.stale_refresh_title),
-            body = stringResource(R.string.stale_refresh_body, days, staleOffer.joinToString { it.name }),
+            body = stringResource(R.string.stale_refresh_body, staleOffer.joinToString { it.name }),
             eyebrow = null,
             scroll = false,
             buttons = {

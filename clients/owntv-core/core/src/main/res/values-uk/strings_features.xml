@@ -606,6 +606,6 @@
     <string name="sports_move_instructions">▲/▼ — вибір · OK — підняти чи опустити · «Зберегти», коли закінчите</string>
     <string name="home_row_new_channels">Нещодавно додані</string>
     <string name="home_row_new_channels_description">Канали, які провайдер додав за тиждень</string>
-    <string name="stale_refresh_title">Давно не оновлювалося</string>
-    <string name="stale_refresh_body">Плейлисти й портали цього профілю не оновлювалися %1$d дн.: %2$s. Оновити список каналів і телепрограму зараз?</string>
+    <string name="stale_refresh_title">Сьогодні новий день</string>
+    <string name="stale_refresh_body">Сьогодні список каналів і телепрограма ще не оновлювалися: %1$s. Оновити зараз? Можливо, з\'явилися нові канали.</string>
 </resources>

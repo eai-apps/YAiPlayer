@@ -59,6 +59,7 @@ class ShellViewModel(
 
     companion object {
         private const val STALE_OFFER_DELAY_MS = 4_000L
+        private const val STALE_DAY_CHECK_MS = 15L * 60 * 1000
         private const val TAG = "OwnTVHome"
     }
 
@@ -123,14 +124,26 @@ class ShellViewModel(
      */
     private val _staleOffer = MutableStateFlow<List<tv.own.owntv.core.database.entity.SourceEntity>>(emptyList())
     val staleOffer: StateFlow<List<tv.own.owntv.core.database.entity.SourceEntity>> = _staleOffer.asStateFlow()
-    private val staleOffered = HashSet<Long>()
+    /** Profile id → the local day it was last offered (once a day per profile, owner 27.11). */
+    private val staleOffered = HashMap<Long, Long>()
+    private fun today(): Long = java.time.LocalDate.now().toEpochDay()
+    private suspend fun offerIfDue(pid: Long) {
+        if (pid <= 0 || staleOffered[pid] == today()) return
+        staleOffered[pid] = today()
+        _staleOffer.value = runCatching { autoRefresh.notRefreshedToday() }.getOrDefault(emptyList())
+    }
     init {
         settings.activeProfileId.distinctUntilChanged().onEach { pid ->
-            if (pid <= 0 || !staleOffered.add(pid)) return@onEach
             kotlinx.coroutines.delay(STALE_OFFER_DELAY_MS)
-            if (settings.activeProfileId.first() != pid) return@onEach
-            _staleOffer.value = runCatching { autoRefresh.staleSourcesOfActive() }.getOrDefault(emptyList())
+            if (settings.activeProfileId.first() == pid) offerIfDue(pid)
         }.launchIn(viewModelScope)
+        // A box left on overnight: the new day brings the offer too.
+        viewModelScope.launch {
+            while (true) {
+                kotlinx.coroutines.delay(STALE_DAY_CHECK_MS)
+                offerIfDue(settings.activeProfileId.first())
+            }
+        }
     }
     fun acceptStaleOffer() {
         val sources = _staleOffer.value

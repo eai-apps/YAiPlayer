@@ -558,6 +558,6 @@
     <string name="sports_move_instructions">▲/▼ zum Auswählen · OK zum Aufnehmen oder Ablegen · Zum Schluss Speichern</string>
     <string name="home_row_new_channels">Zuletzt hinzugefügt</string>
     <string name="home_row_new_channels_description">Sender, die Ihr Anbieter diese Woche hinzugefügt hat</string>
-    <string name="stale_refresh_title">Länger nicht aktualisiert</string>
-    <string name="stale_refresh_body">Die Playlists und Portale dieses Profils wurden seit %1$d Tagen nicht aktualisiert: %2$s. Senderliste und TV-Programm jetzt aktualisieren?</string>
+    <string name="stale_refresh_title">Ein neuer Tag</string>
+    <string name="stale_refresh_body">Senderliste und TV-Programm wurden heute noch nicht aktualisiert: %1$s. Jetzt aktualisieren? Vielleicht sind neue Sender dazugekommen.</string>
 </resources>

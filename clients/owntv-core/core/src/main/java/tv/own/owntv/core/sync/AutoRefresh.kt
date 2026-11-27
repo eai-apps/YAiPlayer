@@ -85,7 +85,7 @@ class AutoRefresh(
         val playlists = active.map { source ->
             val mode = playlistModes[source.id] ?: PlaylistRefresh.OFF
             val due = shouldRefresh(mode, source.lastSyncAt, nowMs, includeStartup) ||
-                (staleCatchUp && WeeklySchedule.isCatalogDue(source.lastSyncAt, nowMs))
+                false // Owner 27.11: no silent daily catalogue refresh any more — the app OFFERS it once a day ([notRefreshedToday]).
             val counts = if (due) importFinalizer.contentCounts(source.id) else null
             PlaylistInfo(source.id, true, due, counts?.let { it.channels + it.movies + it.series } ?: 0, epgRepository.guideUrls(source))
         } + others.map { PlaylistInfo(it.id, false, false, 0, epgRepository.guideUrls(it)) }
@@ -122,6 +122,15 @@ class AutoRefresh(
     suspend fun staleSourcesOfActive(nowMs: Long = System.currentTimeMillis()): List<tv.own.owntv.core.database.entity.SourceEntity> {
         val pid = profileDao.resolveExistingProfileId(settings.activeProfileId.first()) ?: return emptyList()
         return sourceRepository.observeSources(pid).first().filter { (it.lastSyncAt ?: 0L) in 1 until nowMs - STALE_OFFER_MS }
+    }
+
+    /**
+     * The active profile's playlists/portals not refreshed today (owner 27.11): once a day — at the first
+     * opening of a profile, or when a new day starts with the box left on — the app offers to refresh them.
+     */
+    suspend fun notRefreshedToday(nowMs: Long = System.currentTimeMillis()): List<tv.own.owntv.core.database.entity.SourceEntity> {
+        val pid = profileDao.resolveExistingProfileId(settings.activeProfileId.first()) ?: return emptyList()
+        return sourceRepository.observeSources(pid).first().filter { !syncedToday(it.lastSyncAt, nowMs) }
     }
 
     /** "Refresh now" from that offer: each playlist/portal (its channels), then its own guide feeds. */
