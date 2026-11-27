@@ -20,6 +20,9 @@ MAX_POST_LENGTH = 4000
 MORE_TEXT = "… полный список по ссылке"
 CHAT_URL = "https://t.me/YAiPlayer_Chat"
 BOT_URL = "https://t.me/YAiPlayer_App_bot?start=dl"
+# Owner 23.11 (HANDOFF п.106): every release post also links our site and our radio.
+SITE_URL = "https://yaiplayer.pages.dev"
+RADIO_URL = "https://yaiplay-radio.pages.dev/"
 
 # Эмодзи вместо «•»: подбираем по смыслу пункта, по умолчанию — искра.
 EMOJI_RULES = [
@@ -416,7 +419,11 @@ def main(argv: list[str] | None = None) -> int:
         if args.rich_file:
             with open(args.rich_file, "r", encoding="utf-8") as f:
                 rich_html = f.read().strip()
-            digest_buttons = [[{"text": "📥 Скачать плеер можно тут", "url": BOT_URL}], [{"text": "💬 Написать в чат", "url": CHAT_URL}]]
+            digest_buttons = [
+                [{"text": "📥 Скачать плеер можно тут", "url": BOT_URL}],
+                [{"text": "🌐 Наш сайт", "url": SITE_URL}, {"text": "📻 Радио YAiPlay", "url": RADIO_URL}],
+                [{"text": "💬 Написать в чат", "url": CHAT_URL}],
+            ]
             return 0 if send_digest(bot_token, chat_id, rich_html, text, args.image or None, digest_buttons) else 1
         row = ([{"text": "🔔 Подписаться", "url": f"https://t.me/{chat_id[1:]}"}] if chat_id.startswith("@") else []) + [
             {"text": "💬 Обсуждение", "url": CHAT_URL}
