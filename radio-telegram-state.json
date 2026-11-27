@@ -7,19 +7,19 @@
   "news": [],
   "releases": [],
   "askIndex": 0,
-  "featIndex": 9,
+  "featIndex": 10,
   "featRecent": [
-    "webcams",
     "record",
     "moods",
     "playlist",
     "country",
     "lucky",
     "genres",
-    "history"
+    "history",
+    "sleep"
   ],
-  "featStyle": 1,
-  "featCta": 9,
+  "featStyle": 2,
+  "featCta": 10,
   "cams": [
     "1793876473",
     "1793909005"
