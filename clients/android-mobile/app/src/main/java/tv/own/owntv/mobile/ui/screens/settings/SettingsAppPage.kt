@@ -138,11 +138,22 @@ fun AboutPage(onOpenLanguage: () -> Unit, modifier: Modifier = Modifier) {
                     .show()
             },
         )
+        // miptv: no links anywhere — support is whoever connected the user.
+        if (tv.own.owntv.mobile.BuildConfig.MIP) {
+            Text(
+                stringResource(R.string.mip_support),
+                style = stageText(13.5f, 600, lineHeight = 1.5f),
+                color = palette.body,
+                modifier = Modifier.padding(top = 14.dp),
+            )
+        }
         // The project's own community channel and site go here once they exist (not OwnTV's).
         @OptIn(ExperimentalLayoutApi::class)
         FlowRow(Modifier.padding(top = 14.dp), horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            StageTool(onClick = { openLink(context, TELEGRAM_CHANNEL_URL) }, label = stringResource(R.string.about_telegram_channel), icon = MobileIcons.Translate)
-            StageTool(onClick = { openLink(context, TELEGRAM_SUPPORT_URL) }, label = stringResource(R.string.about_telegram_support), icon = MobileIcons.Translate)
+            if (!tv.own.owntv.mobile.BuildConfig.MIP) {
+                StageTool(onClick = { openLink(context, TELEGRAM_CHANNEL_URL) }, label = stringResource(R.string.about_telegram_channel), icon = MobileIcons.Translate)
+                StageTool(onClick = { openLink(context, TELEGRAM_SUPPORT_URL) }, label = stringResource(R.string.about_telegram_support), icon = MobileIcons.Translate)
+            }
             val languages = tv.own.owntv.core.i18n.SupportedLocales.all.count { it.packaged }
             StageTool(onClick = onOpenLanguage, label = pluralStringResource(R.plurals.more_about_languages, languages, languages), icon = MobileIcons.Translate)
             if (tv.own.owntv.mobile.BuildConfig.SELF_UPDATE) StageTool(onClick = { updateSheet = true }, label = stringResource(R.string.settings_check_updates), icon = MobileIcons.Refresh)

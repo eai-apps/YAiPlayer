@@ -91,6 +91,8 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
       - name: Accept SDK licenses
         run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
+      - name: miptv texts (no YAiPlayer / GitHub / Telegram in the app)
+        run: python3 clients/owntv-core/tools/mip/brand_strings.py
       - name: Compile check (needs no key — tells a code error from a missing secret)
         working-directory: clients/${{ matrix.app }}
         run: |

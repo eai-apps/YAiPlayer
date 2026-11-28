@@ -65,6 +65,11 @@ private fun accentTriangle(): Color? {
  */
 @Composable
 fun BrandMark(icon: AppIcon, size: Dp, modifier: Modifier = Modifier, followAccent: Boolean = true) {
+    if (tv.own.owntv.BuildConfig.MIP) {
+        // miptv: its own logo instead of the YAi mark.
+        androidx.compose.foundation.Image(androidx.compose.ui.res.painterResource(tv.own.owntv.R.mipmap.mip_icon), contentDescription = null, modifier = modifier.size(size))
+        return
+    }
     val small = size <= 32.dp
     val accent = accentTriangle().takeIf { followAccent }
 

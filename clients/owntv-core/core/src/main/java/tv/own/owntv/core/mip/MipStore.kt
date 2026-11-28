@@ -39,6 +39,11 @@ class MipStore(context: Context) {
         get() = prefs.getString("payment_message", "") ?: ""
         set(v) { prefs.edit().putString("payment_message", v).apply() }
 
+    /** The day (yyyy-mm-dd) the «subscription ends» warning was last shown: once a day is enough. */
+    var expiryShownDay: String
+        get() = prefs.getString("expiry_shown_day", "") ?: ""
+        set(v) { prefs.edit().putString("expiry_shown_day", v).apply() }
+
     fun clear() {
         prefs.edit().clear().apply()
         _session.value = null

@@ -15,4 +15,9 @@
     <string name="mip_err_empty">Введите логин и пароль</string>
     <string name="mip_err_network">Нет связи с сервером. Проверьте интернет.</string>
     <string name="mip_err_failed">Не удалось войти</string>
+    <string name="mip_expiry_title">Подписка скоро закончится</string>
+    <string name="mip_expiry_body">Доступ действует до %1$s.</string>
+    <string name="mip_expired_title">Подписка закончилась</string>
+    <string name="mip_expired_body">Доступ закончился %1$s.</string>
+    <string name="mip_support">Техподдержка: обратитесь к человеку, который вас подключил.</string>
 </resources>

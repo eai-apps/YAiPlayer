@@ -684,6 +684,16 @@ internal fun AboutPage(vm: MoreCountsViewModel, entry: FocusRequester, onOpenLan
         }
         Text(stringResource(R.string.more_about_description), style = stageText(18, 500).copy(lineHeight = 29.mpxSp), color = stageTone(Color(0xFFD3DCD8), StageColors.Body),
             modifier = Modifier.padding(top = 26.mpx).widthIn(max = 860.mpx))
+        if (tv.own.owntv.BuildConfig.MIP) {
+            // miptv: no links, no channels, no repository — support is whoever connected the user.
+            Text(stringResource(R.string.mip_support), style = stageText(18, 600), color = StageColors.Text,
+                modifier = Modifier.padding(top = 18.mpx, bottom = 18.mpx).widthIn(max = 860.mpx))
+            Row(Modifier.padding(top = 4.mpx), horizontalArrangement = Arrangement.spacedBy(10.mpx)) {
+                val languages = SupportedLocales.all.count { it.packaged }
+                StageTool(pluralStringResource(R.plurals.more_about_languages, languages, languages), onClick = onOpenLanguage, icon = OwnTVIcon.LIST, boxed = true, modifier = Modifier.focusRequester(entry))
+                if (tv.own.owntv.BuildConfig.SELF_UPDATE) StageTool(stringResource(R.string.settings_check_updates), onClick = { showUpdate = true }, icon = OwnTVIcon.REFRESH, boxed = true, modifier = Modifier.focusRequester(updateFocus))
+            }
+        } else {
         Text(stringResource(R.string.settings_contributions), style = stageText(16, 500), color = StageColors.Dim,
             modifier = Modifier.padding(top = 10.mpx, bottom = 24.mpx).widthIn(max = 860.mpx))
         Row(Modifier.padding(top = 22.mpx), horizontalArrangement = Arrangement.spacedBy(10.mpx)) {
@@ -720,6 +730,7 @@ internal fun AboutPage(vm: MoreCountsViewModel, entry: FocusRequester, onOpenLan
                 }
             }
         }
+            }
     }
     if (showUpdate) {
         UpdateDialog(onDismiss = { showUpdate = false }, checkOnOpen = true)

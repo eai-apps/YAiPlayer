@@ -148,6 +148,10 @@ android {
             ndk { abiFilters += listOf("x86_64") }
         }
     }
+    // miptv: the YAiPlayer name, GitHub and Telegram are taken out of every text (tools/mip/brand_strings.py writes src/mip/res
+    // before the build; the `standard` flavour's resources win over main's). Other builds never see this folder.
+    if (mip) sourceSets.getByName("standard").res.srcDir("src/mip/res")
+
     // ONE build: the radio is part of the player. For a Google Play build later, add -Powntv.playStore=true:
     // the radio code, its strings and its player library are left out, self-update and its install permission
     // too. Nothing else differs, so every change to the player is in both builds by itself.

@@ -18,6 +18,11 @@ import tv.own.owntv.core.repository.SourceRepository
 import tv.own.owntv.core.settings.SettingsRepository
 import tv.own.owntv.core.sync.work.CatalogSyncScheduler
 import java.io.IOException
+import java.time.LocalDate
+import java.time.temporal.ChronoUnit
+
+/** Something to show the user: the operator's notice ([noticeId]), or the subscription warning (noticeId = null). */
+data class MipMessage(val noticeId: Long?, val title: String, val body: String)
 
 /** A message from the operator (panel «Уведомления»), shown once until read. */
 data class MipNotice(val id: Long, val kind: String, val title: String, val body: String)
@@ -157,5 +162,30 @@ class MipService(
         for (sid in listOf(store.playlistSourceId, store.portalSourceId)) if (sid >= 0) sourceDao.getById(sid)?.let { runCatching { sources.deleteSource(it) } }
         if (store.profileId >= 0) profileDao.getById(store.profileId)?.let { runCatching { profiles.delete(it) } }
         store.clear()
+    }
+
+    /** What is to be shown now: the subscription warning (once a day, 5 days before the end and after it) and unread notices. */
+    suspend fun messages(context: android.content.Context): List<MipMessage> {
+        val out = mutableListOf<MipMessage>()
+        val today = LocalDate.now()
+        runCatching { LocalDate.parse(store.expires.take(10)) }.getOrNull()?.let { end ->
+            val days = ChronoUnit.DAYS.between(today, end)
+            if (days <= 5 && store.expiryShownDay != today.toString()) {
+                val expired = days < 0
+                val body = context.getString(if (expired) tv.own.owntv.core.R.string.mip_expired_body else tv.own.owntv.core.R.string.mip_expiry_body, end.toString())
+                out += MipMessage(
+                    null,
+                    context.getString(if (expired) tv.own.owntv.core.R.string.mip_expired_title else tv.own.owntv.core.R.string.mip_expiry_title),
+                    listOf(body, store.paymentMessage).filter { it.isNotBlank() }.joinToString("\n\n"),
+                )
+            }
+        }
+        runCatching { notices(java.util.Locale.getDefault().language.takeIf { it == "uk" } ?: "ru") }.getOrDefault(emptyList())
+            .forEach { out += MipMessage(it.id, it.title, it.body) }
+        return out
+    }
+
+    suspend fun shown(message: MipMessage) {
+        if (message.noticeId != null) markRead(message.noticeId) else store.expiryShownDay = LocalDate.now().toString()
     }
 }

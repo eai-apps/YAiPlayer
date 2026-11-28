@@ -28,6 +28,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import tv.own.owntv.core.mip.watchMessages
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
@@ -467,6 +468,10 @@ open class MainActivity : ComponentActivity() {
                             if (tv.own.owntv.BuildConfig.MIP) org.koin.compose.koinInject() else null
                         val mipSession = mipService?.session?.collectAsStateWithLifecycle()?.value
                         // Every start: pick up a changed playlist / portal / expiry from the panel.
+                        val mipContext = androidx.compose.ui.platform.LocalContext.current
+                        androidx.compose.runtime.LaunchedEffect(mipSession != null) {
+                            if (mipSession != null) mipService?.watchMessages(mipContext)
+                        }
                         androidx.compose.runtime.LaunchedEffect(mipSession != null) {
                             if (mipSession != null) runCatching { mipService?.refresh() }
                         }

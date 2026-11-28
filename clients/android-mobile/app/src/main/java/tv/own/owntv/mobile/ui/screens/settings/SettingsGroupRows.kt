@@ -170,8 +170,9 @@ private fun sourcesSections(vm: SettingsViewModel): List<SettingSection> {
     return listOfNotNull(
         SettingSection(
             stringResource(R.string.settings_sources_title),
-            listOf(
-                pageItem(
+            listOfNotNull(
+                // miptv: playlists and portals come from the operator's panel — the user adds none of his own.
+                if (tv.own.owntv.mobile.BuildConfig.MIP) null else pageItem(
                     "tab_SOURCES", MobileIcons.Layers, stringResource(R.string.settings_playlists),
                     stringResource(R.string.settings_line_playlists_mobile),
                     pluralStringResource(R.plurals.more_playlist_count, sources.size, sources.size), SettingsLeaf.PLAYLISTS.route,

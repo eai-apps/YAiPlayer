@@ -15,4 +15,9 @@
     <string name="mip_err_empty">Enter your login and password</string>
     <string name="mip_err_network">No connection to the server. Check your internet.</string>
     <string name="mip_err_failed">Could not sign in</string>
+    <string name="mip_expiry_title">Subscription ends soon</string>
+    <string name="mip_expiry_body">Your access is valid until %1$s.</string>
+    <string name="mip_expired_title">Subscription has ended</string>
+    <string name="mip_expired_body">Your access ended on %1$s.</string>
+    <string name="mip_support">Support: contact the person who connected you.</string>
 </resources>

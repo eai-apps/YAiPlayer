@@ -73,6 +73,7 @@ import androidx.navigation.compose.rememberNavController
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 import kotlinx.coroutines.launch
+import tv.own.owntv.core.mip.watchMessages
 import tv.own.owntv.core.metadata.MetadataBudget
 import tv.own.owntv.core.settings.SettingsRepository
 import tv.own.owntv.mobile.ui.nav.MobileDestination
@@ -159,6 +160,10 @@ fun MobileShell(
         val mipSession by mipService.session.collectAsStateWithLifecycle()
         // Every start: pick up a changed playlist / portal / expiry from the panel.
         LaunchedEffect(mipSession != null) { if (mipSession != null) runCatching { mipService.refresh() } }
+        val mipContext = androidx.compose.ui.platform.LocalContext.current
+        LaunchedEffect(mipSession != null) {
+            if (mipSession != null) mipService.watchMessages(mipContext)
+        }
         if (mipSession == null) {
             tv.own.owntv.mobile.ui.mip.MipLoginScreen(modifier)
             return
