@@ -91,6 +91,12 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
       - name: Accept SDK licenses
         run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
+      - name: Compile check (needs no key — tells a code error from a missing secret)
+        working-directory: clients/${{ matrix.app }}
+        run: |
+          chmod +x gradlew
+          beta=false; [ "${{ needs.number.outputs.channel }}" = "beta" ] && beta=true
+          ./gradlew :app:compileStandardReleaseKotlin -Powntv.mip=true -Powntv.beta=$beta -Powntv.corePath=${GITHUB_WORKSPACE}/clients/owntv-core --no-daemon --stacktrace
       - name: Restore MIP signing key
         run: |
           echo "${{ secrets.MIP_KEYSTORE_BASE64 }}" | base64 -d > "$RUNNER_TEMP/mip-release.jks"

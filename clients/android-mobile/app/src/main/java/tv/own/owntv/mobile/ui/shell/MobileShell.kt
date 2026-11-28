@@ -152,6 +152,18 @@ fun MobileShell(
      *  - Only then "Who is watching?", and only when the gate is genuinely required: more than one
      *    profile, or a single one with a PIN.
      */
+    // MIP Player (operator edition): the only way in is the login and password from the panel.
+    val mipService: tv.own.owntv.core.mip.MipService? = if (tv.own.owntv.mobile.BuildConfig.MIP) koinInject() else null
+    val mipScope = androidx.compose.runtime.rememberCoroutineScope()
+    if (mipService != null) {
+        val mipSession by mipService.session.collectAsStateWithLifecycle()
+        // Every start: pick up a changed playlist / portal / expiry from the panel.
+        LaunchedEffect(mipSession != null) { if (mipSession != null) runCatching { mipService.refresh() } }
+        if (mipSession == null) {
+            tv.own.owntv.mobile.ui.mip.MipLoginScreen(modifier)
+            return
+        }
+    }
     val profilesNow = profiles
     val activeNow = activeProfileId
     if (profilesNow == null || activeNow == null) {
@@ -188,7 +200,7 @@ fun MobileShell(
     val quickStart by quickStartFlow.collectAsStateWithLifecycle(null as Boolean?)
     if (quickStart == null) return
     // With the account on, the chooser is the start screen (owner 13.11) unless quick start skips it.
-    val gateRequired = (tv.own.owntv.core.account.AccountConfig.ENABLED && quickStart != true) ||
+    val gateRequired = (!tv.own.owntv.mobile.BuildConfig.MIP && tv.own.owntv.core.account.AccountConfig.ENABLED && quickStart != true) ||
         profileGateRequired(loadedProfiles, if (quickStart == true) activeId else null)
     // With no chooser needed (one profile, no PIN) the person using the app has entered as that profile;
     // so adding a second profile keeps them in rather than throwing them to "Who's watching?".
@@ -699,7 +711,7 @@ fun MobileShell(
                         MobileNavHost(
                             navController = navController,
                             scrollToTop = shellViewModel.scrollToTop,
-                            onSwitchProfile = { choosingProfile = true },
+                            onSwitchProfile = { if (mipService != null) mipScope.launch { mipService.logout() } else choosingProfile = true },
                         )
                     }
                     // Low over the page, under the mini player: a sync running while the user browses is

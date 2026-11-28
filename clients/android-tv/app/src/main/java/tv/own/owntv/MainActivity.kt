@@ -27,6 +27,8 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
 import org.koin.androidx.compose.koinViewModel
@@ -353,7 +355,7 @@ open class MainActivity : ComponentActivity() {
             // With the account on, the chooser (account / Guest / Radio) is the start screen (owner 13.11),
             // unless quick start skips it for the last profile.
             val shouldShowProfileGate = profilesLoaded && quickStart != null && (
-                (tv.own.owntv.core.account.AccountConfig.ENABLED && quickStart != true) ||
+                (!tv.own.owntv.BuildConfig.MIP && tv.own.owntv.core.account.AccountConfig.ENABLED && quickStart != true) ||
                     tv.own.owntv.features.profiles.profileGateRequired(profiles, if (quickStart == true) loadedProfileId else null)
                 )
             // Keep the pure launch policy in the actual composition path as well as in its unit
@@ -460,7 +462,17 @@ open class MainActivity : ComponentActivity() {
 
                         Box(modifier = Modifier.fillMaxSize()) {
                         val profile = activeProfileId
+                        // MIP Player (operator edition): the only way in is the login and password from the panel.
+                        val mipService: tv.own.owntv.core.mip.MipService? =
+                            if (tv.own.owntv.BuildConfig.MIP) org.koin.compose.koinInject() else null
+                        val mipSession = mipService?.session?.collectAsStateWithLifecycle()?.value
+                        // Every start: pick up a changed playlist / portal / expiry from the panel.
+                        androidx.compose.runtime.LaunchedEffect(mipSession != null) {
+                            if (mipSession != null) runCatching { mipService?.refresh() }
+                        }
                         when {
+                            mipService != null && mipSession == null ->
+                                tv.own.owntv.features.mip.MipLoginScreen(Modifier.fillMaxSize())
                             profile == null || !profilesLoaded -> Box(
                                 modifier = Modifier.fillMaxSize().background(tv.own.owntv.ui.theme.LocalStagePalette.current.page),
                                 contentAlignment = androidx.compose.ui.Alignment.Center,
@@ -538,12 +550,17 @@ open class MainActivity : ComponentActivity() {
                                 },
                                 onStartupSettled = { startupSettled = true },
                                 onSwitchProfile = {
-                                    // Stop playback and return to the "Who's watching?" gate — no app restart.
+                                    // Stop playback first, in both editions.
                                     tv.own.owntv.features.profiles.stopPlaybackForProfileGate(shellViewModel, engines)
-                                    // Force the gate open even with a single unpinned profile (cold-start gate would
-                                    // skip it). requestSwitchProfile() clears the active profile
-                                    // authentication and raises the request.
-                                    gateSession.requestSwitchProfile()
+                                    if (mipService != null) {
+                                        // MIP: no profile chooser — this is «sign out» (back to the login screen).
+                                        this@MainActivity.lifecycleScope.launch { mipService.logout() }
+                                    } else {
+                                        // Return to the "Who's watching?" gate — no app restart; force it open even with a
+                                        // single unpinned profile. requestSwitchProfile() clears the active profile
+                                        // authentication and raises the request.
+                                        gateSession.requestSwitchProfile()
+                                    }
                                 },
                                 modifier = Modifier.fillMaxSize(),
                             )

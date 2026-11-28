@@ -431,6 +431,14 @@ val dataModule = module {
             settings = get(),
         )
     }
+    // MIP Player (operator edition): login + password from the panel are the only way in (docs/MIP_PLAYER.md).
+    single { tv.own.owntv.core.mip.MipStore(androidContext()) }
+    single {
+        tv.own.owntv.core.mip.MipService(
+            http = get<OkHttpClient>(), store = get(), profileDao = get(), sourceDao = get(), sources = get(),
+            profiles = get(), catalog = get(), settings = get(),
+        )
+    }
     single { EpgSyncScheduler(androidContext()) }
     // settings, sourceRepository, profileDao, catalogSyncScheduler, epgSyncScheduler, epgSourceStore,
     // epgDao, importFinalizer, vodResort — the Auto refresh settings, run by both apps on start and resume.
