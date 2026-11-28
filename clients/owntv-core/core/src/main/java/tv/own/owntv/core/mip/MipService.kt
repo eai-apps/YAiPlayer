@@ -23,7 +23,10 @@ import java.io.IOException
 data class MipNotice(val id: Long, val kind: String, val title: String, val body: String)
 
 /** Login failed: [network] = no connection, otherwise the panel refused ([message] is its Russian text). */
-class MipException(val network: Boolean, message: String) : Exception(message)
+class MipException(val network: Boolean, message: String) : Exception(message) {
+    /** The panel's own words (Russian), or blank — the screen then shows its translated generic text. */
+    val panelText: String get() = if (network) "" else message.orEmpty()
+}
 
 /**
  * MIP Player has exactly one way in: the login and password the operator created in the panel (miptv). There are no
@@ -39,6 +42,10 @@ class MipService(
     private val profiles: ProfileManager,
     private val catalog: CatalogSyncScheduler,
     private val settings: SettingsRepository,
+    /** Names shown to the user, already translated (the service has no Context). */
+    private val profileName: String,
+    private val playlistName: String,
+    private val portalName: String,
 ) {
     val session = store.session
     val signedIn get() = store.session.value != null
@@ -60,7 +67,7 @@ class MipService(
                 val text = r.body.string()
                 if (!r.isSuccessful) {
                     val detail = runCatching { JSONObject(text).optString("detail") }.getOrNull().orEmpty()
-                    throw MipException(false, detail.ifBlank { "Ошибка ${r.code}" }.also { if (r.code == 401 && token != null) store.clear() })
+                    throw MipException(false, detail.also { if (r.code == 401 && token != null) store.clear() })
                 }
                 when {
                     text.isBlank() -> null
@@ -73,7 +80,7 @@ class MipService(
     /** Signs in and builds the profile and its sources from the panel. Throws [MipException]. */
     suspend fun login(login: String, password: String, device: String) {
         val res = call("POST", "/api/app/login", JSONObject().put("login", login.trim()).put("password", password).put("device", device)) as? JSONObject
-            ?: throw MipException(false, "Пустой ответ сервера")
+            ?: throw MipException(false, "")
         store.signIn(res.getString("token"), login.trim())
         refresh()
     }
@@ -96,7 +103,7 @@ class MipService(
     private suspend fun ensureProfile(): Long {
         val known = store.profileId
         if (known >= 0 && profileDao.getById(known) != null) return known
-        val id = profiles.create(MipConfig.PROFILE_NAME, avatarId = 0, isKids = false, pin = null, fallbackName = MipConfig.PROFILE_NAME)
+        val id = profiles.create(profileName, avatarId = 0, isKids = false, pin = null, fallbackName = profileName)
         store.profileId = id
         return id
     }
@@ -105,7 +112,7 @@ class MipService(
         val old = store.playlistSourceId.takeIf { it >= 0 }?.let { sourceDao.getById(it) }
         if (url == null) { old?.let { sources.deleteSource(it) }; store.playlistSourceId = -1; return }
         if (old == null) {
-            val s = sources.addM3uSource(pid, "Плейлист", url, epgUrl = epg)
+            val s = sources.addM3uSource(pid, playlistName, url, epgUrl = epg)
             store.playlistSourceId = s.id
             runCatching { catalog.enqueueSync(s.id, reason = "mip") }
         } else if (old.url != url || old.epgUrl != epg) {
@@ -121,7 +128,7 @@ class MipService(
         fun f(k: String) = cfg.optString(k).takeIf { it.isNotBlank() && it != "null" }
         if (old == null) {
             val s = sources.addStalkerSource(
-                pid, "Видеоклуб", url, mac,
+                pid, portalName, url, mac,
                 serialNumber = f("serial"), deviceId = f("device_id"), deviceId2 = f("device_id2"),
                 login = f("portal_login"),
             )

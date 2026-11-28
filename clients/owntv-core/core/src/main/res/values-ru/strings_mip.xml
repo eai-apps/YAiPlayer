@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- MIP Player (operator edition): вход по логину и паролю из панели. См. docs/MIP_PLAYER.md. -->
+<resources>
+    <string name="mip_app_name">MIP Player</string>
+    <string name="mip_profile_name">MIP</string>
+    <string name="mip_source_playlist">Плейлист</string>
+    <string name="mip_source_portal">Видеоклуб</string>
+    <string name="mip_login_title">Вход</string>
+    <string name="mip_login_hint">Введите логин и пароль, которые вам выдал оператор</string>
+    <string name="mip_login_label">Логин</string>
+    <string name="mip_password_label">Пароль</string>
+    <string name="mip_field_value">%1$s: %2$s</string>
+    <string name="mip_sign_in">Войти</string>
+    <string name="mip_signing_in">Входим…</string>
+    <string name="mip_err_empty">Введите логин и пароль</string>
+    <string name="mip_err_network">Нет связи с сервером. Проверьте интернет.</string>
+    <string name="mip_err_failed">Не удалось войти</string>
+</resources>

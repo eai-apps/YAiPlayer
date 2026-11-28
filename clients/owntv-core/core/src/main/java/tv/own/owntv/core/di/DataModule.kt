@@ -437,6 +437,9 @@ val dataModule = module {
         tv.own.owntv.core.mip.MipService(
             http = get<OkHttpClient>(), store = get(), profileDao = get(), sourceDao = get(), sources = get(),
             profiles = get(), catalog = get(), settings = get(),
+            profileName = androidContext().getString(tv.own.owntv.core.R.string.mip_profile_name),
+            playlistName = androidContext().getString(tv.own.owntv.core.R.string.mip_source_playlist),
+            portalName = androidContext().getString(tv.own.owntv.core.R.string.mip_source_portal),
         )
     }
     single { EpgSyncScheduler(androidContext()) }

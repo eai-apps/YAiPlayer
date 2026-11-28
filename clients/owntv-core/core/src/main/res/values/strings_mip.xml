@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- MIP Player (operator edition): login with the panel's login and password. See docs/MIP_PLAYER.md. -->
+<resources>
+    <string name="mip_app_name">MIP Player</string>
+    <string name="mip_profile_name">MIP</string>
+    <string name="mip_source_playlist">Playlist</string>
+    <string name="mip_source_portal">Video club</string>
+    <string name="mip_login_title">Sign in</string>
+    <string name="mip_login_hint">Enter the login and password you received from your operator</string>
+    <string name="mip_login_label">Login</string>
+    <string name="mip_password_label">Password</string>
+    <string name="mip_field_value">%1$s: %2$s</string>
+    <string name="mip_sign_in">Sign in</string>
+    <string name="mip_signing_in">Signing in…</string>
+    <string name="mip_err_empty">Enter your login and password</string>
+    <string name="mip_err_network">No connection to the server. Check your internet.</string>
+    <string name="mip_err_failed">Could not sign in</string>
+</resources>

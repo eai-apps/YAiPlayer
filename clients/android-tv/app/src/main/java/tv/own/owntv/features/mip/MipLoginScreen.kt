@@ -33,7 +33,8 @@ import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Text
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
-import tv.own.owntv.R
+import androidx.compose.ui.res.stringResource
+import tv.own.owntv.core.R as CoreR
 import tv.own.owntv.core.mip.MipException
 import tv.own.owntv.core.mip.MipService
 import tv.own.owntv.ui.stage.StageButton
@@ -55,6 +56,10 @@ private fun askText(ctx: Context, title: String, password: Boolean, initial: Str
     input.requestFocus()
 }
 
+private const val EMPTY = "—"
+private const val MASK = "•"
+private const val DEVICE = "TV"
+
 /** The only way into MIP Player: the login and password the operator created in the panel. */
 @Composable
 fun MipLoginScreen(modifier: Modifier = Modifier) {
@@ -65,6 +70,11 @@ fun MipLoginScreen(modifier: Modifier = Modifier) {
     var password by remember { mutableStateOf("") }
     var error by remember { mutableStateOf<String?>(null) }
     var busy by remember { mutableStateOf(false) }
+    val loginLabel = stringResource(CoreR.string.mip_login_label)
+    val passLabel = stringResource(CoreR.string.mip_password_label)
+    val errEmpty = stringResource(CoreR.string.mip_err_empty)
+    val errNetwork = stringResource(CoreR.string.mip_err_network)
+    val errFailed = stringResource(CoreR.string.mip_err_failed)
     val first = remember { FocusRequester() }
     LaunchedEffect(Unit) { runCatching { first.requestFocus() } }
 
@@ -74,21 +84,21 @@ fun MipLoginScreen(modifier: Modifier = Modifier) {
             verticalArrangement = Arrangement.spacedBy(14.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Image(painterResource(R.drawable.mip_banner), contentDescription = "MIP Player", modifier = Modifier.height(110.dp), contentScale = ContentScale.Fit)
-            Text("Вход", style = stageText(36, 800), color = StageColors.Text)
-            Text("Введите логин и пароль, которые вам выдал оператор", style = stageText(20, 500), color = StageColors.Body)
-            StageButton("Логин: ${login.ifBlank { "—" }}", modifier = Modifier.focusRequester(first),
-                onClick = { askText(ctx, "Логин", false, login) { login = it.trim() } })
-            StageButton("Пароль: ${if (password.isEmpty()) "—" else "•".repeat(password.length)}",
-                onClick = { askText(ctx, "Пароль", true) { password = it } })
-            StageButton(if (busy) "Входим…" else "Войти", tinted = true, onClick = {
-                if (busy || login.isBlank() || password.isBlank()) { error = "Введите логин и пароль"; return@StageButton }
+            Image(painterResource(tv.own.owntv.R.drawable.mip_banner), contentDescription = stringResource(CoreR.string.mip_app_name), modifier = Modifier.height(110.dp), contentScale = ContentScale.Fit)
+            Text(stringResource(CoreR.string.mip_login_title), style = stageText(36, 800), color = StageColors.Text)
+            Text(stringResource(CoreR.string.mip_login_hint), style = stageText(20, 500), color = StageColors.Body)
+            StageButton(stringResource(CoreR.string.mip_field_value, loginLabel, login.ifBlank { EMPTY }), modifier = Modifier.focusRequester(first),
+                onClick = { askText(ctx, loginLabel, false, login) { login = it.trim() } })
+            StageButton(stringResource(CoreR.string.mip_field_value, passLabel, if (password.isEmpty()) EMPTY else MASK.repeat(password.length)),
+                onClick = { askText(ctx, passLabel, true) { password = it } })
+            StageButton(stringResource(if (busy) CoreR.string.mip_signing_in else CoreR.string.mip_sign_in), tinted = true, onClick = {
+                if (busy || login.isBlank() || password.isBlank()) { error = errEmpty; return@StageButton }
                 busy = true; error = null
                 scope.launch {
-                    runCatching { mip.login(login, password, (android.os.Build.MODEL ?: "TV").take(60)) }
+                    runCatching { mip.login(login, password, (android.os.Build.MODEL ?: DEVICE).take(60)) }
                         .onFailure {
-                            error = if (it is MipException && it.network) "Нет связи с сервером. Проверьте интернет."
-                            else (it as? MipException)?.message ?: "Не удалось войти"
+                            error = if (it is MipException && it.network) errNetwork
+                            else (it as? MipException)?.panelText?.ifBlank { null } ?: errFailed
                         }
                     busy = false
                 }
