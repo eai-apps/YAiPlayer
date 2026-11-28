@@ -115,8 +115,8 @@ class OwnTVApp : Application(), SingletonImageLoader.Factory, androidx.work.Conf
         // repository instead of relying on core to guess it, the same as the phone app does. A
         // default that happens to be right for one app is a trap for every other one.
         tv.own.owntv.core.CoreBuildInfo.releaseRepo = "eai-apps/YAiPlayer"
-        tv.own.owntv.core.CoreBuildInfo.releaseAssetMarker = if (BuildConfig.MIP) "MIPPlayer-TV" else "YAiPlayer-TV"
-        // MIP Player (operator edition) has its own fixed releases: «mip-release» (main) and «mip-beta» (beta).
+        tv.own.owntv.core.CoreBuildInfo.releaseAssetMarker = if (BuildConfig.MIP) "miptv-TV" else "YAiPlayer-TV"
+        // miptv (operator edition) has its own fixed releases: «mip-release» (main) and «mip-beta» (beta).
         if (BuildConfig.MIP) {
             tv.own.owntv.core.CoreBuildInfo.releaseTag = if (BuildConfig.BETA) "mip-beta" else "mip-release"
         } else if (BuildConfig.BETA) tv.own.owntv.core.CoreBuildInfo.releaseTag = "beta"

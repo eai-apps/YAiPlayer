@@ -1,4 +1,4 @@
-// MIP Player (operator edition of YAiPlayer). Original code.
+// miptv (operator edition of YAiPlayer). Original code.
 package tv.own.owntv.core.mip
 
 import kotlinx.coroutines.Dispatchers
@@ -29,7 +29,7 @@ class MipException(val network: Boolean, message: String) : Exception(message) {
 }
 
 /**
- * MIP Player has exactly one way in: the login and password the operator created in the panel (miptv). There are no
+ * miptv has exactly one way in: the login and password the operator created in the panel (miptv). There are no
  * guest and no own playlists or portals; the playlist and the Stalker portal come from the panel and are written into
  * one local profile, so the rest of the app (channels, guide, VOD, radio, remote) works exactly as in YAiPlayer.
  */

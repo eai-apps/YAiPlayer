@@ -152,7 +152,7 @@ fun MobileShell(
      *  - Only then "Who is watching?", and only when the gate is genuinely required: more than one
      *    profile, or a single one with a PIN.
      */
-    // MIP Player (operator edition): the only way in is the login and password from the panel.
+    // miptv (operator edition): the only way in is the login and password from the panel.
     val mipService: tv.own.owntv.core.mip.MipService? = if (tv.own.owntv.mobile.BuildConfig.MIP) koinInject() else null
     val mipScope = androidx.compose.runtime.rememberCoroutineScope()
     if (mipService != null) {

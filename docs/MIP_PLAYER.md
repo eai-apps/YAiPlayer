@@ -1,19 +1,19 @@
-# MIP Player — приложение оператора (miptv)
+# miptv — приложение оператора (miptv)
 
 **Что это.** Тот же YAiPlayer (одно ядро, один репозиторий), собранный как отдельное приложение для оператора:
-имя «MIP Player», логотип miptv (`/assets/logo.jpg` из mlist-bid/miptv), свой пакет и свой ключ подписи.
-Включается свойством сборки `-Powntv.mip=true` (`BuildConfig.MIP`); с `-Powntv.beta=true` получается «MIP Player Beta».
+имя «miptv», логотип miptv (`/assets/logo.jpg` из mlist-bid/miptv), свой пакет и свой ключ подписи.
+Включается свойством сборки `-Powntv.mip=true` (`BuildConfig.MIP`); с `-Powntv.beta=true` получается «miptv Beta».
 
 ## Две версии (решение владельца 28.11)
 | | Основная | Бета |
 |---|---|---|
 | Пакет | `com.mlist.miptv.tv` / `com.mlist.miptv.mobile` | то же + `.beta` (ставится рядом) |
-| Имя / значок | MIP Player | MIP Player Beta, на значке плашка BETA |
+| Имя / значок | miptv | miptv Beta, на значке плашка BETA |
 | Версия | 1.0, затем 1.0.1, 1.0.2… | 1.0, затем 1.0.1… (считается отдельно) |
 | Обновление | с GitHub, релиз `mip-release` | с GitHub, релиз `mip-beta` |
-| Ссылки | `…/releases/download/mip-release/MIPPlayer-TV.apk`, `MIPPlayer-Mobile.apk` | `…/releases/download/mip-beta/MIPPlayer-TV-beta.apk`, `MIPPlayer-Mobile-beta.apk` |
+| Ссылки | `…/releases/download/mip-release/miptv-TV.apk`, `miptv-Mobile.apk` | `…/releases/download/mip-beta/miptv-TV-beta.apk`, `miptv-Mobile-beta.apk` |
 | Кто ставит | абоненты оператора | оператор и несколько тестеров |
-| Сборка | автоматически при каждом пуше в `test/**` и `mip/**` | ТОЛЬКО вручную: Actions → «MIP Player» → Run workflow → channel=release, и только по слову владельца «перенеси бету оператора в релиз» |
+| Сборка | автоматически при каждом пуше в `test/**` и `mip/**` | ТОЛЬКО вручную: Actions → «miptv» → Run workflow → channel=release, и только по слову владельца «перенеси бету оператора в релиз» |
 
 Репозиторий для обоих: https://github.com/eai-apps/YAiPlayer (публичный, минуты Actions бесплатные). Релизы `mip-*` помечены
 «не последний» (`--latest=false`), поэтому обновление самого YAiPlayer их не видит.
@@ -21,12 +21,12 @@
 файлы лежат у владельца в `G:\evvant\Projects\SSH\mip-keys\` — НЕ в репозитории. Потерять ключ = приложения нельзя будет обновить.
 
 ## Правило «одно ядро» (владелец 28.11)
-Новая функция или исправление ошибки в YAiPlayer попадает и в MIP Player: бета-сборки YAiPlayer (`test/**`) и MIP Player собираются
-из одного и того же кода, поэтому всё, что делаем в плеере, автоматически идёт и в бету оператора. Из беты в основную MIP Player —
+Новая функция или исправление ошибки в YAiPlayer попадает и в miptv: бета-сборки YAiPlayer (`test/**`) и miptv собираются
+из одного и того же кода, поэтому всё, что делаем в плеере, автоматически идёт и в бету оператора. Из беты в основную miptv —
 только по слову владельца. Всё, что относится только к оператору, прячется за `BuildConfig.MIP` (`if (BuildConfig.MIP)`) и лежит в пакете
 `tv.own.owntv.mip` (свои файлы, чтобы при обновлении ядра не было конфликтов).
 
-## Что отличает MIP Player от YAiPlayer
+## Что отличает miptv от YAiPlayer
 1. Вход — ТОЛЬКО логин и пароль, которые оператор создал в панели miptv (панель: «Абоненты приложения»). Сервер: `POST https://panel.mlist.bid/api/app/login`
    (тело `{"login","password","device"}`), затем `GET /api/app/config`, `GET /api/app/notices`. Гостевого режима нет.
 2. Абонент НЕ добавляет свои плейлисты и порталы Stalker, адресов не видит и не вводит. После входа приложение само берёт у сервера

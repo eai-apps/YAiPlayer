@@ -462,7 +462,7 @@ open class MainActivity : ComponentActivity() {
 
                         Box(modifier = Modifier.fillMaxSize()) {
                         val profile = activeProfileId
-                        // MIP Player (operator edition): the only way in is the login and password from the panel.
+                        // miptv (operator edition): the only way in is the login and password from the panel.
                         val mipService: tv.own.owntv.core.mip.MipService? =
                             if (tv.own.owntv.BuildConfig.MIP) org.koin.compose.koinInject() else null
                         val mipSession = mipService?.session?.collectAsStateWithLifecycle()?.value

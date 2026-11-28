@@ -1,4 +1,4 @@
-// MIP Player (operator edition of YAiPlayer). Original code.
+// miptv (operator edition of YAiPlayer). Original code.
 package tv.own.owntv.core.mip
 
 import android.content.Context

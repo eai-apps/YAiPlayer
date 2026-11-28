@@ -1,4 +1,4 @@
-// MIP Player (operator edition of YAiPlayer). Original code. See docs/MIP_PLAYER.md.
+// miptv (operator edition of YAiPlayer). Original code. See docs/MIP_PLAYER.md.
 package tv.own.owntv.mobile.ui.mip
 
 import androidx.compose.foundation.Image
@@ -39,7 +39,7 @@ import tv.own.owntv.mobile.R
 
 private const val DEVICE = "Phone"
 
-/** The only way into MIP Player: the login and password the operator created in the panel. */
+/** The only way into miptv: the login and password the operator created in the panel. */
 @Composable
 fun MipLoginScreen(modifier: Modifier = Modifier) {
     val mip: MipService = koinInject()

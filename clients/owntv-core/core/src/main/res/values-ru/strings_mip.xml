@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- MIP Player (operator edition): вход по логину и паролю из панели. См. docs/MIP_PLAYER.md. -->
+<!-- miptv (operator edition): вход по логину и паролю из панели. См. docs/MIP_PLAYER.md. -->
 <resources>
-    <string name="mip_app_name">MIP Player</string>
+    <string name="mip_app_name">miptv</string>
     <string name="mip_profile_name">MIP</string>
     <string name="mip_source_playlist">Плейлист</string>
     <string name="mip_source_portal">Видеоклуб</string>

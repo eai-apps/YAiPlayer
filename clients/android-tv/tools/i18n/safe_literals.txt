@@ -36,7 +36,6 @@
 1	performance	app/src/main/java/tv/own/owntv/MainActivity.kt	profile-id-loaded
 1	performance	app/src/main/java/tv/own/owntv/MainActivity.kt	profiles-loaded
 2	log	app/src/main/java/tv/own/owntv/OwnTVApp.kt	DEPRECATION
-1	technical	app/src/main/java/tv/own/owntv/OwnTVApp.kt	MIPPlayer-TV
 1	technical	app/src/main/java/tv/own/owntv/OwnTVApp.kt	YAiPlayer-TV
 1	technical	app/src/main/java/tv/own/owntv/OwnTVApp.kt	beta
 1	technical	app/src/main/java/tv/own/owntv/OwnTVApp.kt	eai-apps/YAiPlayer
@@ -45,6 +44,7 @@
 1	log	app/src/main/java/tv/own/owntv/OwnTVApp.kt	memory trim level=$level; ${tv.own.owntv.core.util.MainThreadWatchdog.memory(this)}
 1	technical	app/src/main/java/tv/own/owntv/OwnTVApp.kt	mip-beta
 1	technical	app/src/main/java/tv/own/owntv/OwnTVApp.kt	mip-release
+1	technical	app/src/main/java/tv/own/owntv/OwnTVApp.kt	miptv-TV
 3	empty	app/src/main/java/tv/own/owntv/core/i18n/LocalizedContent.kt	\0
 1	empty	app/src/main/java/tv/own/owntv/extras/categories/CategoriesVisibilityDialog.kt	\0
 3	empty	app/src/main/java/tv/own/owntv/extras/remote/PhoneRemoteSettingsScreen.kt	\0

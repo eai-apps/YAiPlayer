@@ -431,7 +431,7 @@ val dataModule = module {
             settings = get(),
         )
     }
-    // MIP Player (operator edition): login + password from the panel are the only way in (docs/MIP_PLAYER.md).
+    // miptv (operator edition): login + password from the panel are the only way in (docs/MIP_PLAYER.md).
     single { tv.own.owntv.core.mip.MipStore(androidContext()) }
     single {
         tv.own.owntv.core.mip.MipService(

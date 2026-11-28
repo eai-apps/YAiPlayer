@@ -1,4 +1,4 @@
-// MIP Player (operator edition of YAiPlayer). Original code. See docs/MIP_PLAYER.md.
+// miptv (operator edition of YAiPlayer). Original code. See docs/MIP_PLAYER.md.
 package tv.own.owntv.features.mip
 
 import android.app.AlertDialog
@@ -60,7 +60,7 @@ private const val EMPTY = "—"
 private const val MASK = "•"
 private const val DEVICE = "TV"
 
-/** The only way into MIP Player: the login and password the operator created in the panel. */
+/** The only way into miptv: the login and password the operator created in the panel. */
 @Composable
 fun MipLoginScreen(modifier: Modifier = Modifier) {
     val mip: MipService = koinInject()
