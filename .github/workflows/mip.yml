@@ -1,0 +1,163 @@
+name: MIP Player - operator edition (beta and main)
+
+# Owner 28.11: «MIP Player» is the SAME player (one core) as a separate edition for the operator miptv:
+# login + password from the operator's panel only, no guest, no own playlists/portals; radio and remote stay.
+# Two channels with permanent links, installable NEXT TO each other (different package names):
+#   BETA  (every push to test/** and mip/** — the same branches as the YAiPlayer beta, so every feature and fix reaches
+#          MIP Player in the same build; operator and testers):
+#     https://github.com/eai-apps/YAiPlayer/releases/download/mip-beta/MIPPlayer-TV-beta.apk
+#     https://github.com/eai-apps/YAiPlayer/releases/download/mip-beta/MIPPlayer-Mobile-beta.apk
+#   MAIN  (ONLY by hand: Actions → «MIP Player» → Run workflow → channel=release, run from main, and ONLY when the
+#          owner says «перенеси бету оператора в релиз»):
+#     https://github.com/eai-apps/YAiPlayer/releases/download/mip-release/MIPPlayer-TV.apk
+#     https://github.com/eai-apps/YAiPlayer/releases/download/mip-release/MIPPlayer-Mobile.apk
+# Both update themselves from their own release (CoreBuildInfo.releaseTag = mip-beta / mip-release). The version is
+# the release NAME: 1.0, 1.0.1, 1.0.2… (beta and main count separately). Signed with its own key (secrets MIP_*),
+# so it never mixes with YAiPlayer. Notes shown in the app = docs/MIP_NOTES.md (beta) / docs/MIP_RELEASE_NOTES.md (main).
+
+on:
+  push:
+    branches: ['test/**', 'mip/**']
+    paths:
+      - 'clients/android-tv/**'
+      - 'clients/android-mobile/**'
+      - 'clients/owntv-core/**'
+      - '.github/workflows/mip.yml'
+      - 'docs/MIP_NOTES.md'
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: 'beta или release (release — только по слову владельца)'
+        required: true
+        default: 'beta'
+        type: choice
+        options: [beta, release]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: mip-${{ github.event.inputs.channel || 'beta' }}
+  cancel-in-progress: true
+
+jobs:
+  number:
+    runs-on: ubuntu-latest
+    outputs:
+      channel: ${{ steps.n.outputs.channel }}
+      tag: ${{ steps.n.outputs.tag }}
+      name: ${{ steps.n.outputs.name }}
+    steps:
+      - id: n
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          channel="${{ github.event.inputs.channel || 'beta' }}"
+          if [ "$channel" = "release" ]; then tag=mip-release; else tag=mip-beta; fi
+          cur=$(gh release view "$tag" --repo "${{ github.repository }}" --json name --jq .name 2>/dev/null || true)
+          # 1.0 → 1.0.1 → 1.0.2 …
+          if [[ "$cur" =~ ^1\.0\.([0-9]+)$ ]]; then name="1.0.$((BASH_REMATCH[1] + 1))"
+          elif [[ "$cur" == "1.0" ]]; then name="1.0.1"
+          else name="1.0"; fi
+          echo "channel=$channel" >> "$GITHUB_OUTPUT"; echo "tag=$tag" >> "$GITHUB_OUTPUT"; echo "name=$name" >> "$GITHUB_OUTPUT"
+          echo "MIP Player $channel: $name (было: $cur)"
+
+  build:
+    needs: number
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - app: android-tv
+            name: TV
+          - app: android-mobile
+            name: Mobile
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+      - uses: actions/setup-java@v4
+        id: jdk17
+        if: matrix.app == 'android-mobile'
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Accept SDK licenses
+        run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
+      - name: Restore MIP signing key
+        run: |
+          echo "${{ secrets.MIP_KEYSTORE_BASE64 }}" | base64 -d > "$RUNNER_TEMP/mip-release.jks"
+          test -s "$RUNNER_TEMP/mip-release.jks" || { echo "::error::Секрет MIP_KEYSTORE_BASE64 не задан (см. G:\\evvant\\Projects\\SSH\\mip-keys\\SECRETS.txt)"; exit 1; }
+      - name: TV launcher for «Ускорь телевизор»
+        if: matrix.app == 'android-mobile'
+        working-directory: clients/tv-launcher
+        env:
+          JAVA_HOME: ${{ steps.jdk17.outputs.path }}
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:assembleRelease --no-daemon --stacktrace
+          mkdir -p ../android-mobile/app/src/main/assets/tvoptimizer
+          cp app/build/outputs/apk/release/app-release.apk ../android-mobile/app/src/main/assets/tvoptimizer/launcher.apk
+      - name: Build signed MIP Player
+        working-directory: clients/${{ matrix.app }}
+        env:
+          VERSION_CODE: ${{ github.run_number }}
+          VERSION_NAME: ${{ needs.number.outputs.name }}
+          KEYSTORE_PASSWORD: ${{ secrets.MIP_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.MIP_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.MIP_KEY_PASSWORD }}
+        run: |
+          export KEYSTORE_FILE="$RUNNER_TEMP/mip-release.jks"
+          chmod +x gradlew
+          beta=false; [ "${{ needs.number.outputs.channel }}" = "beta" ] && beta=true
+          ./gradlew :app:assembleStandardRelease -Powntv.mip=true -Powntv.beta=$beta -Powntv.corePath=${GITHUB_WORKSPACE}/clients/owntv-core --no-daemon --stacktrace
+      - name: Collect APK
+        run: |
+          mkdir -p out
+          suffix=""; [ "${{ needs.number.outputs.channel }}" = "beta" ] && suffix="-beta"
+          apk=$(ls clients/${{ matrix.app }}/app/build/outputs/apk/standard/release/*.apk | head -n1)
+          cp "$apk" "out/MIPPlayer-${{ matrix.name }}${suffix}.apk"
+          bt=$(ls -d $ANDROID_HOME/build-tools/* | sort -V | tail -n1)
+          "$bt/aapt2" dump badging "out/MIPPlayer-${{ matrix.name }}${suffix}.apk" | grep -E "^package|application-label:" | head -3
+          "$bt/apksigner" verify --print-certs "out/MIPPlayer-${{ matrix.name }}${suffix}.apk" | head -3
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mip-${{ matrix.name }}
+          path: out/*.apk
+
+  publish:
+    needs: [number, build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: docs
+          sparse-checkout-cone-mode: true
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Publish to the permanent release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          ls -l dist
+          tag="${{ needs.number.outputs.tag }}"; name="${{ needs.number.outputs.name }}"
+          if [ "${{ needs.number.outputs.channel }}" = "release" ]; then file=docs/MIP_RELEASE_NOTES.md; flags=""; else file=docs/MIP_NOTES.md; flags="--prerelease"; fi
+          [ -f "$file" ] || file=docs/MIP_NOTES.md
+          # What the in-app update notice shows: «Добавлено / Исправлено» (owner: like YAiPlayer)
+          notes="$(cat "$file")"
+          if ! gh release view "$tag" --repo "$REPO" >/dev/null 2>&1; then
+            gh release create "$tag" --repo "$REPO" $flags --latest=false --target "$GITHUB_SHA" --title "$name" --notes "$notes" dist/*.apk
+          else
+            gh release upload "$tag" --repo "$REPO" --clobber dist/*.apk
+            gh release edit "$tag" --repo "$REPO" $flags --latest=false --title "$name" --notes "$notes"
+          fi
