@@ -7,7 +7,7 @@ name: miptv - operator edition (beta and main)
 #          miptv in the same build; operator and testers):
 #     https://github.com/eai-apps/YAiPlayer/releases/download/mip-beta/miptv-TV-beta.apk
 #     https://github.com/eai-apps/YAiPlayer/releases/download/mip-beta/miptv-Mobile-beta.apk
-#   MAIN  (ONLY by hand: Actions → «miptv» → Run workflow → channel=release, run from main, and ONLY when the
+#   MAIN  (ONLY by hand: Actions → «miptv» → Run workflow → channel=release, or by pushing a branch mip-release/*, and ONLY when the
 #          owner says «перенеси бету оператора в релиз»):
 #     https://github.com/eai-apps/YAiPlayer/releases/download/mip-release/miptv-TV.apk
 #     https://github.com/eai-apps/YAiPlayer/releases/download/mip-release/miptv-Mobile.apk
@@ -17,13 +17,14 @@ name: miptv - operator edition (beta and main)
 
 on:
   push:
-    branches: ['test/**', 'mip/**']
+    branches: ['test/**', 'mip/**', 'mip-release/**']
     paths:
       - 'clients/android-tv/**'
       - 'clients/android-mobile/**'
       - 'clients/owntv-core/**'
       - '.github/workflows/mip.yml'
       - 'docs/MIP_NOTES.md'
+      - 'docs/MIP_RELEASE_NOTES.md'
   workflow_dispatch:
     inputs:
       channel:
@@ -37,7 +38,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: mip-${{ github.event.inputs.channel || 'beta' }}
+  group: mip-${{ github.event.inputs.channel || (startsWith(github.ref_name, 'mip-release/') && 'release') || 'beta' }}
   cancel-in-progress: true
 
 jobs:
@@ -53,6 +54,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           channel="${{ github.event.inputs.channel || 'beta' }}"
+          # Owner 28.11: the main (release) build can also be started by pushing a branch named mip-release/<anything>
+          # (the gh token of the assistant cannot press «Run workflow»). Only on the owner's word «перенеси бету оператора в релиз».
+          case "$GITHUB_REF_NAME" in mip-release/*) channel=release ;; esac
           if [ "$channel" = "release" ]; then tag=mip-release; else tag=mip-beta; fi
           cur=$(gh release view "$tag" --repo "${{ github.repository }}" --json name --jq .name 2>/dev/null || true)
           # 1.0 → 1.0.1 → 1.0.2 …

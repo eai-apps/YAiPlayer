@@ -173,6 +173,7 @@ fun BrandLockup(
     markSize: Int = 36,
     stacked: Boolean = false,
 ) {
+    if (tv.own.owntv.BuildConfig.MIP) { tv.own.owntv.features.mip.MipLockup(markSize, stacked, modifier); return }
     val icon = rememberAppliedIcon()
     val parts = @Composable {
         BrandMark(icon, markSize.dp)

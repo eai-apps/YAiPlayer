@@ -5,6 +5,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
@@ -72,7 +73,7 @@ fun MipLoginScreen(modifier: Modifier = Modifier) {
             verticalArrangement = Arrangement.spacedBy(14.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Image(painterResource(R.mipmap.mip_icon), contentDescription = stringResource(CoreR.string.mip_app_name), modifier = Modifier.size(96.dp))
+            Image(painterResource(R.drawable.mip_logo), contentDescription = stringResource(CoreR.string.mip_app_name), modifier = Modifier.height(96.dp), contentScale = androidx.compose.ui.layout.ContentScale.Fit)
             Text(stringResource(CoreR.string.mip_app_name), style = MaterialTheme.typography.headlineMedium)
             Text(stringResource(CoreR.string.mip_login_hint), style = MaterialTheme.typography.bodyMedium)
             OutlinedTextField(

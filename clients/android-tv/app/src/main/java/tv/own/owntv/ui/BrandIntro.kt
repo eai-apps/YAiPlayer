@@ -48,6 +48,8 @@ private object BrandIntroState { var played = false }
  */
 @Composable
 fun BrandIntro(enabled: Boolean, modifier: Modifier = Modifier) {
+    // miptv (operator edition): its own launch animation, no YAiPlayer anywhere.
+    if (tv.own.owntv.BuildConfig.MIP) { tv.own.owntv.features.mip.MipBrandIntro(enabled, tv.own.owntv.BuildConfig.BETA, modifier); return }
     var visible by remember { mutableStateOf(enabled && !BrandIntroState.played) }
     if (!visible) return
     val spin = remember { Animatable(-200f) }
@@ -123,6 +125,7 @@ fun BrandIntro(enabled: Boolean, modifier: Modifier = Modifier) {
 /** The YAi logo as a small flat mark: violet tile, white play triangle, cyan dot. */
 @Composable
 fun YaiLogoMark(size: androidx.compose.ui.unit.Dp, modifier: Modifier = Modifier) {
+    if (tv.own.owntv.BuildConfig.MIP) { tv.own.owntv.features.mip.MipMark(size, modifier); return }
     Canvas(modifier.size(size)) {
         val u = this.size.minDimension / 56f
         drawRoundRect(Color(0xFF5B3FD6), cornerRadius = CornerRadius(13.5f * u, 13.5f * u), size = this.size)
@@ -141,7 +144,7 @@ fun YaiBadge(modifier: Modifier = Modifier, scale: Float = 1f, extra: String? = 
         YaiLogoMark((36 * scale).dp)
         androidx.compose.foundation.layout.Spacer(Modifier.width((10 * scale).dp))
         Column {
-            BasicText("YAiPlayer", style = TextStyle(color = Color.White, fontSize = (17 * scale).sp, fontWeight = FontWeight.Bold))
+            BasicText(if (tv.own.owntv.BuildConfig.MIP) "miptv" else "YAiPlayer", style = TextStyle(color = Color.White, fontSize = (17 * scale).sp, fontWeight = FontWeight.Bold))
             BasicText(
                 "v" + androidx.compose.ui.platform.LocalContext.current.let { c ->
                     runCatching { c.packageManager.getPackageInfo(c.packageName, 0).versionName }.getOrNull().orEmpty()

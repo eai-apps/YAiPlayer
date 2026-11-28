@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="mk" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#8B5CFF"/>
+      <stop offset="0.5" stop-color="#FF3D9A"/>
+      <stop offset="1" stop-color="#FFA24A"/>
+    </linearGradient>
+    <linearGradient id="scr" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#241A6B"/>
+      <stop offset="1" stop-color="#0E1030"/>
+    </linearGradient>
+  </defs>
+  <!-- antennas -->
+  <path d="M50 32 L34 10 M50 32 L66 10" stroke="url(#mk)" stroke-width="6" stroke-linecap="round" fill="none"/>
+  <!-- body -->
+  <rect x="9" y="30" width="82" height="60" rx="19" fill="url(#mk)"/>
+  <!-- screen -->
+  <rect x="19" y="40" width="62" height="40" rx="11" fill="url(#scr)"/>
+  <!-- play -->
+  <path d="M42 50.5 L42 69.5 Q42 72 44.3 70.8 L61 61 Q63 60 61 59 L44.3 49.2 Q42 48 42 50.5 Z" fill="#FFFFFF"/>
+</svg>

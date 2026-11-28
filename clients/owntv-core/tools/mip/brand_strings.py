@@ -9,6 +9,7 @@ import shutil
 import sys
 from pathlib import Path
 
+HERE = Path(__file__).resolve().parent
 CLIENTS = Path(__file__).resolve().parents[3]
 SOURCES = [CLIENTS / "owntv-core/core/src/main/res", CLIENTS / "android-tv/app/src/main/res", CLIENTS / "android-mobile/app/src/main/res", CLIENTS / "android-tv/app/src/radio/res", CLIENTS / "android-mobile/app/src/radio/res"]
 TARGETS = [CLIENTS / "android-tv/app/src/mip/res", CLIENTS / "android-mobile/app/src/mip/res"]
@@ -47,9 +48,10 @@ def main() -> int:
             out = target / values
             out.mkdir(parents=True, exist_ok=True)
             (out / "strings_mip_brand.xml").write_text(HEADER + "".join(items.values()) + "</resources>\n", encoding="utf-8")
-        # the splash screen: the miptv logo instead of the YAi mark
-        icon = next((p for p in [target.parent.parent / "main/res/mipmap-xxxhdpi/mip_icon.png"] if p.exists()), None)
-        if icon:
+        # the splash screen: the miptv mark (transparent, inside the middle third so the round system mask never cuts it;
+        # drawn by tools/mip/make_brand.py) instead of the YAi mark
+        icon = HERE / "assets/mip_splash.png"
+        if icon.exists():
             (target / "drawable").mkdir(parents=True, exist_ok=True)
             shutil.copy(icon, target / "drawable/yai_splash_icon.png")
     print("miptv brand overrides:", {k: len(v) for k, v in per_dir.items() if len(v) > 0 and k in ("values", "values-ru", "values-uk")}, "dirs:", len(per_dir))

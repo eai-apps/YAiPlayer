@@ -10,6 +10,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -80,18 +82,21 @@ fun MipLoginScreen(modifier: Modifier = Modifier) {
 
     Box(modifier.fillMaxSize().background(tv.own.owntv.ui.theme.LocalStagePalette.current.page), contentAlignment = Alignment.Center) {
         Column(
-            Modifier.width(560.dp).padding(vertical = 32.dp),
+            Modifier.width(900.dp).padding(vertical = 32.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Image(painterResource(tv.own.owntv.R.drawable.mip_banner), contentDescription = stringResource(CoreR.string.mip_app_name), modifier = Modifier.height(110.dp), contentScale = ContentScale.Fit)
+            Image(painterResource(tv.own.owntv.R.drawable.mip_logo), contentDescription = stringResource(CoreR.string.mip_app_name), modifier = Modifier.height(130.dp), contentScale = ContentScale.Fit)
             Text(stringResource(CoreR.string.mip_login_title), style = stageText(36, 800), color = StageColors.Text)
             Text(stringResource(CoreR.string.mip_login_hint), style = stageText(20, 500), color = StageColors.Body)
-            StageButton(stringResource(CoreR.string.mip_field_value, loginLabel, login.ifBlank { EMPTY }), modifier = Modifier.focusRequester(first),
-                onClick = { askText(ctx, loginLabel, false, login) { login = it.trim() } })
-            StageButton(stringResource(CoreR.string.mip_field_value, passLabel, if (password.isEmpty()) EMPTY else MASK.repeat(password.length)),
-                onClick = { askText(ctx, passLabel, true) { password = it } })
-            StageButton(stringResource(if (busy) CoreR.string.mip_signing_in else CoreR.string.mip_sign_in), tinted = true, onClick = {
+            // Owner 28.11: the login on the LEFT and the password on the RIGHT, side by side (not one under the other).
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(20.dp)) {
+                StageButton(stringResource(CoreR.string.mip_field_value, loginLabel, login.ifBlank { EMPTY }), modifier = Modifier.weight(1f).focusRequester(first),
+                    onClick = { askText(ctx, loginLabel, false, login) { login = it.trim() } })
+                StageButton(stringResource(CoreR.string.mip_field_value, passLabel, if (password.isEmpty()) EMPTY else MASK.repeat(password.length)), modifier = Modifier.weight(1f),
+                    onClick = { askText(ctx, passLabel, true) { password = it } })
+            }
+            StageButton(stringResource(if (busy) CoreR.string.mip_signing_in else CoreR.string.mip_sign_in), modifier = Modifier.width(360.dp), tinted = true, onClick = {
                 if (busy || login.isBlank() || password.isBlank()) { error = errEmpty; return@StageButton }
                 busy = true; error = null
                 scope.launch {

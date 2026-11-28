@@ -100,7 +100,7 @@ private val YAIPLAYER_TV_PACKAGE = if (tv.own.owntv.mobile.BuildConfig.BETA) "ya
 private data class AppShortcut(val label: String, val target: String, val color: Color)
 
 private val APP_SHORTCUTS = listOf(
-    AppShortcut("YAiPlayer", YAIPLAYER_TV_PACKAGE, Color(0xFF7C4DFF)),
+    AppShortcut(if (tv.own.owntv.mobile.BuildConfig.MIP) "miptv" else "YAiPlayer", if (tv.own.owntv.mobile.BuildConfig.MIP) "com.mlist.miptv.tv" else YAIPLAYER_TV_PACKAGE, Color(0xFF7C4DFF)),
     AppShortcut("YouTube", "https://www.youtube.com", Color(0xFFE53935)),
     AppShortcut("Netflix", "https://www.netflix.com/title", Color(0xFFB71C1C)),
     AppShortcut("Prime Video", "https://app.primevideo.com", Color(0xFF1E88E5)),
