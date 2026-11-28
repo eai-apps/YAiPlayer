@@ -38,6 +38,14 @@ val playStore = (findProperty("owntv.playStore") as String?)?.toBoolean() == tru
  */
 val beta = (findProperty("owntv.beta") as String?)?.toBoolean() == true
 
+/**
+ * -Powntv.mip=true: «MIP Player» — the operator (miptv) edition of this app (owner 28.11): its own package
+ * (com.mlist.miptv.*) and name, login + password only (no guest, no own playlists/portals), self-updates from the
+ * GitHub releases «mip-release» / «mip-beta» of this repository. Combined with -Powntv.beta=true it is «MIP Player Beta».
+ * One core, two editions: every feature/fix of the player reaches MIP Player through the same build (docs/MIP_PLAYER.md).
+ */
+val mip = (findProperty("owntv.mip") as String?)?.toBoolean() == true
+
 android {
     namespace = "tv.own.owntv"
     compileSdk {
@@ -55,21 +63,22 @@ android {
     defaultConfig {
         buildConfigField("boolean", "SELF_UPDATE", (!playStore).toString())
         buildConfigField("boolean", "BETA", beta.toString())
-        manifestPlaceholders["appLabel"] = if (beta) "YAiPlayer Beta" else "@string/app_name"
+        buildConfigField("boolean", "MIP", mip.toString())
+        manifestPlaceholders["appLabel"] = if (mip) (if (beta) "MIP Player Beta" else "MIP Player") else if (beta) "YAiPlayer Beta" else "@string/app_name"
         // Beta build: one launcher icon and banner with BETA in graffiti for every colour (owner 23.11,
         // tools/brand/make_beta_icon.py); the normal build keeps each colour's own.
         for (colour in listOf("eggshell", "petrol", "sunflower", "cobalt", "tomato", "board", "olive", "olive_cream", "pixel")) {
-            manifestPlaceholders["icon_$colour"] = if (beta) "@mipmap/yai_beta_icon" else "@mipmap/owntv_icon_$colour"
-            manifestPlaceholders["banner_$colour"] = if (beta) "@drawable/yai_banner_beta" else "@drawable/owntv_banner_$colour"
+            manifestPlaceholders["icon_$colour"] = if (mip) (if (beta) "@mipmap/mip_icon_beta" else "@mipmap/mip_icon") else if (beta) "@mipmap/yai_beta_icon" else "@mipmap/owntv_icon_$colour"
+            manifestPlaceholders["banner_$colour"] = if (mip) (if (beta) "@drawable/mip_banner_beta" else "@drawable/mip_banner") else if (beta) "@drawable/yai_banner_beta" else "@drawable/owntv_banner_$colour"
         }
-        manifestPlaceholders["launchScheme"] = if (beta) "yaiplayer-beta" else "yaiplayer"
+        manifestPlaceholders["launchScheme"] = if (mip) (if (beta) "mipplayer-beta" else "mipplayer") else if (beta) "yaiplayer-beta" else "yaiplayer"
         buildConfigField("boolean", "RADIO", (!playStore).toString())
         // The radio's background service (RadioPlaybackService) exists only in the build with the radio.
         // TV: the radio never plays in the background (owner 12.11), so its background service stays off.
         manifestPlaceholders["radioEnabled"] = "false"
         manifestPlaceholders["installPermission"] =
             if (playStore) "android.permission.INTERNET" else "android.permission.REQUEST_INSTALL_PACKAGES"
-        applicationId = "com.yai.iptv.player.tv"
+        applicationId = if (mip) "com.mlist.miptv.tv" else "com.yai.iptv.player.tv"
         if (beta) applicationIdSuffix = ".beta"
         minSdk = 26
         targetSdk = 36

@@ -101,8 +101,11 @@ class OwnTVMobileApp : Application(), androidx.work.Configuration.Provider {
         // would offer OwnTV-v*.apk — a different applicationId, which the installer refuses after
         // the whole download.
         CoreBuildInfo.releaseRepo = "eai-apps/YAiPlayer"
-        CoreBuildInfo.releaseAssetMarker = "YAiPlayer-Mobile"
-        if (BuildConfig.BETA) CoreBuildInfo.releaseTag = "beta"
+        CoreBuildInfo.releaseAssetMarker = if (BuildConfig.MIP) "MIPPlayer-Mobile" else "YAiPlayer-Mobile"
+        // MIP Player (operator edition) has its own fixed releases: «mip-release» (main) and «mip-beta» (beta).
+        if (BuildConfig.MIP) {
+            CoreBuildInfo.releaseTag = if (BuildConfig.BETA) "mip-beta" else "mip-release"
+        } else if (BuildConfig.BETA) CoreBuildInfo.releaseTag = "beta"
         CoreBuildInfo.livePreviewDefault = false
         // A phone runs on battery: automatic refreshes pause off screen and the background check waits for a charger.
         CoreBuildInfo.batteryPowered = true
